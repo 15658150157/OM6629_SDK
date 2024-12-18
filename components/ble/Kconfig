@@ -1,0 +1,20 @@
+menuconfig BLE
+    bool "Bluetooth Low Energy Stack"
+    select EVT
+    select NVDS
+    select PM
+    default y
+
+if BLE
+    orsource "controller/Kconfig"
+
+    config BLE_HOST
+        bool "BLE Host stack"
+        default y
+    config BLE_MESH
+        bool "BLE Mesh"
+        depends on BLE_CONTROLLER
+        depends on BLE_HOST
+        depends on FREE_RTOS
+        default n
+endif

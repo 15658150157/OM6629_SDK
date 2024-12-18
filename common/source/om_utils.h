@@ -1,0 +1,207 @@
+/* ----------------------------------------------------------------------------
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ * -------------------------------------------------------------------------- */
+
+/**
+ * @defgroup OM_COMMON OM_COMMON
+ * @ingroup  common
+ * @brief    COMMON Typedefs
+ * @details  COMMON Typedefs
+ *
+ * @version
+ * Version 1.0
+ *  - Initial release
+ *
+ * @{
+ */
+
+
+#ifndef __OM_UTILS_H
+#define __OM_UTILS_H
+
+
+/*******************************************************************************
+ * INCLUDES
+ */
+#include <stdint.h>
+#include <string.h>
+#include "cmsis_compiler.h"
+#include "autoconf.h"
+
+
+#ifdef  __cplusplus
+extern "C"
+{
+#endif
+
+
+/*******************************************************************************
+ * MACROS
+ */
+/**
+ *******************************************************************************
+ *  @brief Get member offset from struct or union data type
+ *
+ *  @param type_t        Struct or union data type
+ *  @param type_memmber  Member of struct or union data type
+ *
+ *  @return Offset from struct or union data type
+ *******************************************************************************
+ */
+#define OM_OFFSET(type_t, type_member)                   \
+    /*lint -save -e413 */                                \
+    ((uint32_t)(&(((type_t *)0)->type_member)))          \
+    /*lint –restore */
+
+/**
+ *******************************************************************************
+ *  @brief Get array size, array shall be a array type
+ *
+ *  @param array         Array type
+ *
+ *  @return array size
+ *******************************************************************************
+ */
+#define OM_ARRAY_SIZE(array)      ((unsigned)(sizeof(array)/sizeof((array)[0])))
+
+/**
+ *******************************************************************************
+ * @brief  The OM_ASSERT macro is used for function's parameters check.
+ * @param  expr: If expr is false, it calls om_assert_failed function
+ *         which reports the name of the source file and the source
+ *         line number of the call that failed.
+ *         If expr is true, it returns no value.
+ * @return None
+ *******************************************************************************
+ */
+#if (CONFIG_OM_ASSERT)
+#define OM_ASSERT(expr)   ((expr) ? (void)0U : om_assert_failed((char *)__FILE__, __LINE__))
+#define OM_ASSERT_WHILE(cond, expr)                                            \
+    if ((unsigned)(cond)) {                                                    \
+        ((expr) ? (void)0U : om_assert_failed((char *)__FILE__, __LINE__)); \
+    }
+
+extern void om_assert_failed(char *file, uint32_t line);
+#else
+#define OM_ASSERT(expr)                 ((void)0U)
+#define OM_ASSERT_WHILE(cond, expr)     ((void)0U)
+#endif  /* (CONFIG_OM_ASSERT) */
+
+#if defined(__GNUC__)
+/* A compile-time constant with the value 0. If `const_expr` is not a
+ * compile-time constant with a nonzero value, cause a compile-time error. */
+#define OM_STATIC_ASSERT( const_expr )                                         \
+    ( 0 && sizeof( struct { unsigned int STATIC_ASSERT : 1 - 2 * ! ( const_expr ); } ) )
+#endif
+
+/**
+ *******************************************************************************
+ *  @brief Align val to the nearest higher multiple of align, where align is a
+ *         power of 2(eg., 2, 4, 8, ... 2**n)
+ *
+ *  @param val   Value to align.
+ *  @param align Align, is a power of 2.
+ *
+ *  @return Aligned Value
+ *******************************************************************************
+ */
+#define OM_ALIGN_CEIL(val, align)    (((unsigned)((val) + ((align) - 1))) & (~((align) - 1)))
+
+/**
+ *******************************************************************************
+ *  @brief Align val to the nearest lower multiple of align, where align is a
+ *         power of 2(eg., 2, 4, 8, ... 2**n)
+ *
+ *  @param val    Value to align.
+ *  @param align  Align
+ *
+ *  @return Value aligned.
+ *******************************************************************************
+ */
+#define OM_ALIGN_FLOOR(val, align)    ((unsigned)(val) & (~((align) - 1)))
+
+/**
+ *******************************************************************************
+ *  @brief Check val is aligned, where align is a power of 2(eg., 2, 4, 8, ... 2**n)
+ *
+ *  @param val   Value to align.
+ *  @param align Align value, align range in [2, 4, 8, ...2**31, 0]
+ *
+ *  @return is aligned.
+ *******************************************************************************
+ */
+#define OM_IS_ALIGN(val, align)   (!((unsigned)(val) & ((unsigned)(align) - 1)))
+
+/*
+ * Detect GCC built-in byteswap routines
+ */
+#if defined(__GNUC__) && defined(__GNUC_PREREQ)
+#if __GNUC_PREREQ(4, 8)
+#define OM_BSWAP16 __builtin_bswap16
+#endif /* __GNUC_PREREQ(4,8) */
+#if __GNUC_PREREQ(4, 3)
+#define OM_BSWAP32 __builtin_bswap32
+#define OM_BSWAP64 __builtin_bswap64
+#endif /* __GNUC_PREREQ(4,3) */
+#endif /* defined(__GNUC__) && defined(__GNUC_PREREQ) */
+
+/*
+ * Detect Clang built-in byteswap routines
+ */
+#if defined(__clang__) && defined(__has_builtin)
+#if __has_builtin(__builtin_bswap16) && !defined(OM_BSWAP16)
+#define OM_BSWAP16 __builtin_bswap16
+#endif /* __has_builtin(__builtin_bswap16) */
+#if __has_builtin(__builtin_bswap32) && !defined(OM_BSWAP32)
+#define OM_BSWAP32 __builtin_bswap32
+#endif /* __has_builtin(__builtin_bswap32) */
+#if __has_builtin(__builtin_bswap64) && !defined(OM_BSWAP64)
+#define OM_BSWAP64 __builtin_bswap64
+#endif /* __has_builtin(__builtin_bswap64) */
+#endif /* defined(__clang__) && defined(__has_builtin) */
+
+/* Detect armcc built-in byteswap routine */
+#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 410000) && !defined(OM_BSWAP32)
+#if defined(__ARM_ACLE)  /* ARM Compiler 6 - earlier versions don't need a header */
+#include <arm_acle.h>
+#endif
+#define OM_BSWAP32 __rev
+#endif
+
+/* Detect IAR built-in byteswap routine */
+#if defined(__IAR_SYSTEMS_ICC__)
+#if defined(__ARM_ACLE)
+#include <arm_acle.h>
+#define OM_BSWAP16(x) ((uint16_t) __rev16((uint32_t) (x)))
+#define OM_BSWAP32 __rev
+#define OM_BSWAP64 __revll
+#endif
+#endif
+
+/* used for specify function/macro parameter need ALIGN to 2 Bytes */
+#ifdef __ALIGN2
+#error "redefine __ALIGN2"
+#else
+#define __ALIGN2
+#endif
+
+/* used for specify function/macro parameter need ALIGN to 4 Bytes */
+#ifdef __ALIGN4
+#error "redefine __ALIGN4"
+#else
+#define __ALIGN4
+#endif
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  /* __OM_UTILS_H */
+
+
+/** @} */

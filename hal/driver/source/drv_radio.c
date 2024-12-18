@@ -1,0 +1,282 @@
+/* ----------------------------------------------------------------------------
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ * -------------------------------------------------------------------------- */
+
+/**
+ * @defgroup DOC DOC
+ * @ingroup  DOCUMENT
+ * @brief    RADIO driver source file
+ * @details  RADIO driver source file
+ *
+ * @version
+ * Version 1.0
+ *  - Initial release
+ *
+ * @{
+ */
+
+
+/*******************************************************************************
+ * INCLUDES
+ */
+#include "RTE_driver.h"
+#if (RTE_RADIO)
+#include <stdint.h>
+#include "om_device.h"
+#include "om_driver.h"
+
+
+/*******************************************************************************
+ * LOCAL FUNCTIONS
+ */
+/**
+ *******************************************************************************
+ * @brief  drv rf init
+ *******************************************************************************
+ */
+void drv_rf_init(void)
+{
+    drv_rf_tx_power_set(false, RF_TX_POWER_NORMAL);
+    drv_calib_repair_init();
+    drv_calib_rf();
+}
+
+/**
+ *******************************************************************************
+ * @brief  rf txrx pin enable
+ *
+ * @param[in] enable  enable
+ * @param[in] pol  polarity, 0 or 1
+ *******************************************************************************
+ **/
+void drv_rf_txrx_pin_enable(bool enable, int pol)
+{
+    DRV_RCC_ANA_CLK_ENABLE();
+
+    REGW(&OM_DAIF->TRX_EXT_PD_CFG, MASK_2REG(DAIF_TX_EXT_PD_EN,0, DAIF_RX_EXT_PD_EN,0));
+
+    if (enable) {
+        // Digital issue: DAIF_TX_EXT_PD_POL REG must open follow clock
+        uint32_t clk_ens_save = OM_DAIF->CLK_ENS;
+        REGW1(&OM_DAIF->CLK_ENS, DAIF_PLL_CLK_REF_EN_MASK|DAIF_MAIN_FSM_CLK_EN_MASK);
+        uint32_t clk_cfg_save = OM_DAIF->CLK_CFG;
+        REGW1(&OM_DAIF->CLK_CFG, DAIF_XTAL32M_EN_CKO16M_DIG_MASK);
+        // setup pol
+        REGW(&OM_DAIF->TRX_EXT_PD_CFG, MASK_4REG(DAIF_TX_EXT_PD_POL,pol, DAIF_RX_EXT_PD_POL,pol, DAIF_TX_EXT_PD_TCFG,0, DAIF_RX_EXT_PD_TCFG,0));
+        // restore clock
+        OM_DAIF->CLK_ENS = clk_ens_save;
+        OM_DAIF->CLK_CFG = clk_cfg_save;
+
+        // Enable
+        REGW1(&OM_DAIF->TRX_EXT_PD_CFG, DAIF_TX_EXT_PD_EN_MASK | DAIF_RX_EXT_PD_EN_MASK);
+    }
+
+    DRV_RCC_ANA_CLK_RESTORE();
+}
+
+/**
+ *******************************************************************************
+ * @brief  rf carrier enable
+ *
+ * @param[in] enable  enable
+ * @param[in] freq  2402MHz ... 2480MHz, If set freq to 2402.123456MHZ, freq_channel = 2402, fractFreq = 0.123456
+ *******************************************************************************
+ **/
+void drv_rf_carrier_enable(bool enable, uint32_t freq, float fract_freq)
+{
+    if(enable) {
+        drv_pmu_ana_enable(enable, PMU_ANA_RF);
+        DRV_RCC_ANA_CLK_ENABLE();
+        // frequency
+        REGW(&OM_DAIF->FREQ_CFG0, MASK_2REG(DAIF_FREQ_REG_ME,1, DAIF_FREQ_REG_MO,freq));
+        if (fract_freq) {
+            REGW(&OM_DAIF->FREQ_CFG3, MASK_2REG(DAIF_FREQ_FRAC_REG, (uint32_t)(fract_freq * 0x3FFFFF), DAIF_FREQ_0P5_EN, 1));
+        } else {
+            REGW(&OM_DAIF->FREQ_CFG3, MASK_2REG(DAIF_FREQ_FRAC_REG, 0, DAIF_FREQ_0P5_EN, 0));
+        }
+
+        // SDM
+        REGW(&OM_DAIF->PLL_CTRL1, MASK_2REG(DAIF_DIGI_DIN_BYPASS, 1, DAIF_DIGI_DIN_REG, 0));
+//        REGW(&OM_DAIF->PLL_CTRL2, MASK_2REG(DAIF_DIN_SDM_TX_ME, 1, DAIF_DATA_SYNC_BYPASS, 1));
+
+        // do TX
+        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG,1, DAIF_RX_EN_MO,0, DAIF_TX_EN_MO,0));
+        DRV_DELAY_US(100);
+        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG,1, DAIF_RX_EN_MO,0, DAIF_TX_EN_MO,1));
+
+        DRV_RCC_ANA_CLK_RESTORE();
+    } else {
+        DRV_RCC_ANA_CLK_ENABLE();
+        REGW(&OM_DAIF->FREQ_CFG0, MASK_1REG(DAIF_FREQ_REG_ME,0));
+        REGW(&OM_DAIF->PLL_CTRL1, MASK_2REG(DAIF_DIGI_DIN_BYPASS, 0, DAIF_DIGI_DIN_REG, 0));
+//        REGW(&OM_DAIF->PLL_CTRL2, MASK_2REG(DAIF_DIN_SDM_TX_ME, 0, DAIF_DATA_SYNC_BYPASS, 0));
+        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG,1, DAIF_RX_EN_MO,0, DAIF_TX_EN_MO,0));
+//        REGW(&OM_DAIF->PD_CFG0, MASK_4REG(DAIF_PD_LDO_PA_ME,1, DAIF_PD_LDO_PA_MO,1,DAIF_PD_PA_ME,1,DAIF_PD_PA_MO,1));
+        DRV_RCC_ANA_CLK_RESTORE();
+
+        drv_pmu_ana_enable(enable, PMU_ANA_RF);
+    }
+}
+
+/**
+ *******************************************************************************
+ * @brief  rf single tone enable
+ *
+ * @param[in] enable  enable
+ * @param[in] freq  freq
+ * @param[in] payload  payload (0-255)
+ *******************************************************************************
+ */
+void drv_rf_single_tone_enable(bool enable, uint32_t freq, uint8_t payload)
+{
+    if (enable) {
+        DRV_RCC_CLOCK_ENABLE(RCC_CLK_2P4, 1U);
+        DRV_RCC_CLOCK_ENABLE(RCC_CLK_PHY, 1U);
+        drv_pmu_ana_enable(true, PMU_ANA_RF);
+        REGW1(&OM_24G->PKTCTRL0, OM24G_PKTCTRL0_MAC_SEL_MASK);
+
+        REGW0(&OM_PHY->TX_CTRL0, PHY_TX_CTRL0_BP_GAU_MASK);  //GFSK
+        REGW0(&OM_PHY->REG_PHY_RST_N, PHY_REG_PHY_RST_N_REG_PHY_RST_N_MASK);  //reset phy
+        REGW(&OM_24G->TESTCTRL, MASK_1REG(OM24G_CONT_WAVE, 1));
+        REGW(&OM_DAIF->FREQ_CFG0, MASK_2REG(DAIF_FREQ_REG_MO, freq, DAIF_FREQ_REG_ME, 1));
+        REGW(&OM_24G->TESTCTRL, MASK_1REG(OM24G_TEST_PAT_EN, 1));
+        REGW(&OM_24G->TESTCTRL, MASK_1REG(OM24G_TEST_PAT, payload));
+        // CE High
+        OM24G_CE_HIGH();
+    } else {
+        // CE Low
+        OM24G_CE_LOW();
+        // diable single tone
+        REGW1(&OM_PHY->REG_PHY_RST_N, PHY_REG_PHY_RST_N_REG_PHY_RST_N_MASK);  //reset phy
+        REGW(&OM_24G->TESTCTRL, MASK_1REG(OM24G_CONT_WAVE, 0));
+        REGW(&OM_24G->TESTCTRL, MASK_1REG(OM24G_TEST_PAT_EN, 0));
+
+        drv_pmu_ana_enable(false, PMU_ANA_RF);
+        REGW0(&OM_24G->PKTCTRL0, OM24G_PKTCTRL0_MAC_SEL_MASK);
+        DRV_RCC_CLOCK_ENABLE(RCC_CLK_2P4, 0U);
+        DRV_RCC_CLOCK_ENABLE(RCC_CLK_PHY, 0U);
+    }
+}
+
+/**
+ *******************************************************************************
+ * @brief  rf full rx enable
+ *
+ * @param[in] enable  enable
+ * @param[in] freq  2402MHz ... 2480MHz
+ *******************************************************************************
+ **/
+void drv_rf_full_rx_enable(bool enable, uint32_t freq)
+{
+    if (enable) {
+        drv_pmu_ana_enable(enable, PMU_ANA_RF);
+        DRV_RCC_ANA_CLK_ENABLE();
+        // frequency
+        REGW(&OM_DAIF->FREQ_CFG0, MASK_2REG(DAIF_FREQ_REG_ME,1, DAIF_FREQ_REG_MO,freq));
+        // Do RX
+        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG,1, DAIF_RX_EN_MO,0, DAIF_TX_EN_MO,0));
+        DRV_DELAY_US(100);
+        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG,1, DAIF_RX_EN_MO,1, DAIF_TX_EN_MO,0));
+        DRV_RCC_ANA_CLK_RESTORE();
+    } else {
+        DRV_RCC_ANA_CLK_ENABLE();
+        REGW(&OM_DAIF->FREQ_CFG0, MASK_1REG(DAIF_FREQ_REG_ME,0));
+        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG,0, DAIF_RX_EN_MO,0, DAIF_TX_EN_MO,0));
+        DRV_RCC_ANA_CLK_RESTORE();
+        drv_pmu_ana_enable(enable, PMU_ANA_RF);
+    }
+}
+
+/**
+ *******************************************************************************
+ * @brief  rf tx power set
+ *
+ * @param[in] power  power
+ *******************************************************************************
+ **/
+void drv_rf_tx_power_set(bool auto_ctrl_by_ble, rf_tx_power_t power)
+{
+    bool high_tx_power_mode = false;
+    uint32_t pmu_ldo_v1p2_vbat;
+    uint32_t pmu_dcdc_vout;
+
+    DRV_RCC_ANA_CLK_ENABLE();
+
+    if (auto_ctrl_by_ble) {
+        // DBG=1: MO_REG ctrl PA
+        // DBG=0: SEL ctrl PA
+        //   SEL=0: REG_TABLE ctrl PA
+        //   SEL=1: RW ctrl PA
+        REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_PA_DBG,0, DAIF_PA_GAIN_IDX_REG,1));
+    } else {
+        // FIXME: NOT 3DBM
+        if(power >= RF_TX_POWER_3DBM) {
+            switch(power) {
+                case RF_TX_POWER_8P5DBM:
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,1, DAIF_PA_GAIN_IDX_REG,18));
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + DRV_CALIB_REPAIR_DCDC_MAXDBM_DELTA;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + DRV_CALIB_REPAIR_LDO_MAXDBM_DELTA;
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_8DBM:
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,1, DAIF_PA_GAIN_IDX_REG,18));
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + DRV_CALIB_REPAIR_DCDC_8DBM_DELTA;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + DRV_CALIB_REPAIR_LDO_8DBM_DELTA;
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_7DBM:
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,1, DAIF_PA_GAIN_IDX_REG,18));
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + DRV_CALIB_REPAIR_DCDC_7DBM_DELTA;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + DRV_CALIB_REPAIR_LDO_7DBM_DELTA;
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_6DBM:
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,1, DAIF_PA_GAIN_IDX_REG,15));
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo;
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_5P5DBM:
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,1, DAIF_PA_GAIN_IDX_REG,13));
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo;
+                    high_tx_power_mode = true;
+                    break;
+
+                default:
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,0, DAIF_PA_GAIN_IDX_REG,power));
+                    break;
+            }
+        } else {
+            REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,0, DAIF_PA_GAIN_IDX_REG,power));
+        }
+    }
+
+    if (!high_tx_power_mode) {
+        if (drv_calib_repair_env.temperature > 70) {
+            pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + DRV_CALIB_REPAIR_DCDC_HIGHT_T_DELTA;
+            pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + DRV_CALIB_REPAIR_LDO_HIGHT_T_DELTA;
+        } else {
+            pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout;
+            pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo;
+        }
+    }
+
+    REGW(&OM_PMU->ANA_PD_1, MASK_1REG(PMU_ANA_PD_1_DCDC_VOUT, pmu_dcdc_vout));
+    REGW(&OM_PMU->ANA_PD, MASK_1REG(PMU_ANA_PD_PMU_LDO_ANA1P2_TRIM, pmu_ldo_v1p2_vbat));
+
+    DRV_RCC_ANA_CLK_RESTORE();
+}
+
+#endif  /* RTE_RADIO */
+
+
+/** @} */

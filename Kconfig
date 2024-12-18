@@ -1,0 +1,36 @@
+################################################################################
+## @File       Kconfig
+## @Brief      SDK configuration
+################################################################################
+
+mainmenu "SDK Configuration"
+
+
+#
+# System
+#
+menu 'System'
+config HARDWARE_VERSION
+    int "Hardware version(A1:1; A2:2; A3:3, ...)"
+    default 1
+endmenu
+
+#
+# BSP
+#
+rsource "bsp/Kconfig"
+
+#
+# components
+#
+rsource "components/Kconfig"
+
+#
+# hal
+#
+rsource "hal/Kconfig"
+
+#
+# RTOS
+#
+rsource "rtos/Kconfig"

@@ -1,0 +1,31 @@
+SDK Release Notes:
+
+--------------------------------------------------------------------------------
+20241218
+
+Version:
+    0.1.1146
+
+Changes:
+    1. 修复三线SPI在GPDMA模式存在接收数据错误的问题
+    2. 修复睡眠唤醒存在的问题：恢复shell，om_log component
+    3. 更新project下的copyright notice
+    4. 在SystemInit里关闭GPDMA/UART1/EFUSE/LCD等模块的时钟
+    5. 修改ecc的随机函数
+    6. 修复GPDMA分配握手信号存在的冲突问题
+    7. 修复其他已知问题
+
+Existing Bugs:
+    1. 三线SPI在GPDMA模式存在接收数据错误的问题
+
+--------------------------------------------------------------------------------
+20241127
+
+Version:
+    0.0.933
+
+Changes:
+    1. 内部测试版本
+
+Existing Bugs:
+    1. 三线SPI在GPDMA模式存在接收数据错误的问题

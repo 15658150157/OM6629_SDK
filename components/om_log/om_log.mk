@@ -1,0 +1,7 @@
+OM_LOG_DIR = $(COMPONENTS_DIR)/om_log
+
+COMPONENTS_INCS += $(OM_LOG_DIR)
+COMPONENTS_SRCS += $(OM_LOG_DIR)/om_log.c
+ifeq ($(CONFIG_OM_LOG), y)
+COMPONENTS_SRCS += $(OM_LOG_DIR)/om_log_port.c
+endif

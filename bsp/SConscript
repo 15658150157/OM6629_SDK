@@ -1,0 +1,16 @@
+from build.building import *
+
+
+BSP_INCS = ['include']
+BSP_DEFS = []
+
+if GetDepend('CONFIG_BOARD_EVB'):
+    BSP_SRCS = ['board_evb/board_evb.c']
+    BSP_SRCS += ['source/glcd_gc9c01.c']
+    BSP_SRCS += ['source/glcd_gc9b71.c']
+else:
+    BSP_SRCS = None
+
+group = DefineGroup(name='bsp', srcs=BSP_SRCS, incs=BSP_INCS, CPPDEFINES=BSP_DEFS)
+
+Return('group')

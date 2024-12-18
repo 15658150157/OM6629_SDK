@@ -1,0 +1,26 @@
+menu "BSP"
+
+choice
+    prompt "Board Select"
+    default BOARD_NONE
+
+config BOARD_NONE
+    bool "Non-specific board"
+config BOARD_EVB
+    bool "Evaluation board"
+endchoice
+
+choice
+    prompt "Graphics LCD controller"
+    default GLCD_NONE
+    depends on BOARD_EVB
+
+config GLCD_NONE
+    bool "Non-specific GLCD"
+config GLCD_GC9C01
+    bool "Graphics LCD GC9C01"
+config GLCD_GC9B71
+    bool "Graphics LCD GC9B71"
+endchoice
+
+endmenu
