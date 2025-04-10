@@ -8,7 +8,7 @@
 
 /**
  * @defgroup AUDIO AUDIO
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    AUDIO register
  * @details  AUDIO register definitions header file
  *
@@ -18,6 +18,7 @@
  *
  * @{
  */
+
 #ifndef __AUDIO_REG_H
 #define __AUDIO_REG_H
 
@@ -219,7 +220,7 @@
 #define AU_ANA_PD_BIAS_GEN_MASK                     (0x1UL << AU_ANA_PD_BIAS_GEN_POS)
 
 #define AU_ANA_EN_REF_BYP_POS                       28U                                                     /*!< CODEC_ANA_CTRL_1: Bypass reference big-R for fast setting */
-#define AU_ANA_EN_REF_BYS_MASK                      (0x1UL << AU_ANA_EN_REF_BYP_POS)
+#define AU_ANA_EN_REF_BYP_MASK                      (0x1UL << AU_ANA_EN_REF_BYP_POS)
 
 #define AU_ANA_PD_AUREF_POS                         27U                                                     /*!< CODEC_ANA_CTRL_1: Power down audio reference gen, 1=power down */
 #define AU_ANA_PD_AUREF_MASK                        (0x1UL << AU_ANA_PD_AUREF_POS)

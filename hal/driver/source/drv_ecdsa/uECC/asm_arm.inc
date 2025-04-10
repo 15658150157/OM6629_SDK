@@ -105,6 +105,10 @@ uECC_VLI_API om_uecc_word_t om_uecc_vli_add(om_uecc_word_t *result,
         :
         : "cc", "memory"
     );
+
+    (void)right_word;
+    (void)left_word;
+
     return carry;
 }
 #define asm_add 1
@@ -165,6 +169,9 @@ uECC_VLI_API om_uecc_word_t om_uecc_vli_sub(om_uecc_word_t *result,
         :
         : "cc", "memory"
     );
+
+    (void)left_word;
+    (void)right_word;
     return !carry; /* Note that on ARM, carry flag set means "no borrow" when subtracting
                       (for some reason...) */
 }

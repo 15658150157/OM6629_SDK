@@ -19,10 +19,19 @@ endif
 # host
 ifeq ($(CONFIG_BLE_HOST), y)
 -include $(BLE_DIR)/host/host.mk
+-include $(BLE_DIR)/profile/profile.mk
 COMPONENTS_SRCS += $(BLE_HOST_SRCS)
 COMPONENTS_INCS += $(BLE_HOST_INCS)
 COMPONENTS_LIBS += $(BLE_HOST_LIBS)
 COMPONENTS_DEFS += $(BLE_HOST_DEFS)
+endif
+
+ifeq ($(CONFIG_BLE_PROFILE), y)
+-include $(BLE_DIR)/profile/profile.mk
+COMPONENTS_SRCS += $(BLE_PROFILE_SRCS)
+COMPONENTS_INCS += $(BLE_PROFILE_INCS)
+COMPONENTS_LIBS += $(BLE_PROFILE_LIBS)
+COMPONENTS_DEFS += $(BLE_PROFILE_DEFS)
 endif
 
 # mesh

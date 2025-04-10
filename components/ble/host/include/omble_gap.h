@@ -176,9 +176,11 @@ enum ob_smp_pin_type {
 };
 
 /// 连接角色
-enum ob_gap_role {
+enum ob_gap_conn_role {
     OB_GAP_ROLE_CENTRAL,      ///< central
     OB_GAP_ROLE_PHERIPHERAL,  ///< peripheral
+    OB_GAP_ROLE_CENTRAL_PAWR,       ///< central connected by PAwR
+    OB_GAP_ROLE_PHERIPHERAL_PAWR,   ///< peripheral connected by PAwR
 };
 
 /// 分发密钥类型
@@ -312,9 +314,10 @@ enum ob_gap_report_state {
 
 /// Event structure for @ref OB_GAP_EVT_CONNECTED.
 typedef struct {
-    uint8_t role;                       ///< 连接角色，参考@ref ob_gap_role
+    uint8_t role;                       ///< 连接角色，参考@ref ob_gap_conn_role
     uint8_t adv_idx;                    ///< 当前连接对应的广播index，若role为Central则该参数无效
     ob_gap_addr_t peer_addr;            ///< 对方地址，参考@ref ob_gap_addr_t
+    uint8_t pawr_idx;                   ///< 基于PAwR连接时所对应的周期广播index或周期广播同步index
     ob_gap_conn_params_t conn_params;   ///< 连接参数，参考@ref ob_gap_conn_params_t
 } ob_gap_evt_connected_t;
 
@@ -488,7 +491,7 @@ typedef struct {
     };
 } ob_gap_evt_device_info_t;
 
-/// Event structure for @ref OB_GAP_EVT_SCAN_REQ_RECV_T.
+/// Event structure for @ref ob_gap_evt_scan_req_recv_t.
 typedef struct {
     ob_gap_addr_t addr;                         ///< 广播设备的地址
     uint8_t adv_idx;                            ///< advertise index
@@ -748,7 +751,7 @@ typedef struct {
 } ob_gap_phys_t;
 
 /**@brief phy更新请求
- * @param[in]  conn_idx       连接index
+ * @param[in]  conn_idx       连接index，若conn_idx == 0xFF 则设置默认PHY
  * @param[in]  tx_phys        链路发送PHY的建议值，参考@ref ob_gap_phys_t
  * @param[in]  rx_phys        链路接收PHY的建议值，参考@ref ob_gap_phys_t
  * @return 执行结果，参考@ref ob_error
@@ -830,10 +833,14 @@ typedef struct {
     uint8_t subevent;
     uint8_t addr_type;               ///< ob_adv_addr_type
     ob_gap_addr_t peer_addr;         ///< 连接地址
+    uint16_t conn_intv_min;          ///< 连接间隔最小值
+    uint16_t conn_intv_max;          ///< 连接间隔最大值
+    uint16_t latency_max;            ///< latency最大值
+    uint16_t timeout;                ///< 连接超时时间
 } ob_conn_padv_param_t;
 
 /**@brief 通过padv handle创建连接
- * @param[in]  param       连接参数
+ * @param[in]  conn_padv_param       连接参数
  * @return 执行结果，参考@ref ob_error
  */
 uint32_t ob_gap_padv_connect(ob_conn_padv_param_t *conn_padv_param);
@@ -869,13 +876,13 @@ uint32_t ob_gap_period_adv_start(uint8_t padv_index, ob_padv_param_t *padv_param
                                  ob_data_t *period_data);
 
 /**@brief 关闭周期广播
- * @param[in]  adv_idx        周期广播index
+ * @param[in]  padv_index        周期广播index
  * @return 执行结果，参考@ref ob_error
  */
 uint32_t ob_gap_period_adv_stop(uint8_t padv_index);
 
 typedef struct {
-    uint8_t req_event_counter;
+    uint16_t req_event_counter;
     uint8_t req_subevent;
     uint8_t resp_subevent;
     uint8_t resp_slot;
@@ -884,11 +891,11 @@ typedef struct {
 } ob_gap_padv_resp_data_t;
 
 /**@brief 设置PAwR响应数据
- * @param[in]  adv_idx        周期广播同步索引
+ * @param[in]  sync_idx       周期广播同步索引
  * @param[in]  resp_data      参数
  * @return 执行结果，参考@ref ob_error
  */
-uint32_t ob_gap_period_adv_response_data_set(uint8_t adv_index, const ob_gap_padv_resp_data_t *resp_data);
+uint32_t ob_gap_period_adv_response_data_set(uint8_t sync_idx, const ob_gap_padv_resp_data_t *resp_data);
 
 /// 周期广播同步参数
 typedef struct {
@@ -919,13 +926,14 @@ uint32_t ob_gap_period_adv_sync_terminate(uint8_t sync_idx);
 
 /**@brief 设置周期广播同步名单
  * @param[in]  fa_addrs          同步设备的地址
- * @len[in]    len               名单长度
+ * @param[in]  num               地址数量
  * @return 执行结果，参考@ref ob_error
  */
-uint32_t ob_gap_period_adv_list_set(const ob_gap_addr_t *fa_addrs, uint8_t len);
+uint32_t ob_gap_period_adv_list_set(const ob_gap_addr_t *fa_addrs, uint8_t num);
 
 /**@brief  广播数据上报开关
  * @param[in]  sync_idx        周期广播同步索引
+ * @param[in]  enable          开关状态
  * @return 执行结果，参考@ref ob_error
  */
 uint32_t ob_gap_period_adv_report_en(uint8_t sync_idx, uint8_t enable);
@@ -937,7 +945,7 @@ enum ob_gap_padv_sync_trans_type {
 /**@brief  周期广播同步传输
  * @param[in]  conn_idx        连接index
  * @param[in]  service_data    自定义数据
- * @param[in]  type            同步方式 @ref enum ob_gap_padv_sync_trans_type
+ * @param[in]  type            同步方式 @ref ob_gap_padv_sync_trans_type
  * @param[in]  index           相应的索引值
  * @return 执行结果，参考@ref ob_error
  */
@@ -950,7 +958,7 @@ enum ob_gap_padv_sync_trans_recv_mode {
 };
 /**@brief 设置当前连接PAST参数
  * @param[in]  conn_idx        连接index
- * @param[in]  mode            @ref enum ob_gap_padv_sync_trans_recv_mode
+ * @param[in]  mode            @ref ob_gap_padv_sync_trans_recv_mode
  * @param[in]  skip            skip周期广播包数
  * @param[in]  timeout         同步超时时间, unit 10ms
  * @return 执行结果，参考@ref ob_error
@@ -967,19 +975,18 @@ typedef struct {
 
 /**@brief 周期广播子事件同步
  * @param[in]  sync_idx        周期广播同步索引
- * @param[in]  adv_prop         @ref ob_adv_properties_bits, only Tx Power(bit6) supported
- * @param[in]  skip            skip周期广播包数
- * @param[in]  timeout         同步超时时间, unit 10ms
+ * @param[in]  padv_prop       @ref ob_adv_properties_bits, only Tx Power(bit6) supported
+ * @param[in]  subevent_bit    需要同步的subevent
  * @return 执行结果，参考@ref ob_error
  */
-uint32_t ob_gap_period_adv_sync_subevent_set(uint8_t sync_idx, uint16_t adv_prop, uint32_t subevent_bit);
+uint32_t ob_gap_period_adv_sync_subevent_set(uint8_t sync_idx, uint16_t padv_prop, uint32_t subevent_bit);
 
 /**@brief 设置PAwR子事件数据
- * @param[in]  sync_idx        周期广播同步索引
+ * @param[in]  padv_index      周期广播index
  * @param[in]  sub_data        参数
  * @return 执行结果，参考@ref ob_error
  */
-uint32_t ob_gap_period_adv_subevent_data_set(uint8_t adv_index, const ob_gap_padv_subevent_data_t *sub_data);
+uint32_t ob_gap_period_adv_subevent_data_set(uint8_t padv_index, const ob_gap_padv_subevent_data_t *sub_data);
 
 /**@brief 获取设备信息
  * @param[in]  type        信息类型，参考@ref ob_dev_info_type

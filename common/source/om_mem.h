@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup DOC DOC
- * @ingroup  DOCUMENT
+ * @defgroup MEM MEM
+ * @ingroup  COMMON
  * @brief    memory heap manager
  * @details  memory heap manager
  *

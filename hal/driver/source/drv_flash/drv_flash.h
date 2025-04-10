@@ -8,9 +8,9 @@
 
 /**
  * @defgroup FLASH FLASH
- * @ingroup  HAL_Driver
- * @brief    FLASH Driver for om66xx
- * @details  FLASH Driver for om66xx
+ * @ingroup  DRIVER
+ * @brief    FLASH Driver
+ * @details  FLASH Driver
  *
  * @version
  * Version 1.0
@@ -65,9 +65,9 @@ typedef enum {
  * @brief Initialize FLASH controller with specified configuration struct
  *
  * @param om_flash  The FLASH controller device address
- * @param config    The configuration struct pointer, see@flash_config_t
+ * @param config    The configuration struct pointer
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_init(OM_FLASH_Type om_flash, const flash_config_t *config);
@@ -76,21 +76,33 @@ extern om_error_t drv_flash_init(OM_FLASH_Type om_flash, const flash_config_t *c
  *******************************************************************************
  * @brief FLASH read id, it will send command to flash
  * @param om_flash  The FLASH controller device address
- * @param id        The ID struct pointer, see@flash_id_t
+ * @param id        The ID struct pointer
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_read_id(OM_FLASH_Type om_flash, flash_id_t *id);
 
 /**
  *******************************************************************************
+ * @brief FLASH read uid
+ * @param om_flash  The FLASH controller device address
+ * @param uid       The unique ID buffer
+ * @param len       The length of UID buffer
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_flash_read_uid(OM_FLASH_Type om_flash, uint8_t *uid, uint32_t len);
+
+/**
+ *******************************************************************************
  * @brief Get FLASH id, the id is saved in buffer already
  *
  * @param om_flash  The FLASH controller device address
- * @param id        The ID struct pointer, see@flash_id_t
+ * @param id        The ID struct pointer
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_id_get(OM_FLASH_Type om_flash, flash_id_t *id);
@@ -100,9 +112,9 @@ extern om_error_t drv_flash_id_get(OM_FLASH_Type om_flash, flash_id_t *id);
  * @brief Set new command for reading
  *
  * @param om_flash  The FLASH controller device address
- * @param read_cmd  The new read command, see@flash_read_t
+ * @param read_cmd  The new read command
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_read_cmd_set(OM_FLASH_Type om_flash, flash_read_t read_cmd);
@@ -112,9 +124,9 @@ extern om_error_t drv_flash_read_cmd_set(OM_FLASH_Type om_flash, flash_read_t re
  * @brief Set new command for writing
  *
  * @param om_flash  The FLASH controller device address
- * @param read_cmd  The new write command, see@flash_write_t
+ * @param write_cmd The new write command
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_write_cmd_set(OM_FLASH_Type om_flash, flash_write_t write_cmd);
@@ -128,7 +140,7 @@ extern om_error_t drv_flash_write_cmd_set(OM_FLASH_Type om_flash, flash_write_t 
  * @param data      The reading data buffer pointer in RAM
  * @param data_len  The reading data length
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_read(OM_FLASH_Type om_flash, uint32_t addr, uint8_t *data, uint32_t data_len);
@@ -142,7 +154,7 @@ extern om_error_t drv_flash_read(OM_FLASH_Type om_flash, uint32_t addr, uint8_t 
  * @param data      The reading data buffer pointer in RAM
  * @param data_len  The reading data length
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_read_int(OM_FLASH_Type om_flash, uint32_t addr, uint8_t *data, uint32_t data_len);
@@ -160,7 +172,7 @@ extern om_error_t drv_flash_read_int(OM_FLASH_Type om_flash, uint32_t addr, uint
  *                              for example: volatile uint8_t *data = om_mem_malloc(X, X);
  * @param data_len  The writing data length
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_write(OM_FLASH_Type om_flash,
@@ -188,7 +200,7 @@ extern om_error_t drv_flash_write(OM_FLASH_Type om_flash,
  *                              for example: volatile uint8_t *data = om_mem_malloc(X, X);
  * @param data_len  The writing data length
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_write_int_start(OM_FLASH_Type om_flash,
@@ -203,7 +215,7 @@ extern om_error_t drv_flash_write_int_start(OM_FLASH_Type om_flash,
  * @param om_flash  The FLASH controller device address
  * @param is_wip    The Flash is in write progress status or not, 1 means yes, 0 means no
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_write_int_status_get(OM_FLASH_Type om_flash, uint8_t *is_wip);
@@ -216,7 +228,7 @@ extern om_error_t drv_flash_write_int_status_get(OM_FLASH_Type om_flash, uint8_t
  *
  * @param om_flash  The FLASH controller device address
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_write_int_continue(OM_FLASH_Type om_flash);
@@ -227,9 +239,9 @@ extern om_error_t drv_flash_write_int_continue(OM_FLASH_Type om_flash);
  *
  * @param om_flash      The FLASH controller device address
  * @param addr          The address of FLASH
- * @param erase_type    The erase size, see@flash_erase_t
+ * @param erase_type    The erase size
  *
- * @return              Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_erase(OM_FLASH_Type om_flash, uint32_t addr, flash_erase_t erase_type);
@@ -247,9 +259,9 @@ extern om_error_t drv_flash_erase(OM_FLASH_Type om_flash, uint32_t addr, flash_e
  *      if not supported, please use drv_oflash_modifiy_status_bits to set the status register
  *
  * @param om_flash  The FLASH controller device address
- * @param protect   Write protect region, see@flash_protect_t
+ * @param protect   Write protect region
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
 */
 extern om_error_t drv_flash_write_protect_set(OM_FLASH_Type om_flash, flash_protect_t protect);
@@ -261,7 +273,7 @@ extern om_error_t drv_flash_write_protect_set(OM_FLASH_Type om_flash, flash_prot
  * @param om_flash  The FLASH controller device address
  * @param enable    Enable or disable
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_quad_enable(OM_FLASH_Type om_flash, bool enable);
@@ -272,7 +284,7 @@ extern om_error_t drv_flash_quad_enable(OM_FLASH_Type om_flash, bool enable);
  *
  * @param om_flash  The FLASH controller device address
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_reset(OM_FLASH_Type om_flash);
@@ -284,7 +296,7 @@ extern om_error_t drv_flash_reset(OM_FLASH_Type om_flash);
  * @param om_flash  The FLASH controller device address
  * @param enable    Enable or disable
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_encrypt_enable(OM_FLASH_Type om_flash, uint8_t enable);
@@ -296,7 +308,7 @@ extern om_error_t drv_flash_encrypt_enable(OM_FLASH_Type om_flash, uint8_t enabl
  * @param om_flash  The FLASH controller device address
  * @param status    Status 1 register read buffer pointer
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_read_status_reg1(OM_FLASH_Type om_flash, uint8_t *status);
@@ -308,7 +320,7 @@ extern om_error_t drv_flash_read_status_reg1(OM_FLASH_Type om_flash, uint8_t *st
  * @param om_flash  The FLASH controller device address
  * @param status    Status 2 register read buffer pointer
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_read_status_reg2(OM_FLASH_Type om_flash, uint8_t *status);
@@ -320,7 +332,7 @@ extern om_error_t drv_flash_read_status_reg2(OM_FLASH_Type om_flash, uint8_t *st
  * @param om_flash  The FLASH controller device address
  * @param config    Config register read buffer pointer
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_read_config_reg(OM_FLASH_Type om_flash, uint8_t *config);
@@ -332,7 +344,7 @@ extern om_error_t drv_flash_read_config_reg(OM_FLASH_Type om_flash, uint8_t *con
  * @param om_flash  The FLASH controller device address
  * @param status    Status register read buffer pointer
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_write_status(OM_FLASH_Type om_flash, uint8_t status[2]);
@@ -345,7 +357,7 @@ extern om_error_t drv_flash_write_status(OM_FLASH_Type om_flash, uint8_t status[
  * @param status    Status register read buffer pointer
  * @param mask      Status register mask
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_modifiy_status_bits(OM_FLASH_Type om_flash, uint8_t status[2], uint8_t mask[2]);
@@ -357,7 +369,7 @@ extern om_error_t drv_flash_modifiy_status_bits(OM_FLASH_Type om_flash, uint8_t 
  * @param om_flash  The FLASH controller device address
  * @param status    Status register read buffer pointer
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_write_status_reg1(OM_FLASH_Type om_flash, uint8_t *status);
@@ -369,7 +381,7 @@ extern om_error_t drv_flash_write_status_reg1(OM_FLASH_Type om_flash, uint8_t *s
  * @param om_flash  The FLASH controller device address
  * @param status    Status register read buffer pointer
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_write_status_reg2(OM_FLASH_Type om_flash, uint8_t *status);
@@ -381,7 +393,7 @@ extern om_error_t drv_flash_write_status_reg2(OM_FLASH_Type om_flash, uint8_t *s
  * @param om_flash  The FLASH controller device address
  * @param config    Config register read buffer pointer
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_write_config_reg(OM_FLASH_Type om_flash, uint8_t *config);
@@ -395,7 +407,7 @@ extern om_error_t drv_flash_write_config_reg(OM_FLASH_Type om_flash, uint8_t *co
  * @param om_flash  The FLASH controller device address
  * @param param     flash read parameter, see flash datasheet for details
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_read_param_set(OM_FLASH_Type om_flash, uint8_t param);
@@ -407,7 +419,7 @@ extern om_error_t drv_flash_read_param_set(OM_FLASH_Type om_flash, uint8_t param
  * @param om_flash  The FLASH controller device address
  * @param enable    Enable or disable
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_4byte_addr_enable(OM_FLASH_Type om_flash, uint8_t enable);
@@ -422,7 +434,7 @@ extern om_error_t drv_flash_4byte_addr_enable(OM_FLASH_Type om_flash, uint8_t en
  * @param node      The node to be set
  * @param cfg       The configuration of node
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_node_setup(OM_FLASH_Type om_flash, flash_list_node_t *node, flash_list_node_cfg_t *cfg);
@@ -434,7 +446,7 @@ extern om_error_t drv_flash_node_setup(OM_FLASH_Type om_flash, flash_list_node_t
  * @param om_flash  The FLASH controller device address
  * @param list_head The node of list header
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
 extern om_error_t drv_flash_list_start(OM_FLASH_Type om_flash, flash_list_node_t *list_head);
@@ -449,7 +461,7 @@ extern om_error_t drv_flash_list_start(OM_FLASH_Type om_flash, flash_list_node_t
  * @param om_flash  The FLASH controller device address
  * @param isr_cb    Callback
  *
- * @return          Error code, see@om_error_t
+ * @return          Error code, see@ref om_error_t
  *******************************************************************************
  **/
 extern om_error_t drv_flash_register_isr_callback(OM_FLASH_Type om_flash, drv_isr_callback_t isr_cb);

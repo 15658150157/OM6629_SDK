@@ -57,28 +57,21 @@ static volatile  bool om24g_rx_flag = false;
 static volatile uint32_t timeout = 0;
 
 uint8_t om24g_tx_payload[166];
-//uint8_t om24g_tx_payload[700];
-/*
-In order to optimize reception performance, dual buffers are used to receive data,
-and the array size must be more than twice the maximum number of received packets,
-otherwise it will cause packet reception failure. For example, the business can only
-receive a maximum of 32 bytes of packets, and the array size is 64 bytes or greater
-*/
-uint8_t om24g_rx_payload[600];
+uint8_t om24g_rx_payload[166*2];
 
 /**
  *******************************************************************************
  * @brief 24G configuration parameter
- *  
+ *
  * Package structure B、NO ACK mode、Dynamic length mode、Compatible with 6626、nordic、TI、siliconlab chip
  * 4 bytes sync word : 0xEDD47656
  * 1bytes header:      packet lenth
  * 0~32 bytes payload: {1,2,......32}
  * 2 bytes crc: seed = 0xFFFF crc_poly = 0x1021
  *
- * data whitening ranges include header field, payload field, and crc field. 
+ * data whitening ranges include header field, payload field, and crc field.
  * the scope of CRC includes sync_word, header, payload.
- * 
+ *
  * @param[in] static_len  The maximum packet length is 32 bytes
  * @param[in] freq        2480MHZ
  *******************************************************************************
@@ -244,7 +237,7 @@ static void app_24g_ble_bb_frame_ongoing_handler(bool is_ongoing)
         #if (RTE_OM24G_RF_MODE == 3) // Compatible with NORDIC
         REGW(&OM_PHY->H_RX_CTRL, MASK_2REG(PHY_H_RX_CTRL_FXP, 0x29, PHY_H_RX_CTRL_RVS_FXP, 0xC8)); // RX modulation index = 0.32
         #endif
-        drv_om24g_read_int(om24g_rx_payload, 64);
+        drv_om24g_read_int(om24g_rx_payload, 166);
         //OM_LOG(OM_LOG_DEBUG, "*****************OM24G \r\n");
     }
 }
@@ -256,7 +249,7 @@ static void om24g_read_int_structure_b(void)
     //drv_om24g_set_rf_parameters(OM24G_RATE_250K, 2404, 0.055281); //2404.055281MHZ  0    231865.264143
     drv_om24g_register_event_callback(om24g_callback);
     drv_om24g_dump_rf_register();
-    drv_om24g_read_int(om24g_rx_payload, 64);
+    drv_om24g_read_int(om24g_rx_payload, 166);
 }
 
 /*******************************************************************************

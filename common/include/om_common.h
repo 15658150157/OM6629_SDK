@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup OM_COMMON OM_COMMON
- * @ingroup  common
+ * @defgroup COMMON Common
+ * @ingroup  API Reference
  * @brief    COMMON Typedefs
  * @details  COMMON Typedefs
  *

@@ -364,13 +364,28 @@ om_error_t drv_i2c_init(OM_I2C_Type *om_i2c, const i2c_config_t *cfg)
 
     // mask all the interrupt
     om_i2c->INTR_MASK = 0;
-	om_i2c->INTR_MASK |= I2C_INTR_TIME_OUT_MASK;
     /* tx fifo has 15 bytes or below then trigger the tx empty interrupt.*/
     om_i2c->TX_TL = 15U;
     /* rx fifo has received one byte then trigger the rx full interrupt.*/
     om_i2c->RX_TL = 0U;
 
     env->isr_cb = NULL;
+
+    return OM_ERROR_OK;
+}
+
+om_error_t drv_i2c_uninit(OM_I2C_Type *om_i2c)
+{
+    const drv_resource_t  *resource;
+
+    resource = i2c_get_resource(om_i2c);
+    if (resource == NULL) {
+        return OM_ERROR_PARAMETER;
+    }
+
+    DRV_RCC_CLOCK_ENABLE((rcc_clk_t)(size_t)resource->reg, 0U);
+
+    NVIC_DisableIRQ(resource->irq_num);
 
     return OM_ERROR_OK;
 }
@@ -417,6 +432,7 @@ om_error_t drv_i2c_master_write(OM_I2C_Type *om_i2c, uint16_t dev_addr, const ui
     uint32_t main_clk;
     uint32_t timeout_count;
     const drv_resource_t *resource;
+    uint32_t tx_tl;
 
     om_i2c->ENABLE      = I2C_DISABLE;
     om_i2c->TAR         = dev_addr;
@@ -441,6 +457,7 @@ om_error_t drv_i2c_master_write(OM_I2C_Type *om_i2c, uint16_t dev_addr, const ui
 
     offset = 0U;
     fifo_size = register_get(&resource->cap, MASK_POS(CAP_I2C_FIFO_LEVEL));
+    tx_tl = om_i2c->TX_TL;
     OM_CRITICAL_BEGIN();
     while (tx_num && (!drv_i2c_get_timeout_rawstate(om_i2c)) && (!drv_i2c_get_tx_abrt(om_i2c))) {
         fifo_padding = fifo_size - om_i2c->TXFLR;
@@ -448,7 +465,7 @@ om_error_t drv_i2c_master_write(OM_I2C_Type *om_i2c, uint16_t dev_addr, const ui
         for (uint32_t i = 0; i < len; i++) {
             om_i2c->DATA_CMD = tx_data[offset + i];
         }
-        while ((om_i2c->TXFLR > om_i2c->TX_TL) && (!drv_i2c_get_timeout_rawstate(om_i2c)) && (!drv_i2c_get_tx_abrt(om_i2c)));
+        while ((om_i2c->TXFLR > tx_tl) && (!drv_i2c_get_timeout_rawstate(om_i2c)) && (!drv_i2c_get_tx_abrt(om_i2c)));
 
         offset += len;
         tx_num -= len;
@@ -510,7 +527,7 @@ om_error_t drv_i2c_master_write_int(OM_I2C_Type *om_i2c, uint16_t dev_addr, cons
     env->busy |= I2C_TX_BUSY;
 
     om_i2c->INTR_MASK = 0;
-    om_i2c->INTR_MASK |= I2C_INTR_TX_EMPTY_MASK | I2C_INTR_TX_ABRT_MASK | I2C_INTR_TIME_OUT_MASK;
+    om_i2c->INTR_MASK = I2C_INTR_TX_EMPTY_MASK | I2C_INTR_TX_ABRT_MASK | I2C_INTR_TIME_OUT_MASK;
 
     main_clk =  drv_rcc_clock_get(RCC_CLK_MAIN);//RCC_CLK_I2C0
     timeout_count=timeout_ms * (main_clk / 1000);//max=33554ms
@@ -759,7 +776,7 @@ om_error_t drv_i2c_master_read_int(OM_I2C_Type *om_i2c, uint16_t dev_addr, const
     env->busy |= I2C_TX_BUSY | I2C_RX_BUSY;
 
     om_i2c->INTR_MASK = 0;
-    om_i2c->INTR_MASK |= I2C_INTR_TX_EMPTY_MASK | I2C_INTR_TX_ABRT_MASK | I2C_INTR_RX_UNDER_MASK | I2C_INTR_TIME_OUT_MASK;
+    om_i2c->INTR_MASK = I2C_INTR_TX_EMPTY_MASK | I2C_INTR_TX_ABRT_MASK | I2C_INTR_RX_UNDER_MASK | I2C_INTR_TIME_OUT_MASK;
 
     main_clk =  drv_rcc_clock_get(RCC_CLK_MAIN);//RCC_CLK_I2C0
     timeout_count=timeout_ms * (main_clk / 1000);//max=33554ms
@@ -803,6 +820,7 @@ om_error_t drv_i2c_master_read_dma(OM_I2C_Type *om_i2c, uint16_t dev_addr, const
         env->tx_num  = tx_num;
         env->rx_buf  = (uint8_t *)rx_data;
         env->rx_num  = rx_num;
+        env->rx_cnt  = 0U;
         om_i2c->CON1 = I2C_CON1_RX_ENABLE;
 
         if (env->tx_num == 0U) {
@@ -840,6 +858,7 @@ om_error_t drv_i2c_slave_write(OM_I2C_Type *om_i2c, uint16_t dev_addr, const uin
     uint16_t fifo_size;
     uint16_t offset;
     const drv_resource_t *resource;
+    uint32_t tx_tl;
 
     resource = i2c_get_resource(om_i2c);
     if(resource == NULL) {
@@ -857,6 +876,7 @@ om_error_t drv_i2c_slave_write(OM_I2C_Type *om_i2c, uint16_t dev_addr, const uin
     while (!(om_i2c->RAW_INTR_STAT & I2C_INTR_RD_REQ_MASK));
     dummy = om_i2c->CLR_RD_REQ;
     (void)dummy;
+    tx_tl = om_i2c->TX_TL;
 
     OM_CRITICAL_BEGIN();
     while (tx_num) {
@@ -865,13 +885,15 @@ om_error_t drv_i2c_slave_write(OM_I2C_Type *om_i2c, uint16_t dev_addr, const uin
         for (uint32_t i = 0; i < len; i++) {
             om_i2c->DATA_CMD = tx_data[offset + i];
         }
-        while (om_i2c->TXFLR > om_i2c->TX_TL);
+        while (om_i2c->TXFLR > tx_tl);
 
         offset += len;
         tx_num -= len;
     }
     OM_CRITICAL_END();
-    while (!((om_i2c->STATUS & I2C_STATUS_TFE_MASK) && (!(om_i2c->STATUS & I2C_STATUS_MST_ACTIVITY_MASK))));
+    while (!((om_i2c->RAW_INTR_STAT & I2C_INTR_STOP_DET_MASK) &&
+             (om_i2c->STATUS & I2C_STATUS_TFE_MASK) &&
+             (!(om_i2c->STATUS & I2C_STATUS_MST_ACTIVITY_MASK))));
 
     return OM_ERROR_OK;
 }
@@ -968,7 +990,8 @@ om_error_t drv_i2c_slave_read(OM_I2C_Type *om_i2c, uint16_t dev_addr, uint8_t *r
         while (!(om_i2c->STATUS & I2C_STATUS_RFNE_MASK));
         rx_data[i] = om_i2c->DATA_CMD;
     }
-    while ((om_i2c->STATUS & I2C_STATUS_RFNE_MASK) && (!(om_i2c->RAW_INTR_STAT & I2C_INTR_STOP_DET_MASK)));
+    while (!((om_i2c->RAW_INTR_STAT & I2C_INTR_STOP_DET_MASK) &&
+             (!(om_i2c->STATUS & I2C_STATUS_RFNE_MASK))));
 
     return OM_ERROR_OK;
 }
@@ -977,6 +1000,7 @@ om_error_t drv_i2c_slave_read_int(OM_I2C_Type *om_i2c, uint16_t dev_addr, uint8_
 {
     const drv_resource_t  *resource;
     drv_env_t             *env;
+    uint32_t dummy;
 
     OM_ASSERT(rx_num);
     resource = i2c_get_resource(om_i2c);
@@ -989,13 +1013,16 @@ om_error_t drv_i2c_slave_read_int(OM_I2C_Type *om_i2c, uint16_t dev_addr, uint8_
     env->rx_num = rx_num;
     env->rx_cnt = 0U;
 
+    dummy = om_i2c->CLR_STOP_DET;
+    (void)dummy;
+
     om_i2c->ENABLE  = I2C_DISABLE;
     om_i2c->SAR     = dev_addr;
     om_i2c->ENABLE  = I2C_ENABLE;
 
     env->busy |= I2C_RX_BUSY;
 
-    om_i2c->INTR_MASK = I2C_INTR_RX_FULL_MASK;
+    om_i2c->INTR_MASK = I2C_INTR_RX_FULL_MASK | I2C_INTR_STOP_DET_MASK;
 
     return OM_ERROR_OK;
 }
@@ -1086,13 +1113,11 @@ void drv_i2c_isr(OM_I2C_Type *om_i2c)
 
     if (int_status & I2C_INTR_RD_REQ_MASK) {
         int_status_clr = om_i2c->CLR_RD_REQ;
-
-        fifo_padding = fifo_size - om_i2c->TXFLR;
-        len = env->tx_num - env->tx_cnt;
-        len = len > fifo_padding ? fifo_padding : len;
-        for (uint32_t i = 0; i < len; i++) {
+        for (uint32_t i = 0; i < env->tx_num; i++) {
+            while (!(om_i2c->STATUS & I2C_STATUS_TFNF_MASK));
             om_i2c->DATA_CMD = env->tx_buf[env->tx_cnt++];
         }
+        om_i2c->INTR_MASK &= ~I2C_INTR_RD_REQ_MASK;
 
         if (env->tx_num == env->tx_cnt) {
             om_i2c->INTR_MASK &= ~I2C_INTR_RD_REQ_MASK;
@@ -1122,7 +1147,7 @@ void drv_i2c_isr(OM_I2C_Type *om_i2c)
             env->busy &= ~I2C_RX_BUSY;
         }
         if (int_status_source & (I2C_TX_ABRT_SRC_7B_ADDR_NOACK_MASK | I2C_TX_ABRT_SRC_10ADDR1_NOACK_MASK | I2C_TX_ABRT_SRC_10ADDR2_NOACK_MASK)) {
-            drv_i2c_isr_callback(om_i2c, DRV_EVENT_I2C_TXADDR_NACK | DRV_EVENT_I2C_RXADDR_NACK, NULL, int_status_source);
+            drv_i2c_isr_callback(om_i2c, (drv_event_t)((uint32_t)DRV_EVENT_I2C_TXADDR_NACK + (uint32_t)DRV_EVENT_I2C_RXADDR_NACK), NULL, int_status_source);
         }
         if (int_status_source & I2C_TX_ABRT_SRC_TXDATA_NOACK_MASK) {
             drv_i2c_isr_callback(om_i2c, DRV_EVENT_I2C_TXDATA_NACK, NULL, int_status_source);
@@ -1171,6 +1196,16 @@ void drv_i2c_isr(OM_I2C_Type *om_i2c)
             env->busy &= ~I2C_RX_BUSY;
 
             drv_i2c_isr_callback(om_i2c, DRV_EVENT_COMMON_READ_COMPLETED, env->rx_buf, env->rx_cnt);
+        }
+    }
+
+    if (int_status & I2C_INTR_STOP_DET_MASK) {
+        int_status_clr = om_i2c->CLR_STOP_DET;
+        om_i2c->INTR_MASK &= ~I2C_INTR_STOP_DET_MASK;
+        if ((env->busy & I2C_RX_BUSY) && (env->rx_cnt < env->rx_num)) {
+            om_i2c->INTR_MASK &= ~I2C_INTR_RX_FULL_MASK;
+            env->busy &= ~I2C_RX_BUSY;
+            drv_i2c_isr_callback(om_i2c, DRV_EVENT_I2C_STOP_DET, env->rx_buf, env->rx_cnt);
         }
     }
 

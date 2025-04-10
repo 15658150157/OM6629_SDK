@@ -7,13 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @file     drv_psram.h
- * @brief    PSRAM driver
- * @date     30 September 2024
- * @author   OnMicro SW Team
- *
- * @defgroup PSRAM
- * @ingroup  Peripheral
+ * @defgroup PSRAM PSRAM
+ * @ingroup  DRIVER
  * @brief    PSRAM With QPI Driver
  * @details  PSRAM With QPI Driver
 
@@ -81,8 +76,8 @@ typedef struct {
 typedef struct {
     uint8_t     clk_div;        /*!< Clock divider */
     uint8_t     delay;          /*!< Delay(2 ns for per step) */
-    psram_cmd_t read_cmd;       /*!< Command for reading, see@psram_cmd_t */
-    psram_cmd_t write_cmd;      /*!< Command for writing, see@psram_cmd_t */
+    psram_cmd_t read_cmd;       /*!< Command for reading, see@ref psram_cmd_t */
+    psram_cmd_t write_cmd;      /*!< Command for writing, see@ref psram_cmd_t */
     uint16_t    page_size;      /*!< Page size */
     uint8_t     page_cross_en;  /*!< Page cross enable */
 } psram_config_t;
@@ -100,7 +95,7 @@ typedef ospi_list_node_cfg_t psram_list_node_cfg_t;
  *
  * @param[in] om_psram       The ospi pointer of psram
  * @param[in] psram_config   The ospi configuration
- * @return                   The error infomation
+ * @return    error
  *
  *******************************************************************************
  */
@@ -114,7 +109,7 @@ extern om_error_t drv_psram_init(OM_OSPI_Type *om_psram, const psram_config_t *p
  * @param[in] addr           The address of psram
  * @param[in] data           The data pointer to store read data
  * @param[in] data_len       The data length to read
- * @return                   The error infomation
+ * @return    error
  *
  *******************************************************************************
  */
@@ -131,7 +126,7 @@ extern om_error_t drv_psram_read(OM_OSPI_Type *om_psram,
  * @param[in] addr           The address of psram
  * @param[in] data           The data pointer to store read data
  * @param[in] data_len       The data length to read
- * @return                   The error infomation
+ * @return    error
  *
  *******************************************************************************
  */
@@ -148,7 +143,7 @@ extern om_error_t drv_psram_read_int(OM_OSPI_Type *om_psram,
  * @param[in] addr           The address of psram
  * @param[in] data           The data pointer to store write data
  * @param[in] data_len       The data length to read
- * @return                   The error infomation
+ * @return    error
  *
  *******************************************************************************
  */
@@ -165,7 +160,7 @@ extern om_error_t drv_psram_write(OM_OSPI_Type *om_psram,
  * @param[in] addr           The address of psram
  * @param[in] data           The data pointer to store write data
  * @param[in] data_len       The data length to read
- * @return                   The error infomation
+ * @return    error
  *
  *******************************************************************************
  */
@@ -179,8 +174,8 @@ extern om_error_t drv_psram_write_int(OM_OSPI_Type *om_psram,
  * @brief Read ID in spi status
  *
  * @param[in] om_psram       The psram number
- * @param[in] id[2]          The array to store id
- * @return                   The error infomation
+ * @param[in] id             The pointer to psram id, see @ref psram_id_t
+ * @return    error
  *
  *******************************************************************************
  */
@@ -190,9 +185,9 @@ extern om_error_t drv_psram_read_id(OM_OSPI_Type *om_psram, psram_id_t *id);
  * @brief Set new command for reading
  *
  * @param om_psram          The psram controller device address
- * @param read_cmd          The new read command, see@psram_cmd_t
+ * @param read_cmd          The new read command, see@ref psram_cmd_t
  *
- * @return                  Error code, see@om_error_t
+ * @return  error
  */
 extern om_error_t drv_psram_read_cmd_set(OM_OSPI_Type *om_psram, psram_cmd_t read_cmd);
 
@@ -200,9 +195,9 @@ extern om_error_t drv_psram_read_cmd_set(OM_OSPI_Type *om_psram, psram_cmd_t rea
  * @brief Set new command for writing
  *
  * @param om_psram          The psram controller device address
- * @param read_cmd          The new write command, see@psram_cmd_t
+ * @param write_cmd         The new write command, see@ref psram_cmd_t
  *
- * @return                  Error code, see@om_error_t
+ * @return                  Error code, see@ref om_error_t
  */
 extern om_error_t drv_psram_write_cmd_set(OM_OSPI_Type *om_psram, psram_cmd_t write_cmd);
 
@@ -212,7 +207,7 @@ extern om_error_t drv_psram_write_cmd_set(OM_OSPI_Type *om_psram, psram_cmd_t wr
  *
  * @param[in] om_psram      The psram number
  * @param[in] enable        The flag to enter or exit quad mode
- * @return The error infomation
+ * @return   error
  *
  *******************************************************************************
  */
@@ -223,7 +218,7 @@ extern om_error_t drv_psram_quad_mode_enable(OM_OSPI_Type *om_psram, uint8_t ena
  * @brief Reset psram
  *
  * @param[in] om_psram      The psram number
- * @return                  The error infomation
+ * @return    error
  *
  *******************************************************************************
  */
@@ -234,7 +229,7 @@ extern om_error_t drv_psram_reset(OM_OSPI_Type *om_psram);
  * @brief Toggle burst length between 32 and page length
  *
  * @param[in] om_psram      The psram number
- * @return                  The error infomation
+ * @return    error
  *
  *******************************************************************************
  */
@@ -246,7 +241,7 @@ extern om_error_t drv_psram_set_burst_len(OM_OSPI_Type *om_psram);
  *
  * @param[in] om_psram      Pointer to psram
  * @param[in] list_head     The first list node pointer
- * @return The error infomation
+ * @return    error
  *
  *******************************************************************************
  */
@@ -274,8 +269,6 @@ __STATIC_INLINE void drv_psram_set_page_size(OM_OSPI_Type *om_psram, const uint3
  * @param[in] om_ospi      Pointer to ospi
  * @param[in] event_cb     The psram callback
  *
- * @return                 None
- *
  *******************************************************************************
  */
 extern void drv_psram_register_isr_callback(OM_OSPI_Type *om_psram, drv_isr_callback_t event_cb);
@@ -291,7 +284,6 @@ extern void drv_psram_register_isr_callback(OM_OSPI_Type *om_psram, drv_isr_call
  *                             - DRV_EVENT_COMMON_READ_COMPLETED
  *                             - DRV_EVENT_COMMON_ERROR
  *
- * @return                 None
  *******************************************************************************
  */
 extern void drv_psram_isr_callback(OM_OSPI_Type *om_psram, drv_event_t event);

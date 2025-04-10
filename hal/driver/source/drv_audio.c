@@ -38,6 +38,7 @@ extern void drv_audio_inside_uninit(void);
 extern om_error_t drv_audio_inside_record_start(audio_record_config_t *config);
 extern om_error_t drv_audio_inside_record_stop(void);
 extern audio_state_t drv_audio_inside_work_state(void);
+extern void drv_audio_inside_isr(void);
 
 extern void drv_audio_outside_init(void);
 extern void drv_audio_outside_uninit(void);
@@ -117,8 +118,11 @@ audio_state_t drv_audio_work_state(void)
 
 void drv_audio_isr(void)
 {
-    // Should not run here
+    #if RTE_AUDIO_USE_INTERNAL
+    drv_audio_inside_isr();
+    #else
     while(1);
+    #endif
 }
 
 

@@ -8,7 +8,7 @@
 
 /**
  * @defgroup SYS SYS
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    SYS register
  * @details  SYS register definitions header file
  *
@@ -98,21 +98,32 @@ typedef struct {
 #define SYS_MON_TIMER1(n)                           (0x0200 + n)
 #define SYS_MON_TIMER2(n)                           (0x0300 + n)
 #define SYS_MON_SFLASH(n)                           (0x0400 + n)
-#define SYS_MON_KPP(n)                              (0x0500 + n)
-#define SYS_MON_SPI0(n)                             (0x0600 + n)
-#define SYS_MON_SPI1(n)                             (0x0700 + n)
+#define SYS_MON_QDEC(n)                             (0x0500 + n)
+#define SYS_MON_EFUSE(n)                            (0x0600 + n)
+#define SYS_MON_HS2P4(n)                            (0x0700 + n)
 #define SYS_MON_WATCHDOG(n)                         (0x0800 + n)
 #define SYS_MON_APB(n)                              (0x0900 + n)
 #define SYS_MON_AHB(n)                              (0x0A00 + n)
-#define SYS_MON_UART0(n)                            (0x0B00 + n)
+#define SYS_MON_I2C1(n)                             (0x0B00 + n)
 #define SYS_MON_UART1(n)                            (0x0C00 + n)
 #define SYS_MON_BASEBAND(n)                         (0x0D00 + n)
 #define SYS_MON_PHY(n)                              (0x0E00 + n)
-//#define SYS_MON_PHY(n)                              (0x0F00 + n)
+#define SYS_MON_RGB(n)                              (0x0F00 + n)
 #define SYS_MON_DAIF(n)                             (0x1000 + n)
 #define SYS_MON_PMU(n)                              (0x1100 + n)
-#define SYS_MON_QDEC(n)                             (0x1200 + n)
+#define SYS_MON_SFLASH1(n)                          (0x1200 + n)
 #define SYS_MON_RNG(n)                              (0x1300 + n)
+#define SYS_MON_LCD(n)                              (0x1400 + n)
+#define SYS_MON_AUDIO(n)                            (0x1500 + n)
+#define SYS_MON_USB(n)                              (0x1600 + n)
+#define SYS_MON_TRNG(n)                             (0x1700 + n)
+#define SYS_MON_UART0(n)                            (0x1800 + n)
+#define SYS_MON_UART2(n)                            (0x1900 + n)
+#define SYS_MON_I2S(n)                              (0x1A00 + n)
+#define SYS_MON_SPI0(n)                             (0x1B00 + n)
+#define SYS_MON_SPI1(n)                             (0x1C00 + n)
+
+
 // Simulation
 #define SYS_SIMULATION_FLAG                         (*(__IO uint32_t *)0x40000c0c)
 // USB_CTRL

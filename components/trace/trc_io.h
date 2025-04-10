@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup DOC DOC
- * @ingroup  DOCUMENT
+ * @defgroup TRACE TRACE
+ * @ingroup  COMPONENTS
  * @brief    trace
  * @details  trace using IO
  *
@@ -64,8 +64,8 @@ typedef enum {
 /**
  * @brief The event is triged, so the IO bonding the event will output is_high state
  *
- * @param[in] event:  trace event, ref @trc_io_event_t
- * @param[in] pad_idx:
+ * @param[in]  event:   trace event
+ * @param[out] is_high: output state
  */
 #if (!CONFIG_TRACE_IO)
 #define TRC_IO(event, is_high)

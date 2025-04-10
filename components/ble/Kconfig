@@ -11,6 +11,11 @@ if BLE
     config BLE_HOST
         bool "BLE Host stack"
         default y
+    config BLE_PROFILE
+        bool "BLE profile"
+        depends on BLE_HOST
+        default y
+
     config BLE_MESH
         bool "BLE Mesh"
         depends on BLE_CONTROLLER

@@ -133,8 +133,12 @@ __STATIC_FORCEINLINE bool drv_irq_is_any_ext_pending(void)
 
     for (i=0; i<nvic_reg_num; ++i) {
         // NVIC_GetPendingIRQ & NVIC_GetEnableIRQ
-        if (NVIC->ISPR[i] & NVIC->ISER[i])
+        uint32_t ispr, iser;
+        ispr = NVIC->ISPR[i];
+        iser = NVIC->ISER[i];
+        if (ispr & iser) {
             return true;
+        }
     }
 
     return false;

@@ -148,6 +148,17 @@ typedef enum {
     GPADC_SAMPLING_CYCLES_80  = 6U,
     /// sampling cycles: 128
     GPADC_SAMPLING_CYCLES_128 = 7U,
+/// sampling cycles: 256
+    GPADC_SAMPLING_CYCLES_256 = 8U,
+    /// sampling cycles: 512
+    GPADC_SAMPLING_CYCLES_512 = 9U,
+    /// sampling cycles: 1024
+    GPADC_SAMPLING_CYCLES_1024 = 10U,
+    /// sampling cycles: 2048
+    GPADC_SAMPLING_CYCLES_2048 = 11U,
+    /// sampling cycles: 4096
+    GPADC_SAMPLING_CYCLES_4096 = 12U,
+
 
     GPADC_SAMPLING_CYCLES_MAX,
 } drv_gpadc_sampling_cycles_t;
@@ -163,13 +174,14 @@ typedef enum {
 
 /// GPADC control
 typedef enum {
-    GPADC_CONTROL_ENABLE_CLOCK        = 0U,    /**< enable GPADC clock */
-    GPADC_CONTROL_DISABLE_CLOCK       = 1U,    /**< enable GPADC clock */
-    GPADC_CONTROL_SET_PARAM           = 2U,    /**< set value to register */
-    GPADC_CONTROL_IS_BUSY             = 3U,    /**< check GPADC is busy */
-    GPADC_CONTROL_READ_TEMPERATURE    = 4U,    /**< read temperature */
-    GPADC_CONTROL_SET_CALIB_TEMPER    = 5U,    /**< set temperature during calibration */
-    GPADC_CONTROL_TEMPERATURE_COMPEN  = 6U,    /**< check GPADC is busy */
+    GPADC_CONTROL_ENABLE_CLOCK                      = 0U,    /**< enable GPADC clock */
+    GPADC_CONTROL_DISABLE_CLOCK                     = 1U,    /**< enable GPADC clock */
+    GPADC_CONTROL_SET_PARAM                         = 2U,    /**< set calibration paramters */
+    GPADC_CONTROL_IS_BUSY                           = 3U,    /**< check GPADC is busy */
+    GPADC_CONTROL_READ_TEMPERATURE                  = 4U,    /**< read temperature */
+    GPADC_CONTROL_SET_CALIB_TEMPER                  = 5U,    /**< set temperature during calibration */
+    GPADC_CONTROL_TEMPERATURE_COMPEN                = 6U,    /**< check GPADC is busy */
+    GPADC_CONTROL_SET_PARAM_WITHOUT_POWER_ON_PARAM  = 7U,  /**< set calibration paramters without power on paramters */
 } drv_gpadc_control_t;
 
 /// GPADC temperature compensation
@@ -211,7 +223,7 @@ typedef struct {
 /// GPADC extral calibration parameters in flash
 typedef struct {
     uint16_t gain_error_vbat;
-} __PACKED drv_gpadc_flash_calib_ex_t;
+} __PACKED drv_gpadc_flash_calib_ex_1_t;
 
 /// GPADC extral calibration parameters in flash
 typedef struct {
@@ -236,10 +248,11 @@ typedef struct {
 typedef struct {
     const drv_gpadc_calib_t             *efuse;
     const drv_gpadc_flash_calib_t       *flash;
-    const drv_gpadc_flash_calib_ex_t    *flash_ex;
+    const drv_gpadc_flash_calib_ex_1_t  *flash_ex_1;
     const drv_gpadc_flash_calib_ex_2_t  *flash_ex_2;
     const drv_gpadc_flash_calib_ex_3_t  *flash_ex_3;
     const drv_gpadc_flash_calib_ex_4_t  *flash_ex_4;
+    const drv_gpadc_calib_t             *efuse_ex_1;
     const void                          *reserved[5];
 } drv_gpadc_cpft_calib_t;
 
@@ -249,8 +262,6 @@ typedef struct {
 /**
  *******************************************************************************
  * @brief GPADC interrupt service routine
- *
- * @return None
  *******************************************************************************
  **/
 extern void drv_gpadc_isr(void);
@@ -273,8 +284,6 @@ extern om_error_t drv_gpadc_init(const drv_gpadc_config_t *config);
  * @brief Register isr callback for transmit/receive by interrupt & gpdma mode
  *
  * @param[in] cb       Pointer to callback
- *
- * @return None
  *******************************************************************************
  */
 extern void drv_gpadc_register_isr_callback(drv_isr_callback_t cb);
@@ -362,7 +371,7 @@ om_error_t drv_gpadc_read_dma(uint16_t channel_p, int16_t *data, uint16_t num);
  */
 extern void *drv_gpadc_control(drv_gpadc_control_t control, void *argu);
 
-#ifdef GPADC_CALIB_EN
+#ifdef RTE_GPADC_CALIB_EN
 /**
  *******************************************************************************
  * @brief Calibrate GPADC and initialize GPADC compensation parameters.
@@ -371,7 +380,7 @@ extern void *drv_gpadc_control(drv_gpadc_control_t control, void *argu);
  * @param[in] calib_sel      gpadc select calibration phase
  * @param[out] pvalue        Pointer to @p drv_gpadc_calib_t object where the
  *                           calibration parameters are to be returned.
- * @param[out] pvalue_vbat   Pointer to @p drv_gpadc_flash_calib_ex_t object where the
+ * @param[out] pvalue_vbat   Pointer to @p drv_gpadc_flash_calib_ex_1_t object where the
  *                           calibration extra parameters are to be returned.
  * @param[out] pvalue_temp   Pointer to @p drv_gpadc_flash_calib_ex_2_t object where the
  *                           calibration extra parameters are to be returned.
@@ -385,7 +394,7 @@ extern void *drv_gpadc_control(drv_gpadc_control_t control, void *argu);
  *    - others:              No
  *******************************************************************************
  */
-om_error_t drv_gpadc_calibrate(drv_gpadc_calib_t *pvalue, drv_gpadc_flash_calib_ex_t *pvalue_vbat, drv_gpadc_flash_calib_ex_2_t *pvalue_temp,
+om_error_t drv_gpadc_calibrate(drv_gpadc_calib_t *pvalue, drv_gpadc_flash_calib_ex_1_t *pvalue_vbat, drv_gpadc_flash_calib_ex_2_t *pvalue_temp,
                                drv_gpadc_flash_calib_ex_3_t *pvalue_temp_2, drv_gpadc_calib_t *pvalue_diff,
                                drv_gpadc_gain_t gain, drv_gpadc_calib_sel_t calib_sel);
 #endif

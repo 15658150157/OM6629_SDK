@@ -68,7 +68,6 @@ static pm_env_t pm_env = {
 };
 uint32_t pm_cpu_context[3];  /* used for store CPU context, $control, $MSP, $PSP register */
 
-
 /*******************************************************************************
  * LOCAL FUNCTIONS
  */
@@ -137,13 +136,23 @@ static pm_status_t pm_sleep_checker_check(void)
 
     // check PMU_TIMER
     #if (RTE_PMU_TIMER)
-    for (pmu_timer_trig_t i=PMU_TIMER_TRIG_VAL0; i<=PMU_TIMER_TRIG_VAL1; i++) {
-        if (drv_pmu_timer_left_time_get(i) < pm_env.min_sleep_time) {
+    do {
+        uint32_t min_left_time = PMU_TIMER_MAX_TICK;
+        for (pmu_timer_trig_t i=PMU_TIMER_TRIG_VAL0; i<=PMU_TIMER_TRIG_VAL1; i++) {
+            uint32_t left_time = drv_pmu_timer_left_time_get(i);
+            if (min_left_time > left_time) {
+                min_left_time = left_time;
+            }
+        }
+
+        if (min_left_time < pm_env.min_sleep_time) {
             return PM_STATUS_IDLE;
+        } else if (min_left_time == PMU_TIMER_MAX_TICK) {
+            status = PM_STATUS_DEEP_SLEEP;
         } else {
             status = PM_STATUS_SLEEP;
         }
-    }
+    } while(0);
     #endif
 
     for (int i = 0; i < sizeof(pm_env.checker)/sizeof(pm_env.checker[0]); ++i) {
@@ -346,6 +355,7 @@ void pm_sleep_enable(bool enable)
  * @param[in] id  id, reference @ref pm_id_t
  *******************************************************************************
  **/
+__RAM_CODES("PM")
 void pm_sleep_prevent(pm_id_t id)
 {
     uint32_t mask  = 1u << ((int)id);
@@ -363,6 +373,7 @@ void pm_sleep_prevent(pm_id_t id)
  *
  *******************************************************************************
  **/
+__RAM_CODES("PM")
 void pm_sleep_allow(pm_id_t id)
 {
     uint32_t mask = (1u << (int)id);
@@ -431,19 +442,15 @@ void pm_sleep_notify_user_callback_register(pm_sleep_callback_t notify_cb)
     pm_env.notify_cb = notify_cb;
 }
 
-/**
- * @brief  system sleep store restore callback register
- *
- * @param[in] sleep_enter_cb  sleep enter cb
- * @param[in] sleep_leave_cb  sleep leave cb
- **/
-void pm_sleep_store_restore_callback_register(pm_sleep_callback_t store_cb)
+om_error_t pm_sleep_store_restore_callback_register(pm_sleep_callback_t store_cb)
 {
+    int i, n;
     om_error_t error;
 
-    error = OM_ERROR_RESOURCES;
+    n = sizeof(pm_env.store_cb) / sizeof(pm_env.store_cb[0]);
+    error = OM_ERROR_OUT_OF_RANGE;
     OM_CRITICAL_BEGIN();
-    for (int i = 0; i < sizeof(pm_env.store_cb)/sizeof(pm_env.store_cb[0]); i++) {
+    for (i = 0; i < n; i++) {
         if ((pm_env.store_cb[i] == NULL) || (pm_env.store_cb[i] == store_cb)) {
             pm_env.store_cb[i] = store_cb;
             error = OM_ERROR_OK;
@@ -451,7 +458,8 @@ void pm_sleep_store_restore_callback_register(pm_sleep_callback_t store_cb)
         }
     }
     OM_CRITICAL_END();
-    OM_ASSERT(error == OM_ERROR_OK);
+
+    return error;
 }
 
 __RAM_CODES("PM")
@@ -459,7 +467,6 @@ void pm_power_manage(void)
 {
     pm_status_t status;
 
-    OM_CRITICAL_BEGIN();
     if (pm_env.sleep_enable) {
         // 1. check pm self sleep state
         status = pm_env.sleep_state ? PM_STATUS_IDLE : PM_STATUS_DEEP_SLEEP;
@@ -471,7 +478,6 @@ void pm_power_manage(void)
         status = PM_STATUS_IDLE;
     }
     pm_sleep(status);
-    OM_CRITICAL_END();
 }
 
 void pm_init(void)
@@ -493,8 +499,9 @@ void pm_sleep_allow(pm_id_t id)
 void pm_sleep_checker_callback_register(pm_checker_priority_t priority, pm_checker_callback_t checker_cb)
 {
 }
-void pm_sleep_store_restore_callback_register(pm_sleep_callback_t store_cb)
+om_error_t pm_sleep_store_restore_callback_register(pm_sleep_callback_t store_cb)
 {
+    return OM_ERROR_OK;
 }
 #endif
 

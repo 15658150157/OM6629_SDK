@@ -1,12 +1,15 @@
-/**
- * @file nvds.h
- * @brief Non Volatile Data Storage (NVDS) system
- * @date 10 Dec 2020
- * @author wangyc
+/* ----------------------------------------------------------------------------
+ * All rights reserved.
  *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ * -------------------------------------------------------------------------- */
+
+/**
  * @defgroup NVDS NVDS
- * @ingroup HS662X
- * @brief NVDS system
+ * @ingroup  COMPONENTS
+ * @brief    NVDS system
  * @details
  *
  * The NVDS system is used for storing information
@@ -135,8 +138,6 @@ uint8_t nvds_put(nvds_tag_id_t tag, nvds_tag_len_t length, const void *buf);
  * @brief Print debug information
  *
  * @param[in] printf_dump_func
- *
- * @return None
  **/
 void nvds_dump(void *printf_dump_func);
 

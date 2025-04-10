@@ -49,8 +49,8 @@ static const pin_config_t pin_config[] = {
     #endif
 
     #if (defined(PAD_RF_TXEN) && defined(PAD_RF_RXEN))
-    {PAD_RF_RXEN, {PINMUX_PAD3_RX_EXT_PD_CFG}, PMU_PIN_MODE_PP, PMU_PIN_DRIVER_CURRENT_NORMAL},
-    {PAD_RF_TXEN, {PINMUX_PAD4_TX_EXT_PD_CFG}, PMU_PIN_MODE_PP, PMU_PIN_DRIVER_CURRENT_NORMAL},
+    {PAD_RF_RXEN, {PINMUX_PAD13_RX_EXT_PD_CFG}, PMU_PIN_MODE_PP, PMU_PIN_DRIVER_CURRENT_NORMAL},
+    {PAD_RF_TXEN, {PINMUX_PAD12_TX_EXT_PD_CFG}, PMU_PIN_MODE_PP, PMU_PIN_DRIVER_CURRENT_NORMAL},
     #endif
 
     {PAD_LED_0, {PINMUX_GPIO_MODE_CFG}, PMU_PIN_MODE_PP, PMU_PIN_DRIVER_CURRENT_NORMAL},
@@ -62,6 +62,11 @@ static const pin_config_t pin_config[] = {
 
     {PAD_BUTTON_0, {PINMUX_GPIO_MODE_CFG}, PMU_PIN_MODE_PU, PMU_PIN_DRIVER_CURRENT_NORMAL},
     {PAD_BUTTON_1, {PINMUX_GPIO_MODE_CFG}, PMU_PIN_MODE_PU, PMU_PIN_DRIVER_CURRENT_NORMAL},
+
+    #if (defined(PAD_USBD_DM) && defined(PAD_USBD_DP))
+    {PAD_USBD_DM, {PINMUX_PAD16_USB_DM_CFG}, PMU_PIN_MODE_PD, PMU_PIN_DRIVER_CURRENT_MAX},
+    {PAD_USBD_DP, {PINMUX_PAD17_USB_DP_CFG}, PMU_PIN_MODE_PD, PMU_PIN_DRIVER_CURRENT_MAX},
+    #endif
 };
 
 static const gpio_config_t gpio_config[] = {
@@ -82,7 +87,7 @@ static const gpio_config_t gpio_config[] = {
 void board_init(void)
 {
     // Use DCDC (Default is LDO mode)
-    drv_pmu_dcdc_enable(true);
+    drv_pmu_dcdc_enable(false);
 
     drv_pmu_xtal32m_startup();
     drv_pmu_select_32k(PMU_32K_SEL_RC);

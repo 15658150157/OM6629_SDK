@@ -8,7 +8,7 @@
 
 /**
  * @defgroup PMU PMU
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    PMU register
  * @details  PMU register definitions header file
  *
@@ -138,8 +138,6 @@
 // PMU_ANA_PD
 #define PMU_ANA_PD_PD_FLASH_ME_POS                                     31
 #define PMU_ANA_PD_PD_FLASH_ME_MASK                                    (0x1U << 31)
-#define PMU_ANA_PD_PMU_LDO_ANA1P2_TRIM_POS                             28
-#define PMU_ANA_PD_PMU_LDO_ANA1P2_TRIM_MASK                            (0x7U << 28)
 #define PMU_ANA_PD_DCDC_CTUNE_POS                                      25
 #define PMU_ANA_PD_DCDC_CTUNE_MASK                                     (0x3U << 25)
 #define PMU_ANA_PD_EN_64M_POS                                          23
@@ -318,14 +316,8 @@
 #define PMU_ANA_REG_GPIO_REUSE_MASK                                    (0x1U << 18)
 #define PMU_ANA_REG_PMU_DIG_LDO_TRIM_POS                               14
 #define PMU_ANA_REG_PMU_DIG_LDO_TRIM_MASK                              (0xfU << 14)
-#define PMU_ANA_REG_RXADC_LDO_TRIM_POS                                 12
-#define PMU_ANA_REG_RXADC_LDO_TRIM_MASK                                (0x3U << 12)
 #define PMU_ANA_REG_IF_LDO_TRIM_POS                                    10
 #define PMU_ANA_REG_IF_LDO_TRIM_MASK                                   (0x3U << 10)
-#define PMU_ANA_REG_RF_LDO_TRIM_POS                                    8
-#define PMU_ANA_REG_RF_LDO_TRIM_MASK                                   (0x3U << 8)
-#define PMU_ANA_REG_PA_LDO_TRIM_POS                                    4
-#define PMU_ANA_REG_PA_LDO_TRIM_MASK                                   (0xfU << 4)
 #define PMU_ANA_REG_DCDC_CAP_TRIM_POS                                  3
 #define PMU_ANA_REG_DCDC_CAP_TRIM_MASK                                 (0x1U << 3)
 #define PMU_ANA_REG_DCDC_TEST_EN_POS                                   1
@@ -356,8 +348,8 @@
 // PMU_CLK_CTRL_2
 #define PMU_CLK_CTRL_2_XTAL32K_ISEL_POS                                25
 #define PMU_CLK_CTRL_2_XTAL32K_ISEL_MASK                               (0x3U << 25)
-#define PMU_CLK_CTRL_2_CT_XTAL32M_POS                                  20
-#define PMU_CLK_CTRL_2_CT_XTAL32M_MASK                                 (0x1fU << 20)
+#define PMU_CLK_CTRL_2_CT_XTAL32M_POS                                  19
+#define PMU_CLK_CTRL_2_CT_XTAL32M_MASK                                 (0x3fU << 19)
 #define PMU_CLK_CTRL_2_SEL_RCOSC_POS                                   15
 #define PMU_CLK_CTRL_2_SEL_RCOSC_MASK                                  (0x1U << 15)
 #define PMU_CLK_CTRL_2_CTUNE_RC32K_REG_POS                             8

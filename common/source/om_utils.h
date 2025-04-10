@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup OM_COMMON OM_COMMON
- * @ingroup  common
+ * @defgroup UTILS UTILS
+ * @ingroup  COMMON
  * @brief    COMMON Typedefs
  * @details  COMMON Typedefs
  *
@@ -47,7 +47,7 @@ extern "C"
  *  @brief Get member offset from struct or union data type
  *
  *  @param type_t        Struct or union data type
- *  @param type_memmber  Member of struct or union data type
+ *  @param type_member  Member of struct or union data type
  *
  *  @return Offset from struct or union data type
  *******************************************************************************
@@ -136,51 +136,13 @@ extern void om_assert_failed(char *file, uint32_t line);
  */
 #define OM_IS_ALIGN(val, align)   (!((unsigned)(val) & ((unsigned)(align) - 1)))
 
-/*
- * Detect GCC built-in byteswap routines
- */
-#if defined(__GNUC__) && defined(__GNUC_PREREQ)
-#if __GNUC_PREREQ(4, 8)
-#define OM_BSWAP16 __builtin_bswap16
-#endif /* __GNUC_PREREQ(4,8) */
-#if __GNUC_PREREQ(4, 3)
-#define OM_BSWAP32 __builtin_bswap32
-#define OM_BSWAP64 __builtin_bswap64
-#endif /* __GNUC_PREREQ(4,3) */
-#endif /* defined(__GNUC__) && defined(__GNUC_PREREQ) */
+#ifndef OM_BSWAP16
+#define OM_BSWAP16(x)       __REVSH(x)
+#endif /* OM_BSWAP16 */
 
-/*
- * Detect Clang built-in byteswap routines
- */
-#if defined(__clang__) && defined(__has_builtin)
-#if __has_builtin(__builtin_bswap16) && !defined(OM_BSWAP16)
-#define OM_BSWAP16 __builtin_bswap16
-#endif /* __has_builtin(__builtin_bswap16) */
-#if __has_builtin(__builtin_bswap32) && !defined(OM_BSWAP32)
-#define OM_BSWAP32 __builtin_bswap32
-#endif /* __has_builtin(__builtin_bswap32) */
-#if __has_builtin(__builtin_bswap64) && !defined(OM_BSWAP64)
-#define OM_BSWAP64 __builtin_bswap64
-#endif /* __has_builtin(__builtin_bswap64) */
-#endif /* defined(__clang__) && defined(__has_builtin) */
-
-/* Detect armcc built-in byteswap routine */
-#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 410000) && !defined(OM_BSWAP32)
-#if defined(__ARM_ACLE)  /* ARM Compiler 6 - earlier versions don't need a header */
-#include <arm_acle.h>
-#endif
-#define OM_BSWAP32 __rev
-#endif
-
-/* Detect IAR built-in byteswap routine */
-#if defined(__IAR_SYSTEMS_ICC__)
-#if defined(__ARM_ACLE)
-#include <arm_acle.h>
-#define OM_BSWAP16(x) ((uint16_t) __rev16((uint32_t) (x)))
-#define OM_BSWAP32 __rev
-#define OM_BSWAP64 __revll
-#endif
-#endif
+#ifndef OM_BSWAP32
+#define OM_BSWAP32(x)       __REV(x)
+#endif /* OM_BSWAP32 */
 
 /* used for specify function/macro parameter need ALIGN to 2 Bytes */
 #ifdef __ALIGN2

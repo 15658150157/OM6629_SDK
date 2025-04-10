@@ -8,7 +8,7 @@
 
 /**
  * @defgroup EFUSE EFUSE
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    EFUSE register
  * @details  EFUSE register definitions header file
  *

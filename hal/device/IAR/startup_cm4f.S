@@ -44,6 +44,7 @@
 
                 EXTERN   __iar_program_start
                 EXTERN   SystemInit
+                EXTERN   SystemInitPost
 
                 PUBLIC   __vector_table
                 PUBLIC   __Vectors
@@ -109,7 +110,7 @@ __vector_table
                 DCD    CRY32M_DECT_IRQHandler            ; 35
                 DCD    I2S_IRQHandler                    ; 36
                 DCD    UART2_IRQHandler                  ; 37
-                DCD    OM24G_TIM_IRQHandler              ; 38
+                DCD    OM24G_TIM_WAKEUP_IRQHandler       ; 38
                 DCD    RGB_IRQHandler                    ; 39
                 DCD    I2C1_IRQHandler                   ; 40
                 DCD    SHA256_IRQHandler                 ; 41
@@ -138,13 +139,22 @@ Reset_Handler
                 BLX R0
                 LDR R0, =__iar_program_start
                 BX  R0
+; __low_level_init will auto called by IAR cstartup
+                EXTERN  __iar_data_init3
+                PUBLIC  __low_level_init
+__low_level_init
+                PUSH {LR}
+                ; call IAR table copy function.
+                BL  __iar_data_init3
+                BL  SystemInitPost
+                MOV R0, #0   ; return 0
+                POP  {PC}
 
 
-
-; NMI_Handler_C & Fault_Handler_C
+; NMI_Handler_C & fault_hanler_c
                 PUBWEAK  NMI_Handler_C
-                PUBWEAK Fault_Handler_C
-Fault_Handler_C
+                PUBWEAK fault_hanler_c
+fault_hanler_c
 NMI_Handler_C
                 B    .
 
@@ -173,7 +183,7 @@ UsageFault_Handler
                 MRSEQ R1, MSP
                 MRSNE R1, PSP
                 MOV   R0, LR
-                B     Fault_Handler_C
+                B     fault_hanler_c
 
                 PUBWEAK SVC_Handler
                 PUBWEAK DebugMon_Handler
@@ -218,7 +228,7 @@ UsageFault_Handler
                 PUBWEAK CRY32M_DECT_IRQHandler
                 PUBWEAK I2S_IRQHandler
                 PUBWEAK UART2_IRQHandler
-                PUBWEAK OM24G_TIM_IRQHandler
+                PUBWEAK OM24G_TIM_WAKEUP_IRQHandler
                 PUBWEAK RGB_IRQHandler
                 PUBWEAK I2C1_IRQHandler
                 PUBWEAK SHA256_IRQHandler
@@ -280,7 +290,7 @@ LPTIM_IRQHandler
 CRY32M_DECT_IRQHandler
 I2S_IRQHandler
 UART2_IRQHandler
-OM24G_TIM_IRQHandler
+OM24G_TIM_WAKEUP_IRQHandler
 RGB_IRQHandler
 I2C1_IRQHandler
 SHA256_IRQHandler

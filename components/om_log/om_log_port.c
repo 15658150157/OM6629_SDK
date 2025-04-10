@@ -177,7 +177,7 @@ void log_out_flush(void)
 }
 
 // log get time porting function
-#ifdef CONFIG_OM_LOG_TIME
+#if CONFIG_OM_LOG_TIME
 uint32_t log_get_time(void)
 {
     #if (CONFIG_NON_RTOS)
@@ -193,34 +193,6 @@ uint32_t log_get_time(void)
 void log_restore()
 {
     log_out_init();
-}
-#endif
-
-#if 0
-void SystemFaultContextStore(sys_fault_id_t fault_id, uint8_t *context, uint32_t context_len, uint32_t param)
-{
-    const char *fault_str[] = {
-        "Assert",
-        "low voltage detect",
-        "WDT interrupt",
-        "unknown reason jump to fault",
-        "user check fault",
-    };
-    uint32_t *reg = (uint32_t *)context;
-
-    if (fault_id < 5) {
-        om_log(OM_LOG_ERROR, "FAULT type: %s\r\n", fault_str[fault_id]);
-    }
-    if (fault_id == SYS_FAULT_ID_ASSERT) {
-        om_log(OM_LOG_ASSERT, "FAULT should be caused by OM_ASSERT at %s:%d\r\n",
-                (char *)(&reg[0]), param);
-    } else {
-        om_log(OM_LOG_ERROR, "FAULT should be caused when PC run 0x%08x\r\ncontext:\r\n", reg[6]);
-        om_log_hexdump(OM_LOG_ERROR, (uint8_t*)context, context_len, sizeof(uint32_t));
-    }
-    om_log_flush();
-    while (1)
-        ;
 }
 #endif
 

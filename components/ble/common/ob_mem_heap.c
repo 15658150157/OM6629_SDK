@@ -8,13 +8,13 @@
 
 /**
  * @file rwmem.c
- * @brief 
+ * @brief
  * @date Thu, Jun 13, 2019 10:05:01 AM
  * @author liqiang
  *
- * @addtogroup 
- * @ingroup 
- * @details 
+ * @addtogroup
+ * @ingroup
+ * @details
  *
  * @{
  */
@@ -47,7 +47,7 @@
 #define OB_HEAP_SLOW_SIZE       (330*OB_LE_CENTRAL + 270*OB_LE_OBSERVER + CONFIG_LE_ACTIVITY_NB*230)
 
 /// Size of non-retention heap
-#define OB_HEAP_NRET_SIZE    ((1980 + 336) * OB_LE_LL_SEC_CON)
+#define OB_HEAP_NRET_SIZE    ((1980 + 336) * OB_LE_LL_SEC_CON + 12 /* one more sizeof(struct mblock_free) space */)
 
 /// Host heap size
 #define OB_HEAP_HOST_SIZE      (480 \

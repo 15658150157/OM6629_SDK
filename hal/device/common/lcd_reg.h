@@ -8,7 +8,7 @@
 
 /**
  * @defgroup LCD LCD
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    LCD register
  * @details  LCD register definitions header file
  *

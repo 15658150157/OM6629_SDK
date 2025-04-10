@@ -74,7 +74,7 @@ typedef enum {
     PMU_PIN_MODE_FLOAT,
     /// Push pull (Output)
     PMU_PIN_MODE_PP,
-    /// Pull up, @ref drv_pmu_pull_up_resistance_set()
+    /// Pull up, @ref drv_pmu_pin_pullup_set()
     PMU_PIN_MODE_PU,
     /// Pull down (141kOHM~303kOHM)
     PMU_PIN_MODE_PD,
@@ -130,6 +130,7 @@ typedef enum {
     PMU_REBOOT_FROM_SOFT_RESET_USER      = (1U << 2) | 2U,
 } pmu_reboot_reason_t;
 
+/// @cond
 /// PIN driver current
 typedef enum {
     /// Pin driver current: Normal
@@ -194,6 +195,7 @@ typedef struct {
     uint32_t pmu_ram_block_pso    : 1U;   /* RF RAM */
     uint32_t pmu_ram_block_rom    : 1U;   /* ROM */
 } pmu_ram_block_t;
+/// @endcond
 
 typedef enum {
     PMU_POF_VOLTAGE_1P8V   = 0U,  /* 1.8V */
@@ -205,9 +207,6 @@ typedef enum {
     PMU_POF_VOLTAGE_2P4V   = 6U,  /* 2.4V */
     PMU_POF_VOLTAGE_2P5V   = 7U,  /* 2.5V */
 } pmu_pof_voltage_t;
-
-
-/// @endcond
 
 
 /*******************************************************************************
@@ -338,8 +337,6 @@ extern void drv_pmu_32k_enable_in_deep_sleep(bool enable);
  *
  * @note load_capacitance will effect xtal 32k startup time and precision,
  *       appropriate value can speed up startup time.
- *
- * @return None
  **/
 extern void drv_pmu_xtal32k_change_param(int load_capacitance, int drive_current);
 
@@ -619,41 +616,6 @@ static inline bool drv_pmu_dcdc_is_enabled(void)
 
 /**
  *******************************************************************************
- * @brief pmu dump
- *
- * @param[in] printf_dump_func  like printf
- *
- * @note
- *
- * @verbatim
- * The dump infomation looks like this:
- *   [PMU] prevent_status=00000000
- *   [PMU] wakeup_pin=0001000004(cur_level=0001000004 sleep_level=0001000004)
- *   [PMU] pull_up=FFFD7F9CDF(cur_level=FFFD7F9CDC) pull_down=0000000000(cur_level=0000000000) all_cur_level=FFFFFFFFFC
- *   [PMU] clocking: CPU(128MHz) SRAM(000087FF,ULP:32MHz) SF0 OSPI1 UART0 GPIO ANA
- *
- * Explain:
- * 1st line:
- *   Something (peripheral, user...) prevent system sleep.
- *   bitmask reference @ref pmu_lowpower_peripheral_t
- * 2nd line:
- *   Bitmask of wakeup pin.
- *   If cur_level != sleep_level, system can't sleep.
- * 3rd line:
- *   Inside pull-up and pull-down status.
- *   if pull_up is not equal to it's cur_level, symtem has current leakage in sleep.
- *   if pull_down's cur_level is not equal to 0, system has current leakage in sleep.
- * 4th line:
- *   Working modules.
- *   SRAM: powered block, the more block are powered on, the greater the current consumption during sleep.
- *         reference: @ref pmu_ram_power_on and @ref pmu_ram_power_off_invalid_block
- * @endverbatim
- *******************************************************************************
- **/
-extern void drv_pmu_dump(void *printf_dump_func);
-
-/**
- *******************************************************************************
  * @brief  drv pmu pin wakeup isr
  *******************************************************************************
  */
@@ -738,7 +700,7 @@ __STATIC_FORCEINLINE void drv_pmu_jtag_enable(bool enable)
  *         or negative 5% of the threshold.
  *
  * @param[in] enable  true or false
- * @param[in] voltage Set trigger threshold, see@pmu_pof_voltage_t
+ * @param[in] voltage Set trigger threshold, see @ref pmu_pof_voltage_t
  *
  *******************************************************************************
  */
@@ -785,8 +747,6 @@ extern void drv_pmu_syspll_power_enable(uint8_t enable);
 /**
  *******************************************************************************
  * @brief  iflash get iflash ready state
- *
- * @param[in] mode  power mode, see @pmu_iflash_power_mode_t
  *******************************************************************************
  */
 __STATIC_FORCEINLINE bool drv_pmu_iflash_ready_state_get(void)
@@ -797,8 +757,6 @@ __STATIC_FORCEINLINE bool drv_pmu_iflash_ready_state_get(void)
 /**
  *******************************************************************************
  * @brief  iflash set power mode
- *
- * @return iflash ready state: 0-iflash not ready, 1-iflash ready
  *******************************************************************************
  */
 __STATIC_FORCEINLINE void drv_pmu_iflash_power_mode_set(pmu_iflash_power_mode_t mode)
@@ -830,6 +788,8 @@ __STATIC_FORCEINLINE void drv_pmu_iflash_power_mode_set(pmu_iflash_power_mode_t 
  * @brief  iflash auto send deep powerdown command when sleep
  *
  * @param[in] enable  enable
+ * @param[in] exit_wait inner flash exit sleep waitting time
+ * @param[in] enter_wait inner flash enter sleep waitting time
  *******************************************************************************
  */
 __STATIC_FORCEINLINE void drv_pmu_iflash_sleep_auto_send_power_cmd_enable(bool enable,
@@ -881,8 +841,30 @@ __STATIC_FORCEINLINE void drv_pmu_iflash_low_voltage_detection_enable(bool enabl
  * @param[in] enable  0-disable  1-enable
  *******************************************************************************
  */
-extern void drv_pmu_ship_mode_enable(uint8_t enable);
+extern void drv_pmu_shelf_mode_enable(uint8_t enable);
 
+/**
+ *******************************************************************************
+ * @brief  write PMU Basic register. This register use 32K clock to sync,
+ *         the write operation is not atomic. So the function will recheck
+ *         until the write operation is successful.
+ *
+ * @param[in] mask      the mask of the register field
+ * @param[in] value     the value of the register field
+ *******************************************************************************
+ */
+__STATIC_FORCEINLINE void drv_pmu_basic_reg_set(uint32_t mask, uint32_t value)
+{
+    register uint32_t reg_prev;
+
+    OM_CRITICAL_BEGIN();
+    reg_prev = OM_PMU->BASIC;
+    reg_prev &= ~mask;
+    reg_prev |= mask & value;
+    OM_PMU->BASIC = reg_prev;
+    while ((OM_PMU->BASIC & mask) != (value & mask));
+    OM_CRITICAL_END();
+}
 
 #ifdef __cplusplus
 }

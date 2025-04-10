@@ -8,7 +8,7 @@
 
 /**
  * @defgroup QDEC QDEC
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    QDEC register
  * @details  QDEC register definitions header file
  *

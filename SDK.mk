@@ -24,7 +24,7 @@ SDK_INCS    = $(BSP_INCS)                   \
               $(RTOS_INCS)                  \
 
 SDK_LIBS    = $(COMPONENTS_LIBS)            \
-              $(SERVICES_LIBS)
+              $(HAL_LIBS)
 
 SDK_DEFS    = $(BSP_DEFS)                   \
               $(COMMON_DEFS)                \

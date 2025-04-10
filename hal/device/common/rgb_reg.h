@@ -8,7 +8,7 @@
 
 /**
  * @defgroup RGB RGB
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    RGB register
  * @details  RGB register definitions header file
  *

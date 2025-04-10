@@ -54,6 +54,18 @@ void _write(void)
 {
 }
 
+__attribute__((weak))
+size_t __write(int handle, const unsigned char *buf, size_t buf_size)
+{
+    __attribute__((weak)) void om_putchar(char character);
+
+    for (size_t i=0; i<buf_size; i++) {
+        om_putchar(buf[i]);
+    }
+
+    return buf_size;
+}
+
 #if defined(__GNUC__)
 
 #include <assert.h>

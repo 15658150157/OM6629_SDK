@@ -8,7 +8,7 @@
 
 /**
  * @defgroup RTC RTC
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    RTC register
  * @details  RTC register definitions header file
  *

@@ -27,7 +27,7 @@ define symbol __ICFEDIT_FLASH_base__  = 0x404000;
 define symbol __ICFEDIT_FLASH_size__  = 2*1024*1024 - (__ICFEDIT_FLASH_base__ - 0x400000);
 define symbol __ICFEDIT_ram_base__    = 0x20000000;
 define symbol __ICFEDIT_ram_size__    = 128*1024;
-define symbol __ICFEDIT_roram_size    = 0x4000;   /* reserved space for RORAM_region */
+define symbol __ICFEDIT_roram_size    = 0x4200;   /* reserved space for RORAM_region */
 define symbol __ICFEDIT_size_cstack__ = 0x400;
 define symbol __ICFEDIT_size_heap__   = 0xc00;
 /**** End of ICF editor section. ###ICF###*/

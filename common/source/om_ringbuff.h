@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup DOC DOC
- * @ingroup  DOCUMENT
+ * @defgroup RINGBUFF RINGBUFF
+ * @ingroup  COMMON
  * @brief    template
  * @details  template, template for .h header file
  *

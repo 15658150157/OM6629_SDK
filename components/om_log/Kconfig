@@ -50,7 +50,7 @@ if OM_LOG
         bool "log time output enable"
         default n
     config OM_LOG_FILTER_LEVEL
-        int "log filter level(0-assert 1-error 2-warn 3-info 4-debug 5-all)"
+        int "log filter level(0:assert 1:error 2:warn 3:info 4:debug 5:none)"
         range 0 5
         default 5
     config OM_LOG_LINE_MAX

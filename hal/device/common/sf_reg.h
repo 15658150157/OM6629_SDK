@@ -8,7 +8,7 @@
 
 /**
  * @defgroup SF SF
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    SF register
  * @details  SF register definitions header file
  *

@@ -11,7 +11,20 @@
  * @ingroup  DRIVER
  * @brief    AES driver
  * @details  AES driver apis and typedefs header file
- *
+ *          ECB Encrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          ECB Decrypt: implemented by software
+ *          CBC Encrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          CBC Decrypt: implemented by software
+ *          CFB Encrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          CFB Decrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          OFB Encrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          OFB Decrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          CTR Encrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          CTR Decrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          GCM Encrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          GCM Decrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          CMAC: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          LE CCM: implemented by hardware.
  * @version
  * Version 1.0
  *  - Initial release
@@ -50,13 +63,13 @@ extern "C"
  * TYPEDEFS
  */
 typedef enum {
-    AES_MODE_ECB        = 0,
-    AES_MODE_CBC        = 1,
-    AES_MODE_CFB        = 2,
-    AES_MODE_OFB        = 3,
-    AES_MODE_CTR        = 4,
-    AES_MODE_GCM        = 5,
-} aes_mode_t;
+    DRV_AES_MODE_ECB        = 0,
+    DRV_AES_MODE_CBC        = 1,
+    DRV_AES_MODE_CFB        = 2,
+    DRV_AES_MODE_OFB        = 3,
+    DRV_AES_MODE_CTR        = 4,
+    DRV_AES_MODE_GCM        = 5,
+} drv_aes_mode_t;
 
 typedef enum {
     AES_OP_DECRYPT      = 0,
@@ -124,6 +137,11 @@ typedef struct {
     uint8_t nonce[13];
     uint8_t aad;
 } aes_ccm_le_config_t;
+
+typedef struct {
+    aes_keybits_t       keybits;
+    uint8_t             key[32];
+} aes_cmac_config_t;
 
 
 /*******************************************************************************
@@ -437,7 +455,7 @@ extern om_error_t drv_aes_gcm_crypt_stop(uint32_t om_aes, uint8_t *tag, uint8_t 
  * @return om_error
  *******************************************************************************
  */
-om_error_t drv_aes_ccm_le_encrypt(aes_ccm_le_config_t *cfg, uint8_t *plain_text, uint8_t *cipher_text_and_tag, uint32_t text_len);
+extern om_error_t drv_aes_ccm_le_encrypt(aes_ccm_le_config_t *cfg, uint8_t *plain_text, uint8_t *cipher_text_and_tag, uint32_t text_len);
 
 /**
  *******************************************************************************
@@ -451,8 +469,44 @@ om_error_t drv_aes_ccm_le_encrypt(aes_ccm_le_config_t *cfg, uint8_t *plain_text,
  * @return om_error
  *******************************************************************************
  */
-om_error_t drv_aes_ccm_le_decrypt(aes_ccm_le_config_t *cfg, uint8_t *cipher_text_and_tag, uint8_t *plain_text, uint32_t text_len);
+extern om_error_t drv_aes_ccm_le_decrypt(aes_ccm_le_config_t *cfg, uint8_t *cipher_text_and_tag, uint8_t *plain_text, uint32_t text_len);
 
+/**
+ *******************************************************************************
+ * @brief Start cmac calculation
+ *
+ * @param[in] om_aes    AES ID
+ * @param[in] cfg      Pointer to cmac configuration
+ *
+ * @return om_error
+ *******************************************************************************
+ */
+extern om_error_t drv_aes_cmac_start(uint32_t om_aes, aes_cmac_config_t *cfg);
+
+/**
+ *******************************************************************************
+ * @brief Continue cmac calculation
+ *
+ * @param[in] om_aes    AES ID
+ * @param[in] input     Pointer to input data
+ * @param[in] len       Length of input data
+ *
+ * @return om_error
+ *******************************************************************************
+ */
+extern om_error_t drv_aes_cmac_crypt_continue(uint32_t om_aes, const uint8_t *input, uint32_t len);
+
+/**
+ *******************************************************************************
+ * @brief Stop cmac calculation
+ *
+ * @param[in] om_aes    AES ID
+ * @param[out] mac       Pointer to mac
+ *
+ * @return om_error
+ *******************************************************************************
+ */
+extern om_error_t drv_aes_cmac_crypt_stop(uint32_t om_aes, uint8_t mac[AES_BLOCK_SIZE]);
 
 #ifdef __cplusplus
 }

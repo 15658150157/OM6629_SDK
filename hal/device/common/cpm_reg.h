@@ -8,7 +8,7 @@
 
 /**
  * @defgroup CPM CPM
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    CPM register
  * @details  CPM register definitions header file
  *
@@ -326,6 +326,8 @@ typedef struct {
 #define CPM_2P4_CFG_MAC_SOFT_RESET_MASK                             (1U << 4)
 #define CPM_2P4_CFG_MAC_AUTO_GATE_DIS_POS                           3U
 #define CPM_2P4_CFG_MAC_AUTO_GATE_DIS_MASK                          (1U << 3)
+#define CPM_2P4_CFG_TIMER_GATE_EN_POS                               1U
+#define CPM_2P4_CFG_TIMER_GATE_EN_MASK                              (1U << 1)
 #define CPM_2P4_CFG_MAC_GATE_EN_POS                                 0U
 #define CPM_2P4_CFG_MAC_GATE_EN_MASK                                (1U << 0)
 
@@ -368,12 +370,8 @@ typedef struct {
 #define CPM_SLEEP_CFG_GATE_EN_MASK                                  (1U << 0)
 
 // USB_CFG
-#define CPM_USB_CFG_SOFT_RESET_POS                                  4U
-#define CPM_USB_CFG_SOFT_RESET_MASK                                 (1U << 4)
 #define CPM_USB_CFG_GATE_EN_POS                                     3U
 #define CPM_USB_CFG_GATE_EN_MASK                                    (1U << 3)
-#define CPM_USB_CFG_AHB_SOFT_RESET_POS                              2U
-#define CPM_USB_CFG_AHB_SOFT_RESET_MASK                             (1U << 2)
 #define CPM_USB_CFG_AHB_GATE_EN_POS                                 1U
 #define CPM_USB_CFG_AHB_GATE_EN_MASK                                (1U << 1)
 

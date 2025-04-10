@@ -28,12 +28,12 @@
 #include <stddef.h>
 #include "om_device.h"
 #include "om_driver.h"
-
+#include "om_log.h"
 
 /*******************************************************************************
  * MACROS
  */
-#ifdef GPADC_CALIB_EN
+#ifdef RTE_GPADC_CALIB_EN
 #define GPADC_OUT_IDEAL_DIFF(ideal_2, ideal_1)      ((ideal_2) - (ideal_1))
 
 #define GPADC_OUT_UPPER_BOUND(ideal)                ((ideal) * 13 / 10)
@@ -55,7 +55,7 @@
 /*******************************************************************************
  * TYPEDEFS
  */
-#ifdef GPADC_CALIB_EN
+#ifdef RTE_GPADC_CALIB_EN
 typedef struct {
     uint16_t gainErr_set;
     uint16_t vos_set;
@@ -81,10 +81,6 @@ typedef struct {
 
 typedef struct {
     bool      use_efuse;
-    bool      use_flash_ex;
-    bool      use_flash_ex_2;
-    bool      use_flash_ex_3;
-    bool      use_flash_ex_4;
     bool      register_store;
 #if (RTE_GPDMA)
     uint8_t   dma_chan;
@@ -104,16 +100,17 @@ typedef struct {
     drv_isr_callback_t              isr_cb;
     drv_gpadc_calib_t               cp_calib_value;
     drv_gpadc_flash_calib_t         ft_calib_value;
-    drv_gpadc_flash_calib_ex_t      ft_calib_ex_value;
+    drv_gpadc_flash_calib_ex_1_t    ft_calib_ex_1_value;
     drv_gpadc_flash_calib_ex_2_t    ft_calib_ex_2_value;
     drv_gpadc_flash_calib_ex_3_t    ft_calib_ex_3_value;
     drv_gpadc_flash_calib_ex_4_t    ft_calib_ex_4_value;
+    drv_gpadc_calib_t               cp_calib_ex_1_value;
 } drv_gpadc_env_t;
 
 /*******************************************************************************
  * CONST & VARIABLES
  */
-#ifdef GPADC_CALIB_EN
+#ifdef RTE_GPADC_CALIB_EN
 static const float GPADC_SINGLE_OUT_1_IDEAL[GPADC_GAIN_MAX] = {
     248.24, 218.45, 655.36
 };
@@ -160,10 +157,13 @@ static void drv_gpadc_set_calib2reg(drv_gpadc_gain_t gain)
 {
     if (gpadc_env.use_efuse) {
         REGW(&OM_GPADC->CALI_CFG, MASK_1REG(GPADC_GAIN_ERR, gpadc_env.cp_calib_value.gain_error & 0x3FFF));
+        REGW(&OM_GPADC->DCALI_CFG, MASK_1REG(GPADC_GAIN_ERR_DIFF, gpadc_env.cp_calib_ex_1_value.gain_error & 0x3FFF));
         if (gpadc_env.cp_calib_value.vos >> 14 & 0x1) {
             REGW(&OM_GPADC->CALI_CFG, MASK_1REG(GPADC_VOS, gpadc_env.cp_calib_value.vos | (0x1 << 15)));
+            REGW(&OM_GPADC->DCALI_CFG, MASK_1REG(GPADC_VOS_DIFF, gpadc_env.cp_calib_ex_1_value.vos | (0x1 << 15)));
         } else {
             REGW(&OM_GPADC->CALI_CFG, MASK_1REG(GPADC_VOS, gpadc_env.cp_calib_value.vos));
+            REGW(&OM_GPADC->DCALI_CFG, MASK_1REG(GPADC_VOS_DIFF, gpadc_env.cp_calib_ex_1_value.vos));
         }
         if (gpadc_env.cp_calib_value.vos_temp >> 9 & 0x1) {
             REGW(&OM_GPADC->TEMP_CFG, MASK_1REG(GPADC_VOS_TEMP, (gpadc_env.cp_calib_value.vos_temp << 2) | (0x3 << 12)));
@@ -182,45 +182,6 @@ static void drv_gpadc_set_calib2reg(drv_gpadc_gain_t gain)
 
 /**
  *******************************************************************************
- * @brief set GPADC temperature calibration by software
- *
- * @param[in] ret_raw   gpadc raw data
- *
- * @return temperature
- *******************************************************************************
- **/
-static int16_t drv_gpadc_temperature_calib_by_sw(uint16_t ret_raw)
-{
-    float ret, vt, gain_error, vos, vos_temp, gain;
-
-    if (gpadc_env.use_efuse) {
-        gain_error = 8192.0f / gpadc_env.cp_calib_value.gain_error;
-        if (gpadc_env.cp_calib_value.vos >> 14 & 0x1) {
-            vos = (int16_t)(gpadc_env.cp_calib_value.vos | (0x1 << 15)) / 16.0f;
-        } else {
-            vos = (int16_t)(gpadc_env.cp_calib_value.vos) / 16.0f;
-        }
-        if (gpadc_env.cp_calib_value.vos_temp >> 9 & 0x1) {
-            vos_temp = (int16_t)(((gpadc_env.cp_calib_value.vos_temp << 2) | (0x3 << 12)) << 2) / 256.0f;
-        } else {
-            vos_temp = (int16_t)((gpadc_env.cp_calib_value.vos_temp << 2) << 2) / 256.0f;
-        }
-        gain = 3;
-    } else {
-        gain_error = 8192.0f / gpadc_env.ft_calib_value.data[gpadc_env.gain].gain_error;
-        vos = (int16_t)gpadc_env.ft_calib_value.data[gpadc_env.gain].vos / 16.0f;
-        vos_temp = (int16_t)(gpadc_env.ft_calib_value.data[gpadc_env.gain].vos_temp << 2) / 256.0f;
-        gain = (GPADC_GAIN_1_3 == gpadc_env.gain) ? 3 : 1;
-    }
-
-    vt = ((ret_raw / 16.0f) - vos) * 1.25f / 4096.0f / gain_error * gain;
-    ret = vt * 1000 / 2.959f - vos_temp - 273;
-
-    return (int16_t)(ret * 10);
-}
-
-/**
- *******************************************************************************
  * @brief set GPADC temperature compensation
  *
  * @param[in] argu    Operation argument
@@ -235,12 +196,8 @@ static int16_t drv_gpadc_temperature_compen(drv_gpadc_temperature_compen_t *argu
     int16_t ret_vbat = argu->vbat_data;
     int16_t ret_temp = argu->temp_data;
 
-    if (gpadc_env.use_flash_ex_3) {
-        float step_temp = gpadc_env.ft_calib_ex_3_value.temperature_vbat_3p3v - gpadc_env.ft_calib_ex_3_value.temperature_vbat_2p3v;
-        ret = (3300 - ret_vbat) * (step_temp / 10.0f) / 1000.0f + ret_temp / 10.0f;
-    } else {
-        ret = (3300 - ret_vbat) * 0.3f / 0.2f / 1000.0f + ret_temp / 10.0f;
-    }
+    float step_temp = gpadc_env.ft_calib_ex_3_value.temperature_vbat_3p3v - gpadc_env.ft_calib_ex_3_value.temperature_vbat_2p3v;
+    ret = (3300 - ret_vbat) * (step_temp / 10.0f) / 1000.0f + ret_temp / 10.0f;
 
     return (int16_t)(ret * 10);
 }
@@ -266,30 +223,26 @@ static void drv_gpadc_get_channel_data(uint16_t channel_p, int16_t *data, uint16
     /* power-on GPADC */
     REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PD, 0));
 
-    /* digital bug : abandon first date */
+    int i = 0;
+    int ch = 0;
     for (uint8_t j = 0; j < GPADC_CH_MAX; j++) {
         if ((channel_p >> j) & 0x1) {
-            /* check interrupt from ch0 to ch9 and clear*/
-            while ((OM_GPADC->INTR & (1 << j)) != (1 << j));
-            OM_GPADC->INTR |= 1 << j;
+            ch = j;
         }
     }
 
-    /* get channel_p data */
-    int i = 0;
+    /* discard first data */
+    while ((OM_GPADC->INTR & channel_p) != channel_p);
+    OM_GPADC->INTR |= channel_p;
+
     while (i < num) {
-        for (uint8_t j = 0; j < GPADC_CH_MAX; j++) {
-            if ((channel_p >> j) & 0x1) {
-                /* check interrupt from ch0 to ch9 and clear*/
-                while ((OM_GPADC->INTR & (1 << j)) != (1 << j));
-                OM_GPADC->INTR |= 1 << j;
+        /* check interrupt from ch0 to ch9 and clear*/
+        while ((OM_GPADC->INTR & channel_p) != channel_p);
+        OM_GPADC->INTR |= channel_p;
 
-                data[i%num] = REGR(((uint32_t *)&OM_GPADC->CH_0_DATA) + j, MASK_POS(GPADC_DATA_LOW));
-                i++;
-            }
-        }
+        data[i%num] = REGR(((uint32_t *)&OM_GPADC->CH_0_DATA) + ch, MASK_POS(GPADC_DATA_LOW));
+        i++;
     }
-
     /* power-down ADC */
     REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PD, 1));
 }
@@ -304,33 +257,28 @@ static void drv_gpadc_get_channel_data(uint16_t channel_p, int16_t *data, uint16
  * @return voltage/temperature
  *******************************************************************************
  **/
-static int16_t drv_gpadc_convert_channel_data(drv_gpadc_channel_p_t channel_p, uint16_t ret_raw)
+static int16_t drv_gpadc_convert_channel_data(drv_gpadc_channel_p_t channel_p, int16_t ret_raw)
 {
     int16_t ret = 0;
     float k = 0;
-
     switch(channel_p) {
         case GPADC_CH_P_TEMPERATURE:
-            ret = drv_gpadc_temperature_calib_by_sw(ret_raw);
+            ret = (int16_t)(ret_raw * 10 / 64.0f + 0.5f);
             break;
         case GPADC_CH_P_VBAT:
-            if (gpadc_env.use_flash_ex) {
-                k = gpadc_env.ft_calib_ex_value.gain_error_vbat / 32768.0f;
-                ret = (int16_t)(ret_raw * 3 * 1000 * k / 2048.0f + 0.5);
-            } else {
-                ret = (int16_t)(ret_raw * 3 * 1000 * 1.04286f / 2048.0f + 0.5);
-            }
+                k = gpadc_env.ft_calib_ex_1_value.gain_error_vbat / 32768.0f;
+                ret = (int16_t)(ret_raw * 3 * 1000 * k / 2048.0f + 0.5f);
             break;
         default:
             if (GPADC_MODE_SINGLE == gpadc_env.mode) {
                 if (GPADC_GAIN_1 == gpadc_env.gain) {
                     /* fix digital bug : ret = ret / 1.25 * 3.3 */
-                    ret = (int16_t)(ret_raw * 132000 / 102400.0f + 0.5);
+                    ret = (int16_t)(ret_raw * 132000 / 102400.0f + 0.5f);
                 } else {
-                    ret = (int16_t)(ret_raw * 1000 / 2048.0f + 0.5);
+                    ret = (int16_t)(ret_raw * 1000 / 2048.0f + 0.5f);
                 }
             } else {
-                ret = (int16_t)(((ret_raw / 16) * 2 - 4096) * 1000 * 5 / 4 / 4096);
+                ret = (int16_t)(ret_raw * 1000 / 2048.0f);
             }
             break;
     }
@@ -354,17 +302,18 @@ static void drv_gpadc_config(const drv_gpadc_config_t* config)
                                          GPADC_EN_SCALE, (GPADC_GAIN_1_3 == config->gain)? 1 : 0,
                                          GPADC_SEL_VREF, (GPADC_GAIN_1 == config->gain)? 1 : 0,
                                          GPADC_PD_VBAT_DET, ((GPADC_CH_P_VBAT & config->channel_p) == GPADC_CH_P_VBAT)? 0 : 1,
-                                         GPADC_PMU_TS_ICTRL, (GPADC_CH_P_TEMPERATURE == config->channel_p)? 3 : 0,
-                                         GPADC_VCTRL_LDO, 0,
-                                         GPADC_CTRL_VREF, 1,
+                                         GPADC_PMU_TS_ICTRL, ((GPADC_CH_P_TEMPERATURE & config->channel_p) == GPADC_CH_P_TEMPERATURE)? 3 : 0,
+                                         GPADC_VCTRL_LDO, 1,
+                                         GPADC_CTRL_VREF, 2,
                                          GPADC_INPUT_SELN_ME, (GPADC_MODE_DIFF == config->mode)? 1 : 0,
                                          GPADC_INPUT_SELN_MO, config->channel_n,
                                          GPADC_CMREG_EN, (GPADC_MODE_DIFF == config->mode)? 1 : 0));
 
     /* ADC_CFG1 config */
-    REGW(&OM_GPADC->ADC_CFG1, MASK_7REG(GPADC_SMP_TIME, config->sampling_cycles,
+    REGW(&OM_GPADC->ADC_CFG1, MASK_8REG(GPADC_SMP_TIME, config->sampling_cycles,
                                         GPADC_AVG_BYPASS, 1,
                                         GPADC_SUM_NUM, config->sum_num,
+                                        GPADC_VIN_OUTPUT_MODE, 1,
                                         GPADC_AUTO_PD1, 0,
                                         GPADC_AUTO_PD2, 0,
                                         GPADC_TRIG_RES, 0,
@@ -382,12 +331,15 @@ static void drv_gpadc_config(const drv_gpadc_config_t* config)
                                         GPADC_SEQ_LIFE_N, 0));
 
     /* set AUTO_COMPEN, default 0 */
-    REGW(&OM_GPADC->CALI_CFG, MASK_1REG(GPADC_AUTO_COMPEN, (GPADC_CH_P_TEMPERATURE == config->channel_p)? 0 : 1));
+    REGW(&OM_GPADC->CALI_CFG, MASK_1REG(GPADC_AUTO_COMPEN, 1));
 
     /* set the interval of interruption */
     REGW(&OM_GPADC->DLY_CFG, MASK_3REG(GPADC_CFG_CHG_DLY, 0x50,
                                        GPADC_PD_DLY_MAX, 0x50,
                                        GPADC_ORB_DLY, 0xE));
+
+    /* set pd temp sensor */
+    REGW(&OM_DAIF->PD_CFG1, MASK_1REG(DAIF_PMU_PD_TS, ((GPADC_CH_P_TEMPERATURE == config->channel_p) || ((1<<3u) == config->channel_p))? 0 : 1));
 }
 
 #if (RTE_GPDMA)
@@ -413,7 +365,7 @@ static void gpadc_dma_event_cb(void *resource, drv_event_t event, gpdma_chain_tr
             REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PD, 1));
 
             for (uint32_t i = 0; i < gpadc_env.rx_num; i++) {
-                gpadc_env.rx_buf[i] = drv_gpadc_convert_channel_data((drv_gpadc_channel_p_t)gpadc_env.busy, (uint16_t)(gpadc_env.rx_buf[i]));
+                gpadc_env.rx_buf[i] = drv_gpadc_convert_channel_data((drv_gpadc_channel_p_t)gpadc_env.busy, gpadc_env.rx_buf[i]);
             }
             break;
         case DRV_GPDMA_EVENT_ABORT:
@@ -441,103 +393,61 @@ static void gpadc_dma_event_cb(void *resource, drv_event_t event, gpdma_chain_tr
  **/
 static void drv_gpadc_set_new_calibrate_param(void)
 {
-    if (gpadc_env.use_flash_ex_2) {
-        int16_t vbg_code_trim_1[GPADC_CALIB_VBG_NUM];
-        int16_t vbg_code_trim_3[GPADC_CALIB_VBG_NUM];
-        int16_t vbat_out[GPADC_CALIB_VBG_NUM];
-        int32_t vbg_code_trim_1_new = 0;
-        int32_t vbg_code_trim_3_new = 0;
-        int32_t vbat_out_sum = 0;
-        uint16_t gain_error = 0;
-        uint16_t gain_error_new = 0;
-        uint16_t out_of_range = 0;
-        float k = 0;
-        float k_sum = 0;
-        float delta = 0;
+    int16_t vbg_code_trim_1[GPADC_CALIB_VBG_NUM];
+    int16_t vbg_code_trim_3[GPADC_CALIB_VBG_NUM];
+    int32_t vbg_code_trim_1_new = 0;
+    int32_t vbg_code_trim_3_new = 0;
+    uint16_t gain_error = 0;
+    uint16_t gain_error_new = 0;
+    float k = 0;
+    float delta = 0;
 
-        drv_gpadc_config_t config_vbat;
-        config_vbat.channel_p = GPADC_CH_P_VBAT;
-        config_vbat.channel_n = GPADC_CH_N_AVSS;
-        config_vbat.mode = GPADC_MODE_SINGLE;
-        config_vbat.gain = GPADC_GAIN_1_3;
-        config_vbat.sum_num = GPADC_SUM_NUM_2;
-        config_vbat.sampling_cycles = GPADC_SAMPLING_CYCLES_128;
+    drv_gpadc_config_t config;
+    config.channel_p = 1<<2U;
+    config.channel_n = GPADC_CH_N_AVSS;
+    config.mode = GPADC_MODE_SINGLE;
+    config.gain = GPADC_GAIN_1_3;
+    config.sum_num = GPADC_SUM_NUM_256;
+    config.sampling_cycles = GPADC_SAMPLING_CYCLES_128;
 
-        drv_gpadc_init(&config_vbat);
-        drv_gpadc_read(GPADC_CH_P_VBAT, &vbat_out[0], GPADC_CALIB_VBG_NUM);
-        drv_gpadc_control(GPADC_CONTROL_DISABLE_CLOCK, NULL);
+    drv_gpadc_control(GPADC_CONTROL_ENABLE_CLOCK, NULL);
+    drv_gpadc_config(&config);
+    REGW(&OM_GPADC->CALI_CFG, MASK_1REG(GPADC_AUTO_COMPEN, 0));
 
-        for (int i = 0; i < GPADC_CALIB_VBG_NUM; i++) {
-            vbat_out_sum += vbat_out[i];
-        }
-        vbat_out_sum = vbat_out_sum/GPADC_CALIB_VBG_NUM;
+    uint8_t pmu_trim_store = REGR(&OM_GPADC->ADC_CFG0, MASK_POS(GPADC_PMU_TRIM_CTRL));
 
-        drv_gpadc_config_t config;
-        config.channel_p = 1<<2U;
-        config.channel_n = GPADC_CH_N_AVSS;
-        config.mode = GPADC_MODE_SINGLE;
-        config.gain = GPADC_GAIN_1_3;
-        config.sum_num = GPADC_SUM_NUM_256;
-        config.sampling_cycles = GPADC_SAMPLING_CYCLES_0;
+    gain_error = gpadc_env.ft_calib_value.data[GPADC_GAIN_1_3].gain_error;
 
-        drv_gpadc_control(GPADC_CONTROL_ENABLE_CLOCK, NULL);
-        drv_gpadc_config(&config);
-        REGW(&OM_GPADC->CALI_CFG, MASK_1REG(GPADC_AUTO_COMPEN, 0));
+    REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PMU_TRIM_CTRL, 1));
+    drv_gpadc_get_channel_data(1<<2U, &vbg_code_trim_1[0], GPADC_CALIB_VBG_NUM);
 
-        uint8_t pmu_trim_store = REGR(&OM_GPADC->ADC_CFG0, MASK_POS(GPADC_PMU_TRIM_CTRL));
+    REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PMU_TRIM_CTRL, 3));
+    drv_gpadc_get_channel_data(1<<2U, &vbg_code_trim_3[0], GPADC_CALIB_VBG_NUM);
 
-        gain_error = gpadc_env.ft_calib_value.data[GPADC_GAIN_1_3].gain_error;
-
-        for (int j = 0; j < 5; j++) {
-            REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PMU_TRIM_CTRL, 1));
-            drv_gpadc_get_channel_data(1<<2U, &vbg_code_trim_1[0], GPADC_CALIB_VBG_NUM);
-
-            REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PMU_TRIM_CTRL, 3));
-            drv_gpadc_get_channel_data(1<<2U, &vbg_code_trim_3[0], GPADC_CALIB_VBG_NUM);
-
-            for (int i = 0; i < GPADC_CALIB_VBG_NUM; i++) {
-                vbg_code_trim_1_new += vbg_code_trim_1[i];
-                vbg_code_trim_3_new += vbg_code_trim_3[i];
-            }
-
-            float param = (float)(3300 - vbat_out_sum)/100.0f;
-            if (gpadc_env.use_flash_ex_3) {
-                float step_trim_1 = (float)(gpadc_env.ft_calib_ex_2_value.vbg_code_trim_1_vbat_3p3v - gpadc_env.ft_calib_ex_3_value.vbg_code_trim_1_vbat_2p3v) / 10.0f;
-                float step_trim_3 = (float)(gpadc_env.ft_calib_ex_2_value.vbg_code_trim_3_vbat_3p3v - gpadc_env.ft_calib_ex_3_value.vbg_code_trim_3_vbat_2p3v) / 10.0f;
-                vbg_code_trim_1_new = vbg_code_trim_1_new / GPADC_CALIB_VBG_NUM + step_trim_1 * param;
-                vbg_code_trim_3_new = vbg_code_trim_3_new / GPADC_CALIB_VBG_NUM + step_trim_3 * param;
-            } else {
-                vbg_code_trim_1_new = vbg_code_trim_1_new / GPADC_CALIB_VBG_NUM + (-2.3f) * param;
-                vbg_code_trim_3_new = vbg_code_trim_3_new / GPADC_CALIB_VBG_NUM + 10.8f * param;
-            }
-
-            k = (float)(vbg_code_trim_3_new - vbg_code_trim_1_new) /
-                (gpadc_env.ft_calib_ex_2_value.vbg_code_trim_3_vbat_3p3v - gpadc_env.ft_calib_ex_2_value.vbg_code_trim_1_vbat_3p3v);
-
-            delta = 8192.0f / gain_error * (k - 1);
-
-            if (delta > 0.002f || delta < -0.002f) {
-                out_of_range++;
-            }
-
-            k_sum += k;
-            vbg_code_trim_1_new = 0;
-            vbg_code_trim_3_new = 0;
-        }
-
-        if (out_of_range > 3) {
-            k_sum = k_sum / 5;
-            gain_error_new = gain_error / k_sum;
-        } else {
-            gain_error_new = gain_error;
-        }
-
-        REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PMU_TRIM_CTRL, pmu_trim_store));
-
-        drv_gpadc_control(GPADC_CONTROL_DISABLE_CLOCK, NULL);
-
-        gpadc_env.ft_calib_value.data[GPADC_GAIN_1_3].gain_error = gain_error_new;
+    for (int i = 0; i < GPADC_CALIB_VBG_NUM; i++) {
+        vbg_code_trim_1_new += vbg_code_trim_1[i];
+        vbg_code_trim_3_new += vbg_code_trim_3[i];
     }
+
+    vbg_code_trim_1_new = (int32_t)(vbg_code_trim_1_new / GPADC_CALIB_VBG_NUM);
+    vbg_code_trim_3_new = (int32_t)(vbg_code_trim_3_new / GPADC_CALIB_VBG_NUM);
+
+    k = (float)(vbg_code_trim_3_new - vbg_code_trim_1_new) /
+        (gpadc_env.ft_calib_ex_2_value.vbg_code_trim_3_vbat_3p3v - gpadc_env.ft_calib_ex_2_value.vbg_code_trim_1_vbat_3p3v);
+
+    delta = 8192.0f / gain_error * (k - 1);
+
+    if (delta > 0.002f || delta < -0.002f) {
+        gain_error_new = (uint16_t)(gain_error / k);
+    } else {
+        gain_error_new = gain_error;
+    }
+
+    REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PMU_TRIM_CTRL, pmu_trim_store));
+
+    drv_gpadc_control(GPADC_CONTROL_DISABLE_CLOCK, NULL);
+
+    gpadc_env.ft_calib_value.data[GPADC_GAIN_1_3].gain_error = gain_error_new;
 }
 
 /**
@@ -549,43 +459,32 @@ static void drv_gpadc_set_new_calibrate_param(void)
  * @return none
  *******************************************************************************
  **/
-static void drv_gpadc_set_calibrate_param(drv_gpadc_cpft_calib_t *config)
+static void drv_gpadc_set_calibrate_param(drv_gpadc_cpft_calib_t *config, bool use_power_on_param)
 {
-    if (config->flash != NULL) {
+    if (config->flash != NULL || config->flash_ex_4 != NULL) {
         gpadc_env.use_efuse = false;
-        memcpy(&gpadc_env.ft_calib_value, config->flash, sizeof(drv_gpadc_flash_calib_t));
-        if (config->flash_ex != NULL) {
-            gpadc_env.use_flash_ex = true;
-            memcpy(&gpadc_env.ft_calib_ex_value, config->flash_ex, sizeof(drv_gpadc_flash_calib_ex_t));
-        } else {
-            gpadc_env.use_flash_ex = false;
-        }
-        if (config->flash_ex_2 != NULL) {
-            gpadc_env.use_flash_ex_2 = true;
+        if (config->flash != NULL) {
+            memcpy(&gpadc_env.ft_calib_value, config->flash, sizeof(drv_gpadc_flash_calib_t));
+            memcpy(&gpadc_env.ft_calib_ex_1_value, config->flash_ex_1, sizeof(drv_gpadc_flash_calib_ex_1_t));
             memcpy(&gpadc_env.ft_calib_ex_2_value, config->flash_ex_2, sizeof(drv_gpadc_flash_calib_ex_2_t));
-        } else {
-            gpadc_env.use_flash_ex_2 = false;
-        }
-        if (config->flash_ex_3 != NULL) {
-            gpadc_env.use_flash_ex_3 = true;
             memcpy(&gpadc_env.ft_calib_ex_3_value, config->flash_ex_3, sizeof(drv_gpadc_flash_calib_ex_3_t));
-        } else {
-            gpadc_env.use_flash_ex_3 = false;
-        }
-        if (config->flash_ex_4 != NULL) {
-            gpadc_env.use_flash_ex_4 = true;
+        } else if (config->flash_ex_4 != NULL) {
             memcpy(&gpadc_env.ft_calib_ex_4_value, config->flash_ex_4, sizeof(drv_gpadc_flash_calib_ex_4_t));
-        } else {
-            gpadc_env.use_flash_ex_4 = false;
         }
-        drv_gpadc_set_new_calibrate_param();
-    } else if (config->efuse != NULL) {
+        if (use_power_on_param) {
+            drv_gpadc_set_new_calibrate_param();
+        }
+    } else if (config->efuse != NULL || config->efuse_ex_1 != NULL) {
         gpadc_env.use_efuse = true;
-        memcpy(&gpadc_env.cp_calib_value, config->efuse, sizeof(drv_gpadc_calib_t));
+        if (config->efuse != NULL) {
+            memcpy(&gpadc_env.cp_calib_value, config->efuse, sizeof(drv_gpadc_calib_t));
+        } else if (config->efuse_ex_1 != NULL) {
+            memcpy(&gpadc_env.cp_calib_ex_1_value, config->efuse_ex_1, sizeof(drv_gpadc_calib_t));
+        }
     }
 }
 
-#ifdef GPADC_CALIB_EN
+#ifdef RTE_GPADC_CALIB_EN
 /**
  *******************************************************************************
  * @brief calibrate common function
@@ -617,7 +516,6 @@ static uint16_t drv_gpadc_calib_common(drv_gpadc_channel_p_t channel_p, drv_gpad
     REGW(&OM_GPADC->CALI_CFG, MASK_1REG(GPADC_AUTO_COMPEN, compen));
 
     if (1<<2 == channel_p) {
-        REGW(&OM_GPADC->ADC_CFG1, MASK_1REG(GPADC_SMP_TIME, GPADC_SAMPLING_CYCLES_0));
         drv_gpadc_get_channel_data(channel_p, (int16_t *)(&ret_raw[0]), GPADC_CALIB_VBG_NUM);
         for (int i = 0; i < GPADC_CALIB_VBG_NUM; i++) {
             sum += ret_raw[i];
@@ -647,21 +545,20 @@ static uint16_t drv_gpadc_calib_common(drv_gpadc_channel_p_t channel_p, drv_gpad
  **/
 static float drv_gpadc_calib_vos_temp(drv_gpadc_gain_t gain, uint16_t gainErr_set, uint16_t vos_set)
 {
-    uint16_t vt = 0;
     float vosTemp = 0;
 
-    /* config GPADC_GAIN_ERR and GPADC_VOS */
-    REGW(&OM_GPADC->CALI_CFG, MASK_2REG(GPADC_GAIN_ERR, (gainErr_set & 0x3FFF), GPADC_VOS, vos_set));
-
     /* start gpadc */
-    drv_gpadc_calib_common(GPADC_CH_P_TEMPERATURE, GPADC_CH_N_AVSS, gain, 1, GPADC_MODE_SINGLE);
+    uint16_t ret_raw = drv_gpadc_calib_common(GPADC_CH_P_TEMPERATURE, GPADC_CH_N_AVSS, gain, 0, GPADC_MODE_SINGLE);
 
-    /* We can get the calibrate value from responding vector */
-    vt = REGR(&OM_GPADC->ADC_DBG1, MASK_POS(GPADC_SMP_VIN));
+    float v_gain_error = 8192.0f / gainErr_set;
+    float v_vos = (int16_t)vos_set / 16.0f;
+    float v_gain = (GPADC_GAIN_1_3 == gain) ? 3 : 1;
 
-    OM_GPADC_LOG_DEBUG("vt[%d]=%f\r\n", gain, (int16_t)vt / 2048.0f);
+    float vt = ((ret_raw / 16.0f) - v_vos) * 1.25f / 4096.0f / v_gain_error * v_gain;
 
-    vosTemp = ((int16_t)vt * 1000) / 2.959f / 2048 - (gpadc_env.calib_temper + 273);
+    OM_GPADC_LOG_DEBUG("code = %f, vt[%d]=%f\r\n", ret_raw/16.0f, gain, vt);
+
+    vosTemp = (vt * 1000) / 2.959f - (gpadc_env.calib_temper + 273);
 
     return vosTemp;
 }
@@ -841,7 +738,7 @@ void drv_gpadc_isr(void)
         REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PD, 1));
 
         for (int i = 0; i < gpadc_env.rx_num; i++) {
-            gpadc_env.rx_buf[i] = drv_gpadc_convert_channel_data((drv_gpadc_channel_p_t)gpadc_env.busy, (uint16_t)(gpadc_env.rx_buf[i]));
+            gpadc_env.rx_buf[i] = drv_gpadc_convert_channel_data((drv_gpadc_channel_p_t)gpadc_env.busy, gpadc_env.rx_buf[i]);
         }
 
         gpadc_env.busy = 0;
@@ -864,11 +761,6 @@ void drv_gpadc_isr(void)
  */
 om_error_t drv_gpadc_init(const drv_gpadc_config_t *config)
 {
-    if (((GPADC_CH_P_TEMPERATURE & config->channel_p) && (GPADC_CH_P_VBAT & config->channel_p)) ||
-        ((GPADC_CH_P_TEMPERATURE & config->channel_p) && (config->channel_p > GPADC_CH_P_GPIO2))) {
-        return OM_ERROR_PARAMETER;
-    }
-
     if (GPADC_MODE_DIFF == config->mode && (GPADC_CH_P_TEMPERATURE == config->channel_p || GPADC_CH_P_VBAT == config->channel_p)) {
         return OM_ERROR_PARAMETER;
     }
@@ -929,7 +821,7 @@ om_error_t drv_gpadc_read(uint16_t channel_p, int16_t *data, uint16_t num)
     while (i < num) {
         for (uint8_t j = 0; j < GPADC_CH_MAX; j++) {
             if ((channel_p >> j) & 0x1) {
-                data[i%num] = drv_gpadc_convert_channel_data((drv_gpadc_channel_p_t)(0x1 << j), (uint16_t)(data[i%num]));
+                data[i%num] = drv_gpadc_convert_channel_data((drv_gpadc_channel_p_t)(0x1 << j), data[i%num]);
                 i++;
             }
         }
@@ -1111,7 +1003,7 @@ void *drv_gpadc_control(drv_gpadc_control_t control, void *argu)
                 ret = (uint32_t)OM_ERROR_PARAMETER;
                 break;
             }
-            drv_gpadc_set_calibrate_param((drv_gpadc_cpft_calib_t *)argu);
+            drv_gpadc_set_calibrate_param((drv_gpadc_cpft_calib_t *)argu, true);
             break;
         case GPADC_CONTROL_IS_BUSY:
             if (gpadc_env.busy)
@@ -1128,6 +1020,13 @@ void *drv_gpadc_control(drv_gpadc_control_t control, void *argu)
         case GPADC_CONTROL_TEMPERATURE_COMPEN:
             ret = drv_gpadc_temperature_compen((drv_gpadc_temperature_compen_t *)argu);
             break;
+        case GPADC_CONTROL_SET_PARAM_WITHOUT_POWER_ON_PARAM:
+            if (argu == NULL) {
+                ret = (uint32_t)OM_ERROR_PARAMETER;
+                break;
+            }
+            drv_gpadc_set_calibrate_param((drv_gpadc_cpft_calib_t *)argu, false);
+            break;
         default:
             break;
     }
@@ -1135,7 +1034,7 @@ void *drv_gpadc_control(drv_gpadc_control_t control, void *argu)
     return (void *)ret;
 }
 
-#ifdef GPADC_CALIB_EN
+#ifdef RTE_GPADC_CALIB_EN
 /**
  *******************************************************************************
  * @brief Calibrate GPADC and initialize GPADC compensation parameters.
@@ -1144,7 +1043,7 @@ void *drv_gpadc_control(drv_gpadc_control_t control, void *argu)
  * @param[in] calib_sel      gpadc select calibration phase
  * @param[out] pvalue        Pointer to @p drv_gpadc_calib_t object where the
  *                           calibration parameters are to be returned.
- * @param[out] pvalue_vbat   Pointer to @p drv_gpadc_flash_calib_ex_t object where the
+ * @param[out] pvalue_vbat   Pointer to @p drv_gpadc_flash_calib_ex_1_t object where the
  *                           calibration extra parameters are to be returned.
  * @param[out] pvalue_temp   Pointer to @p drv_gpadc_flash_calib_ex_2_t object where the
  *                           calibration extra parameters are to be returned.
@@ -1158,7 +1057,7 @@ void *drv_gpadc_control(drv_gpadc_control_t control, void *argu)
  *    - others:              No
  *******************************************************************************
  */
-om_error_t drv_gpadc_calibrate(drv_gpadc_calib_t *pvalue, drv_gpadc_flash_calib_ex_t *pvalue_vbat, drv_gpadc_flash_calib_ex_2_t *pvalue_temp,
+om_error_t drv_gpadc_calibrate(drv_gpadc_calib_t *pvalue, drv_gpadc_flash_calib_ex_1_t *pvalue_vbat, drv_gpadc_flash_calib_ex_2_t *pvalue_temp,
                                drv_gpadc_flash_calib_ex_3_t *pvalue_temp_2, drv_gpadc_calib_t *pvalue_diff,
                                drv_gpadc_gain_t gain, drv_gpadc_calib_sel_t calib_sel)
 {
@@ -1268,7 +1167,7 @@ om_error_t drv_gpadc_calibrate(drv_gpadc_calib_t *pvalue, drv_gpadc_flash_calib_
     } else if (GPADC_CALIB_FT_DIFF_1 == calib_sel) {
         do {
             /* get gpadc_out_real_1[15:0] */
-            ret_raw = drv_gpadc_calib_common(GPADC_CH_P_GPIO2, GPADC_CH_N_GPIO8, gain, 0, GPADC_MODE_DIFF);
+            ret_raw = drv_gpadc_calib_common(GPADC_CH_P_GPIO2, GPADC_CH_N_GPIO3, gain, 0, GPADC_MODE_DIFF);
             gpadc_para.gpadcOut_1 = ret_raw / 16.0f;
             OM_GPADC_LOG_DEBUG("gpadc_out_real_1[%d]=%f\r\n", gain, gpadc_para.gpadcOut_1);
             if ((gpadc_para.gpadcOut_1 > GPADC_OUT_UPPER_BOUND(GPADC_DIFF_OUT_1_IDEAL[gain])) ||
@@ -1280,7 +1179,7 @@ om_error_t drv_gpadc_calibrate(drv_gpadc_calib_t *pvalue, drv_gpadc_flash_calib_
     } else if (GPADC_CALIB_FT_DIFF_2 == calib_sel) {
         do {
             /* get gpadc_out_real_2[15:0] */
-            ret_raw = drv_gpadc_calib_common(GPADC_CH_P_GPIO2, GPADC_CH_N_GPIO8, gain, 0, GPADC_MODE_DIFF);
+            ret_raw = drv_gpadc_calib_common(GPADC_CH_P_GPIO2, GPADC_CH_N_GPIO3, gain, 0, GPADC_MODE_DIFF);
             gpadc_para.gpadcOut_2 = ret_raw / 16.0f;
             OM_GPADC_LOG_DEBUG("gpadc_out_real_2[%d]=%f\r\n", gain, gpadc_para.gpadcOut_2);
             if ((gpadc_para.gpadcOut_2 > GPADC_OUT_UPPER_BOUND(GPADC_DIFF_OUT_2_IDEAL[gain])) ||

@@ -18,7 +18,7 @@
 仓库参考：https://github.com/CherryUSB/cherryusb_hpmicro
 
 - HPM 系列芯片均 USB 2.0 并且内置高速 PHY，支持主从机，端点共 8/16 个，并且可以同时使用双向，不同芯片个数有差异
-- USB 的相关应用位于 `samples/cherryusb` ，根据官方环境搭建完成后，即可编译使用。
+- USB 的相关应用位于 `simples/cherryusb` ，根据官方环境搭建完成后，即可编译使用。
 
 基于 esp32s2/s3/p4 系列芯片
 ---------------------------
@@ -194,4 +194,3 @@ USB Host 移植要点
 - 如果使用 **msc**，并且带文件系统，需要自行添加文件系统文件了，对应的 porting 编写参考 **fatfs_usbh.c** 文件。
 
 .. figure:: img/stm32_21.png
-

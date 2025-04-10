@@ -53,6 +53,8 @@
 typedef struct {
     /// Common: I2S configuration
     i2s_config_t                config;
+    /// Common: DAIF clock
+    uint8_t                     daif_clock;
 
     /// TX: Block handled finished callback
     drv_isr_callback_t          tx_isr_cb;
@@ -125,47 +127,109 @@ static const drv_resource_t i2s_resource = {
 /*******************************************************************************
  * LOCAL FUNCTIONS
  */
+static void i2s_enable_daif_16m(i2s_role_t role)
+{
+    if(role == I2S_ROLE_SLAVE) {
+        return;
+    }
+
+#if (!RTE_I2S_USE_EXTERNAL_MCLK) && (RTE_AUDIO_USE_EXTERNAL)
+    i2s_env.daif_clock = (uint8_t)OM_CPM->ANA_IF_CFG;
+    if(i2s_env.daif_clock) {
+        // Open DAIF clock
+        DRV_RCC_CLOCK_ENABLE(RCC_CLK_DAIF, 1U);
+    }
+    // Open Audio CLOCK 16M
+    register_set(&OM_DAIF->CLK_CFG, MASK_1REG(DAIF_XTAL32M_EN_CKO16M_AUDIO, 1));
+
+    /// Reset Audio module and Enable clock
+    DRV_RCC_RESET(RCC_CLK_AUDIO);
+
+    // I2S_SDI and I2S_SDO connecnt to GPIO
+    register_set(&OM_AUDIO->CODEC_CLK_CTRL_1, MASK_1REG(AU_CLK_I2S_CONN_CTRL, 0));
+
+    /// LDO/BIAS/ADC/PGA control by reg
+    register_set(&OM_AUDIO->CODEC_ANA_PWR_1, MASK_2REG(AU_ANA_PWR_LDO_CTRL, 1, AU_ANA_PWR_ADC_CTRL, 1));
+    /// Power on LDO and BIAS
+    register_set(&OM_AUDIO->CODEC_ANA_CTRL_1, MASK_1REG(AU_ANA_PD_CLK, 0));
+    register_set(&OM_AUDIO->CODEC_ANA_CTRL_1, MASK_1REG(AU_ANA_PD_CORE, 0));
+    DRV_DELAY_US(5);
+#endif
+}
+
+static void i2s_disable_daif_16m(void)
+{
+#if (!RTE_I2S_USE_EXTERNAL_MCLK) && (RTE_AUDIO_USE_EXTERNAL)
+    // Close Audio CLOCK 16M
+    register_set(&OM_DAIF->CLK_CFG, MASK_1REG(DAIF_XTAL32M_EN_CKO16M_AUDIO, 0));
+
+    if(i2s_env.daif_clock) {
+        // Close DAIF clock
+        DRV_RCC_CLOCK_ENABLE(RCC_CLK_DAIF, 0U);
+    }
+
+    /// Power off LDO and BIAS
+    register_set(&OM_AUDIO->CODEC_ANA_CTRL_1, MASK_1REG(AU_ANA_PD_CLK, 1));
+    register_set(&OM_AUDIO->CODEC_ANA_CTRL_1, MASK_1REG(AU_ANA_PD_CORE, 1));
+    /// LDO/BIAS/ADC/PGA control by reg
+    register_set(&OM_AUDIO->CODEC_ANA_PWR_1, MASK_2REG(AU_ANA_PWR_LDO_CTRL, 0, AU_ANA_PWR_ADC_CTRL, 0));
+
+    /// Disable Audio Clock
+    DRV_RCC_CLOCK_ENABLE(RCC_CLK_AUDIO, 0);
+#endif
+}
+
 #if RTE_AUDIO_USE_EXTERNAL
 static void i2s_set_sr_reg(i2s_sr_t sr)
 {
     uint8_t is12m = 1, coeff = 4, odd = 0, high = 0;
 
     switch (sr) {
-        case I2S_SR_8K:
-        case I2S_SR_16K:
-        case I2S_SR_32K:
+    case I2S_SR_8K:
+    case I2S_SR_16K:
+    case I2S_SR_32K:
         is12m = 0;
         coeff = 0xA;
         high = (uint8_t)(1600000/sr/2);
         break;
 
-        case I2S_SR_11K:
-        case I2S_SR_12K:
-        case I2S_SR_22K:
-        case I2S_SR_44P1K:
+    case I2S_SR_11K:
+    case I2S_SR_12K:
+    case I2S_SR_22K:
+    case I2S_SR_44P1K:
         high = (uint8_t)(3000000/sr/2);
         break;
 
-        case I2S_SR_24K:
+    case I2S_SR_24K:
+        odd = 1;
         high = 63;
         break;
 
-        case I2S_SR_48K:
+    case I2S_SR_48K:
         high = 31;
         break;
 
-        default:
+    default:
         I2S_ASSERT(0);
         break;
     }
 
+    /// Clock Source 48M
+    if(is12m) {
+        drv_pmu_syspll_power_enable(1);
+    }
+
     /// Select I2S clock
-    register_set(&OM_CPM->I2S_CFG, MASK_1REG(CPM_I2S_CFG_MS_SRC_SEL, is12m));       /* I2S clock 12M or 16M */
+#if !RTE_I2S_USE_EXTERNAL_MCLK
+    register_set(&OM_CPM->I2S_CFG, MASK_1REG(CPM_I2S_CFG_MS_SRC_SEL, is12m));       /* I2S MCLK 12M or 16M */
+#else
+    register_set(&OM_CPM->I2S_CFG, MASK_1REG(CPM_I2S_CFG_MS_SRC_SEL, 3));           /* I2S MCLK external */
+#endif
 
     /// Calculate blck and ws
     register_set(&OM_CPM->I2S_CFG, MASK_3REG(CPM_I2S_CFG_MST_DIV_COEFF,   coeff,    /* BCLK = I2S clock / coeff */
-                                                CPM_I2S_CFG_MST_ODD,      odd,      /* odd  = (BCLK/Rate % 2) ? 1 : 0 */
-                                                CPM_I2S_CFG_MST_HIGH_NUM, high));   /* high = round(BCLK / Rate / 2) */
+                 CPM_I2S_CFG_MST_ODD,      odd,      /* odd  = (BCLK/Rate % 2) ? 1 : 0 */
+                 CPM_I2S_CFG_MST_HIGH_NUM, high));   /* high = round(BCLK / Rate / 2) */
 }
 #endif /* RTE_AUDIO_USE_EXTERNAL */
 
@@ -197,22 +261,22 @@ static void i2s_set_ws_bclk(i2s_config_t *config)
 
     /// Calculate blck and ws, bclk = 16M/div_coeff, odd  = (BCLK/Rate % 2) ? 1 : 0, high = round(BCLK / Rate / 2)
     switch (config->sample_rate) {
-        case I2S_SR_8K:
+    case I2S_SR_8K:
         /// BCLK = 1M, ODD = 1, HIGH_NUM = 0x3F
         register_set(&OM_CPM->I2S_CFG, MASK_3REG(CPM_I2S_CFG_MST_DIV_COEFF, 16, CPM_I2S_CFG_MST_ODD, 1, CPM_I2S_CFG_MST_HIGH_NUM,  0x3f));
         break;
 
-        case I2S_SR_16K:
+    case I2S_SR_16K:
         /// BCLK = 2M, ODD = 1, HIGH_NUM = 0x3F
         register_set(&OM_CPM->I2S_CFG, MASK_3REG(CPM_I2S_CFG_MST_DIV_COEFF, 8, CPM_I2S_CFG_MST_ODD, 1, CPM_I2S_CFG_MST_HIGH_NUM,  0x3f));
         break;
 
-        case I2S_SR_32K:
+    case I2S_SR_32K:
         /// BCLK = 3.2M, ODD = 0, HIGH_NUM = 0x32
         register_set(&OM_CPM->I2S_CFG, MASK_3REG(CPM_I2S_CFG_MST_DIV_COEFF, 5, CPM_I2S_CFG_MST_ODD, 0, CPM_I2S_CFG_MST_HIGH_NUM,  0x32));
         break;
 
-        default:
+    default:
         I2S_ASSERT(0);
         break;
     }
@@ -221,15 +285,14 @@ static void i2s_set_ws_bclk(i2s_config_t *config)
 
     if(I2S_ROLE_MASTER == config->role) {
 
-        /// Master clock generation enable, select internal clock
+        /// Master clock generation enable, Make as master role
         register_set(&OM_CPM->I2S_CFG, MASK_2REG(CPM_I2S_CFG_MST_EN, 1, CPM_I2S_CFG_MS_SEL, 1));
 
         /// Set sample rate divider
         i2s_set_sr_reg(config->sample_rate);
 
     } else {
-
-        /// Slave clock generation disable, select external clock
+        /// Master clock generation disable, Make as slave role
         register_set(&OM_CPM->I2S_CFG, MASK_2REG(CPM_I2S_CFG_MST_EN, 0, CPM_I2S_CFG_MS_SEL, 0));
     }
 
@@ -274,19 +337,19 @@ static void i2s_gpdma_tx_isr_cb(void *p_resource, drv_event_t event, gpdma_chain
     env->tx_chain_env[env->tx_chain_rpos].ll_ptr   = NULL;
 
     /// Make list work up when node number smaller than 2
-    #if RTE_I2S_GPDMA_LLP_CHAIN_NUM <= 2
+#if RTE_I2S_GPDMA_LLP_CHAIN_NUM <= 2
     drv_gpdam_channel_set_ptr(env->tx_gpdma_idx, &env->tx_chain_env[env->tx_chain_rpos]);
-    #endif
+#endif
 
     /// Handle callback
     if(env->tx_isr_cb) {
-        #if defined ( __ICCARM__ )
-        #pragma diag_suppress=Pa082
+#if defined ( __ICCARM__ )
+#pragma diag_suppress=Pa082
         env->tx_isr_cb(OM_I2S, DRV_GPDMA_EVENT_TERMINAL_COUNT_REQUEST, (void *)addr, (void *)(env->tx_chain_env[env->tx_chain_rpos].size_byte << dma_width));
-        #pragma diag_warning=Pa082
-        #else
+#pragma diag_warning=Pa082
+#else
         env->tx_isr_cb(OM_I2S, DRV_GPDMA_EVENT_TERMINAL_COUNT_REQUEST, (void *)addr, (void *)(env->tx_chain_env[env->tx_chain_rpos].size_byte << dma_width));
-        #endif
+#endif
     }
 
     /// Indicate will read next node
@@ -358,19 +421,19 @@ static void i2s_gpdma_rx_isr_cb(void *p_resource, drv_event_t event, gpdma_chain
     env->rx_chain_env[env->rx_chain_rpos].ll_ptr   = NULL;
 
     /// Make list work up when node number smaller than 2
-    #if RTE_I2S_GPDMA_LLP_CHAIN_NUM <= 2
+#if RTE_I2S_GPDMA_LLP_CHAIN_NUM <= 2
     drv_gpdam_channel_set_ptr(env->rx_gpdma_idx, &env->rx_chain_env[env->rx_chain_rpos]);
-    #endif
+#endif
 
     /// Handle callback
     if(env->rx_isr_cb) {
-        #if defined ( __ICCARM__ )
-        #pragma diag_suppress=Pa082
+#if defined ( __ICCARM__ )
+#pragma diag_suppress=Pa082
         env->rx_isr_cb(OM_I2S, DRV_GPDMA_EVENT_TERMINAL_COUNT_REQUEST, (void *)addr, (void *)(env->rx_chain_env[env->rx_chain_rpos].size_byte << dma_width));
-        #pragma diag_warning=Pa082
-        #else
+#pragma diag_warning=Pa082
+#else
         env->rx_isr_cb(OM_I2S, DRV_GPDMA_EVENT_TERMINAL_COUNT_REQUEST, (void *)addr, (void *)(env->rx_chain_env[env->rx_chain_rpos].size_byte << dma_width));
-        #endif
+#endif
     }
 
     /// Indicate will read next node
@@ -423,11 +486,11 @@ void drv_i2s_init(OM_I2S_Type *om_i2s, i2s_config_t *config)
     /// For global use
     memcpy(&env->config, config, sizeof(i2s_config_t));
 
+    /// Enable audio 16M
+    i2s_enable_daif_16m(config->role);
+
     /// Reset I2S module and Enable clock
     DRV_RCC_RESET(RCC_CLK_I2S);
-
-    /// Set I2S MCLK & BCLK & WS
-    //i2s_set_ws_bclk(config);
 
     /// Set Channel mode
     register_set(&OM_I2S->IER, MASK_1REG(I2S_IER_MONO_EN, (I2S_CHN_MONO == config->channel) ? 1 : 0));
@@ -439,19 +502,19 @@ void drv_i2s_init(OM_I2S_Type *om_i2s, i2s_config_t *config)
     uint8_t i2s_bw = 0;
     switch (config->bit_width)
     {
-        case I2S_BW_12BIT:
+    case I2S_BW_12BIT:
         i2s_bw = 1;
         break;
-        case I2S_BW_16BIT:
+    case I2S_BW_16BIT:
         i2s_bw = 2;
         break;
-        case I2S_BW_20BIT:
+    case I2S_BW_20BIT:
         i2s_bw = 3;
         break;
-        case I2S_BW_24BIT:
+    case I2S_BW_24BIT:
         i2s_bw = 4;
         break;
-        default:
+    default:
         I2S_ASSERT(0);
         break;
     }
@@ -544,7 +607,6 @@ void drv_i2s_uninit(OM_I2S_Type *om_i2s)
     /// Abort gpdma transmit
     if(env->config.dir & I2S_DIR_RX) {
         if (env->rx_gpdma_idx < GPDMA_NUMBER_OF_CHANNELS) {
-            drv_gpdma_channel_disable(env->rx_gpdma_idx);
             drv_gpdma_channel_release(env->rx_gpdma_idx);
             env->rx_gpdma_idx  = GPDMA_NUMBER_OF_CHANNELS;
         }
@@ -554,7 +616,6 @@ void drv_i2s_uninit(OM_I2S_Type *om_i2s)
 
     if(env->config.dir & I2S_DIR_TX) {
         if (env->tx_gpdma_idx < GPDMA_NUMBER_OF_CHANNELS) {
-            drv_gpdma_channel_disable(env->tx_gpdma_idx);
             drv_gpdma_channel_release(env->tx_gpdma_idx);
             env->tx_gpdma_idx  = GPDMA_NUMBER_OF_CHANNELS;
         }
@@ -570,6 +631,9 @@ void drv_i2s_uninit(OM_I2S_Type *om_i2s)
 
     /// Gate I2S clock
     DRV_RCC_CLOCK_ENABLE(RCC_CLK_I2S, 0);
+
+    /// Disable audio 16M
+    i2s_disable_daif_16m();
 }
 
 void drv_i2s_tx_register_isr_callback(OM_I2S_Type *om_i2s, drv_isr_callback_t isr_cb)
@@ -623,11 +687,11 @@ om_error_t drv_i2s_write_dma(OM_I2S_Type *om_i2s, uint8_t *buffer, uint32_t size
 
         /// DMA channel config
         dma_config.channel_ctrl  = GPDMA_SET_CTRL(GPDMA_ADDR_CTRL_INC,
-                                                  GPDMA_ADDR_CTRL_FIXED,
-                                                  dma_width,
-                                                  dma_width,
-                                                  GPDMA_BURST_SIZE_1T,
-                                                  (i2s_resource.gpdma_tx.prio) ? GPDMA_PRIORITY_HIGH : GPDMA_PRIORITY_LOW);
+                                   GPDMA_ADDR_CTRL_FIXED,
+                                   dma_width,
+                                   dma_width,
+                                   GPDMA_BURST_SIZE_1T,
+                                   (i2s_resource.gpdma_tx.prio) ? GPDMA_PRIORITY_HIGH : GPDMA_PRIORITY_LOW);
         dma_config.src_id        = GPDMA_ID_MEM;
         dma_config.dst_id        = (gpdma_id_t)i2s_resource.gpdma_tx.id;
         dma_config.isr_cb        = i2s_gpdma_tx_isr_cb;

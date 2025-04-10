@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup DOC DOC
- * @ingroup  DOCUMENT
+ * @defgroup EVT_TIMER EVT_TIMER
+ * @ingroup  EVT
  * @brief    event timer
  * @details  event timer
  *
@@ -18,6 +18,7 @@
  *
  * @{
  */
+
 #ifndef __EVT_TIMER_H
 #define __EVT_TIMER_H
 

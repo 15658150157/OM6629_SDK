@@ -140,7 +140,7 @@ void drv_rf_single_tone_enable(bool enable, uint32_t freq, uint8_t payload)
         REGW1(&OM_24G->PKTCTRL0, OM24G_PKTCTRL0_MAC_SEL_MASK);
 
         REGW0(&OM_PHY->TX_CTRL0, PHY_TX_CTRL0_BP_GAU_MASK);  //GFSK
-        REGW0(&OM_PHY->REG_PHY_RST_N, PHY_REG_PHY_RST_N_REG_PHY_RST_N_MASK);  //reset phy
+        // REGW0(&OM_PHY->REG_PHY_RST_N, PHY_REG_PHY_RST_N_REG_PHY_RST_N_MASK);  //reset phy
         REGW(&OM_24G->TESTCTRL, MASK_1REG(OM24G_CONT_WAVE, 1));
         REGW(&OM_DAIF->FREQ_CFG0, MASK_2REG(DAIF_FREQ_REG_MO, freq, DAIF_FREQ_REG_ME, 1));
         REGW(&OM_24G->TESTCTRL, MASK_1REG(OM24G_TEST_PAT_EN, 1));
@@ -271,7 +271,7 @@ void drv_rf_tx_power_set(bool auto_ctrl_by_ble, rf_tx_power_t power)
     }
 
     REGW(&OM_PMU->ANA_PD_1, MASK_1REG(PMU_ANA_PD_1_DCDC_VOUT, pmu_dcdc_vout));
-    REGW(&OM_PMU->ANA_PD, MASK_1REG(PMU_ANA_PD_PMU_LDO_ANA1P2_TRIM, pmu_ldo_v1p2_vbat));
+    REGW(&OM_PMU->OM26B_CFG0, MASK_1REG(PMU_OM26B_CFG0_LDO_ANA1P2_TRIM, pmu_ldo_v1p2_vbat));
 
     DRV_RCC_ANA_CLK_RESTORE();
 }

@@ -24,7 +24,13 @@
  */
 #include "omsh_app.h"
 
+#if !RTE_ECDSA
+#error "Mesh APP dependency ECDSA driver"
+#endif
 
+#if defined ( __ICCARM__ )
+#pragma diag_suppress=Pe188
+#endif
 /*********************************************************************
  * DEFINES
  */
@@ -49,6 +55,12 @@ static void vEvtEventHandler(void)
 
 static void msh_app_init(void)
 {
+    // Enable Rand Function
+    ecdsa_config_t cfg = {
+        .random_seed = 0xAC67BF78
+    };
+    drv_ecdsa_init(&cfg);
+
 #if APP_MESH_LOG
     msh_api_log_init(0xFFFF, LOG_LEVEL_DBG2);
 #endif
@@ -80,6 +92,9 @@ static void mesh_thread(void *arguments)
     // Evt and evt timer initialization
     evt_init();
     evt_timer_init();
+
+    // Init RF
+    drv_rf_init();
 
     // BLE initialization
     struct ob_stack_param param = {
@@ -154,4 +169,7 @@ void msh_app_start(bool prov_state)
 #endif
 }
 
+#if defined ( __ICCARM__ )
+#pragma diag_default=Pe188
+#endif
 /** @} */

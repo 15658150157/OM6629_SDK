@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup DOC DOC
- * @ingroup  DOCUMENT
+ * @defgroup FIFO FIFO
+ * @ingroup  COMMON
  * @brief    fifo with unlimited size
  * @details  fifo with unlimited size
  *

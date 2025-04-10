@@ -207,14 +207,17 @@ static void vEvtEventHandler(void)
 static void vEvtScheduleTask(void *argument)
 {
     uint32_t uxBits;
+
+    hardware_init();
+    drv_rf_init();
+    nvds_init(0);
+    #if (CONFIG_SHELL)
     const shell_cmd_t ble_hci_shell_cmd[] = {
         { "pta",     cmd_shell_pta,     "pta <priority_threshold>" },
         { NULL,      NULL,              NULL},     /* donot deleted */
     };
-
-    hardware_init();
-    nvds_init(0);
     shell_init(ble_hci_shell_cmd);
+    #endif
     ble_controller_init();
 
     // simple event timer

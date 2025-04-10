@@ -8,7 +8,7 @@
 
 /**
  * @defgroup I2S I2S
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    I2S register
  * @details  I2S register definitions header file
  *
@@ -18,6 +18,7 @@
  *
  * @{
  */
+
 #ifndef __I2S_REG_H
 #define __I2S_REG_H
 

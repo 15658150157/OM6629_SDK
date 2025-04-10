@@ -8,7 +8,7 @@
 
 /**
  * @defgroup TIMER TIMER
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    TIMER register
  * @details  TIMER register definitions header file
  *
@@ -40,35 +40,34 @@ extern "C"
  * MACROS
  */
 // TIM_CR1
-#define TIM_CR1_CKD_POS                                                8
-#define TIM_CR1_CKD_MASK                                               (0x3U << 8)      // Clock division
-#define TIM_CR1_ARPE_POS                                               7
-#define TIM_CR1_ARPE_MASK                                              (0x1U << 7)      // Auto-reload preload enable
-#define TIM_CR1_CMS_POS                                                5
-#define TIM_CR1_CMS_MASK                                               (0x3U << 5)      // Center-aligned mdoe selection
-#define TIM_CR1_DIR_POS                                                4
-#define TIM_CR1_DIR_MASK                                               (0x1U << 4)      // direction
-#define TIM_CR1_OPM_POS                                                3
-#define TIM_CR1_OPM_MASK                                               (0x1U << 3)      // one pulse mode
-#define TIM_CR1_URS_POS                                                2
-#define TIM_CR1_URS_MASK                                               (0x1U << 2)      // Update request source
-#define TIM_CR1_UDIS_POS                                               1
-#define TIM_CR1_UDIS_MASK                                              (0x1U << 1)      // Update disable
-#define TIM_CR1_CEN_POS                                                0
-#define TIM_CR1_CEN_MASK                                               (0x1U << 0)      // Counter Enable
-
-// TIM_CR2
-#define TIM_CR2_OIS1_MASK                                              (0x1U << 8)
-#define TIM_CR2_TI1S_POS                                               7
-#define TIM_CR2_TI1S_MASK                                              (0x1U << 7)      // TI1 selection
-#define TIM_CR2_MMS_POS                                                4
-#define TIM_CR2_MMS_MASK                                               (0x7U << 4)      // Master mode selection
-#define TIM_CR2_CCDS_POS                                               3
-#define TIM_CR2_CCDS_MASK                                              (0x1U << 3)      // Capture/Compare DMA selection
-#define TIM_CR2_CCUS_POS                                               2
-#define TIM_CR2_CCUS_MASK                                              (0x1U << 2)      // Capture/Compare control update selection
-#define TIM_CR2_CCPC_POS                                               0
-#define TIM_CR2_CCPC_MASK                                              (0x1U << 0)      // Capture/Compare preload control
+#define TIM_CTR1_CKD_POS                                               8
+#define TIM_CTR1_CKD_MASK                                              (0x3U << 8)      // Clock division
+#define TIM_CTR1_ARPE_POS                                              7
+#define TIM_CTR1_ARPE_MASK                                             (0x1U << 7)      // Auto-reload preload enable
+#define TIM_CTR1_CMS_POS                                               5
+#define TIM_CTR1_CMS_MASK                                              (0x3U << 5)      // Center-aligned mdoe selection
+#define TIM_CTR1_DIR_POS                                               4
+#define TIM_CTR1_DIR_MASK                                              (0x1U << 4)      // direction
+#define TIM_CTR1_OPM_POS                                               3
+#define TIM_CTR1_OPM_MASK                                              (0x1U << 3)      // one pulse mode
+#define TIM_CTR1_URS_POS                                               2
+#define TIM_CTR1_URS_MASK                                              (0x1U << 2)      // Update request source
+#define TIM_CTR1_UDIS_POS                                              1
+#define TIM_CTR1_UDIS_MASK                                             (0x1U << 1)      // Update disable
+#define TIM_CTR1_CEN_POS                                               0
+#define TIM_CTR1_CEN_MASK                                              (0x1U << 0)      // Counter Enable
+// TIM_CR
+#define TIM_CTR2_OIS1_MASK                                             (0x1U << 8)
+#define TIM_CTR2_TI1S_POS                                              7
+#define TIM_CTR2_TI1S_MASK                                             (0x1U << 7)      // TI1 selection
+#define TIM_CTR2_MMS_POS                                               4
+#define TIM_CTR2_MMS_MASK                                              (0x7U << 4)      // Master mode selection
+#define TIM_CTR2_CCDS_POS                                              3
+#define TIM_CTR2_CCDS_MASK                                             (0x1U << 3)      // Capture/Compare DMA selection
+#define TIM_CTR2_CCUS_POS                                              2
+#define TIM_CTR2_CCUS_MASK                                             (0x1U << 2)      // Capture/Compare control update selection
+#define TIM_CTR2_CCPC_POS                                              0
+#define TIM_CTR2_CCPC_MASK                                             (0x1U << 0)      // Capture/Compare preload control
 
 // TIM_SMCR
 #define TIM_SMCR_ETP_POS                                               15
@@ -342,8 +341,8 @@ extern "C"
  * TYPEDEFS
  */
 typedef struct {
-    __IO uint32_t     CR1;                      /*!< TIM control register 1,              Address offset: 0x00 */
-    __IO uint32_t     CR2;                      /*!< TIM control register 2,              Address offset: 0x04 */
+    __IO uint32_t     CTR1;                     /*!< TIM control register 1,              Address offset: 0x00 */
+    __IO uint32_t     CTR2;                     /*!< TIM control register 2,              Address offset: 0x04 */
     __IO uint32_t     SMCR;                     /*!< TIM slave mode control register,     Address offset: 0x08 */
     __IO uint32_t     DIER;                     /*!< TIM DMA/interrupt enable register,   Address offset: 0x0C */
     __IO uint32_t     SR;                       /*!< TIM status register,                 Address offset: 0x10 */

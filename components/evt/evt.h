@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup DOC DOC
- * @ingroup  DOCUMENT
+ * @defgroup EVT EVT
+ * @ingroup  COMPONENTS
  * @brief    event
  * @details  event
  *

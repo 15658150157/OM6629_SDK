@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup DOC DOC
- * @ingroup  DOCUMENT
+ * @defgroup COMPILER COMPILER
+ * @ingroup  COMMON
  * @brief    defines about compilers
  * @details  defines about compilers
  *
@@ -33,10 +33,20 @@ extern "C"
 /*******************************************************************************
  * MACROS
  */
-#if defined (__GNUC__)          /* GCC & ARMCLANG compiler */
+#if defined(__ARMCC_VERSION)    /* ARMCLANG compiler */
+#define __RAM_CODE              __attribute((section("RAM_CODE"), noinline))
+#define __RAM_CODES(s)          __attribute((section("RAM_CODE."s), noinline))
+#define __RAM_RODATA            __attribute((section("RAM_RODATA")))
+#define __RAM_RODATAS(s)        __attribute((section("RAM_RODATA."s)))
+#define __RAM_DATA_NON_INIT     __attribute((section("RAM_DATA_NON_INIT")))
+#ifndef CC_DEPRECATED
+#define CC_DEPRECATED           __attribute__((deprecated))
+#endif
+#elif defined (__GNUC__)          /* GCC compiler */
 #define __RAM_CODE              __attribute((section(".ram_code"), noinline))
 #define __RAM_CODES(s)          __attribute((section(".ram_code."s), noinline))
 #define __RAM_RODATA            __attribute((section(".ram_rodata")))
+#define __RAM_RODATAS(s)        __attribute(section(".ram_rodata."s))
 #define __RAM_DATA_NON_INIT     __attribute((section(".ram_data_non_init")))
 
 #ifndef CC_DEPRECATED

@@ -4,7 +4,7 @@
   <Header>### uVision Project, (C) Keil Software</Header>
   <Targets>
     <Target>
-      <TargetName>OM6627X</TargetName>
+      <TargetName>ble_om24g_app_simple</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>6140000::V6.14::ARMCLANG</pCCUsed>
@@ -80,7 +80,7 @@
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>1</RunUserProg2>
             <UserProg1Name>fromelf.exe --bin --output "@L.bin" "#L"</UserProg1Name>
-            <UserProg2Name>fromelf.exe -c --output ".\_build\@L.dis" "#L"</UserProg2Name>
+            <UserProg2Name>fromelf.exe -c --output "$L@L.dis" "#L"</UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
             <nStopA1X>0</nStopA1X>
@@ -336,7 +336,7 @@
               <MiscControls/>
               <Define>CONFIG_BLE_HOST,CONFIG_LE_BROADCASTER=1,CONFIG_LE_OBSERVER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_CENTRAL=1,CONFIG_LE_ACTIVITY_NB=10,CONFIG_LE_CONNECTION_NB=8,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=5,CONFIG_LE_LL_TX_ADV_FRAG_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254,CONFIG_LE_LL_TX_LLCP_BUF_NB=11,OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../ble_common/om_ancs;../../ble_common/om_bms;../../ble_common/om_cgms;../../ble_common/om_dfu;../../ble_common/om_gap_dis_batt;../../ble_common/om_hid_media;../../ble_common/om_tspp;../../ble_common/om_wechat_lite;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/ble/profile/om_ancs;../../../components/ble/profile/om_bms;../../../components/ble/profile/om_cgms;../../../components/ble/profile/om_dfu;../../../components/ble/profile/om_gap_dis_batt;../../../components/ble/profile/om_hid_media;../../../components/ble/profile/om_tspp;../../../components/ble/profile/om_wechat_lite;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -354,7 +354,7 @@
               <MiscControls/>
               <Define>CONFIG_BLE_HOST,CONFIG_LE_BROADCASTER=1,CONFIG_LE_OBSERVER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_CENTRAL=1,CONFIG_LE_ACTIVITY_NB=10,CONFIG_LE_CONNECTION_NB=8,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=5,CONFIG_LE_LL_TX_ADV_FRAG_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254,CONFIG_LE_LL_TX_LLCP_BUF_NB=11,OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../ble_common/om_ancs;../../ble_common/om_bms;../../ble_common/om_cgms;../../ble_common/om_dfu;../../ble_common/om_gap_dis_batt;../../ble_common/om_hid_media;../../ble_common/om_tspp;../../ble_common/om_wechat_lite;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/ble/profile/om_ancs;../../../components/ble/profile/om_bms;../../../components/ble/profile/om_cgms;../../../components/ble/profile/om_dfu;../../../components/ble/profile/om_gap_dis_batt;../../../components/ble/profile/om_hid_media;../../../components/ble/profile/om_tspp;../../../components/ble/profile/om_wechat_lite;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Aads>
           <LDads>
@@ -372,7 +372,8 @@
             <IncludeLibsPath/>
             <Misc>--diag_suppress=L6314 --diag_suppress=L6439W&#13;
 ../../../components/ble/controller/lib/ARM/libblectlr_full.lib&#13;
-../../../components/ble/host/lib/ARM/libblehost_full.lib</Misc>
+../../../components/ble/host/lib/ARM/libblehost_full.lib&#13;
+../../../hal/device/ARM/libcpft.lib</Misc>
             <LinkerInputFile/>
             <DisabledWarnings/>
           </LDads>
@@ -407,70 +408,10 @@
               <FileType>1</FileType>
               <FilePath>../main/app_om24g.c</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>ble_common</GroupName>
-          <Files>
             <File>
-              <FileName>ancs_client.c</FileName>
+              <FileName>system.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../ble_common/om_ancs/ancs_client.c</FilePath>
-            </File>
-            <File>
-              <FileName>om_bms.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../ble_common/om_bms/om_bms.c</FilePath>
-            </File>
-            <File>
-              <FileName>service_om_bms.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../ble_common/om_bms/service_om_bms.c</FilePath>
-            </File>
-            <File>
-              <FileName>om_cgms.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../ble_common/om_cgms/om_cgms.c</FilePath>
-            </File>
-            <File>
-              <FileName>service_om_cgms.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../ble_common/om_cgms/service_om_cgms.c</FilePath>
-            </File>
-            <File>
-              <FileName>om_dfu.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../ble_common/om_dfu/om_dfu.c</FilePath>
-            </File>
-            <File>
-              <FileName>om_dfu_nvds.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../ble_common/om_dfu/om_dfu_nvds.c</FilePath>
-            </File>
-            <File>
-              <FileName>service_om_dfu.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../ble_common/om_dfu/service_om_dfu.c</FilePath>
-            </File>
-            <File>
-              <FileName>service_common.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../ble_common/om_gap_dis_batt/service_common.c</FilePath>
-            </File>
-            <File>
-              <FileName>app_hid_media.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../ble_common/om_hid_media/app_hid_media.c</FilePath>
-            </File>
-            <File>
-              <FileName>service_tspp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../ble_common/om_tspp/service_tspp.c</FilePath>
-            </File>
-            <File>
-              <FileName>app_wechat_lite.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../ble_common/om_wechat_lite/app_wechat_lite.c</FilePath>
+              <FilePath>../main/system.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -550,6 +491,16 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>manu_system</GroupName>
+          <Files>
+            <File>
+              <FileName>fault_handle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/manu_system/fault_handle/fault_handle.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>om_log</GroupName>
           <Files>
             <File>
@@ -606,6 +557,71 @@
         <Group>
           <GroupName>host</GroupName>
           <Files/>
+        </Group>
+        <Group>
+          <GroupName>profile</GroupName>
+          <Files>
+            <File>
+              <FileName>ancs_client.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_ancs/ancs_client.c</FilePath>
+            </File>
+            <File>
+              <FileName>om_bms.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_bms/om_bms.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_om_bms.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_bms/service_om_bms.c</FilePath>
+            </File>
+            <File>
+              <FileName>om_cgms.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_cgms/om_cgms.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_om_cgms.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_cgms/service_om_cgms.c</FilePath>
+            </File>
+            <File>
+              <FileName>om_dfu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_dfu/om_dfu.c</FilePath>
+            </File>
+            <File>
+              <FileName>om_dfu_nvds.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_dfu/om_dfu_nvds.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_om_dfu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_dfu/service_om_dfu.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_gap_dis_batt/service_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_hid_media.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_hid_media/app_hid_media.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_tspp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_tspp/service_tspp.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_wechat_lite.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_wechat_lite/app_wechat_lite.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>pm</GroupName>

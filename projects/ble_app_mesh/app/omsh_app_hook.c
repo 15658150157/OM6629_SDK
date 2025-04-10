@@ -25,7 +25,9 @@
  */
 #include "omsh_app.h"
 
-
+#if defined ( __ICCARM__ )
+#pragma diag_suppress=Pe188
+#endif
 /*******************************************************************************
  * DEFINES
  */
@@ -559,5 +561,9 @@ void msh_prov_auth_req_ind_hook(void *p_ind)
 
     msh_api_prov_auth_data_req_ind_handle(&cfm);
 }
+
+#if defined ( __ICCARM__ )
+#pragma diag_default=Pe188
+#endif
 
 /** @} */

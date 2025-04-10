@@ -7,7 +7,7 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @file     LCD LCD
+ * @defgroup LCD LCD
  * @ingroup  DRIVER
  * @brief    LCD driver
  * @details  LCD driver apis and typedefs header file
@@ -119,9 +119,7 @@ typedef struct {
  *******************************************************************************
  * @brief lcd init
  *
- * @param[in] config        config lcd
-  *
- * @return None
+ * @param[in] config     config lcd
  *******************************************************************************
  */
 extern void drv_lcd_init(const lcd_config_t* config);
@@ -131,7 +129,7 @@ extern void drv_lcd_init(const lcd_config_t* config);
  *******************************************************************************
  * @brief Register isr callback for LCD transfer completed
  *
- * @param[in] isr_cb          Pointer to callback
+ * @param[in] isr_cb     Pointer to callback
  *
  *******************************************************************************
  */
@@ -142,12 +140,6 @@ extern void drv_lcd_register_isr_callback(drv_isr_callback_t isr_cb);
  *******************************************************************************
  * @brief The interrupt callback for LCD driver. It is a weak function. User should define
  *        their own callback in user file, other than modify it in the LCD driver.
- *
- * @param om_lcd             The LCD device address
- * @param event              The driver lcd event
- *                           - DRV_EVENT_COMMON_GENERAL(SPI command is complete)
- * @param param0              The  pointer of param0
- * @param param1              The  pointer of param1
  *******************************************************************************
  */
 extern void drv_lcd_isr_callback(void);
@@ -160,8 +152,6 @@ extern void drv_lcd_isr_callback(void);
  * @param[in] cmd_bits   how many command bit to be send
  * @param[in] data       data to be send
  * @param[in] data_len   how many data to be send
-  *
- * @return None
  *******************************************************************************
  */
 extern void drv_lcd_write(uint8_t *cmd, uint8_t cmd_bits, const uint8_t *data, uint16_t data_len);
@@ -174,8 +164,6 @@ extern void drv_lcd_write(uint8_t *cmd, uint8_t cmd_bits, const uint8_t *data, u
  * @param[in] cmd_bits   how many command bit to be send
  * @param[in] data       data to be send
  * @param[in] data_len   how many data to be send
- *
- * @return None
  *******************************************************************************
  */
 extern void drv_lcd_write_int(uint8_t *cmd, uint8_t cmd_bits, uint8_t *data, uint16_t data_len);
@@ -188,8 +176,6 @@ extern void drv_lcd_write_int(uint8_t *cmd, uint8_t cmd_bits, uint8_t *data, uin
  * @param[in] cmd_bits   how many command bit to be send
  * @param[in] data       data to be read
  * @param[in] data_len   how many data to be read
- *
- * @return None
  *******************************************************************************
  */
 extern void drv_lcd_read(uint8_t *cmd, uint8_t cmd_bits, uint8_t *data, uint16_t data_len);
@@ -202,8 +188,6 @@ extern void drv_lcd_read(uint8_t *cmd, uint8_t cmd_bits, uint8_t *data, uint16_t
  * @param[in] cmd_bits   how many command bit to be send
  * @param[in] data       data to be read
  * @param[in] data_len   how many data to be read
- *
- * @return None
  *******************************************************************************
  */
 extern void drv_lcd_read_int(uint8_t *cmd, uint8_t cmd_bits, uint8_t *data, uint16_t data_len);
@@ -212,9 +196,8 @@ extern void drv_lcd_read_int(uint8_t *cmd, uint8_t cmd_bits, uint8_t *data, uint
  *******************************************************************************
  * @brief control of lcd
  *
- * @param[in] control        control of lcd
- *
- * @return None
+ * @param[in] control    control of lcd
+ * @param[in] argu       config param
  *******************************************************************************
  */
 extern void drv_lcd_control(lcd_control_t control, void *argu);
@@ -222,9 +205,6 @@ extern void drv_lcd_control(lcd_control_t control, void *argu);
 /**
  *******************************************************************************
  * @brief lcd interrupt service routine
- *
- * @param[in] om_lcd       Pointer to LCD
- *
  *******************************************************************************
  */
 extern void drv_lcd_isr(void);

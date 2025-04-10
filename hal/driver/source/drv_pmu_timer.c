@@ -73,16 +73,20 @@ void drv_pmu_timer_init(void)
 
 void drv_pmu_timer_trig_set(pmu_timer_trig_t trig_type, uint32_t trig_cnt)
 {
-    OM_PMU_Type *pmu_timer;
-    pmu_timer = (OM_PMU_Type *)pmu_timer_resource.reg;
+    uint32_t int_en_mask;
+
+    if (trig_type == PMU_TIMER_TRIG_VAL0) {
+        OM_PMU->TIMER_SET0 = pmu_timer_env.TIMER_SET0 = trig_cnt;
+        int_en_mask = PMU_TIMER_CTRL_PMU_TIMER_INT_VAL0_EN_MASK;
+    } else {
+        OM_PMU->TIMER_SET1 = pmu_timer_env.TIMER_SET1 = trig_cnt;
+        int_en_mask = PMU_TIMER_CTRL_PMU_TIMER_INT_VAL1_EN_MASK;
+    }
 
     OM_CRITICAL_BEGIN();
-    if (trig_type == PMU_TIMER_TRIG_VAL0) {
-        pmu_timer->TIMER_SET0 = pmu_timer_env.TIMER_SET0 = trig_cnt;
-        pmu_timer->TIMER_CTRL |= PMU_TIMER_CTRL_PMU_TIMER_INT_VAL0_EN_MASK;
-    } else if (trig_type == PMU_TIMER_TRIG_VAL1) {
-        pmu_timer->TIMER_SET1 = pmu_timer_env.TIMER_SET1 = trig_cnt;
-        pmu_timer->TIMER_CTRL |= PMU_TIMER_CTRL_PMU_TIMER_INT_VAL1_EN_MASK;
+    uint32_t timer_ctrl = OM_PMU->TIMER_CTRL;
+    if (!(timer_ctrl & int_en_mask)) {
+        OM_PMU->TIMER_CTRL = timer_ctrl | int_en_mask;
     }
 
     #if (PMU_TIMER_DEBUG)
@@ -109,25 +113,22 @@ __RAM_CODES("PM")
 uint32_t drv_pmu_timer_left_time_get(pmu_timer_trig_t trig_type)
 {
     uint32_t int_is_en;
-    uint32_t left_tick;
     uint32_t timer_set;
-    uint32_t timer_cnt;
+    uint32_t timer_interval;
 
-    int_is_en = OM_PMU->TIMER_CTRL & ((trig_type == PMU_TIMER_TRIG_VAL0) ? PMU_TIMER_CTRL_PMU_TIMER_INT0_MASK : PMU_TIMER_CTRL_PMU_TIMER_INT1_MASK);
+    if (trig_type == PMU_TIMER_TRIG_VAL0) {
+        int_is_en = OM_PMU->TIMER_CTRL & PMU_TIMER_CTRL_PMU_TIMER_INT_VAL0_EN_MASK;
+    } else {
+        int_is_en = OM_PMU->TIMER_CTRL & PMU_TIMER_CTRL_PMU_TIMER_INT_VAL1_EN_MASK;
+    }
+
     if (int_is_en) {
         timer_set = (uint32_t)drv_pmu_timer_control(trig_type, PMU_TIMER_CONTROL_GET_TIMER_VAL, NULL);
-        timer_cnt = drv_pmu_timer_cnt_get();
-
-        if (timer_set > timer_cnt) {
-            left_tick = timer_set - timer_cnt;
-        } else {
-            left_tick = PMU_TIMER_MAX_TICK + timer_set - timer_cnt;
-        }
-        left_tick = left_tick > PMU_TIMER_MAX_DELAY ? 0U : left_tick;
-
-        return left_tick;
+        timer_interval = timer_set - drv_pmu_timer_cnt_get();
+        return (timer_interval >= PMU_TIMER_MAX_TICK) ? (PMU_TIMER_MAX_TICK - 1U) : timer_interval;
+    } else {
+        return PMU_TIMER_MAX_TICK;
     }
-    return PMU_TIMER_MAX_DELAY;
 }
 
 #if (RTE_PMU_TIMER_REGISTER_CALLBACK)

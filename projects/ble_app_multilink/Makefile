@@ -10,20 +10,19 @@ PROJECT_DIR = .
 include $(PROJECT_DIR)/linker_script/linker_script.mk
 
 
-PROJECT_SRCS = $(PROJECT_DIR)/main/main.c \
-			   $(PROJECT_DIR)/main/evt_task.c \
-			   $(PROJECT_DIR)/main/app_adv.c \
-			   $(PROJECT_DIR)/main/app_sec.c \
-			   $(PROJECT_DIR)/main/app_common.c \
-			   $(PROJECT_DIR)/main/app_conn.c \
-			   $(PROJECT_DIR)/main/app_gatt_client.c \
-			   $(PROJECT_DIR)/main/app_scan.c \
-			   $(PROJECT_DIR)/main/app_shell.c \
-			   $(PROJECT_DIR)/main/system.c \
-			   $(PROJECT_DIR)/../ble_common/om_gap_dis_batt/service_common.c \
+PROJECT_SRCS = $(PROJECT_DIR)/main/main.c                                      \
+               $(PROJECT_DIR)/main/evt_task.c                                  \
+               $(PROJECT_DIR)/main/app_adv.c 	                               \
+               $(PROJECT_DIR)/main/app_sec.c                                   \
+               $(PROJECT_DIR)/main/app_common.c                                \
+               $(PROJECT_DIR)/main/app_conn.c  	                               \
+               $(PROJECT_DIR)/main/app_gatt_client.c                           \
+               $(PROJECT_DIR)/main/app_scan.c                                  \
+               $(PROJECT_DIR)/main/app_shell.c                                 \
+               $(PROJECT_DIR)/main/system.c                                    \
 
-PROJECT_INCS = $(PROJECT_DIR)/config/ \
-			   $(PROJECT_DIR)/main/ \
+PROJECT_INCS = $(PROJECT_DIR)/config/                                          \
+               $(PROJECT_DIR)/main/                                            \
 
 PROJECT_DEFS =
 

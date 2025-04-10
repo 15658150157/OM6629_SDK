@@ -116,6 +116,7 @@ static void vEvtScheduleTask(void *argument)
 {
     uint32_t uxBits;
     hardware_init();
+    drv_rf_init();
     nvds_init(0);
     app_shell_init();
 
@@ -140,7 +141,7 @@ static void vEvtScheduleTask(void *argument)
     app_scan_init();
     app_gatt_client_init();
 
-    
+
     // simple event timer
     // evt_timer_set(&evt_timer_0, 2000, EVT_TIMER_REPEAT, evt_timer_0_handler, NULL);
 

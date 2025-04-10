@@ -8,7 +8,7 @@
 
 /**
  * @defgroup CACHE CACHE
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    CACHE register
  * @details  CACHE register definitions header file
  *

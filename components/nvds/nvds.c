@@ -106,7 +106,7 @@
 
 #define NVDS_WRITE(address, buf, length)      drv_flash_write(OM_FLASH0, address, buf, length)
 
-#define NVDS_ERASE(address, length)           drv_flash_erase(OM_FLASH0, address, length)
+#define NVDS_ERASE(address, length)           nvds_erase_wrap(address, length)
 
 #define NVDS_SF_SECTOR_SHIFT                  12
 
@@ -245,6 +245,13 @@ static const uint8_t crc7_syndrome_table[256] = {
  * LOCAL FUNCTION DECLARATION
  ****************************************************************************************
  */
+static void nvds_erase_wrap(uint32_t address, uint32_t length)
+{
+    for (uint32_t i = 0; i < length; i += FLASH_SECTOR_SIZE) {
+        drv_flash_erase(OM_FLASH0, address + i, FLASH_ERASE_4K);
+    }
+}
+
 static void _nvds_read(uint32_t address, uint32_t length, uint8_t *buf)
 {
 #if CFG_FILE_SIMULATION
@@ -1400,7 +1407,11 @@ static void _nvds_init_each_sector_addr(void)
 static int nvds_sf_detect(uint32_t *p_sector_shift)
 {
     uint32_t start;
-    uint32_t capacity = NVDS_SF_CAPACITY;
+    flash_id_t flash_id;
+    uint32_t capacity;
+
+    drv_flash_read_id(OM_FLASH0, &flash_id);
+    capacity = FLASH_ID2CAP(flash_id);
 
     if(p_sector_shift != NULL)
     {

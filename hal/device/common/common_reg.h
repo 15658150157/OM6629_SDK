@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup COMMON COMMON
- * @ingroup  REGISTER
+ * @defgroup COMMON_REG COMMON_REG
+ * @ingroup  DEVICE
  * @brief    COMMON register
  * @details  COMMON register definitions header file
  *

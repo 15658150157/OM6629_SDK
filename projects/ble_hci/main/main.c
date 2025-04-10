@@ -30,8 +30,9 @@
 /*******************************************************************************
  * Extern FUNCTIONS
  */
+extern void vStartEvtTask(void);
+extern void system_init(void);
 
-void vStartEvtTask(void);
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS
@@ -39,6 +40,7 @@ void vStartEvtTask(void);
 int main(void)
 {
     board_init();
+    system_init();
     drv_wdt_init(0);
 
     // Initialize CMSIS-RTOS

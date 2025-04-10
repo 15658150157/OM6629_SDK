@@ -100,7 +100,7 @@ __Vectors:
                 .long    CRY32M_DECT_IRQHandler             /* 35   */
                 .long    I2S_IRQHandler                     /* 36   */
                 .long    UART2_IRQHandler                   /* 37   */
-                .long    OM24G_TIM_IRQHandler               /* 38   */
+                .long    OM24G_TIM_WAKEUP_IRQHandler        /* 38   */
                 .long    RGB_IRQHandler                     /* 39   */
                 .long    I2C1_IRQHandler                    /* 40   */
                 .long    SHA256_IRQHandler                  /* 41   */
@@ -174,6 +174,7 @@ Reset_Handler:
                 adds     r3, #8
                 b        .L_loop2
 .L_loop2_done:
+                bl       SystemInitPost
                 bl       main
                 #endif
 
@@ -187,7 +188,7 @@ Reset_Handler:
                 .globl   $Sub$$main
                 .fnstart
 $Sub$$main:
-                bl       SystemInit
+                bl       SystemInitPost
                 bl       $Super$$main
                 .fnend
                 #endif
@@ -221,17 +222,17 @@ NMI_Handler:
 
 /* The default macro is not used for HardFault_Handler
  * because this results in a poor debug illusion.
- * We can using Fault_Handler_C function to display Fault status:
- * void Fault_Handler_C(uint32_t exc_return_code, uint32_t sp)
+ * We can using fault_hanler_c function to display Fault status:
+ * void fault_hanler_c(uint32_t exc_return_code, uint32_t sp)
  */
                 .thumb_func
-                .type    Fault_Handler_C, %function
-                .weak    Fault_Handler_C
+                .type    fault_hanler_c, %function
+                .weak    fault_hanler_c
                 .fnstart
-Fault_Handler_C:
+fault_hanler_c:
                 b    .
                 .fnend
-                .size    Fault_Handler_C, . - Fault_Handler_C
+                .size    fault_hanler_c, . - fault_hanler_c
 
                 .thumb_func
                 .type    HardFault_Handler, %function
@@ -243,7 +244,7 @@ HardFault_Handler:
                 mrseq r1, msp
                 mrsne r1, psp
                 mov   r0, lr
-                b     Fault_Handler_C
+                b     fault_hanler_c
                 .fnend
                 .size    HardFault_Handler, . - HardFault_Handler
 
@@ -322,7 +323,7 @@ Default_Handler:
                 Set_Default_Handler  CRY32M_DECT_IRQHandler
                 Set_Default_Handler  I2S_IRQHandler
                 Set_Default_Handler  UART2_IRQHandler
-                Set_Default_Handler  OM24G_TIM_IRQHandler
+                Set_Default_Handler  OM24G_TIM_WAKEUP_IRQHandler
                 Set_Default_Handler  RGB_IRQHandler
                 Set_Default_Handler  I2C1_IRQHandler
                 Set_Default_Handler  SHA256_IRQHandler

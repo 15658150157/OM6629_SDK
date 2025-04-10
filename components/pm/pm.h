@@ -8,7 +8,7 @@
 
 /**
  * @defgroup PM PM
- * @ingroup  PM
+ * @ingroup  COMPONENTS
  * @brief    power manager for system
  * @details  power manager for system
  *
@@ -29,6 +29,7 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
+#include "om_error.h"
 
 
 #ifdef  __cplusplus
@@ -183,10 +184,11 @@ extern void pm_sleep_notify_user_callback_register(pm_sleep_callback_t notify_cb
 
 /**
  *******************************************************************************
- * @brief  pm power manage
+ * @brief  pm power manage, it shall be called in critical section(disable global interrupt)
  *******************************************************************************
  **/
 extern void pm_power_manage(void);
+
 #endif  /* CONFIG_PM */
 
 /**
@@ -204,9 +206,13 @@ extern void pm_sleep_checker_callback_register(pm_checker_priority_t priority, p
  * @brief  system sleep store restore callback register
  *
  * @param store_cb  sleep callback
+ *
+ * @return  register status
+ * -OM_ERROR_OK   register success
+ * -OM_ERROR_OUT_OF_RANGE register failed
  *******************************************************************************
  **/
-extern void pm_sleep_store_restore_callback_register(pm_sleep_callback_t store_cb);
+extern om_error_t pm_sleep_store_restore_callback_register(pm_sleep_callback_t store_cb);
 
 /**
  *******************************************************************************

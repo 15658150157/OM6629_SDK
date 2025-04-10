@@ -10,7 +10,7 @@
  * @defgroup DOC DOC
  * @ingroup  DOCUMENT
  * @brief    ECDSA driver source file
- * @details  ECDSA driver source file
+ * @details  ECDSA driver source file, implemeted by software.
  *
  * @version
  * Version 1.0
@@ -178,6 +178,14 @@ om_error_t drv_ecdsa_verify(const void *public_key, const void *msg, uint32_t ms
     return OM_ERROR_VERIFY;
 }
 
+om_error_t drv_uecc_shared_secret(const void *peer_public_key, const void *private_key, void *shared_secret)
+{
+    if (om_uecc_shared_secret((const uint8_t *)peer_public_key, (const uint8_t *)private_key, (uint8_t *)shared_secret, om_uecc_secp256r1())) {
+        return OM_ERROR_OK;
+    }
+
+    return OM_ERROR_FAIL;
+}
 
 #endif  /* (RTE_ECDSA) */
 

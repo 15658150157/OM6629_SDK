@@ -158,6 +158,9 @@ __STATIC_FORCEINLINE void drv_rcc_rc32k_upd_rdy(void)
             case RCC_CLK_UART1:                                                                                  \
                 register_set(&OM_CPM->UART1_CFG, MASK_1REG(CPM_UART_CFG_GATE_EN, (enable) ? 0 : 1));             \
                 break;                                                                                           \
+            case RCC_CLK_UART2:                                                                                  \
+                register_set(&OM_CPM->UART2_CFG, MASK_1REG(CPM_UART_CFG_GATE_EN, (enable) ? 0 : 1));             \
+                break;                                                                                           \
             case RCC_CLK_I2C0:                                                                                   \
                 register_set(&OM_CPM->I2C0_CFG, MASK_1REG(CPM_I2C_CFG_GATE_EN, (enable) ? 0 : 1));               \
                 break;                                                                                           \
@@ -165,9 +168,7 @@ __STATIC_FORCEINLINE void drv_rcc_rc32k_upd_rdy(void)
                 register_set(&OM_CPM->I2C1_CFG, MASK_1REG(CPM_I2C_CFG_GATE_EN, (enable) ? 0 : 1));               \
                 break;                                                                                           \
             case RCC_CLK_LPTIM:                                                                                  \
-                OM_CRITICAL_BEGIN();                                                                             \
-                register_set(&OM_PMU->BASIC, MASK_1REG(PMU_BASIC_LPTIM_32K_CLK_GATE, (enable) ? 0 : 1));         \
-                OM_CRITICAL_END();                                                                               \
+                drv_pmu_basic_reg_set(MASK_1REG(PMU_BASIC_LPTIM_32K_CLK_GATE, (enable) ? 0 : 1));                \
                 break;                                                                                           \
             case RCC_CLK_BLE:                                                                                    \
                 register_set(&OM_CPM->BLE_CFG, MASK_4REG(CPM_BLE_CFG_BLE_AHB_GATE_EN,   (enable) ? 0 : 1,        \
@@ -216,7 +217,7 @@ __STATIC_FORCEINLINE void drv_rcc_rc32k_upd_rdy(void)
                 /* open RTC power and clock */                                                                   \
                 OM_PMU->PSO_PM |= PMU_PSO_RTC_POWER_ON_MASK;                                                     \
                 while (!(OM_PMU->PSO_PM & PMU_PSO_RTC_POWER_STATUS_MASK));  /* wait RTC power on */              \
-                register_set(&OM_PMU->BASIC, MASK_1REG(PMU_BASIC_RTC_CLK_GATE,        (enable) ? 0 : 1));        \
+                drv_pmu_basic_reg_set(MASK_1REG(PMU_BASIC_RTC_CLK_GATE, (enable) ? 0 : 1));                      \
                 register_set(&OM_CPM->APB_CFG, MASK_1REG(CPM_APB_CFG_RTC_APB_GATE_EN, (enable) ? 0 : 1));        \
                 OM_CRITICAL_END();                                                                               \
                 break;                                                                                           \
@@ -232,11 +233,11 @@ __STATIC_FORCEINLINE void drv_rcc_rc32k_upd_rdy(void)
             case RCC_CLK_IRTX:                                                                                   \
                 register_set(&OM_CPM->IRTX_CFG, MASK_1REG(CPM_IRTX_CFG_GATE_EN, (enable) ? 0 : 1));              \
                 break;                                                                                           \
-            case RCC_CLK_RGB:                                                                                   \
-                register_set(&OM_CPM->RGB_CFG, MASK_1REG(CPM_RGB_CFG_GATE_EN, (enable) ? 0 : 1));              \
+            case RCC_CLK_RGB:                                                                                    \
+                register_set(&OM_CPM->RGB_CFG, MASK_1REG(CPM_RGB_CFG_GATE_EN, (enable) ? 0 : 1));                \
                 break;                                                                                           \
             case RCC_CLK_USB:                                                                                    \
-                OM_CPM->USB_CFG = enable ? 0 : 0x0A;                                                             \
+                OM_CPM->USB_CFG = (enable) ? 0U : (CPM_USB_CFG_GATE_EN_MASK | CPM_USB_CFG_AHB_GATE_EN_MASK);     \
                 break;                                                                                           \
             case RCC_CLK_I2S:                                                                                    \
                 register_set(&OM_CPM->I2S_CFG, MASK_1REG(CPM_I2S_CFG_AHB_GATE_EN, (enable) ? 0 : 1));            \

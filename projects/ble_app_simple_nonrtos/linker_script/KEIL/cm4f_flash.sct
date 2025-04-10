@@ -58,9 +58,10 @@ LR_ROM __RO_BASE __RO_SIZE  {                       ; load region size_region
   }
 
   ER_RAM __RAM_RO_BASE ALIGN 4 {
-    *.o(.ram_code)
-	*.o(.ram_code.*)
-    *.o(.ram_rodata)
+    *.o(RAM_CODE)
+    *.o(RAM_CODE.*)
+    *.o(RAM_RODATA)
+    *.o(RAM_RODATA.*)
   }
   ER_RAM_POST +0 ALIGN 32 EMPTY 0 {    ; Reserve 0 bytes region for ER_RAM
   }

@@ -299,6 +299,7 @@ static void drv_pmu_topclk_xtal32m_switch_to_fast_startup_mode(void)
                                           PMU_XTAL32M_CNS0_EN_XTAL32M_NRB_ME,1,      PMU_XTAL32M_CNS0_EN_XTAL32M_NRB_MO,0));
     // Restart
     REGW1(&OM_PMU->XTAL32M_CNS1, PMU_XTAL32M_CNS1_XTAL32M_RESTART_MASK);
+    DRV_DELAY_US(200);    // When fast-startup process has been done once, need 200us to wait for ready status
     // Wait ready
     drv_pmu_topclk_xtal32m_wait_ready();
     // FSM ctrl
@@ -352,14 +353,21 @@ static inline void pmu_cpu_reset(void)
  **/
 static void drv_pmu_force_into_reboot_sleep_mode(void)
 {
-     __disable_irq();
+    __disable_irq();
     register_set(&OM_PMU->RSVD_SW_REG[0], PMU_RSVD_SW_REG_REBOOT_REASON_MASK, PMU_RSVD_SW_REG_REBOOT_FROM_ULTRA_DEEP_SLEEP);
-    // DEEPSLEEP flag
-    SCB->SCR |= 0x04;
-    // Good Night!
+    SCB->SCR |= 0x04;    // DEEPSLEEP flag
+    // All RAM into power off mode in sleep
+    OM_PMU->PSO_PM &= ~(PMU_PSO_RAM1_2_POWER_ON_MASK | PMU_PSO_RAM3_POWER_ON_MASK | PMU_PSO_RAM4_POWER_ON_MASK | PMU_PSO_RAM5_POWER_ON_MASK | PMU_PSO_ICACHE_POWER_ON_MASK);
+    OM_PMU->RAM_CTRL_2 = (OM_PMU->RAM_CTRL_2 & (~(0xFFFU << 18)))
+                        | PMU_RAM_CTRL_2_RAM0_SD_HW_CTRL_EN_MASK | PMU_RAM_CTRL_2_RAM1_SD_HW_CTRL_EN_MASK
+                        | PMU_RAM_CTRL_2_RAM2_SD_HW_CTRL_EN_MASK | PMU_RAM_CTRL_2_RAM_PSO_SD_HW_CTRL_EN_MASK
+                        | PMU_RAM_CTRL_2_RAM_BLE_SD_HW_CTRL_EN_MASK | PMU_RAM_CTRL_2_RAM_IC_SD_HW_CTRL_EN_MASK;
+    OM_PMU->RAM_CTRL_1 = (OM_PMU->RAM_CTRL_1 & (~((3U << 30) | (3U << 26) | (3U << 22))))
+                        | PMU_RAM_CTRL_1_RAM3_SD_HW_CTRL_EN_MASK
+                        | PMU_RAM_CTRL_1_RAM4_SD_HW_CTRL_EN_MASK
+                        | PMU_RAM_CTRL_1_RAM5_SD_HW_CTRL_EN_MASK;
     __WFI();
-    // Must be some IRQ pending, Force reboot
-    pmu_cpu_reset();
+    pmu_cpu_reset();  // Must be some IRQ pending, Force reboot
 }
 
 
@@ -392,6 +400,7 @@ void drv_pmu_xtal32m_startup(void)
         // Make sure CPU running on RC32M
         drv_pmu_topclk_rc32m_power_enable(true);
         drv_pmu_topclk_switch_to_rc32m();
+        drv_rcc_periph_clk_source_set(RCC_PERIPH_CLK_SOURCE_RC32M);
 
         // Try open xtal32m
         drv_pmu_xtal32m_startup_param_setup();
@@ -436,6 +445,7 @@ void drv_pmu_xtal32m_fast_startup(bool force)
         drv_pmu_xtal32m_fast_startup_param_setup();
         drv_pmu_topclk_xtal32m_power_enable(true);
         drv_pmu_topclk_switch_to_xtal32m();
+        drv_rcc_periph_clk_source_set(RCC_PERIPH_CLK_SOURCE_XTAL32M);
         drv_pmu_topclk_rc32m_power_enable(false);
     }
 
@@ -631,10 +641,10 @@ void drv_pmu_sleep_enter(uint8_t is_deep_sleep, bool reboot_req)
                 drv_pmu_32k_switch_to_rc(false /*calib*/, true /*pd_others*/);
             }
             // Set a flag to power down 32K (PMU_BASIC_WAKEUPB_DIS=0: when close 32k, PIN can wakeup)
-            OM_PMU->BASIC |= PMU_BASIC_SLEEP_WO_32K_MASK;
+            drv_pmu_basic_reg_set(MASK_1REG(PMU_BASIC_SLEEP_WO_32K, 1));
             break;
         }
-        OM_PMU->BASIC &= ~PMU_BASIC_SLEEP_WO_32K_MASK;
+        drv_pmu_basic_reg_set(MASK_1REG(PMU_BASIC_SLEEP_WO_32K, 0));
     } while(0);
 
     // Switch to xtal32m when using syspll
@@ -847,6 +857,7 @@ void drv_pmu_ana_enable(bool enable, pmu_ana_type_t ana)
                          * PHY
                          */
                         DRV_RCC_CLOCK_ENABLE(RCC_CLK_PHY, 1U);
+                        #if 0
                         // 优化阻塞信道灵敏度策略
                         REGWA(&OM_PHY->TONE_SUPPRESSION_CTRL, MASK_7REG(PHY_TONE_SUPPRESSION_CTRL_EN_TS,2,
                                                                         PHY_TONE_SUPPRESSION_CTRL_TS_EN_GAIN_COND,0,
@@ -855,6 +866,7 @@ void drv_pmu_ana_enable(bool enable, pmu_ana_type_t ana)
                                                                         PHY_TONE_SUPPRESSION_CTRL_TS_MAG_EN,1,
                                                                         PHY_TONE_SUPPRESSION_CTRL_TS_K,1,
                                                                         PHY_TONE_SUPPRESSION_CTRL_TS_EST_DUR,1));
+                        #endif
 
                         /*
                          * ANA power/clock
@@ -1247,7 +1259,8 @@ void drv_pmu_pin_wakeup_isr(void)
     // Sleep wakeup: may 2ms delay
     if(drv_pmu_env.pin_wakeup_sleep_recently) {
         for (uint32_t i=0; i<sizeof(pin_wakeup_event)/sizeof(pin_wakeup_event[0]); i++) {
-            int_status = OM_PMU->GPIO_LATCH[i] & OM_PMU->GPIO_WAKEUP[i];
+            uint32_t gpio_latch = OM_PMU->GPIO_LATCH[i];
+            int_status = gpio_latch & OM_PMU->GPIO_WAKEUP[i];
             if (int_status) {
                 #if (RTE_GPIO0 || RTE_GPIO1)
                 do {
@@ -1297,7 +1310,7 @@ void drv_pmu_pof_isr(void)
     drv_pmu_pof_isr_callback(OM_PMU, DRV_EVENT_PMU_POF);
 }
 
-void drv_pmu_ship_mode_enable(uint8_t enable)
+void drv_pmu_shelf_mode_enable(uint8_t enable)
 {
     #define SHIP_MODE_DELAY       (2*8*1000*1000/32000U)  /* at lease 8 32K clk */
     uint32_t ship_en;

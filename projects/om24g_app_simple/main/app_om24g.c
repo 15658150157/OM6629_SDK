@@ -58,14 +58,8 @@ static volatile uint32_t timeout = 0;
 static osEventFlagsId_t xEvtEvent = NULL;
 
 uint8_t om24g_tx_payload[166];
-//uint8_t om24g_tx_payload[700];
-/*
-In order to optimize reception performance, dual buffers are used to receive data,
-and the array size must be more than twice the maximum number of received packets,
-otherwise it will cause packet reception failure. For example, the business can only
-receive a maximum of 32 bytes of packets, and the array size is 64 bytes or greater
-*/
-uint8_t om24g_rx_payload[600];
+
+uint8_t om24g_rx_payload[166];
 //uint8_t om24g_rx_payload[1400];
 
 // Compatible with TI2640
@@ -580,7 +574,7 @@ om24g_config_t om24g_config_noack = {
     .crc_skip_len        = 0,
     .crc_skip_addr       = 0,
     .modulation_mode     = OM24G_MODULATION_GFSK,
-    .detect_mode         = OM24G_SOFT_DETECTION,    
+    .detect_mode         = OM24G_SOFT_DETECTION,
 };
 
 /*Package structure B*/
@@ -674,6 +668,7 @@ om24g_config_t om24g_config_ble = {
 
 /// log debug array with show more
 #define OM_LOG_DEBUG_ARRAY_EX(note, array, len)    do{OM_LOG(OM_LOG_DEBUG, "%s: \r\n",note); OM_LOG_HEXDUMP(OM_LOG_DEBUG, array, len, 16); OM_LOG(OM_LOG_DEBUG, "[%dbytes]\n", len);}while(0)
+static void om24g_write_it(void);
 
 static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void *num)
 {
@@ -721,8 +716,6 @@ static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void
             drv_gpio_toggle(OM_GPIO0, GPIO_MASK(7));
             break;
         case DRV_EVENT_OM24G_INT_TIMER1:
-            //OM_LOG(OM_LOG_DEBUG, "om24g int timer\r\n");
-            drv_gpio_toggle(OM_GPIO0, GPIO_MASK(9));
             break;
         case DRV_EVENT_COMMON_TRANSMIT_COMPLETED:
             pm_sleep_allow(PM_ID_24G);
@@ -730,21 +723,98 @@ static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void
             drv_pmu_timer_trig_set(PMU_TIMER_TRIG_VAL0, (drv_pmu_timer_cnt_get() + PMU_TIMER_MS2TICK(500)));
             tx_count++;
             drv_gpio_toggle(OM_GPIO0, GPIO_MASK(8));
-
-            #if 0
-            drv_om24g_write_int(om24g_tx_payload, 32);
-            // OM_24G->TMR0_NXT_32K_TP = OM_24G->TMR_NATIVE_CNT_32K + 16384; //16384;
-            // OM_24G->TMR0_NXT_8M_TP = OM_24G->TMR_NATIVE_CNT_8M + 0;
-            OM_24G->TMR1_NXT_32K_TP = OM_24G->TMR_NATIVE_CNT_32K + 16384; //16384;
-            OM_24G->TMR1_NXT_8M_TP = OM_24G->TMR_NATIVE_CNT_8M + 0;
-            #endif
-
             OM_LOG(OM_LOG_DEBUG, "tx_cnt: %d\r\n", tx_count);
             if(tx_count == 100) {
                 tx_count = 0;
                 drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_DISABLE, NULL);
                 drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
             }
+            break;
+        default:
+            OM_ASSERT(0);
+            break;
+    }
+}
+
+static void om24g_hardware_timer_callback(void *om_reg, drv_event_t drv_event, void *buff, void *num)
+{
+    uint16_t payload_lenth = 0;
+    bool error_flag = false;
+
+    switch (drv_event) {
+        case DRV_EVENT_COMMON_RECEIVE_COMPLETED:
+            payload_lenth = (uint32_t)num;
+            for (int i = 0x00; i < (payload_lenth - 1); i++) {
+                if (*((uint8_t *)buff + i) != *((uint8_t *)buff + i + 1)) {
+                    error_flag = true;
+                }
+            }
+            REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
+            if (error_flag) {
+                error_count++;
+                error_flag = false;
+                OM_LOG_DEBUG_ARRAY_EX("err Pkt", buff, payload_lenth);
+            } else {
+                right_count++;
+                OM_LOG_DEBUG_ARRAY_EX("Pkt", buff, payload_lenth);
+                //OM_LOG(OM_LOG_DEBUG, "pkt:%d \r\n", *((uint8_t *)buff + payload_lenth - 1));
+            }
+            //OM_LOG(OM_LOG_DEBUG, "si: %d\r\n", drv_om24g_get_rssi());
+            //osDelay(500);
+            //DRV_DELAY_MS(500);
+            OM_LOG(OM_LOG_DEBUG, "E:%d  R:%d \r\n", error_count, right_count);
+
+            #if ENABLE_SLEEP_MODE
+            // OM24G_CE_LOW();
+            // pm_sleep_allow(PM_ID_24G);
+            // drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
+            // drv_pmu_timer_trig_set(PMU_TIMER_TRIG_VAL0, (drv_pmu_timer_cnt_get() + PMU_TIMER_MS2TICK(500)));
+            #endif
+
+            break;
+        case DRV_EVENT_OM24G_MAX_RT:   // max retry
+            break;
+        case DRV_EVENT_OM24G_RX_OVERLAY:
+            OM_LOG(OM_LOG_DEBUG, "overlay\r\n");
+            break;
+        case DRV_EVENT_OM24G_INT_TIMER0:
+            //OM_LOG(OM_LOG_DEBUG, "om24g int timer\r\n");
+            // drv_gpio_toggle(OM_GPIO0, GPIO_MASK(7));
+            break;
+        case DRV_EVENT_OM24G_INT_TIMER1:
+            //OM_LOG(OM_LOG_DEBUG, "om24g int timer\r\n");
+            // TIMER0
+            // OM_24G->TMR0_NXT_32K_TP = OM_24G->TMR_NATIVE_CNT_32K + 16384; // 512ms
+            // OM_24G->TMR0_NXT_8M_TP = OM_24G->TMR_NATIVE_CNT_8M + 0;
+            // OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE = OM_24G->TMR0_NXT_32K_TP - 100;
+            // OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP = 0x20;
+            // TIMER1
+            OM_24G->TMR1_NXT_32K_TP = OM_24G->TMR_NATIVE_CNT_32K + 16384; // 512ms
+            OM_24G->TMR1_NXT_8M_TP = OM_24G->TMR_NATIVE_CNT_8M + 0;
+            OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE = OM_24G->TMR1_NXT_32K_TP - 100;
+            OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP = 0x20;
+            REGW(&OM_PMU->TMR_2G4_TRIG_CTL, MASK_1REG(PMU_TMR_2G4_TRIG_CTL_TMR_2G4_NATIVE_INT_EN, 1));
+            drv_gpio_toggle(OM_GPIO0, GPIO_MASK(9));
+            break;
+        case DRV_EVENT_COMMON_TRANSMIT_COMPLETED:
+            // drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
+            tx_count++;
+            drv_gpio_toggle(OM_GPIO0, GPIO_MASK(8));
+            om24g_write_it();
+            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE: %x \r\n", OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE);
+            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP: %x \r\n", OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP);
+            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->MISC_CTRL: %x \r\n", OM_PMU->MISC_CTRL);
+            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->TMR_2G4_TRIG_CTL: %x \r\n", OM_PMU->TMR_2G4_TRIG_CTL);
+            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->OSC_INT_CTRL: %x \r\n", OM_PMU->OSC_INT_CTRL);
+
+            //OM_LOG(OM_LOG_DEBUG, "tx_cnt: %d\r\n", tx_count);
+            if(tx_count == 100) {
+                tx_count = 0;
+                REGW(&OM_PMU->TMR_2G4_TRIG_CTL, MASK_4REG(PMU_TMR_2G4_TRIG_CTL_TMR_2G4_NATIVE_INT_EN, 0, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_FUNC_EN, 0, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_INT_EN, 0, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_MODE, 0));
+                REGW(&OM_PMU->OSC_INT_CTRL, MASK_3REG(PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_CLR, 1, PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_MASK_PMU, 1, PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_MASK_CPU, 1));
+                drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
+            }
+            pm_sleep_allow(PM_ID_24G);
             break;
         default:
             OM_ASSERT(0);
@@ -843,7 +913,7 @@ static void om24g_callback_rx_to_tx(void *om_reg, drv_event_t drv_event, void *b
             #if TX_ROLE
             // drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_SET_TIMER_INCR, (void *)(drv_pmu_timer_cnt_get() + PMU_TIMER_MS2TICK(200)));
             #endif
-            drv_om24g_read_int(om24g_rx_payload, 32);
+            drv_om24g_read_int(om24g_rx_payload, 166);
             tx_count++;
             // if(tx_count == 500) {
             //     tx_count = 0;
@@ -862,12 +932,12 @@ static void om24g_callback_rx_to_tx(void *om_reg, drv_event_t drv_event, void *b
 static void om24g_write_it(void)
 {
     static uint8_t j = 0;
- 
+
     j++;
     if(j == 250) {
         j = 0;
     }
-    for (uint16_t i = 0; i < 100; i++) {
+    for (uint16_t i = 0; i < 33; i++) {
             om24g_tx_payload[i] = j;
     }
     //om24g_control(OM24G_CONTROL_DUMP_RF_REGISTER, NULL);
@@ -907,7 +977,7 @@ static void om24g_tx_to_rx_poll_mode(void)
     static uint8_t j = 0;
     bool om24g_state = false;
     uint16_t payload_len = 0;
- 
+
     drv_om24g_init(&om24g_config_b);
     NVIC_DisableIRQ(OM24G_RF_IRQn);
     drv_om24g_dump_rf_register();
@@ -941,7 +1011,6 @@ static void om24g_tx_to_rx_poll_mode(void)
 
 static void om24g_tx_to_rx_int_mode(void)
 {
-    
     for (uint8_t i = 0; i < 32; i++) {
         om24g_tx_payload[i] = i+1;
     }
@@ -977,7 +1046,6 @@ static void om24g_structure_b_static_len_tx(void)
 static void om24g_write_txaddr_check_b(void)
 {
     om24g_config_t om24g_config_addr = om24g_config_b;
-    
     om24g_config_addr.data_rate           = OM24G_RATE_500K;
     om24g_config_addr.dpl_en              = 1;
     om24g_config_addr.tx_addr             = 0xbb;
@@ -997,7 +1065,7 @@ static void om24g_write_txaddr_check_b(void)
     om24g_config_addr.crc_skip_addr       = 0;
     om24g_config_addr.modulation_mode     = OM24G_MODULATION_FSK;
 
-    drv_om24g_init(&om24g_config_addr);   
+    drv_om24g_init(&om24g_config_addr);
     drv_om24g_register_event_callback(om24g_callback);
     drv_om24g_dump_rf_register();
     om24g_write_it();
@@ -1016,7 +1084,7 @@ static void om24g_write_structure_a(void)
     uint16_t total_count = 1000;
     static uint8_t j = 0;
     bool om24g_state = false;
- 
+
     drv_om24g_init(&om24g_config_noack);
     NVIC_DisableIRQ(OM24G_RF_IRQn);
     drv_om24g_dump_rf_register();
@@ -1073,7 +1141,7 @@ static void om24g_write_ack_mode_structure_a(void)
             payload_len = drv_om24g_read_ack();
             for (int i = 0; i < payload_len; i++) {
                 if ((i + 1) != om24g_rx_payload[i]) {
-                    error_flag = true;                  
+                    error_flag = true;
                 }
             }
             if (error_flag) {
@@ -1105,35 +1173,21 @@ static void om24g_write_int_ack_mode_structure_a(void)
     om24g_write_it_ack_mode();
 }
 
-static void om24g_bt_timer_tx(void)
+#if 0
+static void om24g_hardware_timer_no_sleep_tx(void)
 {
-    pin_config_t pinmux_config[] = {
-        {7, {PINMUX_GPIO_MODE_CFG}, PMU_PIN_MODE_PP, PMU_PIN_DRIVER_CURRENT_NORMAL},
-        {8, {PINMUX_GPIO_MODE_CFG}, PMU_PIN_MODE_PP, PMU_PIN_DRIVER_CURRENT_NORMAL},
-        {9, {PINMUX_GPIO_MODE_CFG}, PMU_PIN_MODE_PP, PMU_PIN_DRIVER_CURRENT_NORMAL},
-    };
-    gpio_config_t gpio_config[] = { 
-        {OM_GPIO0, 7, GPIO_DIR_OUTPUT, GPIO_LEVEL_HIGH, GPIO_TRIG_NONE},
-        {OM_GPIO0, 8, GPIO_DIR_OUTPUT, GPIO_LEVEL_HIGH, GPIO_TRIG_NONE},
-        {OM_GPIO0, 9, GPIO_DIR_OUTPUT, GPIO_LEVEL_HIGH, GPIO_TRIG_NONE},
-    };   
-    // Init PIN
-    drv_pin_init(pinmux_config, sizeof(pinmux_config) / sizeof(pinmux_config[0]));
-    // Init GPIO
-    drv_gpio_init(gpio_config, sizeof(gpio_config) / sizeof(gpio_config[0]));
-
     drv_om24g_init(&om24g_config_b);
-    drv_om24g_register_event_callback(om24g_callback);
-
-    REGW(&OM_CPM->MAC_24G_CFG, MASK_1REG(CPM_2P4_CFG_MAC_GATE_EN, 0));
+    drv_om24g_register_event_callback(om24g_hardware_timer_callback);
+    drv_om24g_dump_rf_register();
+    REGW(&OM_PMU->MISC_CTRL, MASK_1REG(PMU_MISC_CTRL_BB_1_RESET, 1));
     REGW(&OM_PMU->MISC_CTRL, MASK_1REG(PMU_MISC_CTRL_BB_1_RESET, 0));
-    
+
     // TIMER0 START
     // REGW(&OM_PMU->TMR_2G4_TRIG_CTL, MASK_3REG(PMU_TMR_2G4_TRIG_CTL_TMR0_2G4_TRIG_FUNC_EN, 1, PMU_TMR_2G4_TRIG_CTL_TMR0_2G4_TRIG_INT_EN, 1, PMU_TMR_2G4_TRIG_CTL_TMR0_2G4_TRIG_MODE, 0));
     // OM_24G->TMR0_NXT_32K_TP = OM_24G->TMR_NATIVE_CNT_32K + 16384;
     // OM_24G->TMR0_NXT_8M_TP = OM_24G->TMR_NATIVE_CNT_8M + 0;
     // OM_24G->TMR0_TRIG_PREFETCH = 0;
-    
+
     // TIMER1 START
     REGW(&OM_PMU->TMR_2G4_TRIG_CTL, MASK_3REG(PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_FUNC_EN, 1, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_INT_EN, 1, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_MODE, 0));
     OM_24G->TMR1_NXT_32K_TP = OM_24G->TMR_NATIVE_CNT_32K + 16384;
@@ -1142,24 +1196,46 @@ static void om24g_bt_timer_tx(void)
 
     drv_om24g_write_int(om24g_tx_payload, 32);
     REGW(&OM_24G->PKTCTRL0, MASK_1REG(OM24G_PKTCTRL0_EN_TIMER_TX, 1));
-    while (1)
-    {
-        static uint8_t j = 0;
-        j++;
-        if(j == 250) {
-            j = 0;
-        }
-        for (uint16_t i = 0; i < 100; i++) {
-            om24g_tx_payload[i] = j;
-        }
-        osDelay(3000);
-    }
+}
+#endif
+
+static void om24g_hardware_timer_sleep_tx(void)
+{
+    drv_om24g_init(&om24g_config_b);
+    drv_om24g_register_event_callback(om24g_hardware_timer_callback);
+    drv_om24g_dump_rf_register();
+    // cpm 2g4 timer clock gate enable
+    REGW(&OM_CPM->MAC_24G_CFG, MASK_1REG(CPM_2P4_CFG_TIMER_GATE_EN, 0));
+    // timer reset
+    REGW(&OM_PMU->MISC_CTRL, MASK_1REG(PMU_MISC_CTRL_BB_1_RESET, 1));
+    // timer reset start counting, Clear pmu gpio interrupt
+    REGW(&OM_PMU->MISC_CTRL, MASK_2REG(PMU_MISC_CTRL_BB_1_RESET, 0, PMU_MISC_CTRL_CLR_PMU_INT, 1));
+    // TIMER0 START
+    // REGW(&OM_PMU->TMR_2G4_TRIG_CTL, MASK_4REG(PMU_TMR_2G4_TRIG_CTL_TMR_2G4_NATIVE_INT_EN, 1, PMU_TMR_2G4_TRIG_CTL_TMR0_2G4_TRIG_FUNC_EN, 1, PMU_TMR_2G4_TRIG_CTL_TMR0_2G4_TRIG_INT_EN, 1, PMU_TMR_2G4_TRIG_CTL_TMR0_2G4_TRIG_MODE, 0));
+    // // mac2g4 mac sleep interrupt clear register, 2g4_mac pmu wakupint mask, 2g4_mac cpu wakupint mask
+    // REGW(&OM_PMU->OSC_INT_CTRL, MASK_3REG(PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_CLR, 1, PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_MASK_PMU, 0, PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_MASK_CPU, 0));
+    // REGW(&OM_PMU->TMR_2G4_TRIG_CTL, MASK_1REG(PMU_TMR_2G4_TRIG_CTL_TMR_2G4_NATIVE_INT_EN, 1));
+    // OM_24G->TMR0_NXT_32K_TP = OM_24G->TMR_NATIVE_CNT_32K + 16384;
+    // OM_24G->TMR0_NXT_8M_TP = OM_24G->TMR_NATIVE_CNT_8M + 0;
+    // OM_24G->TMR0_TRIG_PREFETCH = 0;
+
+    // TIMER1 START
+    REGW(&OM_PMU->TMR_2G4_TRIG_CTL, MASK_4REG(PMU_TMR_2G4_TRIG_CTL_TMR_2G4_NATIVE_INT_EN, 1, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_FUNC_EN, 1, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_INT_EN, 1, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_MODE, 0));
+    // mac2g4 mac sleep interrupt clear register, 2g4_mac pmu wakupint mask, 2g4_mac cpu wakupint mask
+    REGW(&OM_PMU->OSC_INT_CTRL, MASK_3REG(PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_CLR, 1, PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_MASK_PMU, 0, PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_MASK_CPU, 0));
+    REGW(&OM_PMU->TMR_2G4_TRIG_CTL, MASK_1REG(PMU_TMR_2G4_TRIG_CTL_TMR_2G4_NATIVE_INT_EN, 1));
+    OM_24G->TMR1_NXT_32K_TP = OM_24G->TMR_NATIVE_CNT_32K + 16384;
+    OM_24G->TMR1_NXT_8M_TP = OM_24G->TMR_NATIVE_CNT_8M + 0;
+    OM_24G->TMR1_TRIG_PREFETCH = 0;
+
+    om24g_write_it();
+    REGW(&OM_24G->PKTCTRL0, MASK_1REG(OM24G_PKTCTRL0_EN_TIMER_TX, 1));
 }
 
 /**
  *******************************************************************************
  * @brief TX sensitivity test
- *  
+ *
  * Package structure A、NO_ACK mode、Fixed length mode、Compatible with 6621C/D/E/F，nordic series
  * 5 bytes sync word : (sync_word0 + rx/tx_addr) 0x9843AF0B46
  * 32 bytes payload:   {1,2,......32}
@@ -1210,7 +1286,7 @@ static void om24g_tx_test(om24g_transfer_t tx_case)
             break;
         case OM24G_POLL_STRUCTURE_A:
             /*Polling mode transmission packet*/
-            om24g_write_structure_a(); 
+            om24g_write_structure_a();
             break;
         case OM24G_INT_STRUCTURE_A:
             /*Interrupt mode transmission packet, Package structure A*/
@@ -1244,12 +1320,12 @@ static void om24g_tx_test(om24g_transfer_t tx_case)
         case OM24G_BLE_MODE:
             om24g_ble_mode_tx();
             break;
-        case OM24G_BT_TIMER:
-            om24g_bt_timer_tx();
+        case OM24G_HARDWARE_TIMER_TX:
+            om24g_hardware_timer_sleep_tx();
             break;
         default:
             break;
-    }  
+    }
 }
 
 #else
@@ -1271,7 +1347,7 @@ static void om24g_read_int_structure_b(void)
     //drv_om24g_set_rf_parameters(OM24G_RATE_250K, 2404, 0.055281); //2404.055281MHZ  0    231865.264143
     drv_om24g_register_event_callback(om24g_callback);
     drv_om24g_dump_rf_register();
-    drv_om24g_read_int(om24g_rx_payload, 64);
+    drv_om24g_read_int(om24g_rx_payload, 166);
 }
 
 /*Packet structure A receives packets in polling mode and can communicate with function om24g_write_structure_a(void). */
@@ -1287,7 +1363,7 @@ static void om24g_read_structure_a(void)
     drv_om24g_dump_rf_register();
     while (1) {
         payload_len = drv_om24g_read(om24g_rx_payload, 8000);
-        OM_LOG(OM_LOG_DEBUG, "len:%d\r\n", payload_len); 
+        OM_LOG(OM_LOG_DEBUG, "len:%d\r\n", payload_len);
         if(!payload_len) {
             OM_LOG(OM_LOG_DEBUG, "rx timeout\r\n");
             break;
@@ -1317,7 +1393,7 @@ static void om24g_read_int_structure_a(void)
     drv_om24g_init(&om24g_config_noack);
     drv_om24g_register_event_callback(om24g_callback);
     drv_om24g_dump_rf_register();
-    drv_om24g_read_int(om24g_rx_payload, 0x20);
+    drv_om24g_read_int(om24g_rx_payload, 166);
 }
 
 static void om24g_rx_to_tx_poll_mode(void)
@@ -1325,7 +1401,7 @@ static void om24g_rx_to_tx_poll_mode(void)
     static uint8_t j = 0;
     bool om24g_state = false;
     uint16_t payload_len = 0;
- 
+
     drv_om24g_init(&om24g_config_b);
     NVIC_DisableIRQ(OM24G_RF_IRQn);
     drv_om24g_dump_rf_register();
@@ -1352,14 +1428,13 @@ static void om24g_rx_to_tx_poll_mode(void)
 
 static void om24g_rx_to_tx_int_mode(void)
 {
-    
     for (uint8_t i = 0; i < 32; i++) {
         om24g_tx_payload[i] = i;
     }
     drv_om24g_init(&om24g_config_b);
     drv_om24g_register_event_callback(om24g_callback_rx_to_tx);
     drv_om24g_dump_rf_register();
-    drv_om24g_read_int(om24g_rx_payload, 0xFF);
+    drv_om24g_read_int(om24g_rx_payload, 166);
 }
 
 static void om24g_structure_b_static_len_rx(void)
@@ -1372,13 +1447,12 @@ static void om24g_structure_b_static_len_rx(void)
     drv_om24g_init(&om24g_config_static);
     drv_om24g_register_event_callback(om24g_callback);
     drv_om24g_dump_rf_register();
-    drv_om24g_read_int(om24g_rx_payload, 0xFF);
+    drv_om24g_read_int(om24g_rx_payload, 166);
 }
 
 static void om24g_read_rxaddr_check_b(void)
 {
     om24g_config_t om24g_config_addr = om24g_config_b;
-    
     om24g_config_addr.data_rate           = OM24G_RATE_500K;
     om24g_config_addr.dpl_en              = 1;
     om24g_config_addr.tx_addr             = 0xbb;
@@ -1401,7 +1475,7 @@ static void om24g_read_rxaddr_check_b(void)
     drv_om24g_init(&om24g_config_addr);
     drv_om24g_register_event_callback(om24g_callback);
     drv_om24g_dump_rf_register();
-    drv_om24g_read_int(om24g_rx_payload, 0x40);
+    drv_om24g_read_int(om24g_rx_payload, 166);
 }
 
 static void om24g_ble_mode_rx(void)
@@ -1409,7 +1483,7 @@ static void om24g_ble_mode_rx(void)
     drv_om24g_init(&om24g_config_ble);
     drv_om24g_register_event_callback(om24g_callback);
     drv_om24g_dump_rf_register();
-    drv_om24g_read_int(om24g_rx_payload, 0x40);
+    drv_om24g_read_int(om24g_rx_payload, 166);
 }
 
 /*Packet structure A receives packets in polling ACK mode and can communicate with function om24g_write_ack_mode_structure_a(void). */
@@ -1439,7 +1513,7 @@ static void om24g_read_ack_mode_structure_a(void)
         OM_LOG_DEBUG_ARRAY_EX("ack_pkt", om24g_tx_payload, j);
         for (int i = 0; i < payload_len; i++) {
             if ((i + 1) != om24g_rx_payload[i]) {
-                error_flag = true;                  
+                error_flag = true;
             }
         }
         if (error_flag) {
@@ -1463,21 +1537,21 @@ static void om24g_read_int_ack_mode_structure_a(void)
     drv_om24g_init(&om24g_config);
     drv_om24g_register_event_callback(om24g_callback_ack_mode);
     drv_om24g_dump_rf_register();
-    drv_om24g_read_int(om24g_rx_payload, 32);
+    drv_om24g_read_int(om24g_rx_payload, 166);
 }
 
-static void om24g_bt_timer_rx(void)
+static void om24g_hardware_timer_sleep_rx(void)
 {
     drv_om24g_init(&om24g_config_b);
     drv_om24g_register_event_callback(om24g_callback);
     drv_om24g_dump_rf_register();
-    drv_om24g_read_int(om24g_rx_payload, 64);
+    drv_om24g_read_int(om24g_rx_payload, 166);
 }
 
 /**
  *******************************************************************************
  * @brief Receiving sensitivity test
- *  
+ *
  * Package structure A、NO_ACK mode、Fixed length mode、Compatible with 6621C/D/E/F，nordic series
  * 5 bytes sync word : (sync_word0 + rx/tx_addr) 0x9843AF0B46
  * 32 bytes payload:   {1,2,......32}
@@ -1553,7 +1627,7 @@ static void om24g_rx_test(om24g_transfer_t rx_case)
             break;
         case OM24G_POLL_STRUCTURE_A:
             /*Polling mode receiving packet*/
-            om24g_read_structure_a(); 
+            om24g_read_structure_a();
             break;
         case OM24G_INT_STRUCTURE_A:
             /*Interrupt mode receiving packet,  Package structure A*/
@@ -1586,12 +1660,12 @@ static void om24g_rx_test(om24g_transfer_t rx_case)
         case OM24G_BLE_MODE:
             om24g_ble_mode_rx();
             break;
-        case OM24G_BT_TIMER:
-            om24g_bt_timer_rx();
+        case OM24G_HARDWARE_TIMER_TX:
+            om24g_hardware_timer_sleep_rx();
             break;
         default:
             break;
-    }  
+    }
 }
 
 #endif
@@ -1600,9 +1674,9 @@ static void timer1_callback(void *om_reg, drv_event_t drv_event, void *param0, v
 {
     OM_LOG(OM_LOG_DEBUG, "tim \r\n");
     OM24G_CE_LOW();
-    drv_gpio_toggle(OM_GPIO0, GPIO_MASK(8));
+    //drv_gpio_toggle(OM_GPIO0, GPIO_MASK(8));
     drv_om24g_control(OM24G_CONTROL_CLK_ENABLE, NULL);
-    drv_om24g_dump_rf_register();
+    //drv_om24g_dump_rf_register();
     pm_sleep_prevent(PM_ID_24G);
     #if TX_ROLE
     #if OM24G_ACK_MODE
@@ -1620,7 +1694,7 @@ static void timer1_callback(void *om_reg, drv_event_t drv_event, void *param0, v
     #else
         drv_om24g_register_event_callback(om24g_callback);
     #endif
-        drv_om24g_read_int(om24g_rx_payload, 32);
+        drv_om24g_read_int(om24g_rx_payload, 166);
     #endif
 
     #endif
@@ -1638,26 +1712,23 @@ static void om24g_thread(void *arguments)
 {
     nvds_init(0);
 
-#if CONFIG_OM_LOG
+    #if CONFIG_OM_LOG
     om_log_init();
-#endif
+    #endif
+    #if (CONFIG_SHELL)
     shell_init(NULL);
+    #endif
     drv_pmu_timer_init();
-    OM_ASSERT_WHILE(true, (sizeof(om24g_rx_payload) >= (2*om24g_config.static_len)));
-    OM_ASSERT_WHILE(true, (sizeof(om24g_rx_payload) >= (2*om24g_config_noack.static_len)));
-    OM_ASSERT_WHILE(true, (sizeof(om24g_rx_payload) >= (2*om24g_config_b.static_len)));
-
     OM_LOG(OM_LOG_DEBUG, "start run om24g \r\n");
     pm_sleep_prevent(PM_ID_24G);
     drv_pmu_timer_register_isr_callback(PMU_TIMER_TRIG_VAL0, timer1_callback);
-#if TX_ROLE
-    om24g_tx_test(OM24G_INT_STRUCTURE_B);                                  
-#else
+    #if TX_ROLE
+    om24g_tx_test(OM24G_INT_STRUCTURE_B);
+    #else
     om24g_rx_test(OM24G_INT_STRUCTURE_B);
-#endif
+    #endif
 
-    // while(1)
-    // {
+    // while(1) {
     //     OM_LOG(OM_LOG_DEBUG, "thread \r\n");
     //     #if TX_ROLE
     //     drv_pmu_timer_trig_set(PMU_TIMER_TRIG_VAL0, (drv_pmu_timer_cnt_get() + PMU_TIMER_MS2TICK(500)));
@@ -1675,8 +1746,7 @@ static void om24g_thread(void *arguments)
     // Set evt callback
     evt_schedule_trigger_callback_set(vEvtEventHandler);
 
-    while(1)
-    {
+    while(1) {
         // schedule for handle evt
         evt_schedule();
         // wait os event flag
@@ -1699,7 +1769,7 @@ void vStartOm24gTask(void)
         .priority       = osPriorityRealtime,
     };
 
-    // Create Mesh Task
+    // Create om24g Task
     osThreadNew(om24g_thread, NULL, &Om24gThreadAttr);
 }
 

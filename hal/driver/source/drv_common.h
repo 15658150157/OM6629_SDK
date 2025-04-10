@@ -72,6 +72,7 @@ typedef enum {
     DRV_EVENT_I2C_RXADDR_NACK                   = (1U << 11),              /**< I2C rx addr nack event  */
     DRV_EVENT_I2C_TXDATA_NACK                   = (1U << 12),              /**< I2C tx data nack event  */
     DRV_EVENT_I2C_RXDATA_UNDER                  = (1U << 13),              /**< I2C rx data not exist event  */
+    DRV_EVENT_I2C_STOP_DET                      = (1U << 14),              /**< I2C stop det event  */
     /*!< GPDMA */
     DRV_GPDMA_EVENT_TERMINAL_COUNT_REQUEST      = (1U << 16),
     DRV_GPDMA_EVENT_ERROR                       = (1U << 17),

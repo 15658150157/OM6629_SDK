@@ -11,6 +11,7 @@ include $(PROJECT_DIR)/linker_script/linker_script.mk
 
 
 PROJECT_SRCS = $(PROJECT_DIR)/main/main.c \
+			   $(PROJECT_DIR)/main/system.c \
 			   $(PROJECT_DIR)/main/evt_task.c
 
 PROJECT_INCS = $(PROJECT_DIR)/config/

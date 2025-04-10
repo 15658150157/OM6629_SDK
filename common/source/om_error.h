@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup DOC DOC
- * @ingroup  DOCUMENT
+ * @defgroup ERROR ERROR
+ * @ingroup  COMMON
  * @brief    templete
  * @details  templete, templete for .h header file
  *

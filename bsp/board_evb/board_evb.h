@@ -54,7 +54,7 @@ extern "C"
 #define PAD_LED_5           11
 
 //#define PAD_RF_RXEN         13
-//#define PAD_RF_TXEN         14
+//#define PAD_RF_TXEN         12
 
 //#define PAD_DBGBUS_0        {5, 6, 7, 9, 11, 12, 13, 14}
 //#define PAD_DBGBUS_1        {15, 16, 17, 18, 19, 20, 21, 22}
@@ -62,6 +62,11 @@ extern "C"
 #define PAD_BUTTON_0        2   ///< UART-RTS@EVB
 #define PAD_BUTTON_1        3  ///< KEY2@EVB
 
+#ifdef CONFIG_CHERRYUSB
+// Only PAD16/PAD17 can be used as USB
+#define PAD_USBD_DM         16
+#define PAD_USBD_DP         17
+#endif
 
 #ifdef __cplusplus
 }

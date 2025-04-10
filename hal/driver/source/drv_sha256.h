@@ -10,7 +10,7 @@
  * @defgroup SHA256 SHA256
  * @ingroup  DRIVER
  * @brief    SHA256 driver
- * @details  SHA256 driver apis and typedefs header file
+ * @details  SHA256 driver apis and typedefs header file, implemeted by hardware.
  *
  * @version
  * Version 1.0
@@ -51,9 +51,12 @@ extern void drv_sha256_start(void);
 /**
  *******************************************************************************
  * @brief Update SHA256 calculation.
- * NOTE:
- *   1. data is preferably 4-byte aligned
- *   2. when len < SHA256_BLOCK_SIZE, calculate digest directly
+ * @note: This function can be called multiple times to update the hash
+ * calculation with new data. The data can be any length, but it should be
+ * aligned to 4-byte boundary. The function will automatically handle the
+ * following cases:
+ *   1. data is less than 64 bytes, calculate digest directly
+ *   2. data is 64 bytes or more, update the hash calculation
  *
  * @param[in] data          Data to be hashed
  * @param[in] len           Length of data to be hashed
@@ -65,7 +68,6 @@ extern void drv_sha256_update(const uint8_t *data, uint32_t len);
  *******************************************************************************
  * @brief Finish SHA256 calculation.
  *
- * @param[in]  om_sha256     Pointer to the SHA256 peripheral
  * @param[out] hash          Hash result
  *******************************************************************************
  */

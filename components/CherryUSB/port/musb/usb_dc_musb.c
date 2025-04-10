@@ -15,6 +15,8 @@
 
 #define USB_BASE (g_usbdev_bus[0].reg_base)
 
+#define CONFIG_MUSB_SUSPEND_ENABLE
+
 #if defined(CONFIG_USB_MUSB_CUSTOM)
 #include "musb_custom.h"
 #else
@@ -506,8 +508,10 @@ static void musb_reset_handler(void)
     }
     musb_set_active_ep(0);
 
+#ifdef CONFIG_MUSB_SUSPEND_ENABLE
     // Enable Suspend function
     HWREGB(USB_BASE + MUSB_POWER_OFFSET) |= USB_POWER_EN_SUSPEND;
+#endif
 
     usb_ep0_state = USB_EP0_STATE_SETUP;
 }
@@ -569,6 +573,12 @@ int usb_dc_init(uint8_t busid)
     HWREGH(USB_BASE + MUSB_RXIE_OFFSET) = 0;
 
     HWREGB(USB_BASE + MUSB_POWER_OFFSET) |= USB_POWER_SOFTCONN;
+
+#ifdef CONFIG_MUSB_SUSPEND_ENABLE
+    // Enable Suspend function
+    HWREGB(USB_BASE + MUSB_POWER_OFFSET) |= USB_POWER_EN_SUSPEND;
+#endif
+
     return 0;
 }
 
@@ -1041,8 +1051,9 @@ void USBD_IRQHandler(uint8_t busid)
     }
 
     if (is & USB_IS_RESUME) {
-        usb_resume_low_level_init();
-        usbd_event_resume_handler(0);
+        // Move to USB_BUSACT_IRQHandler
+        //usb_resume_low_level_init();
+        //usbd_event_resume_handler(0);
     }
 
     if (is & USB_IS_SUSPEND) {

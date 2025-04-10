@@ -7,7 +7,7 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup LOG PORT
+ * @defgroup LOG_PORT LOG_PORT
  * @ingroup  LOG
  * @brief
  * @details
@@ -107,7 +107,7 @@ extern void log_out_flush(void);
  * @return: timer tick counter value
  *******************************************************************************
  */
-#ifdef CONFIG_OM_LOG_TIME
+#if CONFIG_OM_LOG_TIME
 extern uint32_t log_get_time(void);
 #endif
 

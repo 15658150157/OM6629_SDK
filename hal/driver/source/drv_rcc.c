@@ -244,13 +244,17 @@ void drv_rcc_cpu_clk_source_set(rcc_cpu_clk_source_t source)
 {
     uint32_t irq_saved;
     uint32_t target_clk = 0U;
+    uint8_t rc32m_is_last_enabled;
 
     OM_ASSERT(source < RCC_CPU_CLK_SOURCE_MAX);
 
     DRV_RCC_ANA_CLK_ENABLE();
     OM_CRITICAL_BEGIN_EX(irq_saved);
 
+    rc32m_is_last_enabled = drv_pmu_topclk_rc32m_power_enable(true);
+
     if (source == RCC_CPU_CLK_SOURCE_RC32M) {
+        rc32m_is_last_enabled = true;
         REGW0(&OM_PMU->MISC_CTRL, PMU_MISC_CTRL_MAIN_CLK_SEL_MASK); // 0:RC32MHz  1:CPU_CLK_IN
         while(!(OM_CPM->CPU_CFG & CPM_CPU_CFG_CPU_MAIN_CLK_SYNC_DONE_MASK));
         target_clk = 32 * 1000 * 1000U;
@@ -284,6 +288,10 @@ void drv_rcc_cpu_clk_source_set(rcc_cpu_clk_source_t source)
 _exit:
     SystemCoreClock = target_clk;
 
+    if (!rc32m_is_last_enabled) {
+        drv_pmu_topclk_rc32m_power_enable(false);
+    }
+
     OM_CRITICAL_END_EX(irq_saved);
     DRV_RCC_ANA_CLK_RESTORE();
 }
@@ -292,13 +300,17 @@ void drv_rcc_periph_clk_source_set(rcc_periph_clk_source_t source)
 {
     uint32_t irq_saved;
     uint32_t target_clk = 0U;
+    uint8_t rc32m_is_last_enabled;
 
     OM_ASSERT(source < RCC_PERIPH_CLK_SOURCE_MAX);
 
     DRV_RCC_ANA_CLK_ENABLE();
     OM_CRITICAL_BEGIN_EX(irq_saved);
 
+    rc32m_is_last_enabled = drv_pmu_topclk_rc32m_power_enable(true);
+
     if (source == RCC_PERIPH_CLK_SOURCE_RC32M) {
+        rc32m_is_last_enabled = true;
         REGW0(&OM_CPM->CPU_CFG, CPM_CPU_CFG_PERI_MAIN_CLK_SEL_MASK);
         while(!(OM_CPM->STATUS_READ & CPM_STATUS_READ_PERI_MAIN_CLK_SYNC_DONE_MASK));
         target_clk = 32 * 1000 * 1000U;
@@ -324,6 +336,10 @@ void drv_rcc_periph_clk_source_set(rcc_periph_clk_source_t source)
 
 _exit:
     rcc_env.periph_freq = target_clk;
+
+    if (!rc32m_is_last_enabled) {
+        drv_pmu_topclk_rc32m_power_enable(false);
+    }
 
     OM_CRITICAL_END_EX(irq_saved);
     DRV_RCC_ANA_CLK_RESTORE();

@@ -7,8 +7,7 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup MESH MESH
- * @ingroup  DOCUMENT
+ * @addtogroup MESH_API Mesh APIs
  * @brief
  * @details  Mesh apis header file
 
@@ -16,8 +15,8 @@
  * Version 1.0
  *  - Initial release
  *
- * @{
  */
+/// @{
 
 #ifndef __MSH_APIS_H__
 #define __MSH_APIS_H__
@@ -1061,4 +1060,4 @@ extern uint16_t msh_api_register_model(uint32_t model_id, uint8_t addr_offset, b
 
 #endif /* __MSH_APIS_H__ */
 
-/** @} */
+/// @}

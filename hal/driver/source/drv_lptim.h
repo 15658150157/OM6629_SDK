@@ -409,7 +409,7 @@ extern om_error_t drv_lptim_double_init(OM_LPTIM_Type *om_lptim, const lptim_dou
  * @param[in] om_lptim     lp timer instance
  * @param[in] cfg           multimode config
  *
- * @return status, see@om_error_t
+ * @return status, see@ref om_error_t
  **/
 extern om_error_t drv_lptim_multimode_init(OM_LPTIM_Type *om_lptim, const lptim_multimode_config_t *cfg);
 

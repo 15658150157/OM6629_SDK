@@ -206,6 +206,8 @@ om_error_t drv_gpdma_channel_config(uint8_t chan_idx, const gpdma_config_t *conf
     uint8_t src_burst_size;
     uint8_t handshake_signal;
 
+    (void)dst_width;
+    (void)src_burst_size;
     src_width = 1 << register_get(&channel_ctrl, MASK_POS(GPDMA_CHAN_CTRL_SRCWIDTH));
     dst_width = 1 << register_get(&channel_ctrl, MASK_POS(GPDMA_CHAN_CTRL_DSTWIDTH));
     src_burst_size = 1 << register_get(&channel_ctrl, MASK_POS(GPDMA_CHAN_CTRL_SRCBURSTSIZE));
@@ -277,6 +279,8 @@ om_error_t drv_gpdma_channel_enable(uint8_t chan_idx, uint32_t dst_addr, uint32_
     uint8_t dst_width;
     uint8_t src_burst_size;
 
+    (void)dst_width;
+    (void)src_burst_size;
     // Check if channel is valid
     OM_ASSERT(chan_idx < GPDMA_NUMBER_OF_CHANNELS);
 

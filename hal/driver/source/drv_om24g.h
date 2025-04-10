@@ -255,7 +255,7 @@ typedef enum {
     OM24G_RX_ADDR_CHECK,
     OM24G_STATIC_LENTH,
     OM24G_BLE_MODE,
-    OM24G_BT_TIMER,
+    OM24G_HARDWARE_TIMER_TX,
 } om24g_transfer_t;
 
 
@@ -428,6 +428,12 @@ __STATIC_FORCEINLINE void drv_om24g_write_ack(uint8_t tx_num)
  */
 extern void drv_om24g_isr(void);
 
+/**
+ *******************************************************************************
+ * @brief om24g timer wakeup interrupt service routine
+ *******************************************************************************
+ */
+extern void drv_om24g_tim_wakeup_isr(void);
 /**
  *******************************************************************************
  * @brief Control the OM24G CLK and Printing registers.

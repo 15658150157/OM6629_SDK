@@ -140,6 +140,7 @@ typedef enum {
     PINMUX_LPTIM_OUT3_CFG               = 134,
 
     PINMUX_RESETB_CFG                   = 160,    /* only valid for IO13 */
+    PINMUX_XTAL32K_CFG                  = 161,    /* only valid for IO24/25 */
 } pinmux_t;
 
 /// pin 0 pinmux function type
@@ -580,6 +581,7 @@ typedef enum {
     PINMUX_PAD24_TX_EXT_PD_CFG          = PINMUX_TX_EXT_PD_CFG,
     PINMUX_PAD24_INPUT_MODE_CFG         = PINMUX_INPUT_MODE_CFG,
     PINMUX_PAD24_GPIO_MODE_CFG          = PINMUX_GPIO_MODE_CFG,
+    PINMUX_PAD24_XTAL32K_CFG            = PINMUX_XTAL32K_CFG,
 } pin_24_func_t;
 
 /// pin 25 pinmux function type
@@ -597,6 +599,7 @@ typedef enum {
     PINMUX_PAD25_RX_EXT_PD_CFG          = PINMUX_RX_EXT_PD_CFG,
     PINMUX_PAD25_INPUT_MODE_CFG         = PINMUX_INPUT_MODE_CFG,
     PINMUX_PAD25_GPIO_MODE_CFG          = PINMUX_GPIO_MODE_CFG,
+    PINMUX_PAD25_XTAL32K_CFG            = PINMUX_XTAL32K_CFG,
 } pin_25_func_t;
 
 /// pin 26 pinmux function type
@@ -864,7 +867,7 @@ typedef struct {
  * @brief Initialize pin function
  *
  * @param[in] pin      pin
- * @param[in] pinmux   pinmux function, ref @pinmux_t
+ * @param[in] pinmux   pinmux function, @ref pinmux_t
  *
  *******************************************************************************
  */

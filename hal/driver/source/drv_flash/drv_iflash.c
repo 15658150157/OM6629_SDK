@@ -66,6 +66,7 @@
             } while (0)
 
 // Flash commands defines, |cmd, read or write, address bits, dummy bits|
+#define FLASH_READ_UID_CFG              CMD_CFG(0x4BU, CMD_READ , 24, 8)
 #define FLASH_READ_ID_CFG               CMD_CFG(0x9FU, CMD_READ , 0 , 0)
 #define FLASH_READ_CFG                  CMD_CFG(0x03U, CMD_READ , 24, 0)
 #define FLASH_FAST_READ_CFG             CMD_CFG(0x0BU, CMD_READ , 24, 8)
@@ -527,25 +528,28 @@ __IF_RAM_CODE static om_error_t iflash_auto_delay_init(cmd_frame_t *read_id_fram
     uint8_t retry_cnt = 0;
     om_error_t error = OM_ERROR_FAIL;
 
+    OM_CRITICAL_BEGIN();
     // set flash low frequency so it can work
     sfcfg.clk_div = 16;
     sfcfg.delay = FLASH_DELAY_DEFAULT;
     sf_hardware_init(&sfcfg);
     // read id twice, save the true id to id1
-    while (!((iflash_read_id(read_id_frame, &id1) == OM_ERROR_OK) &&
-            (iflash_read_id(read_id_frame, &id2) == OM_ERROR_OK) &&
-            (id1.id == id2.id))) {
-        if (++retry_cnt > FLASH_AUTO_DLY_RETYR_CNT) {
-            return error;
+    while (1) {
+        if ((iflash_read_id(read_id_frame, &id1) == OM_ERROR_OK) && (iflash_read_id(read_id_frame, &id2) == OM_ERROR_OK) && (id1.id == id2.id)) {
+            break;
         }
-    }
+        retry_cnt++;
+        if (retry_cnt >= FLASH_AUTO_DLY_RETYR_CNT) {
+            goto EXIT;
+        }
+    };
+
     // poll, delayi from 0 to DELAY_MAX
     for (delayi = 0; delayi <= FLASH_DELAY_MAX; ++delayi) {
         sfcfg.clk_div = config->clk_div;
         sfcfg.delay = delayi;
         sf_hardware_init(&sfcfg);
-        if ((iflash_read_id(read_id_frame, &id2) == OM_ERROR_OK) ||
-                (id1.id == id2.id)) {
+        if ((iflash_read_id(read_id_frame, &id2) == OM_ERROR_OK) && (id1.id == id2.id)) {
             if (delay1 == -1) {
                 delay1 = delayi;
             }
@@ -565,6 +569,9 @@ __IF_RAM_CODE static om_error_t iflash_auto_delay_init(cmd_frame_t *read_id_fram
         error = OM_ERROR_OK;
     }
     sf_hardware_init(&sfcfg);
+
+EXIT:
+    OM_CRITICAL_END();
     return error;
 }
 
@@ -680,6 +687,20 @@ om_error_t drv_iflash_write_cmd_set(OM_SF_Type *om_flash, flash_write_t write_cm
     }
     // Update write frame of env
     env->write_cmd = write_cmd;
+    return OM_ERROR_OK;
+}
+
+om_error_t drv_iflash_read_uid(OM_SF_Type *om_flash, uint8_t *uid, uint32_t len)
+{
+    iflash_env_t *env = &flash0_env;
+    cmd_frame_t frame;
+
+    if (env->state != FLASH_STATE_INIT) {
+        return OM_ERROR_BUSY;
+    }
+    CMD_FRAME_SET(&frame, FLASH_READ_UID_CFG, 0);
+    sf_trans_dma_start_wait_done(&frame, uid, len);
+    env->state = FLASH_STATE_INIT;
     return OM_ERROR_OK;
 }
 
@@ -1025,8 +1046,6 @@ om_error_t drv_iflash_quad_enable(OM_SF_Type *om_flash, bool enable)
     uint8_t status[2] = {0, 0};
     uint8_t status_chk[2] = {0, 0};
 
-    // flash write enable
-    // iflash_write_enable();
     // Read status reg
     drv_iflash_read_status_reg1(om_flash, &status[0]);
     drv_iflash_read_status_reg2(om_flash, &status[1]);

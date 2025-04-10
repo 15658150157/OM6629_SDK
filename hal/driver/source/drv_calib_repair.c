@@ -247,7 +247,7 @@ static void drv_calib_repair_rc_rf_temperature(uint32_t cur_time)
             drv_calib_rf();
         }
 
-        drv_calib_repair_rf_pll_temperature_repair(false);
+        // drv_calib_repair_rf_pll_temperature_repair(false);
     }
     #else
     #warning "Need GPADC RTE driver"

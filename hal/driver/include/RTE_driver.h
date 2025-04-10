@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup DOC DOC
- * @ingroup  DOCUMENT
+ * @defgroup RET_DRIVER RET_DRIVER
+ * @ingroup  DRIVER
  * @brief    RTE driver configuration file
  * @details  RTE driver configuration file
  *
@@ -26,11 +26,7 @@
 /*******************************************************************************
  * INCLUDES
  */
-#if (OM6627X)
-#include "RTE_om6627x.h"
-#else
-#error RTE donot supported device/core configuration
-#endif
+#include "RTE_om662x.h"
 
 
 /*******************************************************************************

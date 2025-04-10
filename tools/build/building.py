@@ -6,7 +6,7 @@ import shutil
 from SCons.Script import *
 import build.tools_chain as tools_chain
 import platform
-
+from pathlib import Path
 
 #config option
 ConfigOptions = dict()
@@ -290,17 +290,17 @@ def PrepareBuild(sdk_dir=None):
             dest = 'keil5',
             action = 'store_true',
             default = False,
-            help = 'generate keil5 project')
+            help = 'generate & build keil5 project')
     AddOption('--iar',
             dest = 'iar',
             action = 'store_true',
             default = False,
-            help = 'generate iar project')
+            help = 'generate & build iar project')
     AddOption('--distclean',
             dest = 'distclean',
             action = 'store_true',
             default = False,
-            help = 'clean: *.elf, *.bin, *.map, *.dis')
+            help = 'clean generated files in project build, maybe used with --keil5/iar')
     AddOption('--cpplint',
             dest = 'cpplint',
             action = 'store_true',
@@ -316,6 +316,16 @@ def PrepareBuild(sdk_dir=None):
             action = 'store',
             default = supported_devices[0],
             help = 'select devices')
+    AddOption('--nobuild',
+            dest = 'nobuild',
+            action = 'store_true',
+            default = False,
+            help = 'nobuild keil5/iar project, must be used with --keil5/iar')
+    AddOption('--buildlib',
+            dest = 'buildlib',
+            default = False,
+            type = 'string',
+            help = 'building library of a component')
 
     # Handle device option
     device = GetOption('device')
@@ -337,8 +347,11 @@ def PrepareBuild(sdk_dir=None):
 
     # Handle distclean option
     if GetOption('distclean'):
-        DistClean()
-        exit(0)
+        if GetOption('keil5') or GetOption('iar'):
+            pass
+        else:
+            DistClean()
+            exit(0)
 
     # Handle cpplint option
     if GetOption('cpplint'):
@@ -365,13 +378,6 @@ def PrepareBuild(sdk_dir=None):
     SConscript('SConscript', variant_dir=variant_dir, duplicate=False)
     variant_dir = os.path.join(variant_dir, 'SDK')
     SConscript(os.path.join(sdk_dir, 'SConscript'), variant_dir=variant_dir, duplicate=False)
-
-    # Update compile time every time
-    if os.path.exists(variant_dir):
-        for root, dirs, files in os.walk(variant_dir):
-            for file in files:
-                if 'shell_port_' in file:
-                    os.remove(os.path.join(root, file))
 
     if GetDepend('CONFIG_TOOL_CHAIN_OPTIMIZATION_LEVEL'):
         opt_level = GetDepend('CONFIG_TOOL_CHAIN_OPTIMIZATION_LEVEL')
@@ -408,10 +414,17 @@ def PrepareBuild(sdk_dir=None):
         Env['ASPPCOMSTR'] = 'AS    $SOURCE'
         Env['LINKCOMSTR'] = 'Linking $TARGET'
 
-    # add library build action
+    # add library(gcc) build action
     act = SCons.Action.Action(BuildLibAction, 'Install compiled library... $TARGET')
     bld = Builder(action = act)
     Env.Append(BUILDERS = {'BuildLib': bld})
+
+    if GetDepend("CONFIG_NON_RTOS"):
+        shell_port = os.path.join(sdk_dir, 'components/shell/shell_port_nonrtos.c')
+    else:
+        shell_port = os.path.join(sdk_dir, 'components/shell/shell_port_rtos.c')
+    Execute(Touch(shell_port))
+    Env.Decider('timestamp-match')
 
     # fixed long cmd lines on win32: https://github.com/SCons/scons/wiki/LongCmdLinesOnWin32
     if platform.system() == 'Windows':
@@ -525,17 +538,73 @@ def MakeBuilding():
         exit(0)
 
     device = GetOption('device')
-    if Env.GetOption('keil5'):
+    if Env.GetOption('keil5') and not Env.GetOption('buildlib'):
         import build.keil_build.gen_keil_project as keil
         inifile_path = ''
-        keil.gen_keil5_project(device, Projects, Project_name, Env['CPPDEFINES'], inifile_path, 0)
+        keil_project = keil.gen_keil5_project(device, Projects, Project_name, Env['CPPDEFINES'], inifile_path, 0, False)
+        print('keil project generated: ' +  keil_project)
+        if Env.GetOption('distclean'):
+            # os.system('embuild ' + keil_project + ' c')
+            del_dir = os.path.join(os.path.dirname(keil_project), 'out')
+            os.system(f'embuild {del_dir} delete')
+            exit(0)
+        if not (Env.GetOption('nobuild')):
+            print('building keil project...')
+            os.system('embuild ' + keil_project)
         exit(0)
 
-    if Env.GetOption('iar'):
+    if Env.GetOption('iar') and not Env.GetOption('buildlib'):
         import build.iar_build.gen_iar_project as iar
         macfile_path = ''
-        iar.gen_iar_project(device, Projects, Project_name, Env['CPPDEFINES'], macfile_path, 0)
+        iar_project = iar.gen_iar_project(device, Projects, Project_name, Env['CPPDEFINES'], macfile_path, 0, False)
+        if Env.GetOption('distclean'):
+            # os.system('embuild ' + iar_project + ' c')
+            del_dir = os.path.join(os.path.dirname(iar_project), Path(iar_project).stem)
+            os.system(f'embuild {del_dir} delete')
+            exit(0)
+        if not (Env.GetOption('nobuild')):
+            print('building iar project...')
+            os.system('embuild ' + iar_project)
         exit(0)
+
+    # build keil/iar/gcc library
+    if Env.GetOption('buildlib'):
+        program = None
+        lib_name = GetOption('buildlib')
+        if lib_name:
+            objects = []
+            if Env.GetOption('keil5') or Env.GetOption('iar'):
+                for group in Projects:
+                    if 'LINK_SCRIPT' in group:
+                        del group['LINK_SCRIPT']
+                    if group['name'] != lib_name:
+                        if 'srcs' in group:
+                            del group['srcs']
+                        if 'name' in group:
+                            del group['name']
+                if Env.GetOption('keil5'):
+                    import build.keil_build.gen_keil_project as keil
+                    keil_project = keil.gen_keil5_project(device, Projects, lib_name, Env['CPPDEFINES'], '', 0, True)
+                    if not (Env.GetOption('nobuild')):
+                        print('compiling keil project...')
+                        os.system('embuild ' + keil_project)
+                    exit(0)
+                elif Env.GetOption('iar'):
+                    import build.iar_build.gen_iar_project as iar
+                    iar_project = iar.gen_iar_project(device, Projects, lib_name, Env['CPPDEFINES'], '', 0, True)
+                    if not (Env.GetOption('nobuild')):
+                        print('compiling iar project...')
+                        os.system('embuild ' + iar_project)
+                    exit(0)
+            else:
+                for group in Projects:
+                    if group['name'] == lib_name:
+                        lib_name = GroupLibName(group['name'])
+                        objects = Env.Object(group['Srcs'])
+                        program = Env.Library(lib_name, objects)
+                        # add library move action
+                        Env.BuildLib(lib_name, program)
+                        break
 
     # Assignment target elf
     target_elf = Env.Program(Project_name, sources)

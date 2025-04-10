@@ -7,13 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @file     usb_reg.h
- * @brief    usb register
- * @date     03. June 2021
- * @author   OnMicro SW Team
- *
- * @defgroup USB_REG USB_REG
- * @ingroup  USB
+ * @defgroup USB USB
+ * @ingroup  DEVICE
  * @brief    USB Register for OM668x
  * @details  USB Register for OM668x
 
@@ -26,6 +21,7 @@
 
 #ifndef __USB_REG_H
 #define __USB_REG_H
+
 
 /*******************************************************************************
  * INCLUDES
@@ -53,7 +49,7 @@ typedef struct {
 
 struct _OM_USB_Type {
     /* Common registers */
-    __IO uint8_t      FAR;          // 00 Functional address register.
+    __IO uint8_t      FUNCAR;       // 00 Functional address register.
     __IO uint8_t      PCR;          // 01 Power control register.
     __IO uint8_t      TX_ISR1;      // 02 Interrupts status register for Endpoint 0 and the Tx Endpoints 1-7.
     __IO uint8_t      TX_ISR2;      // 03 Interrupts status register for Tx Endpoints 8-15.
@@ -69,7 +65,7 @@ struct _OM_USB_Type {
     __IO uint8_t      FN2;          // 0d Higher 3 bit of frame number
     __IO uint8_t      IDX;          // 0e Determines endpoint control/status registers accessed at addresses 0x10 to 0x1F.
     __IO uint8_t      MSR;          // 0f Mode select register.
-    __IO uint8_t      TX_MPSR;      // 10 Maximum packet size for transactions through the currently-selected Tx endpoint. 
+    __IO uint8_t      TX_MPSR;      // 10 Maximum packet size for transactions through the currently-selected Tx endpoint.
     union {
         __IO uint8_t   CSR0;        // 11 Control and status bits for Endpoint 0
         __IO uint8_t   TX_CSR1;     // 11 Control and status bits for transfers through the currently-selected Tx endpoint
@@ -80,7 +76,7 @@ struct _OM_USB_Type {
     };
     __IO uint8_t      RX_MPSR;      // 13 Maximum packet size for transactions through the currently-selected Tx endpoint
     __IO uint8_t      RX_CSR1;      // 14 Control and status bits for transfers through the currently-selected Rx endpoint.
-    __IO uint8_t      RX_CSR2;      // 15 Control bits for transfers through the currently-selected Rx endpoint. 
+    __IO uint8_t      RX_CSR2;      // 15 Control bits for transfers through the currently-selected Rx endpoint.
     union {
         __IO uint8_t   RXN0;        // 16 8 bits of the number of bytes in the received packet on Endpoint 0. INDEX selected
         __IO uint8_t   RXN1;        // 16 Lower 8 bits of the number of bytes in the received packet on selected EP.

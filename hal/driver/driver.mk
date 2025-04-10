@@ -39,5 +39,9 @@ HAL_DRV_SRCS = $(HAL_DRV_DIR)/source/drv_mpu.c                                 \
                $(HAL_DRV_DIR)/source/drv_psram.c                               \
                $(HAL_DRV_DIR)/source/drv_qdec.c                                \
                $(HAL_DRV_DIR)/source/drv_rgb.c                                 \
+               $(HAL_DRV_DIR)/source/drv_sm/drv_sm2.c                          \
+               $(HAL_DRV_DIR)/source/drv_sm/drv_sm3.c                          \
+               $(HAL_DRV_DIR)/source/drv_sm/drv_sm4.c                          \
+               $(HAL_DRV_DIR)/source/drv_sm/gm.c                          	   \
 
 HAL_DRV_INCS = $(HAL_DRV_DIR)/include

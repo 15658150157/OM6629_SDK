@@ -42,10 +42,11 @@
  */
 typedef struct {
     drv_isr_callback_t  isr_cb;
-    uint16_t            prgm_cnt;
     uint8_t            *prgm_buf;
     uint16_t            prgm_num;
+    uint16_t            prgm_cnt;
     uint16_t            prgm_addr;
+    uint8_t             rsvd_region_prgm_enable;
 } efuse_env_t;
 
 
@@ -54,10 +55,11 @@ typedef struct {
  */
 static efuse_env_t efuse_env = {
     .isr_cb = NULL,
-    .prgm_cnt = 0U,
     .prgm_buf = NULL,
     .prgm_num = 0U,
+    .prgm_cnt = 0U,
     .prgm_addr = 0U,
+    .rsvd_region_prgm_enable = 0U,
 };
 
 static const drv_resource_t efuse_resource = {
@@ -91,6 +93,16 @@ static uint32_t efuse_get_size(void)
 om_error_t drv_efuse_init(void)
 {
     om_error_t error;
+    bool rc32m_is_last_enabled;
+
+    // swicth efuse clock resource, if xtal32m is enabled, switch to xtal32m(xtal32m and rc32m should exist simultaneously)
+    if (drv_pmu_topclk_xtal32m_is_enabled()) {
+        rc32m_is_last_enabled = drv_pmu_topclk_rc32m_power_enable(true);
+        OM_CPM->EFUSE_CFG |= CPM_EFUSE_CFG_CLK_SRC_SEL_MASK; // switch xtal32m
+        if (!rc32m_is_last_enabled) {
+            drv_pmu_topclk_rc32m_power_enable(false);
+        }
+    }
 
     DRV_RCC_RESET(RCC_CLK_EFUSE);
 
@@ -101,6 +113,18 @@ om_error_t drv_efuse_init(void)
     NVIC_EnableIRQ(efuse_resource.irq_num);
 
     return error;
+}
+
+/**
+ *******************************************************************************
+ * @brief enable/disable rsvd region program
+ * @note: Not declare in drv_efuse.h; maybe invoked in ROMBoot.
+ *
+ *******************************************************************************
+ */
+void drv_efuse_rsvd_region_program_enable(uint8_t enable)
+{
+    efuse_env.rsvd_region_prgm_enable = enable;
 }
 
 /**
@@ -118,9 +142,11 @@ om_error_t drv_efuse_init(void)
  */
 om_error_t drv_efuse_write(uint32_t addr, const void *data, uint32_t length)
 {
+    uint32_t efuse_size;
     OM_ASSERT(length != 0);
 
-    if (addr + length > efuse_get_size()) {
+    efuse_size = efuse_env.rsvd_region_prgm_enable ? efuse_get_size() : (64U/8U);
+    if (addr + length > efuse_size) {
         EFUSE_PROGRAM_EN(0);
         return OM_ERROR_OUT_OF_RANGE;
     }
@@ -153,9 +179,11 @@ om_error_t drv_efuse_write(uint32_t addr, const void *data, uint32_t length)
  */
 om_error_t drv_efuse_write_int(uint32_t addr, const void *data, uint32_t length)
 {
+    uint32_t efuse_size;
     OM_ASSERT(length != 0);
 
-    if (addr + length > efuse_get_size()) {
+    efuse_size = efuse_env.rsvd_region_prgm_enable ? efuse_get_size() : (64U/8U);
+    if (addr + length > efuse_size) {
         EFUSE_PROGRAM_EN(0);
         return OM_ERROR_PARAMETER;
     }
@@ -226,78 +254,37 @@ __WEAK void drv_efuse_isr_callback(drv_event_t event, uint32_t addr, uint32_t nu
     #endif
 }
 
-/**
- *******************************************************************************
- * @brief Efuse control
- *
- * @param[in] control       Efuse control type
- * @param[in] argu          Control argument
- *
- * @return om_error or efuse size
- *******************************************************************************
- */
-void *drv_efuse_control(efuse_control_t control, void *argu)
+om_error_t drv_efuse_forbid_config(efuse_prog_forbid_t prog_forbid_type)
 {
-    uint32_t ret;
-    uint32_t prog_forbid_type;
-    uint8_t last_byte;
-    uint8_t last_index;
+    uint8_t last_index, last_byte;
 
-    ret = (uint32_t)OM_ERROR_OK;
-    switch (control) {
-        case EFUSE_CONTROL_GET_SIZE:
-            ret = efuse_get_size();
-            break;
-
-        case EFUSE_CONTROL_PROGRAM_EN:
-            EFUSE_PROGRAM_EN((uint32_t)argu);
-            break;
-
-        case EFUSE_CONTROL_FETCH_UID:
-            OM_EFUSE->CTRL |= EFUSE_CTRL_UID_READ_MASK;
-            while(OM_EFUSE->CTRL & EFUSE_CTRL_UID_READ_MASK);
-            break;
-
-        case EFUSE_CONTROL_CFG_FORBID:
-            prog_forbid_type = (uint32_t)argu;
-            last_index = efuse_get_size() - 1;
-            drv_efuse_read(last_index, &last_byte, 1);
-            if (prog_forbid_type == EFUSE_PROG_FORBID_0_63) {
-                last_byte |= 0x10;
-            } else if (prog_forbid_type == EFUSE_PROG_FORBID_64_239) {
-                last_byte |= 0x20;
-            } else if( prog_forbid_type == EFUSE_PROG_FORBID_240_500) {
-                last_byte |= 0x40;
-            } else if (prog_forbid_type == EFUSE_PROG_FORBID_501_507) {
-                last_byte |= 0x80;
-            } else {
-                return (void *)OM_ERROR_PARAMETER;
-            }
-            EFUSE_PROGRAM_EN(1);
-            drv_efuse_write(last_index, &last_byte, 1);
-            EFUSE_PROGRAM_EN(0);
-            OM_EFUSE->CTRL |= EFUSE_CTRL_PROGRAM_FORBID_MASK;
-            while ((OM_EFUSE->CTRL & EFUSE_CTRL_PROGRAM_FORBID_MASK) || (!(OM_EFUSE->STATUS & EFUSE_STATUS_CTRL_STATE_MASK)));
-            break;
-
-        case EFUSE_CONTROL_GET_FORBID_STATUS:
-            ret = register_get(&OM_EFUSE->CTRL, MASK_POS(EFUSE_CTRL_PMU_PROG_FORBID));
-            break;
-
-        case EFUSE_CONTROL_CLK_SRC_SWITCH:
-            if ((uint32_t)argu) {
-                OM_CPM->EFUSE_CFG |= CPM_EFUSE_CFG_CLK_SRC_SEL_MASK;
-            } else {
-                OM_CPM->EFUSE_CFG &= ~CPM_EFUSE_CFG_CLK_SRC_SEL_MASK;
-            }
-            while (!(OM_CPM->EFUSE_CFG & CPM_EFUSE_CFG_CLK_SYNC_DONE_MASK));
-
-        default:
-            ret = OM_ERROR_PARAMETER;
-            break;
+    if ((!efuse_env.rsvd_region_prgm_enable) && (prog_forbid_type != EFUSE_PROG_FORBID_0_63)) {
+        return OM_ERROR_PARAMETER;
     }
+    last_index = efuse_get_size() - 1;
+    drv_efuse_read(last_index, &last_byte, 1);
+    if (prog_forbid_type == EFUSE_PROG_FORBID_0_63) {
+        last_byte |= 0x10;
+    } else if (prog_forbid_type == EFUSE_PROG_FORBID_RSVD0) {
+        last_byte |= 0x20;
+    } else if( prog_forbid_type == EFUSE_PROG_FORBID_RSVD1) {
+        last_byte |= 0x40;
+    } else if (prog_forbid_type == EFUSE_PROG_FORBID_RSVD2) {
+        last_byte |= 0x80;
+    } else {
+        return OM_ERROR_PARAMETER;
+    }
+    OM_EFUSE->PROGRAM_ENABLE = 1;
+    while (!(OM_EFUSE->STATUS & EFUSE_STATUS_CTRL_STATE_MASK));
+    OM_EFUSE->PROGRAM_ADDRESS = last_index;
+    OM_EFUSE->PROGRAM_DATA = last_byte;
+    OM_EFUSE->PROGRAM_START |= EFUSE_PROGRAM_START_MASK;
+    while (OM_EFUSE->PROGRAM_START & EFUSE_PROGRAM_START_MASK);
+    OM_EFUSE->PROGRAM_ENABLE = 0;
+    OM_EFUSE->CTRL |= EFUSE_CTRL_PROGRAM_FORBID_MASK;
+    while ((OM_EFUSE->CTRL & EFUSE_CTRL_PROGRAM_FORBID_MASK) || (!(OM_EFUSE->STATUS & EFUSE_STATUS_CTRL_STATE_MASK)));
 
-    return (void *)ret;
+    return OM_ERROR_OK;
 }
 
 /**

@@ -1,0 +1,3 @@
+config FAULT_HANDLE
+    bool "fault handle enable"
+    default y

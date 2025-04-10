@@ -8,7 +8,7 @@
 
 /**
  * @defgroup RNG RNG
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    RNG register
  * @details  RNG register definitions header file
  *

@@ -40,7 +40,7 @@ def keil_value_set(tree, path, regName0, modifyStr0, regName1, modifyStr1, modif
                 else:
                     cnode1[0].text = modifyVal
 
-def gen_keil5_project(device, Projects, project, defs, ini_file, project_with_device=0):
+def gen_keil5_project(device, Projects, project, defs, ini_file, project_with_device=0, gen_lib=False):
     if project_with_device :
         project = project + '_' + device.lower()
 
@@ -56,7 +56,7 @@ def gen_keil5_project(device, Projects, project, defs, ini_file, project_with_de
 
     #TargetName
     text_node = tree.find("Targets/Target/TargetName")
-    text_node.text = device
+    text_node.text = project
     #Device
     text_node = tree.find("Targets/Target/TargetOption/TargetCommonOption/Device")
     text_node.text = device
@@ -159,16 +159,23 @@ def gen_keil5_project(device, Projects, project, defs, ini_file, project_with_de
     # L6314: No section matches pattern; L6349; L6439W: Multiply defined Global Symbol
     text_node.text = '--diag_suppress=L6314 --diag_suppress=L6439W' + libs_str
 
-    # before make
-    # UserProg1Name
-    text_node = tree.find("Targets/Target/TargetOption/TargetCommonOption/BeforeMake/UserProg1Name")
-    text_node.text = ''
-    # after make
-    # UserProg1Name
-    text_node = tree.find("Targets/Target/TargetOption/TargetCommonOption/AfterMake/UserProg1Name")
-    text_node.text = 'fromelf.exe --bin --output "@L.bin" "#L"'
-    text_node = tree.find("Targets/Target/TargetOption/TargetCommonOption/AfterMake/UserProg2Name")
-    text_node.text = 'fromelf.exe -c --output ".\_build\@L.dis" "#L"'
+    if gen_lib == True:
+        # generate library
+        text_node = tree.find("Targets/Target/TargetOption/TargetCommonOption/CreateExecutable")
+        text_node.text = '0'
+        text_node = tree.find("Targets/Target/TargetOption/TargetCommonOption/CreateLib")
+        text_node.text = '1'
+    else:
+        # before make
+        # UserProg1Name
+        text_node = tree.find("Targets/Target/TargetOption/TargetCommonOption/BeforeMake/UserProg1Name")
+        text_node.text = ''
+        # after make
+        # UserProg1Name
+        text_node = tree.find("Targets/Target/TargetOption/TargetCommonOption/AfterMake/UserProg1Name")
+        text_node.text = 'fromelf.exe --bin --output "@L.bin" "#L"'
+        text_node = tree.find("Targets/Target/TargetOption/TargetCommonOption/AfterMake/UserProg2Name")
+        text_node.text = 'fromelf.exe -c --output "$L@L.dis" "#L"'
 
     mdk_output_dir = os.path.join(os.getcwd(), 'keil5')
     if not os.path.exists(mdk_output_dir):
@@ -185,7 +192,7 @@ def gen_keil5_project(device, Projects, project, defs, ini_file, project_with_de
     tree_ex = etree.parse(keil_uvoptx_template, parser=parser)
     #TargetName
     text_node = tree_ex.find("Target/TargetName")
-    text_node.text = device
+    text_node.text = project
     #UL2CM3
     path = 'Target/TargetOption/TargetDriverDllRegistry/SetRegEntry/Key'
     ulcm3 = 'UL2CM3(-S0 -C0 -P0 )  -FN1 -FC20000 -FD20000000 -FF0{} -FL00200000 -FS00 -FP0($$Device:{}$Device\Onmicro\{}\{})'.format(device,device,device,flash_algo)
@@ -197,3 +204,5 @@ def gen_keil5_project(device, Projects, project, defs, ini_file, project_with_de
     tree_ex.write(project + '.uvoptx',pretty_print=True, xml_declaration=True, encoding='utf-8')
     shutil.move(project + '.uvoptx', project_path_ex)
     print("generate %s for %s keil5 MDK succeed!" %(project_path, device))
+
+    return os.path.join(mdk_output_dir, project + '.uvprojx')

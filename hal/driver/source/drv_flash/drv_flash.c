@@ -63,6 +63,21 @@ om_error_t drv_flash_read_id(OM_FLASH_Type om_flash, flash_id_t *id)
     return OM_ERROR_UNSUPPORTED;
 }
 
+om_error_t drv_flash_read_uid(OM_FLASH_Type om_flash, uint8_t *uid, uint32_t len)
+{
+    #if (RTE_FLASH0)
+    if (om_flash == OM_FLASH0) {
+        return drv_iflash_read_uid((OM_SF_Type *)om_flash, uid, len);
+    } else
+    #endif
+    #if (RTE_FLASH1)
+    if (om_flash == OM_FLASH1) {
+        return drv_oflash_read_uid((OM_OSPI_Type *)om_flash, uid, len);
+    } else
+    #endif
+    return OM_ERROR_UNSUPPORTED;
+}
+
 om_error_t drv_flash_id_get(OM_FLASH_Type om_flash, flash_id_t *id)
 {
     #if (RTE_FLASH0)

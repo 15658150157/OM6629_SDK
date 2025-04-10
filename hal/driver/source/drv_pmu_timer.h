@@ -42,8 +42,6 @@ extern "C"
  */
 /// Max Tick
 #define PMU_TIMER_MAX_TICK                          0xFFFFFFFFU
-/// Max Delay Tick
-#define PMU_TIMER_MAX_DELAY                         (PMU_TIMER_MAX_TICK / 2 - 1)
 /// Convert ms to tick
 #define PMU_TIMER_MS2TICK(time)                     ((uint32_t)((((uint64_t)(time)) << 12) / 125))
 /// Convert us to tick
@@ -135,8 +133,8 @@ extern void drv_pmu_timer_trig_set(pmu_timer_trig_t trig_type, uint32_t trig_cnt
  * @param[in] trig_type    trigger type
  *
  * @return
- *  - 0xFFFFFFFF : invalid time
- *  - others : left time(tick)
+ *  - PMU_TIMER_MAX_TICK : invalid time
+ *  - others             : left time(tick)
  *******************************************************************************
  */
 extern uint32_t drv_pmu_timer_left_time_get(pmu_timer_trig_t trig_type);

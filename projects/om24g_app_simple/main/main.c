@@ -26,9 +26,12 @@
 #include "cmsis_os2.h"
 #include "bsp.h"
 #include "om_driver.h"
-#include "system.h"
 
-void vStartOm24gTask(void);
+/*******************************************************************************
+ * Extern FUNCTIONS
+ */
+extern void vStartOm24gTask(void);
+extern void system_init(void);
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS
@@ -37,6 +40,7 @@ int main(void)
 {
     board_init();
     system_init();
+    drv_rf_init();
 
     // Initialize CMSIS-RTOS
     osKernelInitialize();

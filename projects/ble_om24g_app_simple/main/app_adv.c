@@ -94,7 +94,7 @@ static void app_adv_event_cb(uint16_t evt_id, const omble_evt_t *evt)
                evt->gap.scan_req_recv.addr.addr[2],
                evt->gap.scan_req_recv.addr.addr[3],
                evt->gap.scan_req_recv.addr.addr[4],
-               evt->gap.scan_req_recv.addr.addr[5]);        
+               evt->gap.scan_req_recv.addr.addr[5]);
     } else {
     }
 }
@@ -110,7 +110,7 @@ static void app_adv_event_cb(uint16_t evt_id, const omble_evt_t *evt)
 void app_adv_init(void)
 {
     ob_event_callback_reg(app_adv_event_cb);
-    
+
     adv_param.own_addr_type = OB_ADV_ADDR_TYPE_RANDOM;
     adv_param.prim_phy = OB_ADV_PHY_1M;
     adv_param.secd_phy = OB_ADV_PHY_1M;

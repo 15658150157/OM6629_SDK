@@ -267,7 +267,7 @@ static void prvInitialiseNewStreamBuffer( StreamBuffer_t * const pxStreamBuffer,
         {
             pucAllocatedMemory = NULL;
         }
-        
+
 
         if( pucAllocatedMemory != NULL )
         {
@@ -336,6 +336,7 @@ static void prvInitialiseNewStreamBuffer( StreamBuffer_t * const pxStreamBuffer,
                  * variable of type StaticStreamBuffer_t equals the size of the real
                  * message buffer structure. */
                 volatile size_t xSize = sizeof( StaticStreamBuffer_t );
+                (void)xSize;
                 configASSERT( xSize == sizeof( StreamBuffer_t ) );
             } /*lint !e529 xSize is referenced is configASSERT() is defined. */
         #endif /* configASSERT_DEFINED */
@@ -1271,6 +1272,7 @@ static void prvInitialiseNewStreamBuffer( StreamBuffer_t * const pxStreamBuffer,
              * memory.  Don't use 0xA5 as that is the stack fill value and could
              * result in confusion as to what is actually being observed. */
             const BaseType_t xWriteValue = 0x55;
+            (void)xWriteValue;
             configASSERT( memset( pucBuffer, ( int ) xWriteValue, xBufferSizeBytes ) == pucBuffer );
         } /*lint !e529 !e438 xWriteValue is only used if configASSERT() is defined. */
     #endif

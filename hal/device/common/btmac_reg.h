@@ -8,7 +8,7 @@
 
 /**
  * @defgroup BTMAC BTMAC
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    BTMAC register
  * @details  BTMAC register definitions header file
  *
@@ -18,6 +18,7 @@
  *
  * @{
  */
+
 #ifndef __BTMAC_REG_H
 #define __BTMAC_REG_H
 

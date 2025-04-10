@@ -77,7 +77,7 @@ def SetToolsChain(cpu, project_name, cross_compiler='gcc', **cc_option):
 
         # KEY: POST_ACTION
         if project_name:
-            ToolsChain['POST_ACTION'] = OBJCOPY + ' -O binary $TARGET ' + project_name + '.bin \n' + OBJCOPY + ' -O ihex $TARGET ' + project_name + '.hex \n' + OBJSIZE + ' $TARGET \n'
+            ToolsChain['POST_ACTION'] = OBJCOPY + ' -O binary $TARGET ' + project_name + '.bin \n' + OBJCOPY + ' -O ihex $TARGET ' + project_name + '.hex \n' + OBJDUMP + ' -d $TARGET >' + project_name + '.dis \n' + OBJSIZE + ' $TARGET \n'
         else:
             ToolsChain['POST_ACTION'] = OBJSIZE + ' $TARGET \n'
 #

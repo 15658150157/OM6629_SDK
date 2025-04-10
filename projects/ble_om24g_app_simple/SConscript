@@ -3,8 +3,6 @@ from build.building import *
 
 group = SConscript(['config/SConscript',
                     'main/SConscript',
-                    'linker_script/SConscript',
-                    '../../ble_common/SConscript',
-                   ])
+                    'linker_script/SConscript'])
 
 Return('group')

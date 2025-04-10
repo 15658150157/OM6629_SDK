@@ -8,7 +8,7 @@
 
 /**
  * @defgroup AES_HW AES_HW
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    AES_HW register
  * @details  AES_HW register definitions header file
  *
@@ -18,6 +18,7 @@
  *
  * @{
  */
+
 #ifndef __AES_HW_REG_H
 #define __AES_HW_REG_H
 

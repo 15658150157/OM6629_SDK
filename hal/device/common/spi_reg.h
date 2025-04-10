@@ -8,7 +8,7 @@
 
 /**
  * @defgroup SPI SPI
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    SPI register
  * @details  SPI register definitions header file
  *

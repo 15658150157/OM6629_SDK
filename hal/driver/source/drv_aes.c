@@ -10,8 +10,21 @@
  * @defgroup DOC DOC
  * @ingroup  DOCUMENT
  * @brief    AES driver source file
- * @details  AES driver source file
- *
+ * @details  AES driver source file.
+ *          ECB Encrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          ECB Decrypt: implemented by software
+ *          CBC Encrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          CBC Decrypt: implemented by software
+ *          CFB Encrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          CFB Decrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          OFB Encrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          OFB Decrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          CTR Encrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          CTR Decrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          GCM Encrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          GCM Decrypt: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          CMAC: implemented by hardware when keybits=128/256, otherwise implemented by software.
+ *          LE CCM: implemented by hardware.
  * @version
  * Version 1.0
  *  - Initial release
@@ -418,10 +431,16 @@ typedef struct {
 } gcm_ctx_t;
 
 typedef struct {
+    cbc_ctx_t rsvd; // reserved for cbc ctx used in cmac
+    uint8_t unprocessd_data[AES_BLOCK_SIZE];
+    uint32_t unprocessed_len;
+} cmac_ctx_t;
+
+typedef struct {
     uint32_t        aes_id;
     uint32_t        cap;
     drv_state_t     state;
-    aes_mode_t      mode;
+    drv_aes_mode_t      mode;
     uint32_t        keybits;
     aes_operation_t operation;
     aes_sw_context_t sw_ctx;
@@ -431,6 +450,7 @@ typedef struct {
         ofb_ctx_t ofb_ctx;
         ctr_ctx_t ctr_ctx;
         gcm_ctx_t gcm_ctx;
+        cmac_ctx_t cmac_ctx;
     } mode_ctx;
 } aes_env_t;
 
@@ -566,6 +586,73 @@ static void aes_ctr_increment_counter(uint8_t n[16])
         DRV_PUT_UINT32_BE(x, n, i << 2);
         if (x != 0 || i == 0) {
             break;
+        }
+    }
+}
+/*
+ * Multiplication by u in the Galois field of GF(2^n)
+ *
+ * As explained in NIST SP 800-38B, this can be computed:
+ *
+ *   If MSB(p) = 0, then p = (p << 1)
+ *   If MSB(p) = 1, then p = (p << 1) ^ R_n
+ *   with R_64 = 0x1B and  R_128 = 0x87
+ *
+ * Input and output MUST NOT point to the same buffer
+ * Block size must be 8 bytes or 16 bytes - the block sizes for DES and AES.
+ */
+static void aes_cmac_multiply_by_u(uint8_t *output, const uint8_t *input, uint32_t blocksize)
+{
+    uint8_t R_n;
+    uint32_t overflow = 0x00;
+    uint32_t i32, new_overflow;
+    int32_t i;
+
+    OM_ASSERT(blocksize == AES_BLOCK_SIZE); // This is just for aes cmac, block must be 16 bytes
+
+    for (i = blocksize - 4; i >= 0; i -= 4) {
+        i32 = DRV_GET_UINT32_BE(&input[i], 0);
+        new_overflow = i32 >> 31;
+        i32 = (i32 << 1) | overflow;
+        DRV_PUT_UINT32_BE(i32, &output[i], 0);
+        overflow = new_overflow;
+    }
+
+    R_n = (input[0] >> 7) ? 0x87 : 0x00;
+    output[blocksize - 1] ^= R_n;
+}
+
+static void aes_cmac_generate_subkeys(uint32_t om_aes, uint8_t *K1, uint8_t *K2)
+{
+    uint8_t L[16];
+
+    memset(L, 0, sizeof(L));
+
+    /* Calculate Ek(0) */
+    drv_aes_encrypt(om_aes, L, L);
+
+    /*
+     * Generate K1 and K2
+     */
+    aes_cmac_multiply_by_u(K1, L, AES_BLOCK_SIZE);
+    aes_cmac_multiply_by_u(K2, K1, AES_BLOCK_SIZE);
+
+    // protect from side-channel attacks
+    memset(L, 0, sizeof(L));
+}
+
+static void aes_cmac_pad(uint8_t padded_block[16],
+                         uint32_t padded_block_len,
+                         const uint8_t *last_block,
+                         uint32_t last_block_len)
+{
+    for (uint32_t j = 0; j < padded_block_len; j++) {
+        if (j < last_block_len) {
+            padded_block[j] = last_block[j];
+        } else if (j == last_block_len) {
+            padded_block[j] = 0x80;
+        } else {
+            padded_block[j] = 0x00;
         }
     }
 }
@@ -1087,7 +1174,7 @@ om_error_t drv_aes_ecb_start(uint32_t om_aes, const aes_ecb_config_t *cfg)
         default: OM_ASSERT(0); return OM_ERROR_PARAMETER;
     }
 
-    env->mode = AES_MODE_ECB;
+    env->mode = DRV_AES_MODE_ECB;
     env->keybits = keybits;
     env->operation = cfg->operation;
 
@@ -1125,7 +1212,7 @@ om_error_t drv_aes_ecb_crypt_continue(uint32_t om_aes, const uint8_t *input, uin
     }
 
     OM_ASSERT((length % AES_BLOCK_SIZE == 0) && (length != 0));
-    OM_ASSERT((env->state == DRV_STATE_START || env->state == DRV_STATE_CONTINUE) && env->mode == AES_MODE_ECB);
+    OM_ASSERT((env->state == DRV_STATE_START || env->state == DRV_STATE_CONTINUE) && env->mode == DRV_AES_MODE_ECB);
 
     if (env->operation == AES_OP_ENCRYPT) {
         for (uint32_t i = 0; i < length; i += 16) {
@@ -1160,7 +1247,7 @@ om_error_t drv_aes_ecb_crypt_stop(uint32_t om_aes)
         return OM_ERROR_PARAMETER;
     }
 
-    OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == AES_MODE_ECB);
+    OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == DRV_AES_MODE_ECB);
 
     memset(&env->mode, 0x0, sizeof(aes_env_t) - OM_OFFSET(aes_env_t, mode));
 
@@ -1199,7 +1286,7 @@ om_error_t drv_aes_cbc_start(uint32_t om_aes, const aes_cbc_config_t *cfg)
         default: OM_ASSERT(0); return OM_ERROR_PARAMETER;
     }
 
-    env->mode = AES_MODE_CBC;
+    env->mode = DRV_AES_MODE_CBC;
     env->keybits = keybits;
     env->operation = cfg->operation;
 
@@ -1231,7 +1318,7 @@ om_error_t drv_aes_cbc_start(uint32_t om_aes, const aes_cbc_config_t *cfg)
  */
 om_error_t drv_aes_cbc_crypt_continue(uint32_t om_aes, const uint8_t *input, uint8_t *output, uint32_t length)
 {
-    uint8_t temp[16];
+    uint8_t temp[16], output_dummy[16], *used_output;
     uint8_t *iv;
     const uint8_t *ivp;
     aes_env_t *env;
@@ -1242,34 +1329,41 @@ om_error_t drv_aes_cbc_crypt_continue(uint32_t om_aes, const uint8_t *input, uin
     }
 
     OM_ASSERT((length % AES_BLOCK_SIZE == 0) && (length != 0));
-    OM_ASSERT((env->state == DRV_STATE_START || env->state == DRV_STATE_CONTINUE) && env->mode == AES_MODE_CBC);
+    OM_ASSERT((env->state == DRV_STATE_START || env->state == DRV_STATE_CONTINUE) && env->mode == DRV_AES_MODE_CBC);
 
     iv = env->mode_ctx.cbc_ctx.iv;
     ivp = iv;
 
+    // Used when not need output data at this time
+    used_output = (output != NULL) ? output : output_dummy;
+
     if (env->operation == AES_OP_DECRYPT) {
         while (length > 0) {
             memcpy(temp, input, 16);
-            drv_aes_decrypt(om_aes, input, output);
-            aes_xor_no_simd(output, output, iv, 16);
+            drv_aes_decrypt(om_aes, input, used_output);
+            aes_xor_no_simd(used_output, used_output, iv, 16);
 
             memcpy(iv, temp, 16);
 
             input  += 16;
-            output += 16;
             length -= 16;
+            if (output != NULL) {
+                used_output += 16;
+            }
         }
     } else {
         while (length > 0) {
-            aes_xor_no_simd(output, input, ivp, 16);
+            aes_xor_no_simd(used_output, input, ivp, 16);
 
-            drv_aes_encrypt(om_aes, output, output);
+            drv_aes_encrypt(om_aes, used_output, used_output);
 
-            ivp = output;
+            ivp = used_output;
 
             input  += 16;
-            output += 16;
             length -= 16;
+            if (output != NULL) {
+                used_output += 16;
+            }
         }
         memcpy(iv, ivp, 16);
     }
@@ -1297,7 +1391,7 @@ om_error_t drv_aes_cbc_crypt_stop(uint32_t om_aes)
         return OM_ERROR_PARAMETER;
     }
 
-    OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == AES_MODE_CBC);
+    OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == DRV_AES_MODE_CBC);
 
     memset(&env->mode, 0x0, sizeof(aes_env_t) - OM_OFFSET(aes_env_t, mode));
 
@@ -1336,7 +1430,7 @@ om_error_t drv_aes_cfb_start(uint32_t om_aes, const aes_cfb_config_t *cfg)
         default: OM_ASSERT(0); return OM_ERROR_PARAMETER;
     }
 
-    env->mode = AES_MODE_CFB;
+    env->mode = DRV_AES_MODE_CFB;
     env->keybits = keybits;
     env->operation = cfg->operation;
 
@@ -1380,7 +1474,7 @@ om_error_t drv_aes_cfb_crypt_continue(uint32_t om_aes, const uint8_t *input, uin
     iv = env->mode_ctx.cfb_ctx.iv;
 
     OM_ASSERT(n <= 15 && length != 0);
-    OM_ASSERT((env->state == DRV_STATE_START || env->state == DRV_STATE_CONTINUE) && env->mode == AES_MODE_CFB);
+    OM_ASSERT((env->state == DRV_STATE_START || env->state == DRV_STATE_CONTINUE) && env->mode == DRV_AES_MODE_CFB);
 
     if (env->operation == AES_OP_DECRYPT) {
         while (length--) {
@@ -1431,7 +1525,7 @@ om_error_t drv_aes_cfb_crypt_stop(uint32_t om_aes)
         return OM_ERROR_PARAMETER;
     }
 
-    OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == AES_MODE_CFB);
+    OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == DRV_AES_MODE_CFB);
 
     memset(&env->mode, 0x0, sizeof(aes_env_t) - OM_OFFSET(aes_env_t, mode));
 
@@ -1469,7 +1563,7 @@ om_error_t drv_aes_ofb_start(uint32_t om_aes, const aes_ofb_config_t *cfg)
         default: OM_ASSERT(0); return OM_ERROR_PARAMETER;
     }
 
-    env->mode = AES_MODE_OFB;
+    env->mode = DRV_AES_MODE_OFB;
     env->keybits = keybits;
 
     // Configure Key
@@ -1511,7 +1605,7 @@ om_error_t drv_aes_ofb_crypt_continue(uint32_t om_aes, const uint8_t *input, uin
     iv = env->mode_ctx.ofb_ctx.iv;
 
     OM_ASSERT(n <= 15 && length != 0);
-    OM_ASSERT((env->state == DRV_STATE_START || env->state == DRV_STATE_CONTINUE) && env->mode == AES_MODE_OFB);
+    OM_ASSERT((env->state == DRV_STATE_START || env->state == DRV_STATE_CONTINUE) && env->mode == DRV_AES_MODE_OFB);
 
     while (length--) {
         if (n == 0) {
@@ -1547,7 +1641,7 @@ om_error_t drv_aes_ofb_crypt_stop(uint32_t om_aes)
         return OM_ERROR_PARAMETER;
     }
 
-    OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == AES_MODE_OFB);
+    OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == DRV_AES_MODE_OFB);
 
     memset(&env->mode, 0x0, sizeof(aes_env_t) - OM_OFFSET(aes_env_t, mode));
 
@@ -1585,7 +1679,7 @@ om_error_t drv_aes_ctr_start(uint32_t om_aes, const aes_ctr_config_t *cfg)
         default: OM_ASSERT(0); return OM_ERROR_PARAMETER;
     }
 
-    env->mode = AES_MODE_CTR;
+    env->mode = DRV_AES_MODE_CTR;
     env->keybits = keybits;
 
     // Configure Key
@@ -1629,7 +1723,7 @@ om_error_t drv_aes_ctr_crypt_continue(uint32_t om_aes, const uint8_t *input, uin
     stream_block  = env->mode_ctx.ctr_ctx.stream_block;
 
     OM_ASSERT(offset <= 15 && length != 0);
-    OM_ASSERT((env->state == DRV_STATE_START || env->state == DRV_STATE_CONTINUE) && env->mode == AES_MODE_CTR);
+    OM_ASSERT((env->state == DRV_STATE_START || env->state == DRV_STATE_CONTINUE) && env->mode == DRV_AES_MODE_CTR);
 
     for (size_t i = 0; i < length;) {
         size_t n = 16;
@@ -1675,7 +1769,7 @@ om_error_t drv_aes_ctr_crypt_stop(uint32_t om_aes)
         return OM_ERROR_PARAMETER;
     }
 
-    OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == AES_MODE_CTR);
+    OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == DRV_AES_MODE_CTR);
 
     memset(&env->mode, 0x0, sizeof(aes_env_t) - OM_OFFSET(aes_env_t, mode));
 
@@ -1714,7 +1808,7 @@ om_error_t drv_aes_gcm_start(uint32_t om_aes, const aes_gcm_config_t *cfg)
         default: OM_ASSERT(0); return OM_ERROR_PARAMETER;
     }
 
-    env->mode = AES_MODE_GCM;
+    env->mode = DRV_AES_MODE_GCM;
     env->keybits = keybits;
     env->operation = AES_OP_ENCRYPT;
     env->mode_ctx.gcm_ctx.gcm_op = cfg->gcm_operation;
@@ -1836,7 +1930,7 @@ om_error_t drv_aes_gcm_crypt_continue(uint32_t om_aes, const uint8_t *input, uin
     }
 
     OM_ASSERT(length != 0);
-    OM_ASSERT((env->state == DRV_STATE_START || env->state == DRV_STATE_CONTINUE) && env->mode == AES_MODE_GCM);
+    OM_ASSERT((env->state == DRV_STATE_START || env->state == DRV_STATE_CONTINUE) && env->mode == DRV_AES_MODE_GCM);
 
     env->mode_ctx.gcm_ctx.len += length; // bump the GCM context's running length count
 
@@ -1912,7 +2006,7 @@ om_error_t drv_aes_gcm_crypt_stop(uint32_t om_aes, uint8_t *tag, uint8_t tag_len
     }
 
     OM_ASSERT(tag_len != 0);
-    OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == AES_MODE_GCM);
+    OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == DRV_AES_MODE_GCM);
 
     orig_len = env->mode_ctx.gcm_ctx.len * 8;
     orig_add_len = env->mode_ctx.gcm_ctx.add_len * 8;
@@ -2056,6 +2150,113 @@ om_error_t drv_aes_ccm_le_decrypt(aes_ccm_le_config_t *cfg, uint8_t *cipher_text
     AES_HW_CLK_ENABLE(0);
 
     return err;
+}
+
+om_error_t drv_aes_cmac_start(uint32_t om_aes, aes_cmac_config_t *cfg)
+{
+    uint8_t key_len;
+    aes_env_t *env;
+
+    env = aes_get_env(om_aes);
+    if (env == NULL) {
+        return OM_ERROR_PARAMETER;
+    }
+
+    env->mode_ctx.cmac_ctx.unprocessed_len = 0U;
+
+    aes_cbc_config_t cbc_cfg = {
+        .keybits = cfg->keybits,
+        .operation = AES_OP_ENCRYPT,
+    };
+
+    key_len = (cfg->keybits == AES_KEYBITS_128) ? 16 : ((cfg->keybits == AES_KEYBITS_192) ? 24 : 32);
+    memcpy(cbc_cfg.key, cfg->key, key_len);
+    memset(cbc_cfg.iv, 0x0, sizeof(cbc_cfg.iv));
+
+    drv_aes_cbc_start(om_aes, &cbc_cfg);
+
+    return OM_ERROR_OK;
+}
+
+om_error_t drv_aes_cmac_crypt_continue(uint32_t om_aes, const uint8_t *input, uint32_t len)
+{
+    aes_env_t *env;
+    uint32_t block_num, unprocessed_len;
+
+    env = aes_get_env(om_aes);
+    if (env == NULL) {
+        return OM_ERROR_PARAMETER;
+    }
+
+    /* Is there data still to process from the last call, that's greater in
+     * size than a block? */
+    unprocessed_len = env->mode_ctx.cmac_ctx.unprocessed_len;
+    if (unprocessed_len > 0 && len > AES_BLOCK_SIZE - unprocessed_len) {
+        memcpy(&env->mode_ctx.cmac_ctx.unprocessd_data[unprocessed_len], input, AES_BLOCK_SIZE - unprocessed_len);
+        drv_aes_cbc_crypt_continue(om_aes, env->mode_ctx.cmac_ctx.unprocessd_data, NULL, AES_BLOCK_SIZE);
+        input += AES_BLOCK_SIZE - unprocessed_len;
+        len   -= AES_BLOCK_SIZE - unprocessed_len;
+        env->mode_ctx.cmac_ctx.unprocessed_len = 0U;
+    }
+
+    /* block_num is the number of blocks including any final partial block */
+    block_num = (len + AES_BLOCK_SIZE - 1) / AES_BLOCK_SIZE;
+
+    /* Iterate across the input data in block sized chunks, excluding any
+     * final partial or complete block */
+    if (block_num > 1) {
+        drv_aes_cbc_crypt_continue(om_aes, input, NULL, (block_num - 1) * AES_BLOCK_SIZE);
+        input += (block_num - 1) * AES_BLOCK_SIZE;
+        len   -= (block_num - 1) * AES_BLOCK_SIZE;
+    }
+
+    /* If there is data left over that wasn't aligned to a block */
+    unprocessed_len = env->mode_ctx.cmac_ctx.unprocessed_len;
+    if (len > 0) {
+        memcpy(&env->mode_ctx.cmac_ctx.unprocessd_data[unprocessed_len], input, len);
+        env->mode_ctx.cmac_ctx.unprocessed_len += len;
+    }
+
+    return OM_ERROR_OK;
+}
+
+om_error_t drv_aes_cmac_crypt_stop(uint32_t om_aes, uint8_t mac[AES_BLOCK_SIZE])
+{
+    aes_env_t *env;
+    uint8_t K1[16], K2[16], M_last[16];
+    uint32_t unprocessed_len;
+
+    env = aes_get_env(om_aes);
+    if (env == NULL) {
+        return OM_ERROR_PARAMETER;
+    }
+
+    memset(K1, 0, sizeof(K1));
+    memset(K2, 0, sizeof(K2));
+
+    aes_cmac_generate_subkeys(om_aes, K1, K2);
+
+    /* Calculate last block */
+    unprocessed_len = env->mode_ctx.cmac_ctx.unprocessed_len;
+    if (unprocessed_len < AES_BLOCK_SIZE) {
+        aes_cmac_pad(M_last, AES_BLOCK_SIZE, env->mode_ctx.cmac_ctx.unprocessd_data, unprocessed_len);
+        aes_xor_no_simd(M_last, M_last, K2, AES_BLOCK_SIZE);
+    } else {
+        /* Last block is complete block */
+        aes_xor_no_simd(M_last, env->mode_ctx.cmac_ctx.unprocessd_data, K1, AES_BLOCK_SIZE);
+    }
+    drv_aes_cbc_crypt_continue(om_aes, M_last, mac, AES_BLOCK_SIZE);
+
+    /* Wipe the generated keys on the stack, and any other transients to avoid
+     * side channel leakage */
+    memset(K1, 0x0, sizeof(K1));
+    memset(K2, 0x0, sizeof(K2));
+
+    env->mode_ctx.cmac_ctx.unprocessed_len = 0U;
+    memset(env->mode_ctx.cmac_ctx.unprocessd_data, 0x0, AES_BLOCK_SIZE);
+    drv_aes_cbc_crypt_stop(om_aes);
+
+    return OM_ERROR_OK;
 }
 
 #endif  /* (RTE_AES) */

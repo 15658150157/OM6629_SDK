@@ -8,7 +8,7 @@
 
 /**
  * @defgroup GPDMA GPDMA
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    GPDMA register
  * @details  GPDMA register definitions header file
  *

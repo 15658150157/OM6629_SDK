@@ -39,8 +39,8 @@ extern "C"
 /*******************************************************************************
  * MACROS
  */
-#define DRV_CALIB_REPAIR_DCDC_MAXDBM_DELTA                (SYS_IS_A3() ? 6 : 8)
-#define DRV_CALIB_REPAIR_LDO_MAXDBM_DELTA                 (SYS_IS_A3() ? 4 : 5)
+#define DRV_CALIB_REPAIR_DCDC_MAXDBM_DELTA                6
+#define DRV_CALIB_REPAIR_LDO_MAXDBM_DELTA                 4
 
 #define DRV_CALIB_REPAIR_DCDC_8DBM_DELTA                  4
 #define DRV_CALIB_REPAIR_LDO_8DBM_DELTA                   2

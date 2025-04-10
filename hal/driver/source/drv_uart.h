@@ -82,6 +82,10 @@ typedef enum {
     UART_PARITY_EVEN  = 2,
 } uart_parity_t;
 
+typedef enum {
+    UART_CONTROL_GET_IS_BUSY,              /*!< Uart get busy status */
+} uart_control_t;
+
 /// UART config
 typedef struct {
     uint32_t               baudrate;       /**< Configures UART communication baud rate. */
@@ -322,6 +326,17 @@ extern uint16_t drv_uart_get_read_count(OM_UART_Type *om_uart);
 
 /**
  *******************************************************************************
+ * @brief get busy status for uart
+ *
+ * @param[in] om_uart   Pointer to UART
+ *
+ * @return  0: not busy, 1: busy
+ *******************************************************************************
+ */
+extern uint8_t drv_uart_get_is_busy(OM_UART_Type *om_uart);
+
+/**
+ *******************************************************************************
  * @brief Get UART base from uart idx
  *
  * @param idx  Index of UART peripheral
@@ -350,6 +365,35 @@ static inline OM_UART_Type* drv_uart_idx2base(uint8_t idx)
     };
 
     return (idx < sizeof(uart)/sizeof(uart[0])) ? uart[idx] : NULL;
+}
+
+
+/**
+ *******************************************************************************
+ * @brief Uart control
+ *
+ * @param[in] om_uart       Pointer to UART
+ * @param[in] control       Uart control type
+ * @param[in] argu          Control argument
+ *
+ * @return status or error code
+ *******************************************************************************
+ */
+__STATIC_INLINE void *drv_uart_control(OM_UART_Type *om_uart, uart_control_t control, void *argu)
+{
+    uint32_t ret;
+
+    ret = (uint32_t)OM_ERROR_OK;
+    switch (control) {
+        case UART_CONTROL_GET_IS_BUSY:
+            ret = (uint32_t)drv_uart_get_is_busy(om_uart);
+            break;
+        default:
+            ret = OM_ERROR_PARAMETER;
+            break;
+    }
+
+    return (void *)ret;
 }
 
 /**

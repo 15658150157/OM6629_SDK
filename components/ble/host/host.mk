@@ -13,8 +13,7 @@ ifeq ($(CONFIG_BLE_HOST), y)
 
 BLE_HOST_LIBS += $(BLE_HOST_DIR)lib/GCC/libblehost_full.a
 BLE_HOST_DEFS += \
-	CONFIG_BLE_HOST=1 \
-	CONFIG_OM_LOG=1 \
+	CONFIG_BLE_HOST=1
 
 endif
 

@@ -8,7 +8,7 @@
 
 /**
  * @defgroup IRTX IRTX
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    IRTX register
  * @details  IRTX register definitions header file
  *
@@ -18,6 +18,7 @@
  *
  * @{
  */
+
 #ifndef __IRTX_REG_H
 #define __IRTX_REG_H
 

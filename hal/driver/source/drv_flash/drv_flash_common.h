@@ -81,7 +81,8 @@ extern "C"
 // flash auto detect delay
 #define FLASH_DELAY_AUTO                        0xFF
 // flash auto delay retry times
-#define FLASH_AUTO_DLY_RETYR_CNT                2
+#define FLASH_AUTO_DLY_RETYR_CNT                3U
+
 
 /*******************************************************************************
  * TYPEDEFS
@@ -210,9 +211,9 @@ typedef struct {
 typedef struct __PACKED {
     uint8_t clk_div;                        /*!< Clock divider */
     uint8_t delay;                          /*!< Delay(2 ns for per step) */
-    flash_read_t read_cmd;                  /*!< Command for reading, see@flash_read_t */
-    flash_write_t write_cmd;                /*!< Command for writing, see@flash_write_t */
-    flash_spi_mode_t spi_mode;              /*!< Standard SPI mode, see@flash_spi_mode_t */
+    flash_read_t read_cmd;                  /*!< Command for reading, see@ref flash_read_t */
+    flash_write_t write_cmd;                /*!< Command for writing, see@ref flash_write_t */
+    flash_spi_mode_t spi_mode;              /*!< Standard SPI mode, see@ref flash_spi_mode_t */
 } flash_config_t;
 
 #ifdef __cplusplus

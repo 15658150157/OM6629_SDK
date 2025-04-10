@@ -8,7 +8,7 @@
 
 /**
  * @defgroup I2C I2C
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    I2C register
  * @details  I2C register definitions header file
  *

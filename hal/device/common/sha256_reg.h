@@ -8,7 +8,7 @@
 
 /**
  * @defgroup SHA256 SHA256
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    SHA256 register
  * @details  SHA256 register definitions header file
  *

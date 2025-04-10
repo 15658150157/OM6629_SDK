@@ -57,5 +57,8 @@ CONFIG_FREE_RTOS=y
 #
 # Project
 #
+# CONFIG_XIP_RAM is not set
+CONFIG_XIP_FLASH=y
+# CONFIG_XIP_ROM is not set
 CONFIG_OM_ASSERT=y
 # end of Project

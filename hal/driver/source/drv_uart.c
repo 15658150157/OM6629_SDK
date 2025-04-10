@@ -415,7 +415,6 @@ om_error_t drv_uart_set_baudrate(OM_UART_Type *om_uart, uint32_t baudrate)
     return OM_ERROR_OK;
 }
 
-
 #if (RTE_UART_REGISTER_CALLBACK)
 /**
  *******************************************************************************
@@ -880,6 +879,19 @@ uint16_t drv_uart_get_read_count(OM_UART_Type *om_uart)
     return 0U;
 }
 
+uint8_t drv_uart_get_is_busy(OM_UART_Type *om_uart)
+{
+    const drv_resource_t *resource;
+
+    resource = uart_get_resource(om_uart);
+    if (resource != NULL) {
+        drv_env_t *env;
+        env = (drv_env_t *)(resource->env);
+        return env->state != DRV_STATE_INIT;
+    }
+    return 1;
+}
+
 /**
  *******************************************************************************
  * @brief uart interrupt service routine
@@ -907,11 +919,6 @@ void drv_uart_isr(OM_UART_Type *om_uart)
         // Receive data avaliable & Character timeout indication
         case UART_IIR_RDI:
         case UART_IIR_CTI:
-            // clear timeout int if timeout come but data is not ready,
-            if ((int_status==UART_IIR_CTI) && !(om_uart->LSR & UART_LSR_DR)) {
-                om_uart->LCR |= UART_LCR_TIMEOUT_SW_CLEAR;
-                return;
-            }
 
             event = DRV_EVENT_COMMON_NONE;
             // When rx_num is 0, uart will automatically receive data as long as
@@ -956,6 +963,12 @@ void drv_uart_isr(OM_UART_Type *om_uart)
                     }
                 }
                 drv_uart_isr_callback(om_uart, event, env->rx_buf, env->rx_cnt);
+            }
+            // clear timeout int if timeout come but data is not ready,
+            int_status = (om_uart->IIR & UART_IIR_INT_ID_MASK);
+            if (UART_IIR_CTI == int_status) {
+                // data come
+                om_uart->LCR |= UART_LCR_TIMEOUT_SW_CLEAR;
             }
             break;
 

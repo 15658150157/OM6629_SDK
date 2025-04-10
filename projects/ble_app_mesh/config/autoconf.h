@@ -7,6 +7,7 @@
 #define CONFIG_BLE_HOST 1
 #define CONFIG_BLE_MESH 1
 #define CONFIG_EVT 1
+#define CONFIG_FAULT_HANDLE 1
 #define CONFIG_NVDS 1
 #define CONFIG_OM_LOG 1
 #define CONFIG_OM_LOG_TO_SHELL 1

@@ -1,8 +1,11 @@
-/*
- * Copyright (c) 2024, sakumisu
+/* ----------------------------------------------------------------------------
+ * All rights reserved.
  *
- * SPDX-License-Identifier: Apache-2.0
- */
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ * -------------------------------------------------------------------------- */
+
 #include "usbd_core.h"
 #include "usbd_cdc_acm.h"
 

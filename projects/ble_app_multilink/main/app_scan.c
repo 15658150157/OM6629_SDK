@@ -61,7 +61,7 @@ static char *get_name(const char *report, int len)
     }
     while (len > 0) {
         uint8_t l = *data++; len--;
-        if (len < l) {
+        if (len < l || l==0) {
             return NULL;
         }
         uint8_t type = *data++; len--;

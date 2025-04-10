@@ -194,8 +194,8 @@ static int32_t psram_auto_delay_init(ospi_config_t *config)
     drv_ospi_init(OM_OSPI1, &ospicfg);
     // read id twice, save the true id to id1
     while (!((drv_psram_read_id(OM_OSPI1, &id1) == OM_ERROR_OK) &&
-            (drv_psram_read_id(OM_OSPI1, &id2) == OM_ERROR_OK) &&
-            (!memcmp(&id1, &id2, sizeof(psram_id_t))))) {
+             (drv_psram_read_id(OM_OSPI1, &id2) == OM_ERROR_OK) &&
+             (!memcmp(&id1, &id2, sizeof(psram_id_t))))) {
         if (++retry_cnt > PSRAM_AUTO_DLY_RETYR_CNT) {
             return error;
         }
@@ -205,7 +205,7 @@ static int32_t psram_auto_delay_init(ospi_config_t *config)
         ospicfg.clk_div = config->clk_div;
         ospicfg.sample_cfg.sdr_async.sdr_async_dly = delayi;
         drv_ospi_init(OM_OSPI1, &ospicfg);
-        if ((drv_psram_read_id(OM_OSPI1, &id2) == OM_ERROR_OK) ||
+        if ((drv_psram_read_id(OM_OSPI1, &id2) == OM_ERROR_OK) &&
                 (!memcmp(&id1, &id2, sizeof(psram_id_t)))) {
             if (delay1 == -1) {
                 delay1 = delayi;

@@ -8,7 +8,7 @@
 
 /**
  * @defgroup TRNG TRNG
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    TRNG register
  * @details  TRNG register definitions header file
  *

@@ -97,10 +97,10 @@ extern om_error_t drv_irtx_init(const irtx_config_t *irtx_config);
 /**
  *******************************************************************************
  * @brief set wave code according to high and low level length
- * @param[in] wave_high_us   wave level length in us
+ * @param[in] wave_len_us   wave level length in us
  * @param[in] wave_level     wave level is high or low
  *
- * @return return wave code
+ * @return return wave code, @ref irtx_code_t
  *******************************************************************************
  */
 extern irtx_code_t drv_irtx_get_wave_code(const uint32_t wave_len_us, const irtx_wave_level_t wave_level);

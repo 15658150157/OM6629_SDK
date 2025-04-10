@@ -23,13 +23,15 @@
 #include "omble.h"
 #include "om_log.h"
 
-/*********************************************************************
+
+/*******************************************************************************
  * MACROS
  */
 #define log_debug(...) om_log(OM_LOG_INFO, ##__VA_ARGS__)
 #define hexdump(d, l) do{for(int i=0;i<l;i++)log_debug("%02X ", ((uint8_t*)d)[i]);log_debug("\n");}while(0);
 
-/*********************************************************************
+
+/*******************************************************************************
  * LOCAL VARIABLES
  */
 /*const static int  app_gap_appearance = 0x03C2;*/
@@ -55,11 +57,8 @@ static ob_adv_param_t adv_param;
 static ob_data_t adv_data = { sdata, sizeof(sdata) };
 static ob_data_t scan_rsp_data = { sdata, sizeof(sdata) };
 
-/*********************************************************************
- * EXTERN FUNCTIONS
- */
 
-/*********************************************************************
+/*******************************************************************************
  * LOCAL FUNCTIONS
  */
 /**
@@ -89,10 +88,11 @@ static void app_adv_event_cb(uint16_t evt_id, const omble_evt_t *evt)
                evt->gap.scan_req_recv.addr.addr[2],
                evt->gap.scan_req_recv.addr.addr[3],
                evt->gap.scan_req_recv.addr.addr[4],
-               evt->gap.scan_req_recv.addr.addr[5]);        
+               evt->gap.scan_req_recv.addr.addr[5]);
     } else {
     }
 }
+
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS
@@ -105,7 +105,7 @@ static void app_adv_event_cb(uint16_t evt_id, const omble_evt_t *evt)
 void app_adv_init(void)
 {
     ob_event_callback_reg(app_adv_event_cb);
-    
+
     adv_param.own_addr_type = OB_ADV_ADDR_TYPE_RANDOM;
     adv_param.prim_phy = OB_ADV_PHY_1M;
     adv_param.secd_phy = OB_ADV_PHY_1M;

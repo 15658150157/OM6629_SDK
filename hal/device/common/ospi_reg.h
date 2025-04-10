@@ -7,12 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @file     ospi_reg.h
- * @brief    OSPI Register for OnMicro OM66xx
- * @date     5 November 2021
- * @author   OnMicro SW Team
- *
- * @ingroup  REGS
+ * @defgroup OSPI OSPI
+ * @ingroup  DEVICE
  * @brief    OSPI Register for OnMicro OM66xx
  * @details  common OSPI Register definitions
  *
@@ -22,6 +18,7 @@
  *
  * @{
  */
+
 #ifndef __OSPI_REG_H
 #define __OSPI_REG_H
 

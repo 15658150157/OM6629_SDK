@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup LOG CONFIGURATION
- * @ingroup  LOG CONFIGURATION
+ * @defgroup LOG_CONFIG LOG_CONFIG
+ * @ingroup  LOG
  * @brief
  * @details
  *

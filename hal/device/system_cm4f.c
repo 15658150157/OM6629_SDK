@@ -43,7 +43,8 @@ typedef void(*VECTOR_TABLE_Type)(void);
  */
 extern const VECTOR_TABLE_Type __VECTOR_TABLE[];    /*lint !e526*/
 
-
+extern void lib_cpft_init(void);
+extern void lib_cpft_uninit(void);
 /*******************************************************************************
  * LOCAL FUNCTIONS
  */
@@ -55,6 +56,17 @@ static inline void register_set(volatile uint32_t *reg, uint32_t mask, uint32_t 
     reg_prev &= ~mask;
     reg_prev |= mask & value;
     *reg = reg_prev;
+}
+
+static inline void register_pmu_basic_set(uint32_t mask, uint32_t value)
+{
+    register uint32_t reg_prev;
+
+    reg_prev = OM_PMU->BASIC;
+    reg_prev &= ~mask;
+    reg_prev |= mask & value;
+    OM_PMU->BASIC = reg_prev;
+    while ((OM_PMU->BASIC & mask) != (value & mask));
 }
 
 
@@ -70,18 +82,26 @@ void SystemInit(void)
 {
     /* check chip version */
     while (((OM_SYS->REV_ID & SYS_REV_CHIP_VER_MASK) >> SYS_REV_CHIP_VER_POS) != (CONFIG_HARDWARE_VERSION - 1U));
+    /* check RAM size */
+    do {
+        #if (OM6627X)
+        const uint32_t ram_limit = 128*1024 + 0x20000000U;
+        #endif
+        #if (OM6629X)
+        const uint32_t ram_limit = 256*1024 + 0x20000000U;
+        #endif
+        while (__get_MSP() > ram_limit);
+    } while(0);
 
     // Retention LDO: 0=0.6v 2=0.7v 3=0.75v 4=0.8v 5=0.85v 6=0.9v 7=0.95v(default) 8=1.0v
     register_set(&OM_PMU->ANA_PD_1, PMU_ANA_PD_1_DIG_RETLDO_TRIM_MASK, (5U << PMU_ANA_PD_1_DIG_RETLDO_TRIM_POS));
     // DCDC on delay is 3*32k
-    register_set(&OM_PMU->BASIC, PMU_BASIC_DCDC_ON_DELAY_MASK, (3U << PMU_BASIC_DCDC_ON_DELAY_POS));
+    register_pmu_basic_set(PMU_BASIC_DCDC_ON_DELAY_MASK, (3U << PMU_BASIC_DCDC_ON_DELAY_POS));
     // DCDC频率振荡调节寄存器,CTUNE值越大振荡频率越慢
     register_set(&OM_PMU->ANA_PD, PMU_ANA_PD_DCDC_CTUNE_MASK, (3U << PMU_ANA_PD_DCDC_CTUNE_POS));
     // DCDC PSM/PWM 电流切换调节寄存器,电流大的时候DCDC会从PSM模式切到PWM模式
     register_set(&OM_PMU->ANA_PD_1, PMU_ANA_PD_1_DCDC_PSM_VREF_MASK, (0U << PMU_ANA_PD_1_DCDC_PSM_VREF_POS));
 
-    // TODO: CPFT
-    // TODO: FLASH settings
     #if 0
     // power on all sram and icache ram(power on in ROM)
     OM_PMU->PSO_PM |= PMU_PSO_RAM1_2_POWER_ON_MASK | PMU_PSO_RAM3_POWER_ON_MASK
@@ -108,9 +128,9 @@ void SystemInit(void)
     OM_CPM->EFUSE_CFG |= CPM_EFUSE_CFG_GATE_EN_MASK | CPM_EFUSE_CFG_SOFT_RESET_MASK;
     OM_CPM->GPDMA_CFG |= CPM_GPDMA_CFG_GATE_EN_MASK | CPM_GPDMA_CFG_SOFT_RESET_MASK;
     OM_CPM->LCD_CFG |= CPM_LCD_CFG_GATE_EN_MASK;
-    OM_PMU->BASIC |= PMU_BASIC_LPTIM_32K_CLK_GATE_MASK;
+    register_pmu_basic_set(PMU_BASIC_LPTIM_32K_CLK_GATE_MASK, PMU_BASIC_LPTIM_32K_CLK_GATE_MASK);
     if (!(OM_PMU->RSVD_SW_REG[0] & PMU_RSVD_SW_REG_RTC_SECOND_RESTORE_PROCESS_MASK)) {
-        OM_PMU->BASIC |= PMU_BASIC_RTC_CLK_GATE_MASK;
+        register_pmu_basic_set(PMU_BASIC_RTC_CLK_GATE_MASK, PMU_BASIC_RTC_CLK_GATE_MASK);
     }
 
     // retention ALL SRAM, icache ram, ble ram, pso ram when deep sleep
@@ -138,6 +158,20 @@ void SystemInit(void)
         CoreDebug->DEMCR |= (1U << CoreDebug_DEMCR_TRCENA_Pos);
         DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     } while(0);
+}
+
+/**
+ *******************************************************************************
+ * @brief  system init post, called after init ".data", ".bss" and "other section"
+ *
+ * @note  This may be implemented in the system library to import data such as CP/FT calibration.
+ *******************************************************************************
+ */
+__WEAK void SystemInitPost(void)
+{
+    //TODO: CPFT & Flash settings
+    lib_cpft_init();
+    lib_cpft_uninit();
 }
 
 

@@ -2776,7 +2776,7 @@ static void FreeBlock (MemPool_t *mp, void *block) {
 /*---------------------------------------------------------------------------*/
 
 /* Callback function prototypes */
-extern void vApplicationIdleHook (void);
+extern __RAM_CODES("PM") void vApplicationIdleHook (void);
 extern void vApplicationMallocFailedHook (void);
 extern void vApplicationDaemonTaskStartupHook (void);
 

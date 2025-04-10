@@ -37,10 +37,17 @@ ifeq ($(shell test $(GCC_VERSION) \> 12.2; echo $$?), 0)
     LDFLAGS += -Wl,--no-warn-rwx-segments    # GCC 12.2 and higher
 endif
 
+ifeq ($(CONFIG_LIB_GENERATE), y)
+SOURCES   = $(PROJECT_SRCS)
+INCLUDES  = $(PROJECT_INCS) $(SDK_INCS)
+LIBRARIES = $(PROJECT_LIBS)
+DEFINES   = $(PROJECT_DEFS) $(SDK_DEFS)
+else
 SOURCES   =  $(subst $(SDK_DIR)/,, $(SDK_SRCS)) $(PROJECT_SRCS)
 INCLUDES  = $(PROJECT_INCS) $(SDK_INCS)
 LIBRARIES = $(PROJECT_LIBS) $(SDK_LIBS)
 DEFINES   = $(PROJECT_DEFS) $(SDK_DEFS)
+endif
 
 # .config Defines
 KCONFIG_CONFIG := $(PROJECT_DIR)/.config
@@ -83,11 +90,6 @@ else
 OPTIMIZE = s
 endif
 
-# after build commands
-AFTER_BUILD :=
-# Update compile time everytime
-AFTER_BUILD += @find $(BUILDDIR) -name 'shell_port*.d' | xargs -i rm {}
-
 ################################################################################
 # verbose mode
 ifeq ($(V), 1)
@@ -112,6 +114,7 @@ TARGET_BIN              := $(TARGET).bin
 TARGET_HEX              := $(TARGET).hex
 TARGET_MAP              := $(TARGET).map
 TARGET_DIS              := $(TARGET).dis
+TARGET_LIB              := $(TARGET).a
 OBJCPFLAGS_ELF_TO_BIN    = -Obinary
 OBJCPFLAGS_ELF_TO_HEX    = -Oihex
 OBJCPFLAGS_HEX_TO_BIN    = -Obinary -Iihex
@@ -141,13 +144,19 @@ FILES_C_DEPEND = $(patsubst %,$(BUILDDIR)/%,$(filter %.d, $(SOURCES:%.c=%.d)))
 FILES_S_DEPEND = $(patsubst %,$(BUILDDIR)/%,$(filter %.d, $(SOURCES:%.S=%.d)))
 FILES_S_DEPEND += $(patsubst %,$(BUILDDIR)/%,$(filter %.d, $(SOURCES:%.s=%.d)))
 
+# Target
+ifeq ($(CONFIG_LIB_GENERATE), y)
+TARGET_OUT = $(TARGET_LIB)
+else
+TARGET_OUT = $(TARGET_HEX) $(TARGET_BIN)
+endif
 
 # .PHONY
 .PHONY: all clean distclean list document help
 
 # Target
-all: $(TARGET_HEX) $(TARGET_BIN)
-	$(AFTER_BUILD)
+all: $(TARGET_OUT)
+
 
 # bin
 $(TARGET_BIN) : $(TARGET_HEX)
@@ -164,11 +173,19 @@ $(TARGET_HEX) : $(TARGET_ELF)
 
 # elf
 $(TARGET_ELF) : $(FILES_C_OBJ) $(FILES_S_OBJ)
+	@touch $(SDK_DIR)/components/shell/shell_port_*.c
 	$(TRACE_LD)
 	$(Q)$(CC) $+ $(LDFLAGS) -o $@
 	$(Q)$(OBJSIZE) -B -d $@
 	$(Q)$(OBJDUMP) -d $@ > $(TARGET_DIS)
 	@ln -sf -T $@ a.elf
+
+# library
+$(TARGET_LIB) : $(FILES_C_OBJ) $(FILES_S_OBJ)
+	$(TRACE_AR)
+	$(Q)rm -f $@
+	$(Q)$(AR) -crs $@ $^
+	@echo "Build done"
 
 # c -> o
 $(BUILDDIR)/%.o : %.c gen_autoconf
@@ -221,7 +238,7 @@ list:
 
 # Clean
 clean:
-	$(Q)rm -rf $(TARGET_ELF) $(TARGET_BIN) $(TARGET_HEX) $(TARGET_MAP) $(TARGET_DIS) a.elf
+	$(Q)rm -rf $(TARGET_ELF) $(TARGET_BIN) $(TARGET_HEX) $(TARGET_MAP) $(TARGET_DIS) a.elf $(BUILDDIR)
 
 distclean:
 	$(Q)rm -rf .build out *.elf *.bin *.map *.hex *.dis

@@ -88,7 +88,7 @@ typedef enum {
  *******************************************************************************
  * @brief Get I2C base from i2c idx
  *
- * @param idx  Index of I2C peripheral
+ * @param[in] idx  Index of I2C peripheral
  *
  * @return OM_I2C Type pointer
  *******************************************************************************
@@ -123,13 +123,24 @@ static inline OM_I2C_Type* drv_i2c_idx2base(uint8_t idx)
  */
 extern om_error_t drv_i2c_init(OM_I2C_Type *om_i2c, const i2c_config_t *cfg);
 
+/**
+ *******************************************************************************
+ * @brief I2C deinitialization
+ *
+ * @param[in] om_i2c         Pointer to I2C
+ *
+ * @return errno
+ *******************************************************************************
+ */
+extern om_error_t drv_i2c_uninit(OM_I2C_Type *om_i2c);
+
 #if (RTE_I2C_REGISTER_CALLBACK)
 /**
  *******************************************************************************
  * @brief Register event callback for transmit/receive by interrupt & dma mode
  *
  * @param[in] om_i2c         Pointer to I2C
- * @param[in] isr_cb       Pointer to callback
+ * @param[in] isr_cb         Pointer to callback
  *******************************************************************************
  */
 extern void drv_i2c_register_isr_callback(OM_I2C_Type *om_i2c, drv_isr_callback_t isr_cb);
@@ -161,6 +172,7 @@ extern void drv_i2c_isr_callback(OM_I2C_Type *om_i2c, drv_event_t event, uint8_t
  * @param[in]   dev_addr     Slave device address
  * @param[in]   tx_data      Pointer to buffer with data to send
  * @param[in]   tx_num       Number of data items to send
+ * @param[in]   timeout_ms   timeout(ms)
  *
  * @return errno
  *******************************************************************************
@@ -175,6 +187,7 @@ extern om_error_t drv_i2c_master_write(OM_I2C_Type *om_i2c, uint16_t dev_addr, c
  * @param[in]   dev_addr     Slave device address
  * @param[in]   tx_data      Pointer to buffer with data to send
  * @param[in]   tx_num       Number of data items to send
+ * @param[in]   timeout_ms   timeout(ms)
  *
  * @return errno
  *******************************************************************************
@@ -186,8 +199,8 @@ extern om_error_t drv_i2c_master_write_int(OM_I2C_Type *om_i2c, uint16_t dev_add
  *******************************************************************************
  * @brief Allocate dma channel for i2c
  *
- * @param[in] om_i2c    Pointer for I2C
- * @param[in] channel   I2C rx/tx channel
+ * @param[in]   om_i2c       Pointer for I2C
+ * @param[in]   channel      I2C rx/tx channel
  *
  * @return errno
  *******************************************************************************
@@ -198,8 +211,8 @@ extern om_error_t drv_i2c_gpdma_channel_allocate(OM_I2C_Type *om_i2c, drv_gpdma_
  *******************************************************************************
  * @brief Release dma channel for i2c
  *
- * @param[in] om_i2c    Pointer for I2C
- * @param[in] channel   I2C rx/tx channel
+ * @param[in]   om_i2c       Pointer for I2C
+ * @param[in]   channel      I2C rx/tx channel
  *
  * @return errno
  *******************************************************************************
@@ -214,6 +227,7 @@ extern om_error_t drv_i2c_gpdma_channel_release(OM_I2C_Type *om_i2c, drv_gpdma_c
  * @param[in]   dev_addr     Slave device address
  * @param[in]   tx_data      Pointer to buffer with data to send
  * @param[in]   tx_num       Number of data items to send
+ * @param[in]   timeout_ms   timeout(ms)
  *
  * @return errno
  *******************************************************************************
@@ -231,6 +245,7 @@ extern om_error_t drv_i2c_master_write_dma(OM_I2C_Type *om_i2c, uint16_t dev_add
  * @param[in]   tx_num       Number of data items to send
  * @param[out]  rx_data      Pointer to buffer with data to receive
  * @param[in]   rx_num       Number of data items to receive
+ * @param[in]   timeout_ms   timeout(ms)
  *
  * @return errno
  *******************************************************************************
@@ -246,6 +261,7 @@ extern om_error_t drv_i2c_master_read(OM_I2C_Type *om_i2c, uint16_t dev_addr, co
  * @param[in]   tx_num       Number of data items to send(tx_num <= 16)
  * @param[out]  rx_data      Pointer to buffer with data to receive
  * @param[in]   rx_num       Number of data items to receive
+ * @param[in]   timeout_ms   timeout(ms)
  *
  * @return errno
  *******************************************************************************
@@ -262,6 +278,7 @@ extern om_error_t drv_i2c_master_read_int(OM_I2C_Type *om_i2c, uint16_t dev_addr
  * @param[in]   tx_num       Number of data items to send
  * @param[out]  rx_data      Pointer to buffer with data to receive
  * @param[in]   rx_num       Number of data items to receive
+ * @param[in]   timeout_ms   timeout(ms)
  *
  * @return errno
  *******************************************************************************
@@ -354,9 +371,9 @@ om_error_t drv_i2c_slave_read_dma(OM_I2C_Type *om_i2c, uint16_t dev_addr, uint8_
  *******************************************************************************
  * @brief Control i2c
  *
- * @param[in] om_i2c      Pointer to I2C
- * @param[in] control:    Control command
- * @param[in] argu:       Control argument
+ * @param[in]   om_i2c       Pointer to I2C
+ * @param[in]   control:     Control command
+ * @param[in]   argu:        Control argument
  *
  * @return control status
  *******************************************************************************
@@ -376,7 +393,7 @@ extern void drv_i2c_isr(OM_I2C_Type *om_i2c);
  *******************************************************************************
  * @brief Get I2C TX ABRT SOURCE
  *
- * @param[in] om_i2c        Pointer to I2C
+ * @param[in]   om_i2c       Pointer to I2C
  *
  * @return I2C TX ABRT SOURCE value
  *******************************************************************************

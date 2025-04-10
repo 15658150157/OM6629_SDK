@@ -8,7 +8,7 @@
 
 /**
  * @defgroup UART UART
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    UART register
  * @details  UART register definitions header file
  *
@@ -64,7 +64,7 @@ typedef struct {
         __I  uint32_t SRBR[16];
         __O  uint32_t STHR[16];
     };                                              // offset: 0x30
-    __IO uint32_t FAR;                              // offset: 0x70
+    __IO uint32_t FIFOAR;                           // offset: 0x70
     __I  uint32_t TFR;                              // offset: 0x74
     __O  uint32_t RFW;                              // offset: 0x78
     __I  uint32_t USR;                              // offset: 0x7C

@@ -30,14 +30,14 @@
 /*******************************************************************************
  * Extern FUNCTIONS
  */
-
-void vStartEvtTask(void);
+extern void vStartEvtTask(void);
+extern void system_init(void);
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS
  */
 int main(void)
-{    
+{
 #if 1
     drv_icache_enable();
     flash_config_t config = {
@@ -48,9 +48,9 @@ int main(void)
         .spi_mode = FLASH_SPI_MODE_0,
     };
     drv_flash_init(OM_FLASH0, &config);
-#endif    
-    
+#endif
     board_init();
+    system_init();
     drv_wdt_init(0);
 
     // Initialize CMSIS-RTOS
@@ -58,7 +58,6 @@ int main(void)
 
     // Start Evt Task
     vStartEvtTask();
-    
 
     // Start thread execution
     if (osKernelGetState() == osKernelReady) {

@@ -1,0 +1,10 @@
+from build.building import *
+
+group = []
+if GetDepend('CONFIG_FAULT_HANDLE'):
+    MANU_SYSTEM_INCS = ['fault_handle']
+    MANU_SYSTEM_SRCS = ['fault_handle/fault_handle.c']
+
+    group = DefineGroup(name='manu_system', srcs=MANU_SYSTEM_SRCS, incs=MANU_SYSTEM_INCS)
+
+Return('group')

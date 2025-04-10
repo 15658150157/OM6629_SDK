@@ -102,7 +102,7 @@ extern void drv_wdt_isr_callback(void);
  *
  *******************************************************************************
  */
-inline void drv_wdt_control(wdt_control_t control, void *argu)
+static inline void drv_wdt_control(wdt_control_t control, void *argu)
 {
     switch (control) {
         case WDT_CONTROL_ENABLE_NMI_INT:

@@ -4,7 +4,7 @@
   <Header>### uVision Project, (C) Keil Software</Header>
   <Targets>
     <Target>
-      <TargetName>OM6627X</TargetName>
+      <TargetName>om24g_app_simple</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>6140000::V6.14::ARMCLANG</pCCUsed>
@@ -80,7 +80,7 @@
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>1</RunUserProg2>
             <UserProg1Name>fromelf.exe --bin --output "@L.bin" "#L"</UserProg1Name>
-            <UserProg2Name>fromelf.exe -c --output ".\_build\@L.dis" "#L"</UserProg2Name>
+            <UserProg2Name>fromelf.exe -c --output "$L@L.dis" "#L"</UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
             <nStopA1X>0</nStopA1X>
@@ -336,7 +336,7 @@
               <MiscControls/>
               <Define>OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -354,7 +354,7 @@
               <MiscControls/>
               <Define>OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Aads>
           <LDads>
@@ -367,10 +367,11 @@
             <TextAddressRange>0x00404000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase/>
-            <ScatterFile>../linker_script/Keil/cm4f_rom_ac6.sct</ScatterFile>
+            <ScatterFile>../linker_script/Keil/cm4f_flash_ac6.sct</ScatterFile>
             <IncludeLibs/>
             <IncludeLibsPath/>
-            <Misc>--diag_suppress=L6314 --diag_suppress=L6439W</Misc>
+            <Misc>--diag_suppress=L6314 --diag_suppress=L6439W&#13;
+../../../hal/device/ARM/libcpft.lib</Misc>
             <LinkerInputFile/>
             <DisabledWarnings/>
           </LDads>
@@ -389,6 +390,11 @@
               <FileName>app_om24g.c</FileName>
               <FileType>1</FileType>
               <FilePath>../main/app_om24g.c</FilePath>
+            </File>
+            <File>
+              <FileName>system.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../main/system.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -464,6 +470,16 @@
               <FileName>shell_port_rtos.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../components/shell/shell_port_rtos.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>manu_system</GroupName>
+          <Files>
+            <File>
+              <FileName>fault_handle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/manu_system/fault_handle/fault_handle.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -285,10 +285,10 @@ om_error_t drv_tim_gp_start(OM_TIM_Type *om_tim, const tim_gp_config_t *cfg)
     }
 
     // use edge-aligned mode, upcounter, ARR register is buffered
-    register_set(&om_tim->CR1, MASK_4REG(TIM_CR1_ARPE, 1,
-                                         TIM_CR1_OPM,  0,
-                                         TIM_CR1_CMS,  0,
-                                         TIM_CR1_DIR,  0));
+    register_set(&om_tim->CTR1, MASK_4REG(TIM_CTR1_ARPE, 1,
+                                          TIM_CTR1_OPM,  0,
+                                          TIM_CTR1_CMS,  0,
+                                          TIM_CTR1_DIR,  0));
     om_tim->DIER = 0;
     om_tim->CNT  = 0;
     om_tim->SR   = 0;
@@ -302,7 +302,7 @@ om_error_t drv_tim_gp_start(OM_TIM_Type *om_tim, const tim_gp_config_t *cfg)
     om_tim->DIER |= TIM_DIER_UIE_MASK;
 
     // start
-    om_tim->CR1 |= TIM_CR1_CEN_MASK;
+    om_tim->CTR1 |= TIM_CTR1_CEN_MASK;
 
     return OM_ERROR_OK;
 }
@@ -323,7 +323,7 @@ void drv_tim_gp_stop(OM_TIM_Type *om_tim)
         return;
     }
 
-    om_tim->CR1 &= ~TIM_CR1_CEN_MASK;
+    om_tim->CTR1 &= ~TIM_CTR1_CEN_MASK;
 }
 
 /**
@@ -358,9 +358,9 @@ om_error_t drv_tim_pwm_output_start(OM_TIM_Type *om_tim, const tim_pwm_output_co
     }
 
     // update shadow register
-    if (!(om_tim->CR1 & TIM_CR1_CEN_MASK)) {
+    if (!(om_tim->CTR1 & TIM_CTR1_CEN_MASK)) {
         om_tim->DIER    = 0;
-        om_tim->CR1     = TIM_CR1_ARPE_MASK;
+        om_tim->CTR1    = TIM_CTR1_ARPE_MASK;
         om_tim->PSC     = psc;
         om_tim->ARR     = cfg->period_cnt - 1;
     }
@@ -522,13 +522,13 @@ om_error_t drv_tim_pwm_output_start(OM_TIM_Type *om_tim, const tim_pwm_output_co
     }
     #endif  /* RTE_GPDMA */
 
-    if (!(om_tim->CR1 & TIM_CR1_CEN_MASK)) {
+    if (!(om_tim->CTR1 & TIM_CTR1_CEN_MASK)) {
         om_tim->SR  = 0;
         om_tim->EGR |= TIM_EGR_UG_MASK;
         while (!(om_tim->SR & TIM_SR_UIF_MASK));
 
         om_tim->CNT = 0;
-        om_tim->CR2 = 0;
+        om_tim->CTR2 = 0;
         om_tim->SR  = 0;
 
         // open oc and ocn output
@@ -538,7 +538,7 @@ om_error_t drv_tim_pwm_output_start(OM_TIM_Type *om_tim, const tim_pwm_output_co
         }
 
         // start
-        om_tim->CR1 |= TIM_CR1_CEN_MASK;
+        om_tim->CTR1 |= TIM_CTR1_CEN_MASK;
     }
 
     return OM_ERROR_OK;
@@ -576,9 +576,9 @@ om_error_t drv_tim_pwm_complementary_output_start(OM_TIM_Type *om_tim, tim_pwm_c
     }
 
     // update shadow register
-    if (!(om_tim->CR1 & TIM_CR1_CEN_MASK)) {
+    if (!(om_tim->CTR1 & TIM_CTR1_CEN_MASK)) {
         om_tim->DIER    = 0;
-        om_tim->CR1     = TIM_CR1_ARPE_MASK;
+        om_tim->CTR1    = TIM_CTR1_ARPE_MASK;
         om_tim->PSC     = psc;
         om_tim->ARR     = cfg->period_cnt - 1;
     }
@@ -740,13 +740,13 @@ om_error_t drv_tim_pwm_complementary_output_start(OM_TIM_Type *om_tim, tim_pwm_c
     }
     #endif  /* RTE_GPDMA */
 
-    if (!(om_tim->CR1 & TIM_CR1_CEN_MASK)) {
+    if (!(om_tim->CTR1 & TIM_CTR1_CEN_MASK)) {
         om_tim->SR  = 0;
         om_tim->EGR |= TIM_EGR_UG_MASK;
         while (!(om_tim->SR & TIM_SR_UIF_MASK));
 
         om_tim->CNT = 0;
-        om_tim->CR2 = 0;
+        om_tim->CTR2 = 0;
         om_tim->SR  = 0;
 
         // open oc and ocn output
@@ -757,7 +757,7 @@ om_error_t drv_tim_pwm_complementary_output_start(OM_TIM_Type *om_tim, tim_pwm_c
         }
 
         // start
-        om_tim->CR1 |= TIM_CR1_CEN_MASK;
+        om_tim->CTR1 |= TIM_CTR1_CEN_MASK;
     }
 
     return OM_ERROR_OK;
@@ -830,7 +830,7 @@ void drv_tim_pwm_output_stop(OM_TIM_Type *om_tim, tim_chan_t channel)
     // check disable all channel
     if (!(om_tim->CCER & (TIM_CCER_CC1E_MASK | TIM_CCER_CC2E_MASK | TIM_CCER_CC3E_MASK | TIM_CCER_CC4E_MASK))) {
         // disable counter
-        om_tim->CR1 &= ~TIM_CR1_CEN_MASK;
+        om_tim->CTR1 &= ~TIM_CTR1_CEN_MASK;
     }
 }
 
@@ -892,7 +892,7 @@ om_error_t drv_tim_capture_start(OM_TIM_Type *om_tim, const tim_capture_config_t
         return OM_ERROR_UNSUPPORTED;
     }
 
-    if (om_tim->CR1 & TIM_CR1_CEN_MASK) {
+    if (om_tim->CTR1 & TIM_CTR1_CEN_MASK) {
         return OM_ERROR_BUSY;
     }
 
@@ -903,7 +903,7 @@ om_error_t drv_tim_capture_start(OM_TIM_Type *om_tim, const tim_capture_config_t
     }
 
     om_tim->DIER  = 0;
-    om_tim->CR1   = 0;
+    om_tim->CTR1   = 0;
     om_tim->PSC   = psc;
     om_tim->ARR   = TIM_ARR_MAX;
     om_tim->CNT   = 0;
@@ -1038,7 +1038,7 @@ om_error_t drv_tim_capture_start(OM_TIM_Type *om_tim, const tim_capture_config_t
     }
     #endif
 
-    om_tim->CR1  |= TIM_CR1_CEN_MASK;
+    om_tim->CTR1 |= TIM_CTR1_CEN_MASK;
     om_tim->DIER |= TIM_DIER_UIE_MASK;
     om_tim->CCER |= ccer;
 
@@ -1113,7 +1113,7 @@ void drv_tim_capture_stop(OM_TIM_Type *om_tim, tim_chan_t channel)
     // check disable all channel
     if (!(om_tim->CCER & (TIM_CCER_CC1E_MASK | TIM_CCER_CC2E_MASK | TIM_CCER_CC3E_MASK | TIM_CCER_CC4E_MASK))) {
         // disable counter
-        om_tim->CR1 &= ~TIM_CR1_CEN_MASK;
+        om_tim->CTR1 &= ~TIM_CTR1_CEN_MASK;
     }
 }
 
@@ -1132,7 +1132,7 @@ om_error_t drv_tim_pwm_input_start(OM_TIM_Type *om_tim, const tim_pwm_input_conf
 
     OM_ASSERT(cfg);
 
-    if (om_tim->CR1 & TIM_CR1_CEN_MASK) {
+    if (om_tim->CTR1 & TIM_CTR1_CEN_MASK) {
         return OM_ERROR_BUSY;
     }
 
@@ -1148,7 +1148,7 @@ om_error_t drv_tim_pwm_input_start(OM_TIM_Type *om_tim, const tim_pwm_input_conf
     }
 
     om_tim->DIER = 0;
-    om_tim->CR1 |= TIM_CR1_URS_MASK;
+    om_tim->CTR1 |= TIM_CTR1_URS_MASK;
     om_tim->PSC  = psc;
     om_tim->ARR  = TIM_ARR_MAX;
     om_tim->CNT  = 0;
@@ -1168,7 +1168,7 @@ om_error_t drv_tim_pwm_input_start(OM_TIM_Type *om_tim, const tim_pwm_input_conf
     // enable CC1,CC2 irq and update event
     om_tim->DIER |= TIM_DIER_CC1IE_MASK | TIM_DIER_CC2IE_MASK | TIM_DIER_UIE_MASK;
     // start
-    om_tim->CR1 |= TIM_CR1_CEN_MASK;
+    om_tim->CTR1 |= TIM_CTR1_CEN_MASK;
     // enable capture
     om_tim->CCER |= TIM_CCER_CC1E_MASK | TIM_CCER_CC2E_MASK;
 
@@ -1191,7 +1191,7 @@ void drv_tim_pwm_input_stop(OM_TIM_Type *om_tim)
         return;
     }
 
-    om_tim->CR1     = 0;
+    om_tim->CTR1     = 0;
     om_tim->DIER    = 0;
     om_tim->SR      = 0;
     om_tim->SMCR    = 0;

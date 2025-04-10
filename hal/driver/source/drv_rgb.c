@@ -219,6 +219,7 @@ om_error_t drv_rgb_gpdma_channel_allocate(void)
     gpdma_config_t dma_cfg;
     om_error_t error;
 
+    (void)error;
     if (rgb_env.gpdma_tx_chan >= GPDMA_NUMBER_OF_CHANNELS) {
         rgb_env.gpdma_tx_chan = drv_gpdma_channel_allocate();
         if (rgb_env.gpdma_tx_chan >= GPDMA_NUMBER_OF_CHANNELS) {

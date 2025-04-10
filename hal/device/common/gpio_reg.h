@@ -8,7 +8,7 @@
 
 /**
  * @defgroup GPIO GPIO
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    GPIO register
  * @details  GPIO register definitions header file
  *

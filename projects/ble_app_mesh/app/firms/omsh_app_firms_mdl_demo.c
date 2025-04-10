@@ -25,7 +25,9 @@
  */
 #include "omsh_app.h"
 
-
+#if defined ( __ICCARM__ )
+#pragma diag_suppress=Pe188
+#endif
 /*******************************************************************************
  * DEFINES
  */
@@ -182,5 +184,7 @@ uint16_t mm_firms_demo_get_env_size(void *p_cfg)
     return (sizeof(mm_firms_demo_env_t));
 }
 
-
+#if defined ( __ICCARM__ )
+#pragma diag_default=Pe188
+#endif
 /** @} */

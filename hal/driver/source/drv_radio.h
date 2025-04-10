@@ -93,8 +93,9 @@ extern void drv_rf_txrx_pin_enable(bool enable, int pol);
  *******************************************************************************
  * @brief  rf carrier enable
  *
- * @param[in] enable  enable
- * @param[in] freq  2402MHz ... 2480MHz, If set freq to 2402.123456MHZ, freq_channel = 2402, fractFreq = 0.123456
+ * @param[in] enable     enable
+ * @param[in] freq       2402MHz ... 2480MHz, If set freq to 2402.123456MHZ, freq_channel = 2402, fractFreq = 0.123456
+ * @param[in] fract_freq fractional frequency point, range in[0x32, 0x5], Accurate to six decimal places
  *******************************************************************************
  **/
 extern void drv_rf_carrier_enable(bool enable, uint32_t freq, float fract_freq);

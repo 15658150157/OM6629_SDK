@@ -194,7 +194,6 @@ extern void drv_rgb_register_isr_callback(drv_isr_callback_t isr_cb);
  * @param data  RGB data pointer
  * @param num   The data buffer valid data number, units in word
  *
- * @return None
  *******************************************************************************
  */
 extern void drv_rgb_isr_callback(drv_event_t event, uint32_t *data, uint16_t num);
@@ -202,8 +201,6 @@ extern void drv_rgb_isr_callback(drv_event_t event, uint32_t *data, uint16_t num
 /**
  *******************************************************************************
  * @brief The RGB interrupt service routine function, should be called in RGB IRQHandler
- *
- * @return None
  *******************************************************************************
  */
 extern void drv_rgb_isr(void);

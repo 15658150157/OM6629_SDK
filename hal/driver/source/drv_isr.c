@@ -27,37 +27,12 @@
 #if (RTE_ISR)
 #include <stdint.h>
 #include <stddef.h>
-#include "om_device.h"
 #include "om_driver.h"
 
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS
  */
-__WEAK void SystemFaultContextStore(sys_fault_id_t fault_id, uint8_t *context, uint32_t context_len, uint32_t param)
-{
-    while(1) {
-        #if (RTE_WDT)
-        drv_wdt_keep_alive();
-        #endif
-        DRV_DELAY_MS(100);
-    }
-}
-
-void SystemFaultCallback(sys_fault_id_t fault_id, uint8_t *context, uint32_t context_len, uint32_t param)
-{
-    __disable_irq();
-    SystemFaultContextStore(fault_id, context, context_len, param);
-
-    drv_pmu_reset((fault_id == SYS_FAULT_ID_WDT) ? PMU_REBOOT_FROM_WDT : PMU_REBOOT_FROM_SOFT_RESET_USER);
-    while(1);
-}
-
-void Fault_Handler_C(uint32_t exc_return_code, uint32_t sp)
-{
-    SystemFaultCallback(SYS_FAULT_ID_HARD_FAULT, (uint8_t *)sp, 32U, exc_return_code);
-}
-
 #if 0
 __WEAK void HardFault_Handler(void)
 {
@@ -97,10 +72,15 @@ __WEAK void SysTick_Handler(void)
 #endif
 
 #if (RTE_WDT)
+__WEAK void fault_wdt_callback(uint32_t exc_return_code, uint32_t sp)
+{
+    while(1);
+}
+
 void NMI_Handler_C(uint32_t exc_return_code, uint32_t sp)
 {
     drv_wdt_isr();
-    SystemFaultCallback(SYS_FAULT_ID_WDT, (uint8_t *)sp, 28U, exc_return_code);
+    fault_wdt_callback(exc_return_code, sp);
 }
 
 void WDT_IRQHandler(void)
@@ -154,8 +134,9 @@ void OM24G_RF_IRQHandler(void)
     drv_om24g_isr();
 }
 
-void OM24G_TIM_IRQHandler(void)
+void OM24G_TIM_WAKEUP_IRQHandler(void)
 {
+    drv_om24g_tim_wakeup_isr();
 }
 #endif
 

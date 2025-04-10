@@ -123,9 +123,9 @@ irtx_code_t drv_irtx_get_wave_code(const uint32_t wave_len_us, const irtx_wave_l
     /* get input wave code of pulse group0 by its wave length and level status */
     uint32_t carrier_freq_group0_kHz = irtx_env.carrier_freq / 1000;
     uint32_t carrier_num_x1000 = wave_len_us * carrier_freq_group0_kHz;
-    uint32_t carrier_num_max = 0x3FFF;
-    uint32_t carrier_num_max_x1000 = carrier_num_max * 1000;
-    OM_ASSERT(carrier_num_x1000 <= carrier_num_max_x1000);
+
+    //0x3FFF: max carrier num
+    OM_ASSERT(carrier_num_x1000 <= (0x3FFF * 1000));
 
     uint32_t carrier_num_raw = carrier_num_x1000  / 1000;
     irtx_code_t wave_code = (irtx_code_t)(carrier_num_raw & 0xFFFF);

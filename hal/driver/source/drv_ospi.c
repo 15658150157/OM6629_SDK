@@ -292,7 +292,9 @@ __OSPI_RAM_CODE void drv_ospi_store(void)
     store->CMD_WR_DATA0 = om_ospi->CMD_WR_DATA0;
     store->is_valid = 1;
     OM_CRITICAL_END();
+    #if (!RTE_FLASH1_XIP)
     DRV_RCC_CLOCK_ENABLE(RCC_CLK_OSPI1, 0U);
+    #endif
 }
 
 __OSPI_RAM_CODE void drv_ospi_restore(void)
@@ -329,8 +331,8 @@ void drv_ospi_node_setup(OM_OSPI_Type *om_ospi, ospi_list_node_t *node, ospi_lis
                        (cfg->list_int_en << OSPI_SHADOW_CFG_LIST_INT_EN_POS) |
                        (cfg->cmd_type << OSPI_SHADOW_CFG_RW_CMD_POS) |
                        ((!(cfg->list_end)) << OSPI_SHADOW_CFG_LLEN_POS) |
-                       (1 << OSPI_SHADOW_CFG_TRANS_INT_POS) |
-                       (1 << OSPI_SHADOW_CFG_LIST_INT_POS);
+                       (1U << OSPI_SHADOW_CFG_TRANS_INT_POS) |
+                       (1U << OSPI_SHADOW_CFG_LIST_INT_POS);
 }
 
 #if (RTE_OSPI1_REGISTER_CALLBACK)

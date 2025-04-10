@@ -660,6 +660,7 @@ om_error_t drv_spi_gpdma_channel_allocate(OM_SPI_Type *om_spi, drv_gpdma_chan_t 
     spi_env_t     *env;
     om_error_t     error;
 
+    (void)error;
     OM_ASSERT(channel & DRV_GPDMA_CHAN_ALL);
     resource = spi_get_resource(om_spi);
     if (resource == NULL) {

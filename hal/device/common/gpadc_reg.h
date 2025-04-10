@@ -8,7 +8,7 @@
 
 /**
  * @defgroup GPADC GPADC
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    GPADC register
  * @details  GPADC register definitions header file
  *
@@ -18,6 +18,7 @@
  *
  * @{
  */
+
 #ifndef __GPADC_REG_H
 #define __GPADC_REG_H
 
@@ -142,7 +143,7 @@
 #define GPADC_VIN_OUTPUT_MODE_MASK      0x00004000
 #define GPADC_AVG_BYPASS_MASK           0x00008000
 #define GPADC_SUM_NUM_MASK              0x00070000
-#define GPADC_SMP_TIME_MASK             0x00380000
+#define GPADC_SMP_TIME_MASK             0x00780000
 #define GPADC_DIGI_CLK_FREQ_MASK        0xFF000000
 
 // ADC_CFG2

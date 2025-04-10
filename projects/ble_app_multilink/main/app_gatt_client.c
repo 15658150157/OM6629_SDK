@@ -24,20 +24,14 @@
 #include "om_driver.h"
 #include "app_common.h"
 
-/*********************************************************************
+
+/*******************************************************************************
  * MACROS
  */
 #define printf(...) om_log(OM_LOG_INFO, ##__VA_ARGS__)
 
-/*********************************************************************
- * LOCAL VARIABLES
- */
-static uint8_t conn_idx;
-/*********************************************************************
- * EXTERN FUNCTIONS
- */
 
-/*********************************************************************
+/*******************************************************************************
  * LOCAL FUNCTIONS
  */
 /**
@@ -50,7 +44,7 @@ static uint8_t conn_idx;
 static void app_gatt_event_cb(uint16_t evt_id, const omble_evt_t *evt)
 {
     if (evt_id == OB_GAP_EVT_CONNECTED) {
-        conn_idx = evt->gap.conn_idx;
+        // conn_idx = evt->gap.conn_idx;
     } else if (evt_id == OB_GAP_EVT_DISCONNECTED) {
     } else if (evt_id == OB_GAP_EVT_ADV_STATE_CHANGED) {
     } else if (evt_id == OB_GATT_EVT_MTU_EXCHANGED) {
@@ -141,7 +135,7 @@ static void app_gatt_event_cb(uint16_t evt_id, const omble_evt_t *evt)
 
 
 #define DUMP(d, l) do { for(int i=0;i<l;i++) printf("%02X ", d[i]); printf("\n"); } while(0)
-static uint16_t disc_all_service_flag, group_st_hdl, group_en_hdl, char_en_hdl, desc_st_hdl, desc_en_hdl, att_mtu;
+static uint16_t disc_all_service_flag, group_st_hdl, group_en_hdl, char_en_hdl, desc_st_hdl, desc_en_hdl;
 static uint32_t app_gatt_client_disc_all_service(uint8_t conn_idx, uint16_t start_hdl, uint16_t end_hdl, uint8_t state)
 {
     // ob_gattc_mtu_req(conn_idx);
@@ -398,7 +392,7 @@ static void app_gatt_client_disc_all_event_cb(uint16_t evt_id, const omble_evt_t
         const ob_gattc_evt_read_rsp_t *rsp = &evt->gatt.read_rsp;
         dump_read_data(rsp);
     } else if (evt_id == OB_GATT_EVT_MTU_EXCHANGED) {
-        att_mtu = evt->gatt.mtu_exchanged.mtu;
+        // att_mtu = evt->gatt.mtu_exchanged.mtu;
     }
     ob_event_abort();
 }

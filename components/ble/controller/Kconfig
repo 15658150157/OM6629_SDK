@@ -12,6 +12,8 @@ if BLE_CONTROLLER
         bool "Only 1 BLE Peripheral"
     config BLE_CONTROLLER_LIB_FULL
         bool "Full BLE Function"
+    config BLE_CONTROLLER_LIB_FULL_PLUS
+        bool "Full BLE Function, support more connections"
     config BLE_CONTROLLER_LIB_VELA_MESH
         bool "For Vela Mesh Zephyr Host"
     endchoice

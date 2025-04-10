@@ -15,6 +15,10 @@ if GetDepend('CONFIG_BLE'):
     if GetDepend('CONFIG_BLE_HOST'):
         group += SConscript('host/SConscript')
 
+    # profile
+    if GetDepend('CONFIG_BLE_PROFILE'):
+        group += SConscript('profile/SConscript')
+
     # mesh
     if GetDepend('CONFIG_BLE_MESH'):
         group += SConscript('mesh/SConscript')

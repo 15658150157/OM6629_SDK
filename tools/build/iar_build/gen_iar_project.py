@@ -52,7 +52,7 @@ def gen_iar_eww(project_name):
     text_node.text = '$WS_DIR$/' + project_name + '.ewp'
     tree.write(output_name, pretty_print=True, xml_declaration=True, encoding='utf-8')
 
-def gen_iar_ewp(project_name, device, projects, defs, proj_path_relative_gen):
+def gen_iar_ewp(project_name, device, projects, defs, proj_path_relative_gen, gen_lib):
     parser = etree.XMLParser(remove_blank_text=True)
     ewp_template = os.path.join(os.path.dirname(__file__), 'iar.ewp')
     tree = etree.parse(ewp_template, parser=parser)
@@ -81,7 +81,7 @@ def gen_iar_ewp(project_name, device, projects, defs, proj_path_relative_gen):
     outfilename = project_name + '.out'
     iar_value_set(tree, 'ILINK', 'data/option/name', 'IlinkOutputFile', 'state', outfilename)
     # mask warning
-    ccdiagsuppress = 'Pe111,Pe177,Pe128'
+    ccdiagsuppress = 'Pe111,Pe177,Pe128,Ta022,Ta023'
     iar_value_set(tree, 'ICCARM', 'data/option/name', 'CCDiagSuppress', 'state', ccdiagsuppress)
 
     proj_path_relative_gen = os.path.join('$PROJ_DIR$', proj_path_relative_gen)
@@ -126,6 +126,9 @@ def gen_iar_ewp(project_name, device, projects, defs, proj_path_relative_gen):
             for lib in group['libs']:
                 libs_list.append(proj_path_relative_gen + os.path.relpath(lib))
     iar_value_set(tree, 'ILINK', 'data/option/name', 'IlinkAdditionalLibs', 'state', libs_list)
+    # generate liberary
+    if gen_lib == True:
+        iar_value_set(tree, 'General', 'data/option/name', 'GOutputBinary', 'state', '1')
     tree.write(output_name, pretty_print=True, xml_declaration=True, encoding='utf-8')
 
 
@@ -146,11 +149,11 @@ def gen_iar_ewd(project_name, macfile_path):
     tree.write(output_name, pretty_print=True, xml_declaration=True, encoding='utf-8')
 
 
-def gen_iar_project(device, Projects, project, defs, macfile_path, project_with_device=0):
+def gen_iar_project(device, Projects, project, defs, macfile_path, project_with_device=0, gen_lib=False):
     if project_with_device :
         project = project + '_' + device.lower()
     gen_iar_eww(project)
-    gen_iar_ewp(project, device, Projects, defs, '../')
+    gen_iar_ewp(project, device, Projects, defs, '../', gen_lib)
     gen_iar_ewd(project, macfile_path)
     output_dir = 'iar/'
     if not os.path.exists(output_dir):
@@ -160,3 +163,5 @@ def gen_iar_project(device, Projects, project, defs, macfile_path, project_with_
     shutil.move(project + '.ewd', output_dir + project + '.ewd')
 
     print("generate %s.eww IAR succeed!" %(output_dir + project))
+
+    return output_dir + project + '.ewp'

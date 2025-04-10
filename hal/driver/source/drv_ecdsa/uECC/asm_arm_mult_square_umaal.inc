@@ -1096,7 +1096,7 @@
     "umaal r1, r4, r14, r12 \n\t"       \
                                         \
     /* Load carry from r7 */            \
-    "lsrs r7, #1 \n\t"                  \
+    "lsrs r7, r7, #1 \n\t"              \
     "adcs r9, r9, r9 \n\t"              \
     "adcs r1, r1, r1 \n\t"              \
     /* Store carry back in r7 */        \

@@ -8,7 +8,7 @@
 
 /**
  * @defgroup BTPHY BTPHY
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    BTPHY register
  * @details  BTPHY register definitions header file
  *
@@ -18,6 +18,7 @@
  *
  * @{
  */
+
 #ifndef __BTPHY_REG_H
 #define __BTPHY_REG_H
 

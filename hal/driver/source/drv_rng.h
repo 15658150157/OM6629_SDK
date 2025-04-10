@@ -7,10 +7,10 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup TRNG TRNG
+ * @defgroup RNG RNG
  * @ingroup  DRIVER
- * @brief    TRNG driver
- * @details  TRNG driver apis and typedefs header file
+ * @brief    RNG driver
+ * @details  RNG driver apis and typedefs header file
  *
  * @version
  * Version 1.0

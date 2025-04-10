@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup DOC DOC
- * @ingroup  DOCUMENT
+ * @defgroup LIST LIST
+ * @ingroup  COMMON
  * @brief    Singly linked list
  * @details  Singly linked list
  *

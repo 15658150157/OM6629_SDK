@@ -104,6 +104,7 @@ static BaseType_t prvTestWaitCondition( const EventBits_t uxCurrentEventBits,
                  * variable of type StaticEventGroup_t equals the size of the real
                  * event group structure. */
                 volatile size_t xSize = sizeof( StaticEventGroup_t );
+                (void)xSize;
                 configASSERT( xSize == sizeof( EventGroup_t ) );
             } /*lint !e529 xSize is referenced if configASSERT() is defined. */
         #endif /* configASSERT_DEFINED */

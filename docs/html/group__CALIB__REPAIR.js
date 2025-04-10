@@ -1,0 +1,37 @@
+var group__CALIB__REPAIR =
+[
+    [ "drv_calib_repair_t", "structdrv__calib__repair__t.html", [
+      [ "ana_ldo", "structdrv__calib__repair__t.html#a4e0e1bf0d82b32eaa70bad693b6f44b0", null ],
+      [ "buff_ldo", "structdrv__calib__repair__t.html#acc84d8cc200c0800004e367a7eb4703b", null ],
+      [ "con_bias_idac_pll", "structdrv__calib__repair__t.html#addf129187fa6240e1eea78639247761c", null ],
+      [ "dcdc_vout", "structdrv__calib__repair__t.html#ae20db87d400f0e7eb2703553a2a968bc", null ],
+      [ "dig_ldo", "structdrv__calib__repair__t.html#aa8bceed474bf590274a2b80145b4cd0c", null ],
+      [ "kdco_lut_1m", "structdrv__calib__repair__t.html#ae25435bf24d45ea44e1c7db3ecb3ac92", null ],
+      [ "kdco_lut_2m", "structdrv__calib__repair__t.html#a3282a26e313bc546bec8fca3c04ea70f", null ],
+      [ "pa_ldo", "structdrv__calib__repair__t.html#ad88e2b742e96cf627cc957c4d51dbe37", null ],
+      [ "pfd_ldo", "structdrv__calib__repair__t.html#a2beaea779b341f027be3497cbeff0512", null ],
+      [ "rc32k_repair_interval", "structdrv__calib__repair__t.html#a3330d04c2626bcb12d2600ee4ca3e803", null ],
+      [ "rc32k_repair_time", "structdrv__calib__repair__t.html#a8d77f7901c757c9591e0475bbd47716d", null ],
+      [ "rc_repair_temperature", "structdrv__calib__repair__t.html#aabe80a71ff6ebde99129c0351a6f82fe", null ],
+      [ "rc_rf_repair_interval", "structdrv__calib__repair__t.html#aab3cb71880d356fb102a97690a07dbc9", null ],
+      [ "rc_rf_repair_time", "structdrv__calib__repair__t.html#a5bee0b946328ef54a888705e9d0f535e", null ],
+      [ "rf_repair_temperature", "structdrv__calib__repair__t.html#a52e02271adee347a65d5d1ffc33637a9", null ],
+      [ "temperature", "structdrv__calib__repair__t.html#a6e46b79787b74a3831a26d3161fcb14f", null ],
+      [ "trim_vref", "structdrv__calib__repair__t.html#a3ae736c15f7ad76d7f95ee176cd083bb", null ],
+      [ "vco_cur", "structdrv__calib__repair__t.html#a86c9e2d0e48137cf852d4dc17b512a93", null ],
+      [ "vco_ldo", "structdrv__calib__repair__t.html#a7d1cfdd0dea73e31461617de2b53fe75", null ]
+    ] ],
+    [ "DRV_CALIB_REPAIR_DCDC_7DBM_DELTA", "group__CALIB__REPAIR.html#gaddbf3f3c7ecd6ee481b9069b19c8b736", null ],
+    [ "DRV_CALIB_REPAIR_DCDC_8DBM_DELTA", "group__CALIB__REPAIR.html#ga3ca4c008e9840fc372268d7b165f45fe", null ],
+    [ "DRV_CALIB_REPAIR_DCDC_HIGHT_T_DELTA", "group__CALIB__REPAIR.html#ga6d0ce41b7557ea3b5d3ced91cb7c83ce", null ],
+    [ "DRV_CALIB_REPAIR_DCDC_MAXDBM_DELTA", "group__CALIB__REPAIR.html#ga56aca568d4e966aaefd85093ebd2a80c", null ],
+    [ "DRV_CALIB_REPAIR_LDO_7DBM_DELTA", "group__CALIB__REPAIR.html#gadc5b8fd468757908cc986a6a4faa6b45", null ],
+    [ "DRV_CALIB_REPAIR_LDO_8DBM_DELTA", "group__CALIB__REPAIR.html#ga3b0bc1a3cc8cf085462bd593622b8ddb", null ],
+    [ "DRV_CALIB_REPAIR_LDO_HIGHT_T_DELTA", "group__CALIB__REPAIR.html#ga586945e5892e49353427cb7a10e3ce8a", null ],
+    [ "DRV_CALIB_REPAIR_LDO_MAXDBM_DELTA", "group__CALIB__REPAIR.html#gaaf2986a1164ac5c4d3d8d8b938b1ceae", null ],
+    [ "drv_calib_repair_init", "group__CALIB__REPAIR.html#gaefdcfc2cfcc6b4d73a87a63cdb16f368", null ],
+    [ "drv_calib_repair_rc32k_temperature_check", "group__CALIB__REPAIR.html#ga6401accfcdaa2fc11378ae4c9b3d5d8b", null ],
+    [ "drv_calib_repair_rc_rf_temperature_check", "group__CALIB__REPAIR.html#gaf81c77ee3c0ac3a5d08937faceb52f58", null ],
+    [ "drv_calib_repair_rf_pll_temperature_repair", "group__CALIB__REPAIR.html#gaadf5e4d201f9d06f53fdbdcf82872665", null ],
+    [ "drv_calib_repair_env", "group__CALIB__REPAIR.html#ga4ec041a1df5750d7c076335e9e8a5617", null ]
+];

@@ -410,8 +410,10 @@ void *drv_lptim_control(OM_LPTIM_Type *om_lptim, lptim_control_t ctrl, void *arg
             break;
         case LPTIM_CONTROL_STOP:
             while (om_lptim->SYNCBUSY & LPTIM_SYNCBUSY_STOP_MASK);
-            om_lptim->CMD |= LPTIM_CMD_STOP_MASK;
-            while (om_lptim->SYNCBUSY & LPTIM_SYNCBUSY_STOP_MASK);
+            do {
+                om_lptim->CMD |= LPTIM_CMD_STOP_MASK;
+                while (om_lptim->CMD & LPTIM_CMD_STOP_MASK);
+            } while (om_lptim->CMD & LPTIM_CMD_START_MASK);
             break;
         case LPTIM_CONTROL_CLEAR:
             while (om_lptim->SYNCBUSY & LPTIM_SYNCBUSY_CLEAR_MASK);

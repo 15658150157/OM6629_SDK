@@ -8,7 +8,7 @@
 
 /**
  * @defgroup OM24G OM24G
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    OM24G register
  * @details  OM24G register definitions header file
  *
@@ -39,7 +39,6 @@ extern "C"
 /*******************************************************************************
  * MACROS
  */
-
 // PKTCTRL0 (00h)
 #define OM24G_PKTCTRL0_PRIM_RX_POS          0
 #define OM24G_PKTCTRL0_STRUCT_SEL_POS       1
@@ -53,6 +52,7 @@ extern "C"
 #define OM24G_PKTCTRL0_MAC_SEL_POS          11
 #define OM24G_PKTCTRL0_CE_H_THRE_POS        12
 #define OM24G_PKTCTRL0_NUM_HDR_BITS_POS     16
+#define OM24G_PKTCTRL0_SPARK_EN_POS         24
 
 #define OM24G_PKTCTRL0_PRIM_RX_MASK          0x00000001
 #define OM24G_PKTCTRL0_STRUCT_SEL_MASK       0x00000002
@@ -66,6 +66,7 @@ extern "C"
 #define OM24G_PKTCTRL0_MAC_SEL_MASK          0x00000800
 #define OM24G_PKTCTRL0_CE_H_THRE_MASK        0x0000F000
 #define OM24G_PKTCTRL0_NUM_HDR_BITS_MASK     0x003F0000
+#define OM24G_PKTCTRL0_SPARK_EN_MASK         0x01000000
 
 // FB_PKTCTRL (04h)
 #define OM24G_FB_PKTCTRL_NUM_ADDR1_BITS_POS   0
@@ -149,6 +150,7 @@ extern "C"
 #define OM24G_INT_ADDRESS_POS               15
 #define OM24G_INT_TIMER1_POS                16
 #define OM24G_INT_TIMER0_POS                17
+#define OM24G_INT_HDR_CRC_ERR_POS           19
 
 #define OM24G_INT_CRC_ERR_MASK              0x00000001
 #define OM24G_INT_BCC_MATCH_MASK            0x00000002
@@ -168,6 +170,8 @@ extern "C"
 #define OM24G_INT_ADDRESS_MASK              0x00008000
 #define OM24G_INT_TIMER1_MASK               0x00010000
 #define OM24G_INT_TIMER0_MASK               0x00020000
+#define OM24G_INT_HDR_MASK                  0x00040000
+#define OM24G_INT_HDR_CRC_ERR_MASK          0x00080000
 
 //EN_AA(20h)
 #define OM24G_ENAA_P0_POS                   0
@@ -244,7 +248,7 @@ extern "C"
 #define OM24G_PREGRD_EN_MASK              0x00000010
 #define OM24G_TAIL_CTL_MASK               0x000003E0
 #define OM24G_GUARD_EN_MASK               0x00000400
-#define OM24G_TAIL_PATERN_MASK            0x00003000
+#define OM24G_TAIL_PATERN_MASK            0x00007000
 
 // SYNC_WORD0 (40h)
 #define OM24G_SYNC_WORD0_POS              0
@@ -462,10 +466,29 @@ extern "C"
 // STATE (F0h)
 #define OM24G_MAIN_STATE_POS              0
 #define OM24G_CRC_OK_POS                  6
-#define OM24G_TX_FIFO_EMPTY_POS           7
+#define OM24G_BUSY_POS                    7
+#define OM24G_RXFIFO_FULL_POS             8
+#define OM24G_RXFIFO_EMPTY_POS            9
+#define OM24G_TXFIFO_FULL_POS             10
+#define OM24G_TXFIFO_EMPTY_POS            11
+#define OM24G_SYNC_DET_POS                12
+#define OM24G_RX_EN_POS                   13
+#define OM24G_TX_EN_POS                   14
+#define OM24G_CLK_GATE_EN_POS             15
+#define OM24G_DMA_READY_POS               16
+
 #define OM24G_MAIN_STATE_MASK             0x0000003F
 #define OM24G_CRC_OK_MASK                 0x00000040
-#define OM24G_TX_FIFO_EMPTY_MASK          0x00000080
+#define OM24G_BUSY_MASK                   0x00000080
+#define OM24G_RXFIFO_FULL_MASK            0x00000100
+#define OM24G_RXFIFO_EMPTY_MASK           0x00000200
+#define OM24G_TXFIFO_FULL_MASK            0x00000400
+#define OM24G_TXFIFO_EMPTY_MASK           0x00000800
+#define OM24G_SYNC_DET_MASK               0x00001000
+#define OM24G_RX_EN_MASK                  0x00002000
+#define OM24G_TX_EN_MASK                  0x00004000
+#define OM24G_CLK_GATE_EN_MASK            0x00008000
+#define OM24G_DMA_READY_MASK              0x00010000
 
 // DBG_FREQ (F4h)
 #define OM24G_FREQ_POS                    0
@@ -522,6 +545,18 @@ extern "C"
 #define OM24G_CNT_THRE_MASK               0x0FFFFFFF
 #define OM24G_SYNC_DET_CNT_EN_MASK        0x80000000
 
+// SPARK_HEADER_SET (114h)
+#define OM24G_SPARK_HEADER_SET_POS        0
+
+#define OM24G_SPARK_HEADER_SET_MASK       0x0001FFFF
+
+// SPARK_CRC_SET (118h)
+#define OM24G_SPARK_CRC_SET_CRC_INIT_POS  0
+#define OM24G_SPARK_CRC_SET_CRC_POLY_POS  16
+
+#define OM24G_SPARK_CRC_SET_CRC_INIT_MASK 0x00000FFF
+#define OM24G_SPARK_CRC_SET_CRC_POLY_MASK 0x0FFF0000
+
 // DBG_SPI0(124h)
 #define OM24G_DBG_SPI0_ADDRESS_POS        0
 #define OM24G_DBG_SPI0_DATA_POS           8
@@ -538,7 +573,13 @@ extern "C"
 
 #define OM24G_CE_LOW()                                                         \
     do {                                                                       \
-        REGW0(&OM_24G->MAC_EN, OM24G_CLK_EN_MASK);                             \
+        OM_CRITICAL_BEGIN();                                                   \
+        OM_24G->MAC_EN = 0;                                                    \
+        if((OM_CPM->MAC_24G_CFG & CPM_2P4_CFG_MAC_GATE_EN_MASK) == 0) {        \
+            om_error_t ret;                                                    \
+            DRV_WAIT_US_UNTIL_TO(!((REGR(&OM_24G->STATE, MASK_POS(OM24G_MAIN_STATE)) == 0x02) || (REGR(&OM_24G->STATE, MASK_POS(OM24G_MAIN_STATE)) == 0x00)), 200, ret);(void) ret; \
+        }                                                                      \
+        OM_CRITICAL_END();                                                     \
     } while(0)
 
 #define OM24G_CE_HIGH()                                                        \
@@ -565,6 +606,8 @@ extern "C"
     do {                                                                       \
         REGW1(&OM_24G->INT_ST, 0XFF);                                          \
     } while(0)
+
+
 /*******************************************************************************
  * TYPEDEFS
  */
@@ -595,8 +638,8 @@ typedef struct {
     __IO uint32_t RX_ADDR_P3;                   // offset:0x5C
     __IO uint32_t RX_ADDR_P4;                   // offset:0x60
     __IO uint32_t RX_ADDR_P5;                   // offset:0x64
-    __IO uint32_t AGC_ME_MO;                    // offset:0x68
-         uint32_t RESERVED2;
+    __IO uint32_t TAIL_DATA;                    // offset:0x68
+    __IO uint32_t FB_HEADER_H;                  // offset:0x6C
     __IO uint32_t RF_DR;                        // offset:0x70
     __IO uint32_t RF_PD_AHEAD;                  // offset:0x74
     __IO uint32_t RX_P_NO;                      // offset:0x78
@@ -612,7 +655,8 @@ typedef struct {
     __IO uint32_t WHITEOBIT;                    // offset:0xA0
     __IO uint32_t DMA_CMD;                      // offset:0xA4
     __IO uint32_t DMA_TX_LEN;                   // offset:0xA8
-         uint32_t RESERVED6[3];
+    __IO uint32_t AGC_ME_MO;                    // offset:0xAC
+         uint32_t RESERVED6[2];
     __IO uint32_t DMA_TX_ADDR;                  // offset:0xB8
          uint32_t RESERVED7[2];
     __IO uint32_t DMA_RX_ADDR;                  // offset:0xC4
@@ -635,7 +679,9 @@ typedef struct {
     __IO uint32_t DEBUG_BUS;                    // offset:0x108
     __IO uint32_t RX_CTRL;                      // offset:0x10C
     __IO uint32_t SYNC_DET_CNT;                 // offset:0x110
-         uint32_t RESERVED9[3];
+    __IO uint32_t SPARK_HEADER_SET;             // offset:0x114
+    __IO uint32_t SPARK_CRC_SET;                // offset:0x118
+         uint32_t RESERVED9[1];
     __IO uint32_t FPGA_TX_INDEX;                // offset:0x120
     __IO uint32_t DBG_SPI0;                     // offset:0x124
     __IO uint32_t DBG_SPI1;                     // offset:0x128
@@ -655,23 +701,12 @@ typedef struct {
 } OM_24G_Type;
 
 
-/*******************************************************************************
- * EXTERN VARIABLES
- */
-
-
-/*******************************************************************************
- * EXTERN FUNCTIONS
- */
-
-
 #ifdef __cplusplus
 }
 #endif
 
 
-#endif  /* __GPIO_REG_H */
+#endif  /* __OM24G_REG_H */
 
 
 /** @} */
-

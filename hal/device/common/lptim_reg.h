@@ -8,7 +8,7 @@
 
 /**
  * @defgroup LPTIM LPTIM
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    LPTIM register
  * @details  LPTIM register definitions header file
  *

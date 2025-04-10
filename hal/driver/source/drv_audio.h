@@ -155,8 +155,6 @@ typedef struct {
 /**
  *******************************************************************************
  * @brief Audio initialization
- *
- * @return None
  *******************************************************************************
  */
 void drv_audio_init(void);
@@ -164,8 +162,6 @@ void drv_audio_init(void);
 /**
  *******************************************************************************
  * @brief Audio deinitialization
- *
- * @return None
  *******************************************************************************
  */
 void drv_audio_uninit(void);
@@ -299,7 +295,7 @@ __STATIC_FORCEINLINE void drv_audio_adc_mute(bool mute)
     }
 
 #if RTE_AUDIO_USE_INTERNAL
-    register_set(&OM_AUDIO->ADC_VOL_CTRL, MASK_4REG(AU_VOL_MUTE_RATE, 5, AU_VOL_MUTE_BYPASS, 0, AU_VOL_ADCUNMU, !mute, AU_VOL_ADCMU, mute));
+    register_set(&OM_AUDIO->ADC_VOL_CTRL, MASK_5REG(AU_VOL_MUTE_RATE, 5, AU_VOL_MUTE_RATE, 5, AU_VOL_MUTE_BYPASS, 0, AU_VOL_ADCUNMU, !mute, AU_VOL_ADCMU, mute));
 #else
     (void)mute;
 #endif /* RTE_AUDIO_USE_INTERNAL */

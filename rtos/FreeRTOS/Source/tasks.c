@@ -38,6 +38,9 @@
 #include "task.h"
 #include "timers.h"
 #include "stack_macros.h"
+#include "om_compiler.h"
+
+
 
 /* Lint e9021, e961 and e750 are suppressed as a MISRA exception justified
  * because the MPU ports require MPU_WRAPPERS_INCLUDED_FROM_API_FILE to be defined
@@ -2122,7 +2125,7 @@ void vTaskEndScheduler( void )
     vPortEndScheduler();
 }
 /*----------------------------------------------------------*/
-
+__RAM_CODES("PM")
 void vTaskSuspendAll( void )
 {
     /* A critical section is not required as the variable is of type
@@ -2145,7 +2148,7 @@ void vTaskSuspendAll( void )
 /*----------------------------------------------------------*/
 
 #if ( configUSE_TICKLESS_IDLE != 0 )
-
+__RAM_CODES("PM")
     static TickType_t prvGetExpectedIdleTime( void )
     {
         TickType_t xReturn;
@@ -2207,7 +2210,8 @@ void vTaskSuspendAll( void )
 #endif /* configUSE_TICKLESS_IDLE */
 /*----------------------------------------------------------*/
 
-BaseType_t xTaskResumeAll( void )
+__RAM_CODES("PM")
+ BaseType_t xTaskResumeAll( void )
 {
     TCB_t * pxTCB = NULL;
     BaseType_t xAlreadyYielded = pdFALSE;
@@ -2610,7 +2614,7 @@ char * pcTaskGetName( TaskHandle_t xTaskToQuery ) /*lint !e971 Unqualified char 
  * implementations require configUSE_TICKLESS_IDLE to be set to a value other than
  * 1. */
 #if ( configUSE_TICKLESS_IDLE != 0 )
-
+__RAM_CODES("PM")
     void vTaskStepTick( const TickType_t xTicksToJump )
     {
         /* Correct the tick count value after a period during which the tick
@@ -3420,6 +3424,7 @@ void vTaskMissedYield( void )
  * void prvIdleTask( void *pvParameters );
  *
  */
+__RAM_CODES("PM")
 static portTASK_FUNCTION( prvIdleTask, pvParameters )
 {
     /* Stop warnings. */
@@ -3538,7 +3543,7 @@ static portTASK_FUNCTION( prvIdleTask, pvParameters )
 /*-----------------------------------------------------------*/
 
 #if ( configUSE_TICKLESS_IDLE != 0 )
-
+__RAM_CODES("PM")
     eSleepModeStatus eTaskConfirmSleepModeStatus( void )
     {
         /* The idle task exists in addition to the application tasks. */
@@ -3676,7 +3681,7 @@ static void prvInitialiseTaskLists( void )
     pxOverflowDelayedTaskList = &xDelayedTaskList2;
 }
 /*-----------------------------------------------------------*/
-
+__RAM_CODES("PM")
 static void prvCheckTasksWaitingTermination( void )
 {
     /** THIS FUNCTION IS CALLED FROM THE RTOS IDLE TASK **/

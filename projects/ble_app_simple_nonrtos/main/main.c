@@ -130,11 +130,28 @@ static void oele_init(void)
     pm_sleep_notify_user_callback_register(example_pm_sleep_notify_handler);
 
     // example: pin wakeup
-    drv_pmu_wakeup_pin_set(BITMASK(PAD_BUTTON_0)|BITMASK(PAD_BUTTON_1), PMU_PIN_WAKEUP_LOW_LEVEL);
+    drv_pmu_wakeup_pin_set(PAD_BUTTON_0, PMU_PIN_WAKEUP_LOW_LEVEL);
+    drv_pmu_wakeup_pin_set(PAD_BUTTON_1, PMU_PIN_WAKEUP_LOW_LEVEL);
     drv_pmu_wakeup_pin_register_callback(example_pin_wakeup_isr_handler);
 
     // Running...
     OM_LOG(OM_LOG_INFO, "Simple APP Present.\r\n");
+}
+
+__RAM_CODES("APP")
+static void main_schedule(void)
+{
+    while(1) {
+        // event schedule handle
+        evt_schedule();
+
+        OM_CRITICAL_BEGIN();
+        // no event, try low power
+        if(evt_get_all() == 0) {
+            pm_power_manage();
+        }
+        OM_CRITICAL_END();
+    };
 }
 
 
@@ -159,11 +176,14 @@ int main(void)
     // Init board
     board_init();
 
+    // Init RF
+    drv_rf_init();
+
     // Init NVDS
     nvds_init(0);
 
     // Init LOG
-    om_log_init();
+    OM_LOG_INIT();
 
     // Init evt and evt timer
     evt_init();
@@ -176,15 +196,7 @@ int main(void)
     oele_init();
 
     // Main loop
-    while(1) {
-        // event schedule handle
-        evt_schedule();
-
-        // no event, try low power
-        if(evt_get_all() == 0) {
-            pm_power_manage();
-        }
-    }
+    main_schedule();
 }
 
 /** @} */

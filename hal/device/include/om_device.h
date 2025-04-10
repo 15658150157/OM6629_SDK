@@ -7,8 +7,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @defgroup OM_DEVICE OM_DEVICE
- * @ingroup  DEVICE
+ * @defgroup DEVICE Device
+ * @ingroup  HAL
  * @brief    OM_DEVICE device
  * @details  OM_DEVICE device apis and typedefs header file
  *
@@ -28,6 +28,7 @@ extern "C"
 #endif
 
 
+/// @cond
 /*******************************************************************************
  * Interrupt Number Definition
  */
@@ -82,7 +83,7 @@ typedef enum IRQn {
     CRY32M_DECT_IRQn            = 35,
     I2S_IRQn                    = 36,
     UART2_IRQn                  = 37,
-    OM24G_TIM_IRQn              = 38,
+    OM24G_TIM_WAKEUP_IRQn       = 38,
     RGB_IRQn                    = 39,
     I2C1_IRQn                   = 40,
     SHA256_IRQn                 = 41,
@@ -131,6 +132,7 @@ typedef enum {
     GPDMA_ID_INVAILD      = 0xFF,
     GPDMA_ID_MAX          = 0xFF,
 } gpdma_id_t;
+/// @endcond
 
 /* Start of section using anonymous unions and disabling warnings */
 #if   defined (__CC_ARM)
@@ -155,6 +157,7 @@ typedef enum {
 #endif
 
 
+/// @cond
 /* Configuration of Core Peripherals */
 #define __CHECK_DEVICE_DEFINES    1
 #define __CM4_REV                 0x0001    /*!< CM4 r0p1 */
@@ -163,6 +166,7 @@ typedef enum {
 #define __NVIC_PRIO_BITS          4U        /* Number of Bits used for Priority Levels */
 #define __Vendor_SysTickConfig    0U        /* Set to 1 if different SysTick Config is used */
 #define __VTOR_PRESENT            1U        /* VTOR present */
+/// @endcond
 
 
 /*******************************************************************************
@@ -211,6 +215,7 @@ typedef enum {
 #include "../common/rgb_reg.h"
 
 
+/// @cond
 /*******************************************************************************
  * MACROS
  */
@@ -378,6 +383,8 @@ typedef enum {
 #define CAP_LCD           ( (1U << CAP_LCD_INT_POS))
 
 #define CAP_QDEC          0U
+/// @endcond
+
 
 /* End of section using anonymous unions and disabling warnings */
 #if   defined (__CC_ARM)

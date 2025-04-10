@@ -111,8 +111,11 @@ static void vEvtScheduleTask(void *argument)
 {
     uint32_t uxBits;
     hardware_init();
+    drv_rf_init();
     nvds_init(0);
+    #if (CONFIG_SHELL)
     shell_init(NULL);
+    #endif
 
     struct ob_stack_param param = {
         .max_connection = 4,

@@ -8,7 +8,7 @@
 
 /**
  * @defgroup LOG LOG
- * @ingroup  LOG
+ * @ingroup  COMPONENTS
  * @brief
  * @details
  *
@@ -59,7 +59,7 @@ typedef enum {
 #else
 #define OM_LOG_INIT()
 #define OM_LOG(level, ...)
-#define OM_LOG_HEXDUMP(buf, size, width)
+#define OM_LOG_HEXDUMP(level, buf, size, width)
 #define OM_LOG_FLUSH()
 #endif
 
@@ -116,8 +116,6 @@ extern void om_log_restore(void);
  *
  * @param level         log level
  * @param format        long format string
- *
- * @return: None
  *******************************************************************************
  */
 extern void om_log(om_log_lvl_t level, const char* format, ...);

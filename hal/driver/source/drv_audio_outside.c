@@ -40,7 +40,7 @@
 #define CFG_WM8753_MCLK_PIN_24M             1
 
 /// WM8753 role master or slave
-#define CFG_WM8753_MST_EN                   1
+#define CFG_WM8753_MST_EN                   0
 
 /// 1: headset, 2: speaker
 #define CFG_WM8753_DACOUT_SEL               1
@@ -292,6 +292,8 @@ void drv_audio_outside_uninit(void)
 
     // VREF disable
     wm8753_set_reg(WM8753_REG_PWR1, 6, 8, 0);
+
+    drv_i2c_uninit(OM_I2C0);
 }
 
 om_error_t drv_audio_outside_play_start(audio_play_config_t *config)
@@ -327,17 +329,17 @@ om_error_t drv_audio_outside_play_start(audio_play_config_t *config)
     /// Right mixer control, RD2RO=1, RM2RO=0, RM2ROVOL=0
     wm8753_set_reg(WM8753_REG_ROUTM1, 4, 8, (1 << 4) | (0 << 3) | 0);
 
-    #if CFG_WM8753_DACOUT_SEL == 1
+#if CFG_WM8753_DACOUT_SEL == 1
     /// Set left out volume,  LOUT1VOL=0X7F
     wm8753_set_reg(WM8753_REG_LOUT1V, 0, 8, 0x100 | config->volume);
     /// Set right out volume, ROUT1VOL=0X7F
     wm8753_set_reg(WM8753_REG_ROUT1V, 0, 8, 0x100 | config->volume);
-    #elif CFG_WM8753_DACOUT_SEL == 2
+#elif CFG_WM8753_DACOUT_SEL == 2
     /// Set left out volume,  LOUT2VOL=0X7F
     wm8753_set_reg(WM8753_REG_LOUT2V, 0, 8, 0x100 | config->volume);
     /// Set right out volume, ROUT1VOL=0X7F
     wm8753_set_reg(WM8753_REG_ROUT2V, 0, 8, 0x100 | config->volume);
-    #endif
+#endif
 
     /// Set DAC sample rate
     wm8753_set_sample(config->sample_rate);

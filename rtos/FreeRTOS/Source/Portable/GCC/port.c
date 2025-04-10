@@ -38,6 +38,7 @@
 #if (configUSE_TICKLESS_IDLE == 1) && (CONFIG_PM)
 #include "pm.h"
 #endif
+#include "om_compiler.h"
 
 
 #ifndef configSYSTICK_CLOCK_HZ
@@ -415,6 +416,7 @@ void vPortEndScheduler( void )
 }
 /*-----------------------------------------------------------*/
 
+__RAM_CODES("PM")
 void vPortEnterCritical( void )
 {
     portDISABLE_INTERRUPTS();
@@ -432,6 +434,7 @@ void vPortEnterCritical( void )
 }
 /*-----------------------------------------------------------*/
 
+__RAM_CODES("PM")
 void vPortExitCritical( void )
 {
     configASSERT( uxCriticalNesting );
@@ -532,21 +535,34 @@ void xPortSysTickHandler( void )
 
 static uint32_t volatile ulSleepTimerTick = 0;
 
+#if 0
 static bool vSleepTimerGetOverflow(void)
 {
     return drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_OVERFLOW, NULL) ? true : false;
 }
+#else
+#define vSleepTimerGetOverflow()   (drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_OVERFLOW, NULL) ? true : false)
+#endif
 
+#if 0
 static uint32_t vSleepTimerGetReloadVal(void)
 {
     return (uint32_t)drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_TIMER_VAL, NULL);
 }
+#else
+#define vSleepTimerGetReloadVal()   ((uint32_t)drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_TIMER_VAL, NULL))
+#endif
 
+#if 0
 static uint32_t vSleepTimerGetTick(void)
 {
     return drv_pmu_timer_cnt_get();
 }
+#else
+#define vSleepTimerGetTick()   drv_pmu_timer_cnt_get()
+#endif
 
+__RAM_CODES("PM")
 static void vSleepTimerSetTick(uint32_t xTick)
 {
     uint32_t xCurTick;
@@ -591,7 +607,7 @@ static void vSleepTimerInit(void)
 #endif
 
 #if ( configUSE_TICKLESS_IDLE == 1 )
-
+__RAM_CODES("PM")
     __attribute__( ( weak ) ) void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTime )
     {
 #if configUSE_SYSTICK
@@ -873,6 +889,7 @@ static void vPortEnableVFP( void )
         uint32_t ulCurrentInterrupt;
         uint8_t ucCurrentPriority;
 
+        (void)ucCurrentPriority;
         /* Obtain the number of the currently executing interrupt. */
         __asm volatile ( "mrs %0, ipsr" : "=r" ( ulCurrentInterrupt )::"memory" );
 

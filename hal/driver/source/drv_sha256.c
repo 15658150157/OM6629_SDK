@@ -10,7 +10,7 @@
  * @defgroup DOC DOC
  * @ingroup  DOCUMENT
  * @brief    SHA256 driver source file
- * @details  SHA256 driver source file
+ * @details  SHA256 driver source file, implemeted by hardware.
  *
  * @version
  * Version 1.0

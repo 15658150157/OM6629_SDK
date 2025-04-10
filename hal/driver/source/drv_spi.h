@@ -169,7 +169,7 @@ extern void drv_spi_uninit(OM_SPI_Type *om_spi);
  * @brief Register callback for SPI transfer
  *
  * @param[in] om_spi         Pointer to SPI
- * @param[in] event_cb       Pointer to callback
+ * @param[in] isr_cb         Pointer to callback
  *******************************************************************************
  */
 extern void drv_spi_register_isr_callback(OM_SPI_Type *om_spi, drv_isr_callback_t isr_cb);
@@ -204,7 +204,7 @@ extern void drv_spi_isr_callback(OM_SPI_Type *om_spi, drv_event_t event, uint8_t
  * @param[in]   rx_num   Number of data items to receive
  * @param[in]   timeout_ms   timeout
  *
- * @return errno
+ * @return error
  *******************************************************************************
  */
 extern om_error_t drv_spi_transfer(OM_SPI_Type *om_spi, const uint8_t *tx_data, uint16_t tx_num, uint8_t *rx_data, uint16_t rx_num, uint32_t timeout_ms);

@@ -48,6 +48,9 @@
 #include "../source/drv_pmu_timer.h"
 #include "../source/drv_om24g.h"
 #include "../source/drv_aes.h"
+#include "../source/drv_sm/drv_sm2.h"
+#include "../source/drv_sm/drv_sm3.h"
+#include "../source/drv_sm/drv_sm4.h"
 #include "../source/drv_gpio.h"
 #include "../source/drv_gpdma.h"
 #include "../source/drv_rtc.h"
@@ -66,11 +69,12 @@
 #include "../source/drv_psram.h"
 #include "../source/drv_qdec.h"
 #include "../source/drv_rgb.h"
-#include "../source/drv_isr.h"
 
 
 /// @cond
-
+/*******************************************************************************
+ * MACROS
+ */
 // common peripheral
 #define DRV_DELAY_CYCLES(cycles)        drv_dwt_delay_cycles(cycles)
 #define DRV_DELAY_US(us)                drv_dwt_delay_us(us)

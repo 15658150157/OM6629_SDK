@@ -8,7 +8,7 @@
 
 /**
  * @defgroup DAIF DAIF
- * @ingroup  REGISTER
+ * @ingroup  DEVICE
  * @brief    DAIF register
  * @details  DAIF register definitions header file
  *
@@ -194,7 +194,7 @@ typedef struct {
 #define DAIF_PA_BIAS_PD_POS                              10
 #define DAIF_PA_DRV0_PD_POS                              11
 #define DAIF_PMU_PD_SL_POS                               12
-#define DFIF_PMU_PD_TS_POS                               13
+#define DAIF_PMU_PD_TS_POS                               13
 #define DAIF_RFPLL_PD_ALL_ME_POS                         16
 #define DAIF_IF_LDO_PD_ME_POS                            17
 #define DAIF_RFPLL_PD_LOTX_ME_POS                        19
@@ -1108,3 +1108,5 @@ typedef struct {
     } while (0)
 
 #endif
+
+/** @} */

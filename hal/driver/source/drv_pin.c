@@ -51,33 +51,43 @@ void drv_pinmux_set(uint8_t pin, pinmux_t pinmux)
     uint32_t lptim_group_idx = pin / 6;
     uint32_t lptim_idx_in_group = pin % 6;
 
-    // only pin13 alternate as RESETB
-    if (pin == 13U) {
-        if (pinmux == PINMUX_RESETB_CFG) {
-            OM_PMU->MISC_CTRL_1 |= PMU_MISC_CTRL_1_EN_RSTB_MASK;
-            return;
-        } else {
-            OM_PMU->MISC_CTRL_1 &= ~PMU_MISC_CTRL_1_EN_RSTB_MASK;
-        }
-    }
-
-    if (pinmux < PINMUX_COMMON_PERIPHERAL_CFG) {     // common peripheral
+    if (pinmux < PINMUX_COMMON_PERIPHERAL_CFG) {
         // clear lptim pinmux
         if (lptim_idx_in_group <= 3) {  // lptim idx:[0,3], dmic idx:[4,5] in every group
             OM_PMU->LP_TIMER_OUT_CTRL &= ~(1U << (pin - (lptim_group_idx * 2)));
         }
         // set none-lptim pinmux
         register_set(&OM_SYS->PINMUX[i], SYS_PINMUX_MASK((uint8_t)pinmux, p));
-    } else {
-        if ((pinmux >= PINMUX_LPTIM_OUT0_CFG) && (pinmux <= PINMUX_LPTIM_OUT3_CFG)) {
-            // clear none-lptim pinmux
-            register_set(&OM_SYS->PINMUX[i], SYS_PINMUX_MASK((uint8_t)PINMUX_JTAG_MODE_CFG, p));
-            // set lptim pinmux
-            if (lptim_idx_in_group <= 3) {
-                OM_PMU->LP_TIMER_OUT_CTRL |= (1U << (pin - (lptim_group_idx * 2)));
-            }
+    } else if ((pinmux >= PINMUX_LPTIM_OUT0_CFG) && (pinmux <= PINMUX_LPTIM_OUT3_CFG)) {
+        // clear none-lptim pinmux
+        register_set(&OM_SYS->PINMUX[i], SYS_PINMUX_MASK((uint8_t)PINMUX_JTAG_MODE_CFG, p));
+        // set lptim pinmux
+        if (lptim_idx_in_group <= 3) {
+            OM_PMU->LP_TIMER_OUT_CTRL |= (1U << (pin - (lptim_group_idx * 2)));
         }
     }
+
+    OM_CRITICAL_BEGIN();
+    switch (pin) {
+        case 13:
+            if (pinmux == PINMUX_RESETB_CFG) {
+                OM_PMU->MISC_CTRL_1 |= PMU_MISC_CTRL_1_EN_RSTB_MASK;
+            } else {
+                OM_PMU->MISC_CTRL_1 &= ~PMU_MISC_CTRL_1_EN_RSTB_MASK;
+            }
+            break;
+        case 24:
+        case 25:
+            if (pinmux == PINMUX_XTAL32K_CFG) {
+                OM_PMU->ANA_REG |= PMU_ANA_REG_GPIO_REUSE_MASK;
+            } else {
+                OM_PMU->ANA_REG &= ~PMU_ANA_REG_GPIO_REUSE_MASK;
+            }
+            break;
+        default:
+            break;
+    }
+    OM_CRITICAL_END();
 }
 
 /**
@@ -95,9 +105,26 @@ pinmux_t drv_pinmux_get(uint8_t pin)
     pinmux_t pinmux = PINMUX_JTAG_MODE_CFG;
     uint8_t pinmux_idx = 0;
     uint32_t lptim_group_idx;
-    lptim_group_idx = pin / 6;
-    uint8_t lptim_out_ctrl_pin_mask = register_get(&OM_PMU->LP_TIMER_OUT_CTRL, (1U << (pin - (lptim_group_idx * 2))), (pin - (lptim_group_idx * 2)));
+    uint8_t lptim_out_ctrl_pin_mask;
 
+    switch (pin) {
+        case 13:
+            if (OM_PMU->MISC_CTRL_1 & PMU_MISC_CTRL_1_EN_RSTB_MASK) {
+                return PINMUX_RESETB_CFG;
+            }
+            break;
+        case 24:
+        case 25:
+            if (OM_PMU->ANA_REG & PMU_ANA_REG_GPIO_REUSE_MASK) {
+                return PINMUX_XTAL32K_CFG;
+            }
+            break;
+        default:
+            break;
+    }
+
+    lptim_group_idx = pin / 6;
+    lptim_out_ctrl_pin_mask = register_get(&OM_PMU->LP_TIMER_OUT_CTRL, (1U << (pin - (lptim_group_idx * 2))), (pin - (lptim_group_idx * 2)));
     if (1 == lptim_out_ctrl_pin_mask) {
         uint8_t pinmux_lptim_idx = (pin - 2 * lptim_group_idx) % 4;
         pinmux_idx = PINMUX_LPTIM_OUT0_CFG + pinmux_lptim_idx;
@@ -106,7 +133,6 @@ pinmux_t drv_pinmux_get(uint8_t pin)
         i = pin / 4;
         p = (pin % 4) * 8;
         pinmux_idx = register_get(&OM_SYS->PINMUX[i], SYS_PINMUX_MASK_POS(p));
-
     }
     pinmux += pinmux_idx;
 

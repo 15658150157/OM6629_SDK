@@ -42,6 +42,7 @@
 #if (configUSE_TICKLESS_IDLE == 1) && (CONFIG_PM)
 #include "pm.h"
 #endif
+#include "om_compiler.h"
 
 #ifndef __ARMVFP__
     #error This port can only be used when the project options are configured to enable hardware floating point support.
@@ -347,7 +348,7 @@ void vPortEndScheduler( void )
     configASSERT( uxCriticalNesting == 1000UL );
 }
 /*-----------------------------------------------------------*/
-
+__RAM_CODES("PM")
 void vPortEnterCritical( void )
 {
     portDISABLE_INTERRUPTS();
@@ -364,7 +365,7 @@ void vPortEnterCritical( void )
     }
 }
 /*-----------------------------------------------------------*/
-
+ __RAM_CODES("PM")
 void vPortExitCritical( void )
 {
     configASSERT( uxCriticalNesting );
@@ -404,21 +405,34 @@ void xPortSysTickHandler( void )
 
 static uint32_t volatile ulSleepTimerTick = 0;
 
+#if 0
 static bool vSleepTimerGetOverflow(void)
 {
     return drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_OVERFLOW, NULL) ? true : false;
 }
+#else
+#define vSleepTimerGetOverflow()   (drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_OVERFLOW, NULL) ? true : false)
+#endif
 
+#if 0
 static uint32_t vSleepTimerGetReloadVal(void)
 {
     return (uint32_t)drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_TIMER_VAL, NULL);
 }
+#else
+#define vSleepTimerGetReloadVal()   ((uint32_t)drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_TIMER_VAL, NULL))
+#endif
 
+#if 0
 static uint32_t vSleepTimerGetTick(void)
 {
     return drv_pmu_timer_cnt_get();
 }
+#else
+#define vSleepTimerGetTick()   drv_pmu_timer_cnt_get()
+#endif
 
+__RAM_CODES("PM")
 static void vSleepTimerSetTick(uint32_t xTick)
 {
     uint32_t xCurTick;
@@ -463,7 +477,7 @@ static void vSleepTimerInit(void)
 #endif
 
 #if ( configUSE_TICKLESS_IDLE == 1 )
-
+__RAM_CODES("PM")
     __weak void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTime )
     {
 #if configUSE_SYSTICK

@@ -44,10 +44,10 @@ extern "C"
  */
 /// Program forbid
 typedef enum {
-    EFUSE_PROG_FORBID_0_63,
-    EFUSE_PROG_FORBID_64_239,
-    EFUSE_PROG_FORBID_240_500,
-    EFUSE_PROG_FORBID_501_507,
+    EFUSE_PROG_FORBID_0_63,         /* User Region */
+    EFUSE_PROG_FORBID_RSVD0,        /* RSVD Region 0 */
+    EFUSE_PROG_FORBID_RSVD1,        /* RSVD region 1 */
+    EFUSE_PROG_FORBID_RSVD2,        /* RSVD region 2 */
 } efuse_prog_forbid_t;
 
 /// Efuse control
@@ -150,6 +150,24 @@ extern void drv_efuse_isr_callback(drv_event_t event, uint32_t addr, uint32_t nu
 
 /**
  *******************************************************************************
+ * @brief Efuse interrupt service routine
+ *******************************************************************************
+ */
+extern void drv_efuse_isr(void);
+
+/**
+ *******************************************************************************
+ * @brief Efuse forbid config
+ *
+ * @param[in] prog_forbid_type   Efuse forbid type
+ *
+ * @return om_error
+ *******************************************************************************
+ */
+extern om_error_t drv_efuse_forbid_config(efuse_prog_forbid_t prog_forbid_type);
+
+/**
+ *******************************************************************************
  * @brief Efuse control
  *
  * @param[in] control       Efuse control type
@@ -158,14 +176,48 @@ extern void drv_efuse_isr_callback(drv_event_t event, uint32_t addr, uint32_t nu
  * @return om_error or efuse size
  *******************************************************************************
  */
-extern void *drv_efuse_control(efuse_control_t control, void *argu);
+__STATIC_INLINE void *drv_efuse_control(efuse_control_t control, void *argu)
+{
+    uint32_t ret;
 
-/**
- *******************************************************************************
- * @brief Efuse interrupt service routine
- *******************************************************************************
- */
-extern void drv_efuse_isr(void);
+    ret = (uint32_t)OM_ERROR_OK;
+    switch (control) {
+        case EFUSE_CONTROL_GET_SIZE:
+            ret = (CAP_EFUSE & CAP_EFUSE_SIZE_MASK) >> CAP_EFUSE_SIZE_POS;
+            break;
+
+        case EFUSE_CONTROL_PROGRAM_EN:
+            OM_EFUSE->PROGRAM_ENABLE = (uint32_t)argu ? 1 : 0;
+            break;
+
+        case EFUSE_CONTROL_FETCH_UID:
+            OM_EFUSE->CTRL |= EFUSE_CTRL_UID_READ_MASK;
+            while(OM_EFUSE->CTRL & EFUSE_CTRL_UID_READ_MASK);
+            break;
+
+        case EFUSE_CONTROL_CFG_FORBID:
+            ret = (uint32_t)drv_efuse_forbid_config((efuse_prog_forbid_t)(uint32_t)argu);
+            break;
+
+        case EFUSE_CONTROL_GET_FORBID_STATUS:
+            ret = register_get(&OM_EFUSE->CTRL, MASK_POS(EFUSE_CTRL_PMU_PROG_FORBID));
+            break;
+
+        case EFUSE_CONTROL_CLK_SRC_SWITCH:
+            if ((uint32_t)argu) {
+                OM_CPM->EFUSE_CFG |= CPM_EFUSE_CFG_CLK_SRC_SEL_MASK;
+            } else {
+                OM_CPM->EFUSE_CFG &= ~CPM_EFUSE_CFG_CLK_SRC_SEL_MASK;
+            }
+            while (!(OM_CPM->EFUSE_CFG & CPM_EFUSE_CFG_CLK_SYNC_DONE_MASK));
+
+        default:
+            ret = (uint32_t)OM_ERROR_PARAMETER;
+            break;
+    }
+
+    return (void *)ret;
+}
 
 
 #ifdef __cplusplus

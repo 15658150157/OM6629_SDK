@@ -7,15 +7,10 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * @file     ospi.h
- * @brief    OSPI Driver
- * @date     8 November 2021
- * @author   OnMicro SW Team
- *
  * @defgroup OSPI OSPI
- * @ingroup  Peripheral
- * @brief    OSPI Driver For External Memory
- * @details  OSPI Driver For External Memory
+ * @ingroup  DRIVER
+ * @brief    OSPI driver For External Memory
+ * @details  OSPI driver For External Memory
 
  * @version
  * Version 1.0
@@ -132,7 +127,7 @@ typedef struct {
     uint8_t write_opcode;               /**> write opcode, frame config see write_frame_cfg field */
     uint32_t read_frame_cfg[2];         /**< read frame config, read opcode see read_opcode field */
     uint32_t write_frame_cfg[2];        /**< write frame config, write opcode see write_opcode field */
-    ospi_mode_t mode;                   /**< standard spi mode, see@enum ospi_mode_t */
+    ospi_mode_t mode;                   /**< standard spi mode, see@ref ospi_mode_t */
     uint8_t page_cross_en;              /**< enable auto page cross */
     uint16_t page_size;                 /**< indicate page size, range in [1, 0xFFFF] */
     uint8_t clk_div;                    /**< clock divider */
@@ -270,10 +265,6 @@ extern om_error_t drv_ospi_write_int(OM_OSPI_Type *om_ospi,
 /**
  *******************************************************************************
  * @brief Store OSPI status before sleep.
- *
- * @param[in] om_ospi        Pointer to OSPI
- *
- * @return none
  *******************************************************************************
  */
 extern void drv_ospi_store(void);
@@ -281,10 +272,6 @@ extern void drv_ospi_store(void);
 /**
  *******************************************************************************
  * @brief Restore OSPI status after wake from sleep.
- *
- * @param[in] om_ospi        Pointer to OSPI
- *
- * @return none
  *******************************************************************************
  */
 extern void drv_ospi_restore(void);
@@ -394,8 +381,7 @@ extern void drv_ospi_node_setup(OM_OSPI_Type *om_ospi, ospi_list_node_t *node, o
  * @brief Start list transfer. Shall be lock code if transfer from in XIP flash
  *
  * @param[in] om_ospi       Pointer to ospi
- * @param[in] list_node     The first list node pointer
- *
+ * @param[in] list_head     The first list node pointer
  *******************************************************************************
  */
 __STATIC_INLINE void drv_ospi_list_start(OM_OSPI_Type *om_ospi, ospi_list_node_t *list_head)
@@ -408,9 +394,8 @@ __STATIC_INLINE void drv_ospi_list_start(OM_OSPI_Type *om_ospi, ospi_list_node_t
  *******************************************************************************
  * @brief ospi set transfer rate
  *
- * @param[in] om_ospi                   Pointer to OSPI
- * @param[in] double_transfer_rate_en   single transfer rate or double transfer rate
- *
+ * @param[in] om_ospi          Pointer to OSPI
+ * @param[in] data_width_16b   single transfer rate or double transfer rate
  *******************************************************************************
  */
 __STATIC_INLINE void drv_ospi_set_transfer_rate(OM_OSPI_Type *om_ospi,
@@ -511,9 +496,8 @@ __STATIC_INLINE void drv_ospi_write_cfg_get(OM_OSPI_Type *om_ospi, uint32_t cfg[
  *******************************************************************************
  * @brief ospi set read operate code for transparent read
  *
- * @param[in] om_ospi        Pointer to OSPI
- * @param[in] read_opcode    Read opcode pointer
- *
+ * @param[in] om_ospi       Pointer to OSPI
+ * @param[in] read_frame    Read opcode pointer
  *******************************************************************************
  */
 __STATIC_INLINE void drv_ospi_read_frame_set(OM_OSPI_Type *om_ospi,
@@ -530,7 +514,7 @@ __STATIC_INLINE void drv_ospi_read_frame_set(OM_OSPI_Type *om_ospi,
  * @brief ospi set write operate code for transparent write
  *
  * @param[in] om_ospi        Pointer to OSPI
- * @param[in] write_opcode   Read opcode pointer
+ * @param[in] write_frame    Read opcode pointer
  *
  *******************************************************************************
  */

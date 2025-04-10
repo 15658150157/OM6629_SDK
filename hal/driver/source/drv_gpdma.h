@@ -265,11 +265,11 @@ __STATIC_FORCEINLINE void drv_gpdam_channel_set_ptr(uint8_t chan_idx, void *ptr)
 
 /**
  *******************************************************************************
- * @brief Allocate handshake signal by gpdma id, see@gpdma_id_t, This function is WEAK
+ * @brief Allocate handshake signal by gpdma id, see, This function is WEAK
  *        symbol, users can re-write this function. The default implementation allocate
  *        handshake signal from the first avaliable handshake signal.
  *
- * @param id gpdma id,see @gpdma_id_t
+ * @param id gpdma id
  * @return handshake signal, return GPDMA_INVALID_HANDSHAKE_SIGNAL if no handshake signal available
  *******************************************************************************
  */
