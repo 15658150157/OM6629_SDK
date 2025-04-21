@@ -1,0 +1,10 @@
+.build/
+out/
+*.bin
+*.dis
+*.elf
+*.hex
+*.map
+*.d
+*.o
+*.uvguix.*
