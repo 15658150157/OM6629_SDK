@@ -19,6 +19,11 @@
  * @{
  */
 
+#include "autoconf.h"
+
+
+#if (CONFIG_PM)
+
 .syntax unified
 
 /**
@@ -94,3 +99,5 @@ __SYSTEM_RESUME:
 
 __SYSTEM_EXIT:
     pop {r0-r12, pc}
+
+#endif  /* CONFIG_PM */

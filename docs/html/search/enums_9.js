@@ -47,11 +47,13 @@ var searchData=
   ['pmu_5f32k_5fsel_5ft_44',['pmu_32k_sel_t',['../group__PMU.html#ga8be2a2f24d33272140f5eb425d4f329f',1,'drv_pmu.h']]],
   ['pmu_5fana_5ftype_5ft_45',['pmu_ana_type_t',['../group__PMU.html#ga5b05ea3f107f6e634930c1c474046857',1,'drv_pmu.h']]],
   ['pmu_5fcharge_5fstatus_5ft_46',['pmu_charge_status_t',['../group__PMU.html#ga73a51b836281aad9703a4a3c761b69c8',1,'drv_pmu.h']]],
-  ['pmu_5fpin_5fmode_5ft_47',['pmu_pin_mode_t',['../group__PMU.html#gafb0c3bb280ac1d6b8b1bdc4399a8349d',1,'drv_pmu.h']]],
-  ['pmu_5fpin_5fwakeup_5ftype_5ft_48',['pmu_pin_wakeup_type_t',['../group__PMU.html#gaec4206204aaa76f111cd269ed44ee98b',1,'drv_pmu.h']]],
-  ['pmu_5fpof_5fvoltage_5ft_49',['pmu_pof_voltage_t',['../group__PMU.html#ga67920eb5bfd062833bcbe5afe5fc75e9',1,'drv_pmu.h']]],
-  ['pmu_5freboot_5freason_5ft_50',['pmu_reboot_reason_t',['../group__PMU.html#gaefb51823b3e79670cb3be34b44353285',1,'drv_pmu.h']]],
-  ['pmu_5ftimer_5fcontrol_5ft_51',['pmu_timer_control_t',['../group__PMU__TIMER.html#ga370dc1f4410ec29d533bf9f503cdbf0a',1,'drv_pmu_timer.h']]],
-  ['pmu_5ftimer_5ftrig_5ft_52',['pmu_timer_trig_t',['../group__PMU__TIMER.html#gacddf9eeb509a5626d177557a8e78aaa1',1,'drv_pmu_timer.h']]],
-  ['psram_5fcmd_5ft_53',['psram_cmd_t',['../group__PSRAM.html#ga49ee8a79564dc8125f947d6721808561',1,'drv_psram.h']]]
+  ['pmu_5fdvdd_5fvoltage_5ft_47',['pmu_dvdd_voltage_t',['../group__PMU.html#ga64d43f15be2dc8311c2ef2fe0497706a',1,'drv_pmu.h']]],
+  ['pmu_5fpin_5fmode_5ft_48',['pmu_pin_mode_t',['../group__PMU.html#gafb0c3bb280ac1d6b8b1bdc4399a8349d',1,'drv_pmu.h']]],
+  ['pmu_5fpin_5fwakeup_5ftype_5ft_49',['pmu_pin_wakeup_type_t',['../group__PMU.html#gaec4206204aaa76f111cd269ed44ee98b',1,'drv_pmu.h']]],
+  ['pmu_5fpof_5fint_5fedge_5ft_50',['pmu_pof_int_edge_t',['../group__PMU.html#ga1672f1503b5e434594d3f5d870a8fa63',1,'drv_pmu.h']]],
+  ['pmu_5fpof_5fvoltage_5ft_51',['pmu_pof_voltage_t',['../group__PMU.html#ga67920eb5bfd062833bcbe5afe5fc75e9',1,'drv_pmu.h']]],
+  ['pmu_5freboot_5freason_5ft_52',['pmu_reboot_reason_t',['../group__PMU.html#gaefb51823b3e79670cb3be34b44353285',1,'drv_pmu.h']]],
+  ['pmu_5ftimer_5fcontrol_5ft_53',['pmu_timer_control_t',['../group__PMU__TIMER.html#ga370dc1f4410ec29d533bf9f503cdbf0a',1,'drv_pmu_timer.h']]],
+  ['pmu_5ftimer_5ftrig_5ft_54',['pmu_timer_trig_t',['../group__PMU__TIMER.html#gacddf9eeb509a5626d177557a8e78aaa1',1,'drv_pmu_timer.h']]],
+  ['psram_5fcmd_5ft_55',['psram_cmd_t',['../group__PSRAM.html#ga49ee8a79564dc8125f947d6721808561',1,'drv_psram.h']]]
 ];

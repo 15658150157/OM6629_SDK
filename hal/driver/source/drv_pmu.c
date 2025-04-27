@@ -52,7 +52,9 @@ typedef struct {
     #endif
     pmu_32k_sel_t clock_32k;
     volatile bool pin_wakeup_sleep_recently;
-    bool enable_32k_with_deep_sleep;
+    uint8_t enable_32k_with_deep_sleep                  : 1;
+    uint8_t enable_pof                                  : 1;
+    uint8_t reserved                                    : 6;
 } pmu_env_t;
 
 
@@ -63,231 +65,14 @@ static pmu_env_t drv_pmu_env;
 
 
 /*******************************************************************************
- * LOCAL FUNCTIONS
+ * PUBLIC FUNCTIONS
  */
-/**
- * @brief  pmu select 32k get from reg
- *
- * @return 32k
- **/
-//static pmu_32k_sel_t drv_pmu_select_32k_get_reg(void)
-//{
-//    return (pmu_32k_sel_t)REGR(&OM_PMU->MISC_CTRL, MASK_POS(PMU_MISC_CTRL_CLK_32K_SEL));
-//}
-
-/**
- * @brief  pmu 32k switch to rc
- *
- * @param[in] calib  calib
- * @param[in] pd_others  pd others
- **/
-void drv_pmu_32k_switch_to_rc(bool calib, bool pd_others)
-{
-    // Power on rc32k
-//    REGW0(&OM_PMU->MISC_CTRL, PMU_MISC_REG_PD_RC32K_MASK);
-//    while(!(OM_PMU->STATUS_READ & PMU_STATUS_READ_RC32K_READY_MASK));
-
-    // calib it
-    if(calib) {
-        drv_calib_rc32k();
-    }
-
-    // Switch
-    REGW(&OM_PMU->MISC_CTRL, MASK_1REG(PMU_MISC_CTRL_CLK_32K_SEL, PMU_32K_SEL_RC));
-    while((OM_PMU->STATUS_READ & (PMU_STATUS_READ_CLK_32K_RC_CRY_DONE_MASK|PMU_STATUS_READ_CLK_32K_DIV_DONE_MASK)) !=
-                                 (PMU_STATUS_READ_CLK_32K_RC_CRY_DONE_MASK|PMU_STATUS_READ_CLK_32K_DIV_DONE_MASK));
-
-    if (pd_others) {
-        REGW1(&OM_PMU->MISC_CTRL, PMU_MISC_CTRL_PD_CRY32K_MASK); // xtal32k
-    }
-}
-
-#if 0
-/**
- * @brief  pmu xtal32m is keep on
- *
- * @return on ?
- **/
-static bool pmu_topclk_xtal32m_is_keep_on(void)
-{
-    return (OM_PMU->MISC_CTRL_1 & PMU_MISC_CTRL_1_CRY32M_KEEP_ON_MASK) ? true : false;
-}
-#endif
-
-/**
- * @brief  pmu topclk xtal32m wait ready
- **/
-__RAM_CODES("PM")
-static void drv_pmu_topclk_xtal32m_wait_ready(void)
-{
-    // WAIT Ready
-    while(!(OM_DAIF->XTAL32M_INTRS & DAIF_XTAL32M_CLK_RDY_MASK));
-
-//    // Check
-//    if(!(OM_DAIF->XTAL32M_INTRS & DAIF_XTAL32M_CLK_RDY_MASK))
-//        // System error, LOOP forever
-//        co_fault_set(CO_FAULT_HCLK_CRASH);
-}
-
-/**
- * @brief  pmu topclk double preset
- **/
-void drv_pmu_topclk_x2_enable(bool enable)
-{
-    if (enable) {
-        // 64MHz DVDD is 1.05v (FT calib to 1V)
-        REGSW(&OM_PMU->ANA_REG, MASK_STEP_SSAT(PMU_ANA_REG_PMU_DIG_LDO_TRIM, drv_calib_repair_env.dig_ldo+1), true/*should_update*/, 10/*delay_us*/);
-        // enable
-        REGW1(&OM_PMU->ANA_PD, PMU_ANA_PD_EN_64M_MASK);
-    } else {
-        if(OM_PMU->ANA_PD & PMU_ANA_PD_EN_64M_MASK) {
-            // disable
-            REGW0(&OM_PMU->ANA_PD, PMU_ANA_PD_EN_64M_MASK);
-            // 64MHz DVDD is 0.95v (FT calib to 1V)
-            REGSW(&OM_PMU->ANA_REG, MASK_STEP_SSAT(PMU_ANA_REG_PMU_DIG_LDO_TRIM, drv_calib_repair_env.dig_ldo-1), true/*should_update*/, 10/*delay_us*/);
-        }
-    }
-}
-
-/**
- * @brief  pmu topclk switch to rc32m
- **/
-void drv_pmu_topclk_switch_to_rc32m(void)
-{
-    // To RC32M
-    REGW0(&OM_PMU->MISC_CTRL, PMU_MISC_CTRL_MAIN_CLK_SEL_MASK); // 0:RC32MHz 1:64MHz
-    while(!(OM_CPM->CPU_CFG & CPM_CPU_CFG_CPU_MAIN_CLK_SYNC_DONE_MASK));
-}
-
-#if 0
-/**
- * @brief  pmu topclk switch to rc64m
- **/
-static void drv_pmu_topclk_switch_to_rc32m_x2(void)
-{
-    // from RC32M
-    REGW1(&OM_PMU->CLK_CTRL_2, PMU_CLK_CTRL_2_SEL_RCOSC_MASK); // 0:XTAL 1:RC
-    REGW1(&OM_PMU->XTAL32M_CNS0, PMU_XTAL32M_CNS0_SEL_CPUCLK_MASK); // 0:XTAL32M 1:64M
-    DRV_DELAY_US(1);
-    // To 64M
-    REGW1(&OM_PMU->MISC_CTRL, PMU_MISC_CTRL_MAIN_CLK_SEL_MASK); // 0:RC32MHz 1:64MHz
-    while(!(OM_CPM->STATUS_READ & CPM_STATUS_READ_MAIN_CLK_SYNC_DONE_MASK));
-}
-#endif
-
-/**
- * @brief  pmu xtal32m switch to 32m
- **/
-void drv_pmu_topclk_switch_to_xtal32m(void)
-{
-    // from XTAL32M
-    REGW0(&OM_PMU->XTAL32M_CNS0, PMU_XTAL32M_CNS0_SEL_CPUCLK_MASK); // 0:XTAL32M 1:64M
-    DRV_DELAY_US(1);
-    // To XTAL32M
-    REGW1(&OM_PMU->MISC_CTRL, PMU_MISC_CTRL_MAIN_CLK_SEL_MASK); // 0:RC32MHz 1:CPUCLK
-    while(!(OM_CPM->CPU_CFG & CPM_CPU_CFG_CPU_MAIN_CLK_SYNC_DONE_MASK));
-}
-
-/**
- * @brief  pmu xtal32m switch to 64m
- **/
-void drv_pmu_topclk_switch_to_xtal32m_x2(void)
-{
-    // from XTAL32M
-    REGW0(&OM_PMU->CLK_CTRL_2, PMU_CLK_CTRL_2_SEL_RCOSC_MASK); // 0:XTAL 1:RC
-    REGW1(&OM_PMU->XTAL32M_CNS0, PMU_XTAL32M_CNS0_SEL_CPUCLK_MASK); // 0:XTAL32M 1:64M
-    DRV_DELAY_US(1);
-    // To 64M
-    REGW1(&OM_PMU->MISC_CTRL, PMU_MISC_CTRL_MAIN_CLK_SEL_MASK); // 0:RC32MHz 1:64MHz
-    while(!(OM_CPM->CPU_CFG & CPM_CPU_CFG_CPU_MAIN_CLK_SYNC_DONE_MASK));
-}
-
-/**
- * @brief  pmu rc32m power enable
- *
- * @return is_last_enabled ?
- **/
-__RAM_CODES("PM")
-bool drv_pmu_topclk_rc32m_power_enable(bool enable)
-{
-    bool is_last_enabled = (OM_PMU->MISC_CTRL_1 & PMU_MISC_CTRL_1_REG_PD_RC32M_MASK) ? false : true;
-
-    if(enable) {
-        if (!is_last_enabled) {
-            REGW0(&OM_PMU->MISC_CTRL_1, PMU_MISC_CTRL_1_REG_PD_RC32M_MASK);
-            // must delay more than 15us
-            DRV_DELAY_US(10 *3);
-        }
-    } else {
-        if (is_last_enabled) {
-            REGW1(&OM_PMU->MISC_CTRL_1, PMU_MISC_CTRL_1_REG_PD_RC32M_MASK);
-        }
-    }
-
-    return is_last_enabled;
-}
-
-/**
- * @brief  pmu topclk xtal32m power enable
- *
- * @param[in] enable
- *
- * XTAL32M
- *
- * if CRY32M_EN==1, xtal24m will be fast-startuped automatically after wakeup (ignore PD_CRY32M)
- *
- * CRY32M_EN does not control xtal24m directly, fucntion:
- *   - xtal24m fast-startup FLAG after wakeup (ignore PD_CRY32M)
- *   - 0 to reset xtal24m-startup-ready signal
- *
- * PD_CRY32M edge can control xtal24m directly, function:
- *   - rising edge: power down
- *   - falling edge: power on
- *
- **/
-void drv_pmu_topclk_xtal32m_power_enable(bool enable)
-{
-    DRV_RCC_ANA_CLK_ENABLE();
-    if(enable) {
-        // open xtal32m ctrl clock
-        REGW1(&OM_DAIF->CLK_ENS, DAIF_XTAL32M_CTRL_CLK_EN_MASK);
-
-        // Power on
-        REGW1(&OM_PMU->MISC_CTRL_1, PMU_MISC_CTRL_1_CRY32M_EN_MASK);
-
-        // wait
-        drv_pmu_topclk_xtal32m_wait_ready();
-
-        // close xtal32m ctrl clock
-        REGW0(&OM_DAIF->CLK_ENS, DAIF_XTAL32M_CTRL_CLK_EN_MASK);
-    } else {
-        REGW0(&OM_PMU->MISC_CTRL_1, PMU_MISC_CTRL_1_CRY32M_EN_MASK);
-    }
-    DRV_RCC_ANA_CLK_RESTORE();
-}
-
-/**
- * @brief  pmu topclk xtal32m is enabled
- **/
-bool drv_pmu_topclk_xtal32m_is_enabled(void)
-{
-    return (OM_PMU->MISC_CTRL & PMU_MISC_CTRL_MAIN_CLK_SEL_MASK) ? true : false;
-}
-
-/**
- * @brief  pmu topclk xtal32m is enabled
- **/
-bool drv_pmu_topclk_xtal32m_x2_is_enabled(void)
-{
-    return (OM_PMU->ANA_PD & PMU_ANA_PD_EN_64M_MASK) ? true : false;
-}
-
 /**
  *******************************************************************************
  * @brief  drv pmu topclk xtal32m switch to fast startup mode
  *******************************************************************************
  */
-static void drv_pmu_topclk_xtal32m_switch_to_fast_startup_mode(void)
+static void drv_pmu_xtal32m_switch_to_fast_startup_mode(void)
 {
     // open xtal32m ctrl clock
     REGW1(&OM_DAIF->CLK_ENS, DAIF_XTAL32M_CTRL_CLK_EN_MASK);
@@ -301,7 +86,7 @@ static void drv_pmu_topclk_xtal32m_switch_to_fast_startup_mode(void)
     REGW1(&OM_PMU->XTAL32M_CNS1, PMU_XTAL32M_CNS1_XTAL32M_RESTART_MASK);
     DRV_DELAY_US(200);    // When fast-startup process has been done once, need 200us to wait for ready status
     // Wait ready
-    drv_pmu_topclk_xtal32m_wait_ready();
+    while(!(OM_DAIF->XTAL32M_INTRS & DAIF_XTAL32M_CLK_RDY_MASK));
     // FSM ctrl
     REGW(&OM_PMU->XTAL32M_CNS0, MASK_2REG(PMU_XTAL32M_CNS0_EN_OSC32M_CHIRPRAMP_ME,0, PMU_XTAL32M_CNS0_EN_XTAL32M_NRB_ME,0));
 
@@ -315,9 +100,6 @@ static void drv_pmu_topclk_xtal32m_switch_to_fast_startup_mode(void)
 static void drv_pmu_xtal32m_startup_param_setup(void)
 {
     REGW(&OM_PMU->CLK_CTRL_1, MASK_1REG(PMU_CLK_CTRL_1_SEL_XTAL32M_GM, 4)); // from 2 to 4
-//    REGW(&OM_PMU->CLK_CTRL_2, MASK_1REG(PMU_CLK_CTRL_2_CT_XTAL32M, 8));
-//    REGW(&OM_PMU->XTAL32M_CNS1, MASK_1REG(PMU_XTAL32M_CNS1_XTAL32M_NRB_POR, 0));
-//    REGW(&OM_PMU->XTAL32M_CNS0, MASK_2REG(PMU_XTAL32M_CNS0_EN_XTAL32M_NRB_ME, 1, PMU_XTAL32M_CNS0_EN_XTAL32M_NRB_MO, 0x3));
 }
 
 /**
@@ -335,7 +117,7 @@ static void drv_pmu_xtal32m_fast_startup_param_setup(void)
  * @note: This function must be INLINE function, avoid stack used
  *******************************************************************************
  **/
-static inline void pmu_cpu_reset(void)
+static void pmu_cpu_reset(void)
 {
     __disable_irq();
     __DMB();
@@ -370,53 +152,221 @@ static void drv_pmu_force_into_reboot_sleep_mode(void)
     pmu_cpu_reset();  // Must be some IRQ pending, Force reboot
 }
 
+/**
+ * @brief  pmu xtal32m fast startup
+ *
+ * @param[in] force  force
+ **/
+static void drv_pmu_xtal32m_fast_startup(bool force)
+{
+    DRV_RCC_ANA_CLK_ENABLE();
+
+    // check
+    if(force || !drv_pmu_xtal32m_is_enabled()) {
+        // Next XTAL32M startup use fast-startup mode.
+        REGW0(&OM_PMU->MISC_CTRL, PMU_MISC_CTRL_FIRST_RUN_REG_MASK);
+
+        // Make sure CPU running on RC32M->startup RC32m->switch xtal32m->power down rc32m
+        drv_rcc_cpu_clk_source_set(RCC_CPU_CLK_SOURCE_RC32M);
+        drv_pmu_xtal32m_fast_startup_param_setup();
+        drv_pmu_xtal32m_enable(true);
+        drv_rcc_cpu_clk_source_set(RCC_CPU_CLK_SOURCE_XTAL32M);
+        drv_rcc_periph_clk_source_set(RCC_PERIPH_CLK_SOURCE_XTAL32M);
+        drv_pmu_rc32m_enable(false);
+    }
+
+    SystemCoreClock = 32 * 1000 * 1000U;
+
+    DRV_RCC_ANA_CLK_RESTORE();
+}
+
 
 /*******************************************************************************
- * PUBLIC FUNCTIONS
+ * EXTERN FUNCTIONS
  */
 /**
- * @brief pmu initialize
+ *******************************************************************************
+ * @brief Set dvdd voltage
  *
- * @return None
- **/
-void drv_pmu_init(void)
+ * @param[in] voltage  dvdd voltage
+ *******************************************************************************
+ */
+__RAM_CODE void drv_pmu_dvdd_voltage_set(pmu_dvdd_voltage_t voltage)
 {
-    // moved to SystemInit()
+    OM_CRITICAL_BEGIN();
+    drv_pmu_register_step_set(&OM_PMU->ANA_REG, MASK_STEP_SSAT(PMU_ANA_REG_PMU_DIG_LDO_TRIM, drv_calib_repair_env.dig_ldo + (int8_t)voltage), true/*should_update*/, 10/*delay_us*/);
+    drv_iflash_delay_recalib();
+    OM_CRITICAL_END();
+}
+
+__RAM_CODES("PM")
+void drv_pmu_basic_reg_set(uint32_t mask, uint32_t mask_value)
+{
+    register uint32_t reg_prev;
+
+    mask_value = mask_value & mask;
+    OM_CRITICAL_BEGIN();
+    reg_prev = OM_PMU->BASIC;
+    if ((reg_prev & mask) != mask_value) {
+        reg_prev &= ~mask;
+        reg_prev |= mask_value;
+        OM_PMU->BASIC = reg_prev;
+        while ((OM_PMU->BASIC & mask) != mask_value);
+    }
+    OM_CRITICAL_END();
 }
 
 /**
- * @brief pmu select xtal24m as top clock, call by system
+ * @brief  pmu 32k switch to rc
+ *
+ * @param[in] calib  calib
+ * @param[in] pd_others  pd others
+ **/
+void drv_pmu_32k_switch_to_rc(bool calib, bool pd_others)
+{
+    // Power on rc32k
+    // REGW0(&OM_PMU->MISC_CTRL, PMU_MISC_REG_PD_RC32K_MASK);
+    // while(!(OM_PMU->STATUS_READ & PMU_STATUS_READ_RC32K_READY_MASK));
+    // calib it
+    if(calib) {
+        drv_calib_rc32k();
+    }
+
+    // Switch
+    REGW(&OM_PMU->MISC_CTRL, MASK_1REG(PMU_MISC_CTRL_CLK_32K_SEL, PMU_32K_SEL_RC));
+    while((OM_PMU->STATUS_READ & (PMU_STATUS_READ_CLK_32K_RC_CRY_DONE_MASK|PMU_STATUS_READ_CLK_32K_DIV_DONE_MASK)) !=
+                                 (PMU_STATUS_READ_CLK_32K_RC_CRY_DONE_MASK|PMU_STATUS_READ_CLK_32K_DIV_DONE_MASK));
+
+    if (pd_others) {
+        REGW1(&OM_PMU->MISC_CTRL, PMU_MISC_CTRL_PD_CRY32K_MASK); // xtal32k
+    }
+}
+
+/**
+ * @brief  pmu topclk double preset
+ **/
+void drv_pmu_clk64m_enable(bool enable)
+{
+    OM_CRITICAL_BEGIN();
+    if (enable) {
+        REGW1(&OM_PMU->ANA_PD, PMU_ANA_PD_EN_64M_MASK);
+    } else {
+        REGW0(&OM_PMU->ANA_PD, PMU_ANA_PD_EN_64M_MASK);
+    }
+    OM_CRITICAL_END();
+}
+
+/**
+ * @brief  pmu topclk xtal64m is enabled
+ **/
+bool drv_pmu_clk64m_is_enabled(void)
+{
+    return (OM_PMU->ANA_PD & PMU_ANA_PD_EN_64M_MASK) ? true : false;
+}
+
+/**
+ * @brief  pmu rc32m power enable
+ *
+ * @return is_last_enabled ?
+ **/
+__RAM_CODE bool drv_pmu_rc32m_enable(bool enable)
+{
+    bool is_last_enabled = (OM_PMU->MISC_CTRL_1 & PMU_MISC_CTRL_1_REG_PD_RC32M_MASK) ? false : true;
+
+    if(enable) {
+        if (!is_last_enabled) {
+            REGW0(&OM_PMU->MISC_CTRL_1, PMU_MISC_CTRL_1_REG_PD_RC32M_MASK);
+            // must delay more than 15us
+            DRV_DELAY_US(10 *3);
+        }
+    } else {
+        if (is_last_enabled) {
+            REGW1(&OM_PMU->MISC_CTRL_1, PMU_MISC_CTRL_1_REG_PD_RC32M_MASK);
+        }
+    }
+
+    return is_last_enabled;
+}
+
+/**
+ * @brief  pmu topclk xtal32m power enable
+ *
+ * @param[in] enable
+ *
+ * XTAL32M
+ *
+ * if CRY32M_EN==1, xtal32m will be fast-startuped automatically after wakeup (ignore PD_CRY32M)
+ *
+ * CRY32M_EN does not control xtal32m directly, fucntion:
+ *   - xtal32m fast-startup FLAG after wakeup (ignore PD_CRY32M)
+ *   - 0 to reset xtal32m-startup-ready signal
+ *
+ * PD_CRY32M edge can control xtal32m directly, function:
+ *   - rising edge: power down
+ *   - falling edge: power on
+ *
+ **/
+void drv_pmu_xtal32m_enable(bool enable)
+{
+    DRV_RCC_ANA_CLK_ENABLE();
+    if(enable) {
+        // open xtal32m ctrl clock
+        REGW1(&OM_DAIF->CLK_ENS, DAIF_XTAL32M_CTRL_CLK_EN_MASK);
+        // Power on
+        REGW1(&OM_PMU->MISC_CTRL_1, PMU_MISC_CTRL_1_CRY32M_EN_MASK);
+        // Wait xtal32m ready
+        while(!(OM_DAIF->XTAL32M_INTRS & DAIF_XTAL32M_CLK_RDY_MASK));
+        // close xtal32m ctrl clock
+        REGW0(&OM_DAIF->CLK_ENS, DAIF_XTAL32M_CTRL_CLK_EN_MASK);
+    } else {
+        REGW0(&OM_PMU->MISC_CTRL_1, PMU_MISC_CTRL_1_CRY32M_EN_MASK);
+    }
+    DRV_RCC_ANA_CLK_RESTORE();
+}
+
+/**
+ * @brief  pmu topclk xtal32m is enabled
+ **/
+bool drv_pmu_xtal32m_is_enabled(void)
+{
+    // if cpu clk source is cpu_clk_in(xtal32m, xtal64m, syspll96m), then we say xtal32m is enabled
+    return (OM_PMU->MISC_CTRL & PMU_MISC_CTRL_MAIN_CLK_SEL_MASK) ? true : false;
+}
+
+/**
+ * @brief When this Function is called:
+ * 1. cpu clk and periph clk will switch to xtal32m.
+ * 2. rc32m will be power down.
+ * 3. RC, RC32M will be calibed.
+ * 4. fast startup mode will be set.
  **/
 void drv_pmu_xtal32m_startup(void)
 {
     DRV_RCC_ANA_CLK_ENABLE();
 
-    // check: whether is xtal24m opened
-    if(!drv_pmu_topclk_xtal32m_is_enabled()) {
+    if(!drv_pmu_xtal32m_is_enabled()) {
         // Next XTAL32M startup use normal-startup mode.
         REGW1(&OM_PMU->MISC_CTRL, PMU_MISC_CTRL_FIRST_RUN_REG_MASK);
 
-        // power on rc32m and switch to it
         // Make sure CPU running on RC32M
-        drv_pmu_topclk_rc32m_power_enable(true);
-        drv_pmu_topclk_switch_to_rc32m();
+        drv_rcc_cpu_clk_source_set(RCC_CPU_CLK_SOURCE_RC32M);
         drv_rcc_periph_clk_source_set(RCC_PERIPH_CLK_SOURCE_RC32M);
 
         // Try open xtal32m
         drv_pmu_xtal32m_startup_param_setup();
-        drv_pmu_topclk_xtal32m_power_enable(true);
+        drv_pmu_xtal32m_enable(true);
 
         // calib RC
         drv_calib_sys_rc();
         // switch to fast startup mode (must before switch_to_xtal32m)
-        drv_pmu_topclk_xtal32m_switch_to_fast_startup_mode();
+        drv_pmu_xtal32m_switch_to_fast_startup_mode();
         // to xtal32m
         drv_rcc_cpu_clk_source_set(RCC_CPU_CLK_SOURCE_XTAL32M);
         drv_rcc_periph_clk_source_set(RCC_PERIPH_CLK_SOURCE_XTAL32M);
         // calib RC32M
         drv_calib_sys_rc32m();
         // power off rc32m
-        drv_pmu_topclk_rc32m_power_enable(false);
+        drv_pmu_rc32m_enable(false);
     }
 
     // disable all daif clock
@@ -425,80 +375,35 @@ void drv_pmu_xtal32m_startup(void)
     DRV_RCC_ANA_CLK_RESTORE();
 }
 
-/**
- * @brief  pmu xtal32m fast startup
- *
- * @param[in] force  force
- **/
-void drv_pmu_xtal32m_fast_startup(bool force)
-{
-    DRV_RCC_ANA_CLK_ENABLE();
 
-    // check
-    if(force || !drv_pmu_topclk_xtal32m_is_enabled()) {
-        // Next XTAL32M startup use fast-startup mode.
-        REGW0(&OM_PMU->MISC_CTRL, PMU_MISC_CTRL_FIRST_RUN_REG_MASK);
-
-        // Make sure CPU running on RC32M->startup RC32m->switch xtal32m->power down rc32m
-        drv_pmu_topclk_rc32m_power_enable(true);
-        drv_pmu_topclk_switch_to_rc32m();
-        drv_pmu_xtal32m_fast_startup_param_setup();
-        drv_pmu_topclk_xtal32m_power_enable(true);
-        drv_pmu_topclk_switch_to_xtal32m();
-        drv_rcc_periph_clk_source_set(RCC_PERIPH_CLK_SOURCE_XTAL32M);
-        drv_pmu_topclk_rc32m_power_enable(false);
-    }
-
-    SystemCoreClock = 32 * 1000 * 1000U;
-
-    DRV_RCC_ANA_CLK_RESTORE();
-}
-
-/**
- * @brief  pmu xtal32m x2 startup
- **/
-void drv_pmu_xtal32m_x2_startup(void)
-{
-    DRV_RCC_ANA_CLK_ENABLE();
-    // startup xtal32m -> switch rc32m -> xtal64m ->power down rc32m
-    drv_pmu_xtal32m_fast_startup(false/*force*/);
-    drv_pmu_topclk_rc32m_power_enable(true);
-    drv_pmu_topclk_switch_to_rc32m();
-    DRV_DELAY_US(2);
-    drv_pmu_topclk_x2_enable(true);
-    drv_pmu_topclk_switch_to_xtal32m_x2();
-    drv_pmu_topclk_rc32m_power_enable(false);
-    SystemCoreClock = 64 * 1000 * 1000U;
-
-    DRV_RCC_ANA_CLK_RESTORE();
-}
 
 /**
  *******************************************************************************
- * @brief  drv pmu xtal32m x2 close
+ * @brief  syspll power enable (pll96M and 48M)
+ *
+ * @param[in] enable  enable
  *******************************************************************************
  */
-void drv_pmu_xtal32m_x2_close(void)
+void drv_pmu_syspll_power_enable(uint8_t enable)
 {
     DRV_RCC_ANA_CLK_ENABLE();
+    OM_CRITICAL_BEGIN();
 
-    // startup rc32m->switch xtal32m->disable xtal64m
-    if (drv_pmu_topclk_xtal32m_is_enabled() && drv_pmu_topclk_xtal32m_x2_is_enabled()) {
-        // to rc32m
-        drv_pmu_topclk_rc32m_power_enable(true);
-        drv_pmu_topclk_switch_to_rc32m();
-        // delay 2us
+    if (enable) {
+        OM_DAIF->CLK_CFG |= DAIF_XTAL32M_EN_CKO16M_SYSPLL_MASK;
+        OM_DAIF->SYSPLL_CNS0 &= ~DAIF_SYSPLL_PD_VBAT_MASK;
+        DRV_DELAY_US(10);
+        OM_DAIF->SYSPLL_CNS0 &= ~DAIF_SYSPLL_RSTN_DIG_MASK;
+        OM_DAIF->SYSPLL_CNS0 |= DAIF_SYSPLL_RSTN_DIG_MASK;
+        OM_DAIF->SYSPLL_CNS0 |= DAIF_SYSPLL_EN_AFC_MASK;
         DRV_DELAY_US(2);
-        // switch to xtal32m
-        drv_pmu_topclk_switch_to_xtal32m();
-        // disable x2
-        drv_pmu_topclk_x2_enable(false);
-        // power off rc32m
-        drv_pmu_topclk_rc32m_power_enable(false);
+        OM_DAIF->SYSPLL_CNS0 &= ~DAIF_SYSPLL_EN_AFC_MASK;
+        while (!(OM_DAIF->SYSPLL_CNS1 & DAIF_SYSPLL_LOCK_MASK));
+    } else {
+        OM_DAIF->SYSPLL_CNS0 |= DAIF_SYSPLL_PD_VBAT_MASK;
     }
 
-    SystemCoreClock = 32 * 1000 * 1000U;
-
+    OM_CRITICAL_END();
     DRV_RCC_ANA_CLK_RESTORE();
 }
 
@@ -634,6 +539,11 @@ bool drv_pmu_deep_sleep_is_allow(void)
 __RAM_CODES("PM")
 void drv_pmu_sleep_enter(uint8_t is_deep_sleep, bool reboot_req)
 {
+    // pof disable
+    if (drv_pmu_env.enable_pof) {
+        REGW(&OM_PMU->POF_INT_CTRL, MASK_1REG(PMU_POF_INT_CTRL_PMU_POF_INT_EN, 0));
+    }
+
     do {
         if (is_deep_sleep && (!drv_pmu_env.enable_32k_with_deep_sleep)) {
             if (drv_pmu_env.clock_32k == PMU_32K_SEL_32768HZ_XTAL) {
@@ -641,10 +551,10 @@ void drv_pmu_sleep_enter(uint8_t is_deep_sleep, bool reboot_req)
                 drv_pmu_32k_switch_to_rc(false /*calib*/, true /*pd_others*/);
             }
             // Set a flag to power down 32K (PMU_BASIC_WAKEUPB_DIS=0: when close 32k, PIN can wakeup)
-            drv_pmu_basic_reg_set(MASK_1REG(PMU_BASIC_SLEEP_WO_32K, 1));
+            drv_pmu_basic_reg_set(MASK_2REG(PMU_BASIC_SLEEP_WO_32K, 1, PMU_BASIC_WAKEUPB_DIS, 0));
             break;
         }
-        drv_pmu_basic_reg_set(MASK_1REG(PMU_BASIC_SLEEP_WO_32K, 0));
+        drv_pmu_basic_reg_set(MASK_2REG(PMU_BASIC_SLEEP_WO_32K, 0, PMU_BASIC_WAKEUPB_DIS, 1));
     } while(0);
 
     // Switch to xtal32m when using syspll
@@ -653,14 +563,15 @@ void drv_pmu_sleep_enter(uint8_t is_deep_sleep, bool reboot_req)
     }
 
     // clear pmu gpio interrupt
+    #if (PMU_IO_OUTPUT_LATCH_CTRL_BY_SOFTWARE)
+    // latch io: disable HW auto latch, enable IO latch by SW
+    OM_PMU->MISC_CTRL |= (PMU_MISC_CTRL_CLR_PMU_INT_MASK | PMU_MISC_CTRL_GPIO_AUTO_LATCH_FSM_DIS_MASK | PMU_MISC_CTRL_GPIO_AUTO_LATCH_CTRL_MASK);
+    #else
     OM_PMU->MISC_CTRL |= PMU_MISC_CTRL_CLR_PMU_INT_MASK;
+    #endif
     while(OM_PMU->MISC_CTRL & PMU_MISC_CTRL_CLR_PMU_INT_MASK);
     while(OM_PMU->STATUS_READ & PMU_STATUS_READ_CLR_PMU_INT_SYNC_APB_MASK);
 
-    #if (PMU_IO_OUTPUT_LATCH_CTRL_BY_SOFTWARE)
-    // latch io: disable HW auto latch, enable IO latch by SW
-    OM_PMU->MISC_CTRL |= (PMU_MISC_CTRL_GPIO_AUTO_LATCH_FSM_DIS_MASK | PMU_MISC_CTRL_GPIO_AUTO_LATCH_CTRL_MASK);
-    #endif
     // Into reboot sleep mode
     if (reboot_req) {
         drv_pmu_force_into_reboot_sleep_mode();
@@ -688,12 +599,12 @@ void drv_pmu_sleep_leave(pmu_sleep_leave_step_t step)
 
     if (step & PMU_SLEEP_LEAVE_STEP2_WAIT_XTAL32M) {
         // Wait xtal32m ready
-        drv_pmu_topclk_xtal32m_wait_ready();
+        while(!(OM_DAIF->XTAL32M_INTRS & DAIF_XTAL32M_CLK_RDY_MASK));
         // Wait switch to xtal32m OK
         __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
 
         // default rc32m is opened, close it
-        drv_pmu_topclk_rc32m_power_enable(false);
+        drv_pmu_rc32m_enable(false);
     }
 
     if (step & PMU_SLEEP_LEAVE_STEP3_FINISH) {
@@ -713,12 +624,17 @@ void drv_pmu_sleep_leave(pmu_sleep_leave_step_t step)
 
         // close daif clock
         DRV_RCC_CLOCK_ENABLE(RCC_CLK_DAIF, 0U);
+
+        // pof enable
+        if (drv_pmu_env.enable_pof) {
+            REGW(&OM_PMU->POF_INT_CTRL, MASK_1REG(PMU_POF_INT_CTRL_PMU_POF_INT_EN, 1));
+        }
     }
 }
 
 void drv_pmu_32k_enable_in_deep_sleep(bool enable)
 {
-    drv_pmu_env.enable_32k_with_deep_sleep = enable;
+    drv_pmu_env.enable_32k_with_deep_sleep = enable ? 1 : 0;
 }
 
 void drv_pmu_pin_input_enable(uint8_t pin_idx, uint8_t ie)
@@ -1030,23 +946,6 @@ void drv_pmu_ram_power_down_in_sleep(pmu_ram_block_t blocks)
 }
 
 /**
- * @brief Change xtal 32k params
- *
- * @param[in] load_capacitance  load capacitance, range:0~3 default:0 step:1.5pF, max:4.5pF
- * @param[in] drive_current  drive current, range:0-3, default:0
- *
- * @note load_capacitance will effect xtal 32k startup time and precision,
- *       appropriate value can speed up startup time.
- *
- * @return None
- **/
-void drv_pmu_xtal32k_change_param(int load_capacitance, int drive_current)
-{
-    REGW(&OM_PMU->XTAL32K_CTRL, MASK_1REG(PMU_XTAL32K_CTRL_XTAL32K_CTUNE, load_capacitance));
-    REGW(&OM_PMU->CLK_CTRL_2, MASK_1REG(PMU_CLK_CTRL_2_XTAL32K_ISEL, drive_current));
-}
-
-/**
  * @brief pmu gpio wakeup pin setup
  *
  * @param[in] pin_idx  pin index
@@ -1149,14 +1048,12 @@ void drv_pmu_reset(pmu_reboot_reason_t reason)
     // Disable ALL IRQ, MUST use __set_PRIMASK(1)
     __disable_irq();
     // store RTC second count register
+    #if (RTE_RTC)
     if (OM_RTC->CR & RTC_EN_SYNC_MASK) {    // RTC is enabled
-        uint32_t second_cnt;
-        do {
-            second_cnt = OM_RTC->SR;
-        } while (OM_RTC->SR != second_cnt);
-        OM_PMU->RSVD_SW_REG[1] = second_cnt;
+        OM_PMU->RSVD_SW_REG[1] = drv_rtc_timer_get(NULL);
         OM_PMU->RSVD_SW_REG[0] |= PMU_RSVD_SW_REG_RTC_SECOND_RESTORE_PROCESS_MASK;
     }
+    #endif
     // set reboot reason
     register_set(&OM_PMU->RSVD_SW_REG[0], PMU_RSVD_SW_REG_REBOOT_REASON_MASK, reason);
     // Remap and Reset
@@ -1186,34 +1083,25 @@ void drv_pmu_topclk_recalib(void)
 {
     DRV_RCC_ANA_CLK_ENABLE();
     drv_pmu_xtal32m_fast_startup(false);
-    // power on rc32m and switch to it
-    // Make sure CPU running on RC32M
-    drv_pmu_topclk_rc32m_power_enable(true);
-    drv_pmu_topclk_switch_to_rc32m();
+    drv_rcc_cpu_clk_source_set(RCC_CPU_CLK_SOURCE_RC32M);
     // calib RC
     drv_calib_sys_rc();
     // to xtal32m
-    drv_pmu_topclk_switch_to_xtal32m();
+    drv_rcc_cpu_clk_source_set(RCC_CPU_CLK_SOURCE_XTAL32M);
     // calib RC32M
     drv_calib_sys_rc32m();
 
-    if (drv_pmu_topclk_xtal32m_x2_is_enabled()) {
-        // to rc32m
-        drv_pmu_topclk_switch_to_rc32m();
-        // delay 2us
-        DRV_DELAY_US(2);
-        // to xtal64m
-        drv_pmu_topclk_x2_enable(true);
-        drv_pmu_topclk_switch_to_xtal32m_x2();
+    if (drv_pmu_clk64m_is_enabled()) {
+        drv_rcc_periph_clk_source_set(RCC_PERIPH_CLK_SOURCE_XTAL64M);
     }
     // power off rc32m
-    drv_pmu_topclk_rc32m_power_enable(false);
+    drv_pmu_rc32m_enable(false);
     DRV_RCC_ANA_CLK_RESTORE();
 }
 
 /**
  *******************************************************************************
- * @brief  register step set, @ref REGSW()
+ * @brief  register step set, @ref drv_pmu_register_step_set()
  *
  * @param[in] reg  reg
  * @param[in] mask  mask
@@ -1223,7 +1111,7 @@ void drv_pmu_topclk_recalib(void)
  * @param[in] delay_us  delay us
  *******************************************************************************
  */
-void drv_pmu_register_step_set(volatile uint32_t *reg, uint32_t mask, uint32_t pos, uint32_t value, bool should_update, uint32_t delay_us)
+__RAM_CODE void drv_pmu_register_step_set(volatile uint32_t *reg, uint32_t mask, uint32_t pos, uint32_t value, bool should_update, uint32_t delay_us)
 {
     uint32_t cur = REGR(reg, mask, pos);
     int8_t variable;
@@ -1236,10 +1124,15 @@ void drv_pmu_register_step_set(volatile uint32_t *reg, uint32_t mask, uint32_t p
             OM_PMU->ANA_REG |= PMU_ANA_REG_DIG_LDO_UPDATE_MASK;
             while(OM_PMU->ANA_REG & PMU_ANA_REG_DIG_LDO_UPDATE_MASK);
         }
-        DRV_DELAY_US(delay_us);
-    }
 
-    OM_ASSERT(REGR(reg, mask, pos) == value);
+        #if 0
+        // DRV_DELAY_US(delay_us);
+        #else
+        for (uint32_t i=0; i < 32U*delay_us; i++) {    // CPU max 96M
+            __NOP();
+        }
+        #endif
+    }
 }
 
 /**
@@ -1279,13 +1172,26 @@ void drv_pmu_pin_wakeup_isr(void)
     }
 }
 
-void drv_pmu_pof_enable(bool enable, pmu_pof_voltage_t voltage)
+void drv_pmu_pof_enable(bool enable, pmu_pof_voltage_t voltage, pmu_pof_int_edge_t mode)
 {
+    OM_CRITICAL_BEGIN();
     if(enable) {
-        REGW(&OM_PMU->POF_INT_CTRL, MASK_3REG(PMU_POF_INT_CTRL_PMU_POF_INT_EN, 1, PMU_POF_INT_CTRL_PMU_PD_POF_EN, 1, PMU_POF_INT_CTRL_PMU_POF_TH_REG, voltage));
+        REGW(&OM_PMU->POF_INT_CTRL, MASK_3REG(PMU_POF_INT_CTRL_PMU_POF_INT_EN, 1,
+                                              PMU_POF_INT_CTRL_PMU_POF_TH_REG, voltage,
+                                              PMU_POF_INT_CTRL_PMU_POF_INT_MODE, mode));
+        if (!NVIC_GetEnableIRQ(PMU_POF_IRQn)) {
+            NVIC_ClearPendingIRQ(PMU_POF_IRQn);
+            NVIC_SetPriority(PMU_POF_IRQn, RTE_PMU_POF_IRQ_PRIORITY);
+            NVIC_EnableIRQ(PMU_POF_IRQn);
+        }
+        drv_pmu_env.enable_pof = 1;
     } else {
-        REGW(&OM_PMU->POF_INT_CTRL, MASK_2REG(PMU_POF_INT_CTRL_PMU_POF_INT_EN, 0, PMU_POF_INT_CTRL_PMU_PD_POF_EN, 0));
+        REGW(&OM_PMU->POF_INT_CTRL, MASK_1REG(PMU_POF_INT_CTRL_PMU_POF_INT_EN, 0));
+        NVIC_DisableIRQ(PMU_POF_IRQn);
+        NVIC_ClearPendingIRQ(PMU_POF_IRQn);
+        drv_pmu_env.enable_pof = 0;
     }
+    OM_CRITICAL_END();
 }
 
 #if (RTE_PMU_POF_REGISTER_CALLBACK)
@@ -1324,29 +1230,6 @@ void drv_pmu_shelf_mode_enable(uint8_t enable)
             DRV_DELAY_US(SHIP_MODE_DELAY);
         }
     }
-}
-
-void drv_pmu_syspll_power_enable(uint8_t enable)
-{
-    DRV_RCC_ANA_CLK_ENABLE();
-    OM_CRITICAL_BEGIN();
-
-    if (enable) {
-        OM_DAIF->CLK_CFG |= DAIF_XTAL32M_EN_CKO16M_SYSPLL_MASK;
-        OM_DAIF->SYSPLL_CNS0 &= ~DAIF_SYSPLL_PD_VBAT_MASK;
-        DRV_DELAY_US(10);
-        OM_DAIF->SYSPLL_CNS0 &= ~DAIF_SYSPLL_RSTN_DIG_MASK;
-        OM_DAIF->SYSPLL_CNS0 |= DAIF_SYSPLL_RSTN_DIG_MASK;
-        OM_DAIF->SYSPLL_CNS0 |= DAIF_SYSPLL_EN_AFC_MASK;
-        DRV_DELAY_US(2);
-        OM_DAIF->SYSPLL_CNS0 &= ~DAIF_SYSPLL_EN_AFC_MASK;
-        while (!(OM_DAIF->SYSPLL_CNS1 & DAIF_SYSPLL_LOCK_MASK));
-    } else {
-        OM_DAIF->SYSPLL_CNS0 |= DAIF_SYSPLL_PD_VBAT_MASK;
-    }
-
-    OM_CRITICAL_END();
-    DRV_RCC_ANA_CLK_RESTORE();
 }
 
 #endif  /* RTE_PMU */

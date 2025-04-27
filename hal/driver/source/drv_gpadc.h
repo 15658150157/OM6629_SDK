@@ -36,10 +36,6 @@ extern "C"
 
 
 /*******************************************************************************
- * MACROS
- */
-
-/*********************************************************************
  * TYPEDEFS
  */
 /// GPADC channels P
@@ -159,7 +155,6 @@ typedef enum {
     /// sampling cycles: 4096
     GPADC_SAMPLING_CYCLES_4096 = 12U,
 
-
     GPADC_SAMPLING_CYCLES_MAX,
 } drv_gpadc_sampling_cycles_t;
 
@@ -255,6 +250,7 @@ typedef struct {
     const drv_gpadc_calib_t             *efuse_ex_1;
     const void                          *reserved[5];
 } drv_gpadc_cpft_calib_t;
+
 
 /*******************************************************************************
  * EXTERN FUNCTIONS
@@ -371,7 +367,7 @@ om_error_t drv_gpadc_read_dma(uint16_t channel_p, int16_t *data, uint16_t num);
  */
 extern void *drv_gpadc_control(drv_gpadc_control_t control, void *argu);
 
-#ifdef RTE_GPADC_CALIB_EN
+#if (RTE_GPADC_CALIB_EN)
 /**
  *******************************************************************************
  * @brief Calibrate GPADC and initialize GPADC compensation parameters.

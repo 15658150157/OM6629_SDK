@@ -53,7 +53,6 @@
  * LOCAL VARIABLES
  */
 static osEventFlagsId_t xEvtEvent = NULL;
-//static evt_timer_t evt_timer_0;
 
 static om_fifo_t hci_h4_rx_fifo;
 static uint8_t hci_h4_rx_pool[512];
@@ -185,10 +184,6 @@ void cmd_shell_pta(int argc, char *argv[])
  * @param[in] param  param
  *******************************************************************************
  */
-//static void evt_timer_0_handler(evt_timer_t *timer, void *param)
-//{
-////    OM_LOG_DEBUG("evt timer: %08X\n", timer->time);
-//}
 
 /**
  * @brief  bluetooth event handler
@@ -218,10 +213,8 @@ static void vEvtScheduleTask(void *argument)
     };
     shell_init(ble_hci_shell_cmd);
     #endif
+    evt_init();
     ble_controller_init();
-
-    // simple event timer
-//    evt_timer_set(&evt_timer_0, 2000, EVT_TIMER_REPEAT, evt_timer_0_handler, NULL);
 
     // Create event
     xEvtEvent = osEventFlagsNew(NULL);

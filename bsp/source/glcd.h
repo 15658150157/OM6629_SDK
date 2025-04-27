@@ -219,6 +219,24 @@ extern void glcd_callback_register(glcd_cb_t cb);
  */
 extern void glcd_disp_flush_finish(void);
 
+/**
+ *******************************************************************************
+ * @brief get GC9C01 LCD id
+ *
+ * @return GC9C01 LCD id
+ *******************************************************************************
+ */
+extern uint32_t glcd_read_id(void);
+
+/**
+ *******************************************************************************
+ * @brief get GC9C01 LCD status
+ *
+ * @return GC9C01 LCD status
+ *******************************************************************************
+  */
+extern uint32_t glcd_read_status(void);
+
 
 #ifdef __cplusplus
 }

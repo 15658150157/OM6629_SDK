@@ -604,7 +604,7 @@ extern "C"
 
 #define OM24G_CLEAR_ALL_IRQ()                                                  \
     do {                                                                       \
-        REGW1(&OM_24G->INT_ST, 0XFF);                                          \
+        REGW1(&OM_24G->INT_ST, 0XFFFFFFFF);                                    \
     } while(0)
 
 

@@ -6,20 +6,13 @@ menuconfig BLE
     default y
 
 if BLE
-    orsource "controller/Kconfig"
-
-    config BLE_HOST
-        bool "BLE Host stack"
-        default y
-    config BLE_PROFILE
-        bool "BLE profile"
-        depends on BLE_HOST
-        default y
-
     config BLE_MESH
         bool "BLE Mesh"
         depends on BLE_CONTROLLER
         depends on BLE_HOST
         depends on FREE_RTOS
         default n
+    orsource "controller/Kconfig"
+    orsource "host/Kconfig"
+
 endif

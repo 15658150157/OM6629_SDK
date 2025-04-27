@@ -107,9 +107,9 @@ void example_lptim_oneshot_count(void)
     drv_pin_init(pin_cfg, sizeof(pin_cfg) / sizeof(pin_cfg[0]));
     drv_gpio_init(gpio_cfg, sizeof(gpio_cfg) / sizeof(gpio_cfg[0]));
 
-    mode_cfg.presclar       = 0;
+    mode_cfg.presclar       = LPTIM_PRESC_DIV1;
     mode_cfg.rep0_val       = 2;//8bits reg,max 0xFF(255).the value 0 and 255 represents a loop count of 1 and 256 rounds.so the final number needs to be subtracted by one.
-    mode_cfg.top_en         = 1;
+    mode_cfg.top_en         = LPTIM_TOP_ENABLE;
     mode_cfg.top_val        = 32*1000-1;//32*1000-1;//16bits reg,max 0xFFFF(65535).the value 32 represents one millisecond.the final number needs to be subtracted by one.
     mode_cfg.compare_val0   = 0;
     mode_cfg.compare_val1   = 0;
@@ -147,8 +147,8 @@ void example_lptim_free_running_count(void)
     drv_pin_init(pin_cfg, sizeof(pin_cfg) / sizeof(pin_cfg[0]));
     drv_gpio_init(gpio_cfg, sizeof(gpio_cfg) / sizeof(gpio_cfg[0]));
 
-    mode_cfg.presclar       = 0;
-    mode_cfg.top_en         = 1;
+    mode_cfg.presclar       = LPTIM_PRESC_DIV1;
+    mode_cfg.top_en         = LPTIM_TOP_ENABLE;
     mode_cfg.top_val        = 31;//32*2000-1;//16bits reg,max 0xFFFF(65535).the value 32 represents one millisecond.the final number needs to be subtracted by one.
     mode_cfg.compare_val0   = 0;
     mode_cfg.compare_val1   = 0;
@@ -176,8 +176,8 @@ void example_lptim_free_running_pwm(void)
     lptim_free_running_config_t    mode_cfg;
     lptim_out_config_t             out_cfg;
 
-    mode_cfg.presclar       = 0;
-    mode_cfg.top_en         = 1;
+    mode_cfg.presclar       = LPTIM_PRESC_DIV1;
+    mode_cfg.top_en         = LPTIM_TOP_ENABLE;
     mode_cfg.top_val        = 500;
     mode_cfg.compare_val0   = 0;
     mode_cfg.compare_val1   = 0;
@@ -209,9 +209,9 @@ void example_lptim_oneshot_pwm(void)
     lptim_one_shot_config_t    mode_cfg;
     lptim_out_config_t         out_cfg;
 
-    mode_cfg.presclar       = 0;
+    mode_cfg.presclar       = LPTIM_PRESC_DIV1;
     mode_cfg.rep0_val       = 3;
-    mode_cfg.top_en         = 1;
+    mode_cfg.top_en         = LPTIM_TOP_ENABLE;
     mode_cfg.top_val        = 500;
     mode_cfg.compare_val0   = 0;
     mode_cfg.compare_val1   = 0;
@@ -244,12 +244,12 @@ void example_lptim_buffered_pwm(void)
     lptim_buffered_config_t    mode_cfg;
     lptim_out_config_t         out_cfg;
 
-    mode_cfg.presclar       = 0;
+    mode_cfg.presclar       = LPTIM_PRESC_DIV1;
     mode_cfg.rep0_val       = 3;
     mode_cfg.rep1_val       = 6;
-    mode_cfg.top_en         = 1;
+    mode_cfg.top_en         = LPTIM_TOP_ENABLE;
     mode_cfg.top_val        = 500;
-    mode_cfg.buftop_en      = 1;
+    mode_cfg.buftop_en      = LPTIM_BUFTOP_ENABLE;
     mode_cfg.buftop_val     = 1000;
     mode_cfg.compare_val0   = 0;
     mode_cfg.compare_val1   = 0;
@@ -281,10 +281,10 @@ void example_lptim_double_pwm(void)
     lptim_double_config_t      mode_cfg;
     lptim_out_config_t         out_cfg;
 
-    mode_cfg.presclar       = 0;
+    mode_cfg.presclar       = LPTIM_PRESC_DIV1;
     mode_cfg.rep0_val       = 3;
     mode_cfg.rep1_val       = 5;
-    mode_cfg.top_en         = 1;
+    mode_cfg.top_en         = LPTIM_TOP_ENABLE;
     mode_cfg.top_val        = 500;
     mode_cfg.compare_val0   = 0;
     mode_cfg.compare_val1   = 0;

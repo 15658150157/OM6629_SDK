@@ -59,7 +59,7 @@ static osEventFlagsId_t xEvtEvent = NULL;
 
 uint8_t om24g_tx_payload[166];
 
-uint8_t om24g_rx_payload[166];
+uint8_t om24g_rx_payload[166*2];
 //uint8_t om24g_rx_payload[1400];
 
 // Compatible with TI2640
@@ -668,8 +668,9 @@ om24g_config_t om24g_config_ble = {
 
 /// log debug array with show more
 #define OM_LOG_DEBUG_ARRAY_EX(note, array, len)    do{OM_LOG(OM_LOG_DEBUG, "%s: \r\n",note); OM_LOG_HEXDUMP(OM_LOG_DEBUG, array, len, 16); OM_LOG(OM_LOG_DEBUG, "[%dbytes]\n", len);}while(0)
+#if TX_ROLE
 static void om24g_write_it(void);
-
+#endif
 static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void *num)
 {
     uint16_t payload_lenth = 0;
@@ -696,7 +697,8 @@ static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void
             //OM_LOG(OM_LOG_DEBUG, "si: %d\r\n", drv_om24g_get_rssi());
             //osDelay(500);
             //DRV_DELAY_MS(500);
-            OM_LOG(OM_LOG_DEBUG, "E:%d  R:%d \r\n", error_count, right_count);
+            OM_LOG(OM_LOG_DEBUG, "E:%d ", error_count);
+            OM_LOG(OM_LOG_DEBUG, "R:%d \r\n", right_count);
 
             #if ENABLE_SLEEP_MODE
             // OM24G_CE_LOW();
@@ -729,92 +731,6 @@ static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void
                 drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_DISABLE, NULL);
                 drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
             }
-            break;
-        default:
-            OM_ASSERT(0);
-            break;
-    }
-}
-
-static void om24g_hardware_timer_callback(void *om_reg, drv_event_t drv_event, void *buff, void *num)
-{
-    uint16_t payload_lenth = 0;
-    bool error_flag = false;
-
-    switch (drv_event) {
-        case DRV_EVENT_COMMON_RECEIVE_COMPLETED:
-            payload_lenth = (uint32_t)num;
-            for (int i = 0x00; i < (payload_lenth - 1); i++) {
-                if (*((uint8_t *)buff + i) != *((uint8_t *)buff + i + 1)) {
-                    error_flag = true;
-                }
-            }
-            REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
-            if (error_flag) {
-                error_count++;
-                error_flag = false;
-                OM_LOG_DEBUG_ARRAY_EX("err Pkt", buff, payload_lenth);
-            } else {
-                right_count++;
-                OM_LOG_DEBUG_ARRAY_EX("Pkt", buff, payload_lenth);
-                //OM_LOG(OM_LOG_DEBUG, "pkt:%d \r\n", *((uint8_t *)buff + payload_lenth - 1));
-            }
-            //OM_LOG(OM_LOG_DEBUG, "si: %d\r\n", drv_om24g_get_rssi());
-            //osDelay(500);
-            //DRV_DELAY_MS(500);
-            OM_LOG(OM_LOG_DEBUG, "E:%d  R:%d \r\n", error_count, right_count);
-
-            #if ENABLE_SLEEP_MODE
-            // OM24G_CE_LOW();
-            // pm_sleep_allow(PM_ID_24G);
-            // drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
-            // drv_pmu_timer_trig_set(PMU_TIMER_TRIG_VAL0, (drv_pmu_timer_cnt_get() + PMU_TIMER_MS2TICK(500)));
-            #endif
-
-            break;
-        case DRV_EVENT_OM24G_MAX_RT:   // max retry
-            break;
-        case DRV_EVENT_OM24G_RX_OVERLAY:
-            OM_LOG(OM_LOG_DEBUG, "overlay\r\n");
-            break;
-        case DRV_EVENT_OM24G_INT_TIMER0:
-            //OM_LOG(OM_LOG_DEBUG, "om24g int timer\r\n");
-            // drv_gpio_toggle(OM_GPIO0, GPIO_MASK(7));
-            break;
-        case DRV_EVENT_OM24G_INT_TIMER1:
-            //OM_LOG(OM_LOG_DEBUG, "om24g int timer\r\n");
-            // TIMER0
-            // OM_24G->TMR0_NXT_32K_TP = OM_24G->TMR_NATIVE_CNT_32K + 16384; // 512ms
-            // OM_24G->TMR0_NXT_8M_TP = OM_24G->TMR_NATIVE_CNT_8M + 0;
-            // OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE = OM_24G->TMR0_NXT_32K_TP - 100;
-            // OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP = 0x20;
-            // TIMER1
-            OM_24G->TMR1_NXT_32K_TP = OM_24G->TMR_NATIVE_CNT_32K + 16384; // 512ms
-            OM_24G->TMR1_NXT_8M_TP = OM_24G->TMR_NATIVE_CNT_8M + 0;
-            OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE = OM_24G->TMR1_NXT_32K_TP - 100;
-            OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP = 0x20;
-            REGW(&OM_PMU->TMR_2G4_TRIG_CTL, MASK_1REG(PMU_TMR_2G4_TRIG_CTL_TMR_2G4_NATIVE_INT_EN, 1));
-            drv_gpio_toggle(OM_GPIO0, GPIO_MASK(9));
-            break;
-        case DRV_EVENT_COMMON_TRANSMIT_COMPLETED:
-            // drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
-            tx_count++;
-            drv_gpio_toggle(OM_GPIO0, GPIO_MASK(8));
-            om24g_write_it();
-            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE: %x \r\n", OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE);
-            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP: %x \r\n", OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP);
-            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->MISC_CTRL: %x \r\n", OM_PMU->MISC_CTRL);
-            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->TMR_2G4_TRIG_CTL: %x \r\n", OM_PMU->TMR_2G4_TRIG_CTL);
-            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->OSC_INT_CTRL: %x \r\n", OM_PMU->OSC_INT_CTRL);
-
-            //OM_LOG(OM_LOG_DEBUG, "tx_cnt: %d\r\n", tx_count);
-            if(tx_count == 100) {
-                tx_count = 0;
-                REGW(&OM_PMU->TMR_2G4_TRIG_CTL, MASK_4REG(PMU_TMR_2G4_TRIG_CTL_TMR_2G4_NATIVE_INT_EN, 0, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_FUNC_EN, 0, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_INT_EN, 0, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_MODE, 0));
-                REGW(&OM_PMU->OSC_INT_CTRL, MASK_3REG(PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_CLR, 1, PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_MASK_PMU, 1, PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_MASK_CPU, 1));
-                drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
-            }
-            pm_sleep_allow(PM_ID_24G);
             break;
         default:
             OM_ASSERT(0);
@@ -867,7 +783,9 @@ static void om24g_callback_ack_mode(void *om_reg, drv_event_t drv_event, void *b
                 right_count++;
                 OM_LOG_DEBUG_ARRAY_EX("Pkt", buff, payload_lenth);
             }
-            OM_LOG(OM_LOG_DEBUG, "ER:%d RX:%d MAX_RT:%d\r\n", error_count, right_count, max_rty_count);
+            OM_LOG(OM_LOG_DEBUG, "E:%d ", error_count);
+            OM_LOG(OM_LOG_DEBUG, "R:%d \r\n", right_count);
+            OM_LOG(OM_LOG_DEBUG, "MAX_RT:%d\r\n", max_rty_count);
             break;
         case DRV_EVENT_OM24G_MAX_RT:   // max retry
             max_rty_count++;
@@ -948,6 +866,7 @@ static void om24g_write_it(void)
 static void om24g_write_it_ack_mode(void)
 {
     static uint16_t j = 1;
+    static uint16_t tx_cnt = 0;
 
     for (uint16_t i = 0; i < 100; i++) {
         om24g_tx_payload[i] = i+1;
@@ -960,8 +879,10 @@ static void om24g_write_it_ack_mode(void)
         }
         //OM_LOG(OM_LOG_DEBUG, "tx_cnt: %d\r\n", tx_count);
         osDelay(200);
-        if((tx_count + max_rty_count) == 501) {
+        tx_cnt = tx_count;
+        if((tx_cnt + max_rty_count) == 501) {
             tx_count = 0;
+            tx_cnt = 0;
             max_rty_count = 0;
             error_count = 0;
             right_count = 0;
@@ -1158,7 +1079,9 @@ static void om24g_write_ack_mode_structure_a(void)
         }
         drv_dwt_delay_ms(200);
     }
-    OM_LOG(OM_LOG_DEBUG, "E:%d R:%d MAX_RT:%d \r\n", error_count, right_count, max_rty_count);
+    OM_LOG(OM_LOG_DEBUG, "E:%d ", error_count);
+    OM_LOG(OM_LOG_DEBUG, "R:%d \r\n", right_count);
+    OM_LOG(OM_LOG_DEBUG, "MAX_RT:%d\r\n", max_rty_count);
     max_rty_count = 0;
     right_count = 0;
     while(1);
@@ -1171,6 +1094,93 @@ static void om24g_write_int_ack_mode_structure_a(void)
     drv_om24g_register_event_callback(om24g_callback_ack_mode);
     drv_om24g_dump_rf_register();
     om24g_write_it_ack_mode();
+}
+
+static void om24g_hardware_timer_callback(void *om_reg, drv_event_t drv_event, void *buff, void *num)
+{
+    uint16_t payload_lenth = 0;
+    bool error_flag = false;
+
+    switch (drv_event) {
+        case DRV_EVENT_COMMON_RECEIVE_COMPLETED:
+            payload_lenth = (uint32_t)num;
+            for (int i = 0x00; i < (payload_lenth - 1); i++) {
+                if (*((uint8_t *)buff + i) != *((uint8_t *)buff + i + 1)) {
+                    error_flag = true;
+                }
+            }
+            REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
+            if (error_flag) {
+                error_count++;
+                error_flag = false;
+                OM_LOG_DEBUG_ARRAY_EX("err Pkt", buff, payload_lenth);
+            } else {
+                right_count++;
+                OM_LOG_DEBUG_ARRAY_EX("Pkt", buff, payload_lenth);
+                //OM_LOG(OM_LOG_DEBUG, "pkt:%d \r\n", *((uint8_t *)buff + payload_lenth - 1));
+            }
+            //OM_LOG(OM_LOG_DEBUG, "si: %d\r\n", drv_om24g_get_rssi());
+            //osDelay(500);
+            //DRV_DELAY_MS(500);
+            OM_LOG(OM_LOG_DEBUG, "E:%d ", error_count);
+            OM_LOG(OM_LOG_DEBUG, "R:%d \r\n", right_count);
+
+            #if ENABLE_SLEEP_MODE
+            // OM24G_CE_LOW();
+            // pm_sleep_allow(PM_ID_24G);
+            // drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
+            // drv_pmu_timer_trig_set(PMU_TIMER_TRIG_VAL0, (drv_pmu_timer_cnt_get() + PMU_TIMER_MS2TICK(500)));
+            #endif
+
+            break;
+        case DRV_EVENT_OM24G_MAX_RT:   // max retry
+            break;
+        case DRV_EVENT_OM24G_RX_OVERLAY:
+            OM_LOG(OM_LOG_DEBUG, "overlay\r\n");
+            break;
+        case DRV_EVENT_OM24G_INT_TIMER0:
+            //OM_LOG(OM_LOG_DEBUG, "om24g int timer\r\n");
+            // drv_gpio_toggle(OM_GPIO0, GPIO_MASK(7));
+            break;
+        case DRV_EVENT_OM24G_INT_TIMER1:
+            //OM_LOG(OM_LOG_DEBUG, "om24g int timer\r\n");
+            // TIMER0
+            // OM_24G->TMR0_NXT_32K_TP = OM_24G->TMR_NATIVE_CNT_32K + 16384; // 512ms
+            // OM_24G->TMR0_NXT_8M_TP = OM_24G->TMR_NATIVE_CNT_8M + 0;
+            // OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE = OM_24G->TMR0_NXT_32K_TP - 100;
+            // OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP = 0x20;
+            // TIMER1
+            OM_24G->TMR1_NXT_32K_TP = OM_24G->TMR_NATIVE_CNT_32K + 16384; // 512ms
+            OM_24G->TMR1_NXT_8M_TP = OM_24G->TMR_NATIVE_CNT_8M + 0;
+            OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE = OM_24G->TMR1_NXT_32K_TP - 100;
+            OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP = 0x20;
+            REGW(&OM_PMU->TMR_2G4_TRIG_CTL, MASK_1REG(PMU_TMR_2G4_TRIG_CTL_TMR_2G4_NATIVE_INT_EN, 1));
+            drv_gpio_toggle(OM_GPIO0, GPIO_MASK(9));
+            break;
+        case DRV_EVENT_COMMON_TRANSMIT_COMPLETED:
+            // drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
+            tx_count++;
+            drv_gpio_toggle(OM_GPIO0, GPIO_MASK(8));
+            om24g_write_it();
+            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE: %x \r\n", OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE);
+            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP: %x \r\n", OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP);
+            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->MISC_CTRL: %x \r\n", OM_PMU->MISC_CTRL);
+            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->TMR_2G4_TRIG_CTL: %x \r\n", OM_PMU->TMR_2G4_TRIG_CTL);
+            // OM_LOG(OM_LOG_DEBUG, "OM_PMU->OSC_INT_CTRL: %x \r\n", OM_PMU->OSC_INT_CTRL);
+
+            //OM_LOG(OM_LOG_DEBUG, "tx_cnt: %d\r\n", tx_count);
+            if(tx_count == 100) {
+                tx_count = 0;
+                REGW(&OM_PMU->TMR_2G4_TRIG_CTL, MASK_4REG(PMU_TMR_2G4_TRIG_CTL_TMR_2G4_NATIVE_INT_EN, 0, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_FUNC_EN, 0, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_INT_EN, 0, PMU_TMR_2G4_TRIG_CTL_TMR1_2G4_TRIG_MODE, 0));
+                REGW(&OM_PMU->OSC_INT_CTRL, MASK_3REG(PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_CLR, 1, PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_MASK_PMU, 1, PMU_OSC_INI_CTRL_2G4_WAKEUP_INT_MASK_CPU, 1));
+                drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
+            }
+            pm_sleep_allow(PM_ID_24G);
+            break;
+        default:
+            OM_ASSERT(0);
+            break;
+    }
 }
 
 #if 0
@@ -1526,7 +1536,8 @@ static void om24g_read_ack_mode_structure_a(void)
         }
     }
     drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
-    OM_LOG(OM_LOG_DEBUG, "E:%d  R:%d \r\n", error_count, right_count);
+    OM_LOG(OM_LOG_DEBUG, "E:%d ", error_count);
+    OM_LOG(OM_LOG_DEBUG, "R:%d \r\n", right_count);
     error_count = 0;
     right_count = 0;
 }

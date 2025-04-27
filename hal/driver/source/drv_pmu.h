@@ -53,7 +53,7 @@ typedef enum {
     /// PMU analog power type: RF only for BLE MAC
     PMU_ANA_RF_BLE      = (1U << 2),
     /// PMU analog power type: GPADC
-    PMU_ANA_GPADC         = (1U << 3),
+    PMU_ANA_GPADC       = (1U << 3),
     /// PMU analog power type: Calibration RC32K
     PMU_ANA_CALIB_RC32K = (1U << 4),
 } pmu_ana_type_t;
@@ -134,7 +134,6 @@ typedef enum {
 /// PIN driver current
 typedef enum {
     /// Pin driver current: Normal
-    PMU_PIN_DRIVER_CURRENT_MIN    = 0,
     PMU_PIN_DRIVER_CURRENT_NORMAL = 0,
     PMU_PIN_DRIVER_CURRENT_MAX    = 1,
 } pmu_pin_driver_current_t;
@@ -144,7 +143,7 @@ typedef enum {
     PMU_PIN_PULLUP_4K    = 0U,    /* 4K ohm pullup */
     PMU_PIN_PULLUP_10K   = 1U,    /* 10K ohm pullup */
     PMU_PIN_PULLUP_300K  = 2U,    /* 300K ohm pullup */
-    PMU_PIN_PULLUP_2M    = 3U,    /* 2M ohm pullup */
+    PMU_PIN_PULLUP_4M    = 3U,    /* 4M ohm pullup */
 } pmu_pin_pullup_t;
 
 /// Sleep leave step
@@ -208,16 +207,37 @@ typedef enum {
     PMU_POF_VOLTAGE_2P5V   = 7U,  /* 2.5V */
 } pmu_pof_voltage_t;
 
+typedef enum {
+    PMU_POF_INT_BOTH_EDGE  = 0U,  /* both edge */
+    PMU_POF_INT_POS_EDGE   = 1U,  /* positive edge */
+    PMU_POF_INT_NEG_EDGE   = 2U,  /* negative edge */
+} pmu_pof_int_edge_t;
+
+typedef enum {
+    PMU_DVDD_VOLTAGE_0P80V   = 0xFC, /* 0.80V */
+    PMU_DVDD_VOLTAGE_0P85V   = 0xFD, /* 0.85V */
+    PMU_DVDD_VOLTAGE_0P90V   = 0xFE, /* 0.90V */
+    PMU_DVDD_VOLTAGE_0P95V   = 0xFF, /* 0.95V */
+    PMU_DVDD_VOLTAGE_1P00V   = 0x00, /* 1.00V */
+    PMU_DVDD_VOLTAGE_1P05V   = 0x01, /* 1.05V */
+    PMU_DVDD_VOLTAGE_1P10V   = 0x02, /* 1.10V */
+    PMU_DVDD_VOLTAGE_1P15V   = 0x03, /* 1.15V */
+    PMU_DVDD_VOLTAGE_1P20V   = 0x04, /* 1.20V */
+    PMU_DVDD_VOLTAGE_1P25V   = 0x05, /* 1.25V */
+} pmu_dvdd_voltage_t;
+
 
 /*******************************************************************************
- * EXTERN FUNCTIONS
+ * PUBLIC FUNCTIONS
  */
 /**
  *******************************************************************************
- * @brief pmu initialize
+ * @brief Set dvdd voltage
+ *
+ * @param[in] voltage  dvdd voltage
  *******************************************************************************
- **/
-extern void drv_pmu_init(void);
+ */
+extern void drv_pmu_dvdd_voltage_set(pmu_dvdd_voltage_t voltage);
 
 /**
  *******************************************************************************
@@ -230,28 +250,10 @@ extern void drv_pmu_xtal32m_startup(void);
 
 /**
  *******************************************************************************
- * @brief  pmu xtal32m x2 startup that lead system top clock is 64MHz
- *
- * @note  drv_pmu_xtal32m_startup() must be called before calling this
- *******************************************************************************
- **/
-extern void drv_pmu_xtal32m_x2_startup(void);
-
-/**
- *******************************************************************************
- * @brief  drv pmu xtal32m x2 close
+ * @brief syspll 96M startup, NOTE: this function must be called after xtal32m_startup()
  *******************************************************************************
  */
-extern void drv_pmu_xtal32m_x2_close(void);
-
-/**
- *******************************************************************************
- * @brief  pmu xtal32m fast startup
- *
- * @param[in] force  force
- *******************************************************************************
- **/
-extern void drv_pmu_xtal32m_fast_startup(bool force);
+extern void drv_pmu_syspll96m_startup(void);
 
 /**
  *******************************************************************************
@@ -303,7 +305,7 @@ extern void drv_pmu_ram_power_down_in_sleep(pmu_ram_block_t blocks);
 
 /**
  *******************************************************************************
- * @brief  register step set, use: REGSW(...)
+ * @brief  register step set, use: drv_pmu_register_step_set(...)
  *
  * @param[in] reg  reg
  * @param[in] mask  mask
@@ -338,30 +340,33 @@ extern void drv_pmu_32k_enable_in_deep_sleep(bool enable);
  * @note load_capacitance will effect xtal 32k startup time and precision,
  *       appropriate value can speed up startup time.
  **/
-extern void drv_pmu_xtal32k_change_param(int load_capacitance, int drive_current);
+__STATIC_INLINE void drv_pmu_xtal32k_change_param(int load_capacitance, int drive_current)
+{
+    register_set(&OM_PMU->XTAL32K_CTRL, MASK_1REG(PMU_XTAL32K_CTRL_XTAL32K_CTUNE, load_capacitance));
+    register_set(&OM_PMU->CLK_CTRL_2, MASK_1REG(PMU_CLK_CTRL_2_XTAL32K_ISEL, drive_current));
+}
 
 /**
  *******************************************************************************
  * @brief Change xtal 32m params
  *
- * @param[in] load_capacitance  load capacitance, range:0~63, default:32, step:0.379pF(<20ppm), max:23.877pF
+ * @param[in] load_capacitance  load capacitance, range:0~63, default:32, step:0.38pF(<20ppm), max:23.94pF
  *
- * @note load_capacitance will effect xtal 24m precision and frequency offset.
+ * @note load_capacitance will effect xtal 32m precision and frequency offset.
  *******************************************************************************
  **/
-static inline void drv_pmu_xtal32m_change_param(uint32_t load_capacitance)
+__STATIC_INLINE void drv_pmu_xtal32m_change_param(uint32_t load_capacitance)
 {
-    drv_pmu_register_step_set(&OM_PMU->CLK_CTRL_2, MASK_STEP(PMU_CLK_CTRL_2_CT_XTAL32M, load_capacitance), false/*should_update*/, 10/*delay_us*/);
+    register_set(&OM_PMU->CLK_CTRL_2, PMU_CLK_CTRL_2_CT_XTAL32M_MASK, (load_capacitance << PMU_CLK_CTRL_2_CT_XTAL32M_POS)); // TX
+    register_set(&OM_PMU->OM26B_CFG0, PMU_OM26B_CFG0_XTAL32M_CT_RX_MASK,(load_capacitance << PMU_OM26B_CFG0_XTAL32M_CT_RX_POS)); // RX
 }
 
 /**
  *******************************************************************************
  * @brief  pmu xtal32m get param
- *
- * @param[in] load_capacitance  load capacitance
  *******************************************************************************
  **/
-static inline uint32_t drv_pmu_xtal32m_get_param(void)
+__STATIC_INLINE uint32_t drv_pmu_xtal32m_get_param(void)
 {
     return (OM_PMU->CLK_CTRL_2 & PMU_CLK_CTRL_2_CT_XTAL32M_MASK) >> PMU_CLK_CTRL_2_CT_XTAL32M_POS;
 }
@@ -507,7 +512,7 @@ extern void drv_pmu_reset(pmu_reboot_reason_t reason);
  * @brief Force system to reboot by PMU_REBOOT_FROM_SOFT_RESET reason
  *******************************************************************************
  **/
-static inline CC_DEPRECATED void drv_pmu_force_reboot(void)
+__STATIC_INLINE CC_DEPRECATED void drv_pmu_force_reboot(void)
 {
     drv_pmu_reset(PMU_REBOOT_FROM_SOFT_RESET);
 }
@@ -542,7 +547,7 @@ extern pmu_charge_status_t drv_pmu_charge_status(void);
  * @return retention reg value
  *******************************************************************************
  **/
-static inline uint16_t drv_pmu_retention_reg_get(void)
+__STATIC_INLINE uint16_t drv_pmu_retention_reg_get(void)
 {
     return (OM_PMU->SW_STATUS & PMU_SW_STATUS_USER_RETENTION_MASK) >> PMU_SW_STATUS_USER_RETENTION_POS;
 }
@@ -556,7 +561,7 @@ static inline uint16_t drv_pmu_retention_reg_get(void)
  * @param[in] value  reg value
  *******************************************************************************
  **/
-static inline void drv_pmu_retention_reg_set(uint16_t value)
+__STATIC_INLINE void drv_pmu_retention_reg_set(uint16_t value)
 {
     OM_CRITICAL_BEGIN();
     REGW(&OM_PMU->SW_STATUS, MASK_1REG(PMU_SW_STATUS_USER_RETENTION, value));
@@ -609,7 +614,7 @@ extern void drv_pmu_dcdc_enable(bool enable);
  * @return  is enabled
  *******************************************************************************
  **/
-static inline bool drv_pmu_dcdc_is_enabled(void)
+__STATIC_INLINE bool drv_pmu_dcdc_is_enabled(void)
 {
     return (OM_PMU->SW_STATUS & PMU_SW_STATUS_DCDC_ENABLED_MASK) ? true : false;
 }
@@ -626,28 +631,7 @@ extern void drv_pmu_pin_wakeup_isr(void);
  * @brief  pmu topclk double preset
  *******************************************************************************
  **/
-extern void drv_pmu_topclk_x2_enable(bool enable);
-
-/**
- *******************************************************************************
- * @brief  pmu topclk switch to rc32m
- *******************************************************************************
- **/
-extern void drv_pmu_topclk_switch_to_rc32m(void);
-
-/**
- *******************************************************************************
- * @brief  pmu xtal32m switch to 32m
- *******************************************************************************
- **/
-extern void drv_pmu_topclk_switch_to_xtal32m(void);
-
-/**
- *******************************************************************************
- * @brief  pmu xtal32m switch to 64m
- *******************************************************************************
- **/
-extern void drv_pmu_topclk_switch_to_xtal32m_x2(void);
+extern void drv_pmu_clk64m_enable(bool enable);
 
 /**
  *******************************************************************************
@@ -657,7 +641,7 @@ extern void drv_pmu_topclk_switch_to_xtal32m_x2(void);
  * @return is_last_enabled ?
  *******************************************************************************
  **/
-extern bool drv_pmu_topclk_rc32m_power_enable(bool enable);
+extern bool drv_pmu_rc32m_enable(bool enable);
 
 /**
  *******************************************************************************
@@ -666,21 +650,21 @@ extern bool drv_pmu_topclk_rc32m_power_enable(bool enable);
  * @param[in] enable
  *******************************************************************************
  **/
-extern void drv_pmu_topclk_xtal32m_power_enable(bool enable);
+extern void drv_pmu_xtal32m_enable(bool enable);
 
 /**
  *******************************************************************************
  * @brief  pmu topclk xtal32m is enabled
  *******************************************************************************
  **/
-extern bool drv_pmu_topclk_xtal32m_is_enabled(void);
+extern bool drv_pmu_xtal32m_is_enabled(void);
 
 /**
  *******************************************************************************
  * @brief  pmu topclk xtal32m is enabled
  *******************************************************************************
  **/
-extern bool drv_pmu_topclk_xtal32m_x2_is_enabled(void);
+extern bool drv_pmu_clk64m_is_enabled(void);
 
 /**
  *******************************************************************************
@@ -701,10 +685,11 @@ __STATIC_FORCEINLINE void drv_pmu_jtag_enable(bool enable)
  *
  * @param[in] enable  true or false
  * @param[in] voltage Set trigger threshold, see @ref pmu_pof_voltage_t
+ * @param[in] mode    Set interrupt edge, see @ref pmu_pof_int_edge_t
  *
  *******************************************************************************
  */
-extern void drv_pmu_pof_enable(bool enable, pmu_pof_voltage_t voltage);
+extern void drv_pmu_pof_enable(bool enable, pmu_pof_voltage_t voltage, pmu_pof_int_edge_t mode);
 
 #if (RTE_PMU_POF_REGISTER_CALLBACK)
 /**
@@ -737,7 +722,7 @@ extern void drv_pmu_pof_isr(void);
 
 /**
  *******************************************************************************
- * @brief  syspll power enable
+ * @brief  syspll power enable (pll96M and 48M)
  *
  * @param[in] enable  enable
  *******************************************************************************
@@ -777,7 +762,6 @@ __STATIC_FORCEINLINE void drv_pmu_iflash_power_mode_set(pmu_iflash_power_mode_t 
             REGW(&OM_PMU->ANA_PD, MASK_2REG(PMU_ANA_PD_PD_FLASH_ME, 0, PMU_ANA_PD_PD_FLASH_REG, 0));
             break;
         default:
-            OM_ASSERT(0);
             break;
     }
     OM_CRITICAL_END();
@@ -849,22 +833,11 @@ extern void drv_pmu_shelf_mode_enable(uint8_t enable);
  *         the write operation is not atomic. So the function will recheck
  *         until the write operation is successful.
  *
- * @param[in] mask      the mask of the register field
- * @param[in] value     the value of the register field
+ * @param[in] mask         the mask of the register field
+ * @param[in] mask_value   the value of the register field
  *******************************************************************************
  */
-__STATIC_FORCEINLINE void drv_pmu_basic_reg_set(uint32_t mask, uint32_t value)
-{
-    register uint32_t reg_prev;
-
-    OM_CRITICAL_BEGIN();
-    reg_prev = OM_PMU->BASIC;
-    reg_prev &= ~mask;
-    reg_prev |= mask & value;
-    OM_PMU->BASIC = reg_prev;
-    while ((OM_PMU->BASIC & mask) != (value & mask));
-    OM_CRITICAL_END();
-}
+extern void drv_pmu_basic_reg_set(uint32_t mask, uint32_t mask_value);
 
 #ifdef __cplusplus
 }

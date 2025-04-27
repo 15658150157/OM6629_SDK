@@ -106,13 +106,11 @@ static void qdec_callback(void *om_qdec, drv_event_t drv_event, void *p_acc, voi
 void example_qdec(void)
 {
     drv_pin_init(pin_config, sizeof(pin_config) / sizeof(pin_config[0]));
-    drv_pmu_pin_pullup_set(PAD_QDEC_XA, PMU_PIN_PULLUP_2M);
-    drv_pmu_pin_pullup_set(PAD_QDEC_XB, PMU_PIN_PULLUP_2M);
+    drv_pmu_pin_pullup_set(PAD_QDEC_XA, PMU_PIN_PULLUP_4M);
+    drv_pmu_pin_pullup_set(PAD_QDEC_XB, PMU_PIN_PULLUP_4M);
     qdec_stop = 0;
     const qdec_config_t qdec_cfg = {
         .dbf_en          = true,
-        .sample_int_en   = false,
-        .report_int_en   = true,
         .led_pol         = QDEC_LED_POL_LOW,
         .pin_sel_led     = QDEC_PIN_SEL_LED_DISCONNECT,
         .report_per      = QDEC_REPORT_PER_160,
@@ -122,6 +120,7 @@ void example_qdec(void)
 
     drv_qdec_init(OM_QDEC, &qdec_cfg);
     drv_qdec_register_isr_callback(OM_QDEC, qdec_callback);
+    drv_qdec_control(OM_QDEC, QDEC_CONTROL_INT_ENABLE, (void *)(QDEC_INTEN_REPORTRDY_MASK | QDEC_INTEN_STOPPED_MASK));
     drv_qdec_control(OM_QDEC, QDEC_CONTROL_START, NULL);
 
     while(!qdec_stop);
@@ -136,14 +135,12 @@ void example_qdec(void)
 void example_qdec_with_led(void)
 {
     drv_pin_init(pin_config, sizeof(pin_config) / sizeof(pin_config[0]));
-    drv_pmu_pin_pullup_set(PAD_QDEC_XA, PMU_PIN_PULLUP_2M);
-    drv_pmu_pin_pullup_set(PAD_QDEC_XB, PMU_PIN_PULLUP_2M);
+    drv_pmu_pin_pullup_set(PAD_QDEC_XA, PMU_PIN_PULLUP_4M);
+    drv_pmu_pin_pullup_set(PAD_QDEC_XB, PMU_PIN_PULLUP_4M);
 
     qdec_stop = 0;
     const qdec_config_t qdec_cfg = {
         .dbf_en          = false,
-        .sample_int_en   = false,
-        .report_int_en   = true,
         .led_pol         = QDEC_LED_POL_HIGH,
         .pin_sel_led     = QDEC_PIN_SEL_LED_CONNECT,
         .report_per      = QDEC_REPORT_PER_160,
@@ -153,6 +150,7 @@ void example_qdec_with_led(void)
 
     drv_qdec_init(OM_QDEC, &qdec_cfg);
     drv_qdec_register_isr_callback(OM_QDEC, qdec_callback);
+    drv_qdec_control(OM_QDEC, QDEC_CONTROL_INT_ENABLE, (void *)(QDEC_INTEN_REPORTRDY_MASK | QDEC_INTEN_STOPPED_MASK));
     drv_qdec_control(OM_QDEC, QDEC_CONTROL_START, NULL);
 
     while(!qdec_stop);

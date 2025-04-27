@@ -51,12 +51,6 @@ void pm_sleep_callback(pm_sleep_state_t sleep_state, pm_status_t power_status)
         case PM_SLEEP_RESTORE_HSE:
             break;
         case PM_SLEEP_LEAVE_BOTTOM_HALF:
-            #if (CONFIG_SHELL)
-            shell_restore();
-            #endif
-            #if (CONFIG_OM_LOG)
-            om_log_restore();
-            #endif
             break;
         default:
             break;

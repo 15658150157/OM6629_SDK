@@ -1,8 +1,0 @@
-from build.building import *
-
-PROJECT_EXAMPLE_INCS = ['.']
-PROJECT_EXAMPLE_SRCS = ['example_gpio.c']
-
-group = DefineGroup(name='example', srcs=PROJECT_EXAMPLE_SRCS, incs=PROJECT_EXAMPLE_INCS)
-
-Return('group')

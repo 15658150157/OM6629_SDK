@@ -154,12 +154,17 @@ static void glcd_write_reg_window(uint16_t x1, uint16_t y1, uint16_t x2, uint16_
     glcd_write_reg(reg, coord_dma, 4);
 }
 
+//The instruction issuance and return of the read register command of GC9C01 are in QSPI 1-line 8bit mode
 static void glcd_read_reg(uint8_t reg, uint8_t *data, uint16_t data_bytes)
 {
     while(!glcd_env.lcd_finish);
+    drv_lcd_control(LCD_CONTROL_SET_DATA_BIT, (void *)1);
+    drv_lcd_control(LCD_CONTROL_SET_DATA_WIDTH, (void *)8);
     uint8_t cmd[] = {0x03, 0x00, 0x00, 0x00};
     cmd[2] = reg;
     drv_lcd_read(cmd, 32, data, data_bytes);
+    drv_lcd_control(LCD_CONTROL_SET_DATA_BIT, (void *)4);
+    drv_lcd_control(LCD_CONTROL_SET_DATA_WIDTH, (void *)16);
 }
 
 static void glcd_write_memory(uint8_t write_command, uint8_t* data, uint16_t data_bytes)
@@ -249,11 +254,26 @@ static void glcd_wait_te(uint8_t timeout_ms)
 /*******************************************************************************
  * PUBLIC FUNCTIONS
  */
-void glcd_read_id(void)
-{
+//Although the GC9C01 chip supports this instruction, this LCD module does not support it.There is also no support for reading back LCD screen data.
+uint32_t glcd_read_id(void) {
     uint8_t reg_adr = 0x04;
+    static uint8_t aligned_buffer[4] __attribute__((aligned(4)));  // 静态变量强制对齐
     uint32_t lcd_id;
-    glcd_read_reg(reg_adr, (uint8_t*)&lcd_id, 4);
+
+    glcd_read_reg(reg_adr, aligned_buffer, 4);
+    lcd_id = *(uint32_t *)aligned_buffer;
+    return lcd_id;
+}
+
+//Although the GC9C01 chip supports this instruction, this LCD module does not support it.There is also no support for reading back LCD screen data.
+uint32_t glcd_read_status(void) {
+    uint8_t reg_adr = 0x09;
+    static uint8_t aligned_buffer[5] __attribute__((aligned(4)));  // 静态变量强制对齐
+    uint32_t lcd_id;
+
+    glcd_read_reg(reg_adr, aligned_buffer, 5);
+    lcd_id = *(uint32_t *)aligned_buffer;
+    return lcd_id;
 }
 
 void glcd_set_brightness(uint8_t brightness)

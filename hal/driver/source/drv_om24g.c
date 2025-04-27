@@ -70,7 +70,7 @@ static om24g_env_t om24g_env = {
 /*******************************************************************************
  * LOCAL FUNCTIONS
  */
-__RAM_CODES("24G")
+__RAM_CODE
 static void drv_om24g_ce_high_pulse(void)
 {
     #if (HARDWARE_TIMER_ENABLE == 0)
@@ -84,7 +84,7 @@ static void drv_om24g_ce_high_pulse(void)
     #endif
 }
 
-__RAM_CODES("24G")
+__RAM_CODE
 static uint16_t drv_om24g_read_rx_payload_width(void)
 {
     uint16_t Width;
@@ -149,6 +149,7 @@ void drv_om24g_dump_rf_register(void)
     OM_LOG(OM_LOG_DEBUG, "FLUSH: %02x\r\n", OM_24G->FLUSH);
     OM_LOG(OM_LOG_DEBUG, "TESTCTRL: %02x\r\n", OM_24G->TESTCTRL);
     OM_LOG(OM_LOG_DEBUG, "STATE: %02x\r\n", OM_24G->STATE);
+    OM_LOG(OM_LOG_DEBUG, "TAIL_DATA: %02x\r\n", OM_24G->TAIL_DATA);
     OM_LOG(OM_LOG_DEBUG, "FREQ: %02d\r\n", REGR(&OM_DAIF->FREQ_CFG0, DAIF_FREQ_REG_MO_MASK, DAIF_FREQ_REG_MO_POS));
     OM_LOG(OM_LOG_DEBUG, "FRACT_FREQ: %x\r\n", OM_DAIF->FREQ_CFG3);
     OM_LOG(OM_LOG_DEBUG, "OM_PHY->REG_PHY_RST_N: %02x\r\n", OM_PHY->REG_PHY_RST_N);
@@ -160,31 +161,18 @@ void drv_om24g_dump_rf_register(void)
     OM_LOG(OM_LOG_DEBUG, "OM_PHY->RX_GFSK_SYNC_CTRL: %08x\r\n", OM_PHY->RX_GFSK_SYNC_CTRL);
 }
 
-static void drv_om24g_set_deviation(om24g_deviation_t deviation)
+static void drv_om24g_set_deviation(float deviation)
 {
-    switch (deviation) {
-        case OM24G_DEVIATION_62P5K:
-            om24g_env.deviation_below_250K = true;
-            REGW0(&OM_DAIF->MIX_CFG0, DAIF_FREQ_DEVIA_BYPASS_TX_MASK); //freq devia bypass=0d
-            REGW(&OM_DAIF->MIX_CFG0, MASK_1REG(DAIF_FREQ_DEVIA_COEFF_TX, 0x3F)); // TX deviation value = 62.5k
-            REGW0(&OM_DAIF->PLL_CTRL1, DAIF_FREQ_DEVIA_BYPASS_3RD_MASK); //freq devia bypass=0d
-            REGW(&OM_DAIF->PLL_CTRL1, MASK_1REG(DAIF_FREQ_DEVIA_COEFF_3RD, 0x3F)); // TX deviation value = 62.5k
-            break;
-        case OM24G_DEVIATION_125K:
-            om24g_env.deviation_below_250K = true;
-            REGW0(&OM_DAIF->MIX_CFG0, DAIF_FREQ_DEVIA_BYPASS_TX_MASK); //freq devia bypass=0d
-            REGW(&OM_DAIF->MIX_CFG0, MASK_1REG(DAIF_FREQ_DEVIA_COEFF_TX, 0x7F)); // TX deviation value = 125k
-            REGW0(&OM_DAIF->PLL_CTRL1, DAIF_FREQ_DEVIA_BYPASS_3RD_MASK); //freq devia bypass=0d
-            REGW(&OM_DAIF->PLL_CTRL1, MASK_1REG(DAIF_FREQ_DEVIA_COEFF_3RD, 0x7F)); // TX deviation value = 125k
-            break;
-        case OM24G_DEVIATION_250K:
-        case OM24G_DEVIATION_500K:
-            om24g_env.deviation_below_250K = false;
-            REGW1(&OM_DAIF->MIX_CFG0, DAIF_FREQ_DEVIA_BYPASS_TX_MASK); //freq devia bypass=0d
-            REGW1(&OM_DAIF->PLL_CTRL1, DAIF_FREQ_DEVIA_BYPASS_3RD_MASK); //freq devia bypass=0d
-            break;
-        default:
-            break;
+    if(deviation < 250) {
+        om24g_env.deviation_below_250K = true;
+        REGW0(&OM_DAIF->MIX_CFG0, DAIF_FREQ_DEVIA_BYPASS_TX_MASK); //freq devia bypass=0d
+        REGW(&OM_DAIF->MIX_CFG0, MASK_1REG(DAIF_FREQ_DEVIA_COEFF_TX, (uint8_t)(deviation*255/250.0f)));
+        REGW0(&OM_DAIF->PLL_CTRL1, DAIF_FREQ_DEVIA_BYPASS_3RD_MASK); //freq devia bypass=0d
+        REGW(&OM_DAIF->PLL_CTRL1, MASK_1REG(DAIF_FREQ_DEVIA_COEFF_3RD, (uint8_t)(deviation*255/250.0f)));
+    } else {
+        om24g_env.deviation_below_250K = false;
+        REGW1(&OM_DAIF->MIX_CFG0, DAIF_FREQ_DEVIA_BYPASS_TX_MASK); //freq devia bypass=0d
+        REGW1(&OM_DAIF->PLL_CTRL1, DAIF_FREQ_DEVIA_BYPASS_3RD_MASK); //freq devia bypass=0d
     }
 }
 
@@ -196,7 +184,7 @@ void drv_om24g_register_event_callback(drv_isr_callback_t event_cb)
     om24g_env.event_cb = event_cb;
 }
 
-__RAM_CODES("24G")
+__RAM_CODE
 void drv_om24g_switch_role(om24g_role_t role)
 {
     OM24G_CE_LOW();
@@ -213,14 +201,14 @@ void drv_om24g_switch_role(om24g_role_t role)
     DRV_DELAY_US(1);
 }
 
-__RAM_CODES("24G")
+__RAM_CODE
 static void drv_om24g_write_tx_payload(uint16_t dma_tx_num, const uint8_t *payload)
 {
     OM_24G->DMA_TX_ADDR = (uint32_t)payload;
     OM_24G->DMA_TX_LEN = dma_tx_num;
 }
 
-__RAM_CODES("24G")
+__RAM_CODE
 bool drv_om24g_write(const uint8_t *tx_payload, uint16_t tx_num)
 {
     uint8_t status = 0x00;
@@ -247,7 +235,7 @@ bool drv_om24g_write(const uint8_t *tx_payload, uint16_t tx_num)
     }
 }
 
-__RAM_CODES("24G")
+__RAM_CODE
 void drv_om24g_write_int(const uint8_t *tx_payload, uint16_t tx_num)
 {
     #if (RTE_OM24G_RF_MODE == 2) // Compatible with SILICONLAB
@@ -258,7 +246,7 @@ void drv_om24g_write_int(const uint8_t *tx_payload, uint16_t tx_num)
     drv_om24g_ce_high_pulse();
 }
 
-__RAM_CODES("24G")
+__RAM_CODE
 uint16_t drv_om24g_read(uint8_t *rx_payload, uint32_t timeout_ms)
 {
     uint16_t rx_cnt = 0;
@@ -288,6 +276,7 @@ uint16_t drv_om24g_read(uint8_t *rx_payload, uint32_t timeout_ms)
                 OM24G_CE_HIGH();
             }
         }
+        REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
         if(rx_right_flag) {
             break;
         }
@@ -307,7 +296,7 @@ uint16_t drv_om24g_read(uint8_t *rx_payload, uint32_t timeout_ms)
 
  *******************************************************************************
  */
-__RAM_CODES("24G")
+__RAM_CODE
 void drv_om24g_read_int(uint8_t *rx_payload, uint16_t max_rx_num)
 {
     om24g_env.rx_buf = rx_payload;
@@ -388,7 +377,7 @@ void drv_om24g_set_rf_parameters(om24g_rate_t data_rate, uint16_t frequency, flo
             if (SYS_IS_FPGA()) {
                 OM_24G->FPGA_TX_INDEX = 0x02;
             } else {
-                drv_om24g_set_deviation(OM24G_DEVIATION_62P5K);
+                drv_om24g_set_deviation(62.5);
             }
             REGW(&OM_PHY->H_RX_CTRL, MASK_2REG(PHY_H_RX_CTRL_FXP, 0x40, PHY_H_RX_CTRL_RVS_FXP, 0x80)); // RX modulation index = 0.5
             REGW(&OM_PHY->DET_MODE, MASK_1REG(PHY_DET_MODE_DET_MODE, 0x00)); // OM24G_HARD_DETECTION
@@ -398,7 +387,7 @@ void drv_om24g_set_rf_parameters(om24g_rate_t data_rate, uint16_t frequency, flo
             if (SYS_IS_FPGA()) {
                 OM_24G->FPGA_TX_INDEX = 0x02;
             } else {
-                drv_om24g_set_deviation(OM24G_DEVIATION_125K);
+                drv_om24g_set_deviation(125);
             }
             REGW(&OM_PHY->H_RX_CTRL, MASK_2REG(PHY_H_RX_CTRL_FXP, 0x40, PHY_H_RX_CTRL_RVS_FXP, 0x80)); // RX modulation index = 0.5
             REGW(&OM_PHY->DET_MODE, MASK_1REG(PHY_DET_MODE_DET_MODE, 0x00)); // OM24G_HARD_DETECTION
@@ -408,7 +397,7 @@ void drv_om24g_set_rf_parameters(om24g_rate_t data_rate, uint16_t frequency, flo
             if (SYS_IS_FPGA()) {
                 OM_24G->FPGA_TX_INDEX = 0x03;
             } else {
-                drv_om24g_set_deviation(OM24G_DEVIATION_125K);
+                drv_om24g_set_deviation(125);
             }
             REGW(&OM_PHY->H_RX_CTRL, MASK_2REG(PHY_H_RX_CTRL_FXP, 0x60, PHY_H_RX_CTRL_RVS_FXP, 0x55)); //RX modulation index = 0.75
             REGW(&OM_PHY->DET_MODE, MASK_1REG(PHY_DET_MODE_DET_MODE, 0x00)); // OM24G_HARD_DETECTION
@@ -418,7 +407,7 @@ void drv_om24g_set_rf_parameters(om24g_rate_t data_rate, uint16_t frequency, flo
             if (SYS_IS_FPGA()) {
                 OM_24G->FPGA_TX_INDEX = 0x03;
             } else {
-                drv_om24g_set_deviation(OM24G_DEVIATION_125K);
+                drv_om24g_set_deviation(125);
             }
             REGW(&OM_PHY->H_RX_CTRL, MASK_2REG(PHY_H_RX_CTRL_FXP, 0x60, PHY_H_RX_CTRL_RVS_FXP, 0x55)); //RX modulation index = 0.75
             REGW(&OM_PHY->DET_MODE, MASK_1REG(PHY_DET_MODE_DET_MODE, 0x00)); // OM24G_HARD_DETECTION
@@ -428,7 +417,7 @@ void drv_om24g_set_rf_parameters(om24g_rate_t data_rate, uint16_t frequency, flo
             if (SYS_IS_FPGA()) {
                 OM_24G->FPGA_TX_INDEX = 0x03;
             } else {
-                drv_om24g_set_deviation(OM24G_DEVIATION_125K);
+                drv_om24g_set_deviation(186);
             }
             REGW(&OM_PHY->H_RX_CTRL, MASK_2REG(PHY_H_RX_CTRL_FXP, 0x60, PHY_H_RX_CTRL_RVS_FXP, 0x55)); //RX modulation index = 0.75
             REGW(&OM_PHY->DET_MODE, MASK_1REG(PHY_DET_MODE_DET_MODE, 0x00)); // OM24G_HARD_DETECTION
@@ -438,7 +427,7 @@ void drv_om24g_set_rf_parameters(om24g_rate_t data_rate, uint16_t frequency, flo
             if (SYS_IS_FPGA()) {
                 OM_24G->FPGA_TX_INDEX = 0x03;
             } else {
-                drv_om24g_set_deviation(OM24G_DEVIATION_125K);
+                drv_om24g_set_deviation(125);
             }
             REGW(&OM_PHY->H_RX_CTRL, MASK_2REG(PHY_H_RX_CTRL_FXP, 0x40, PHY_H_RX_CTRL_RVS_FXP, 0x80)); // RX modulation index = 0.5
             REGW(&OM_PHY->DET_MODE, MASK_1REG(PHY_DET_MODE_DET_MODE, 0x00)); // OM24G_HARD_DETECTION
@@ -460,7 +449,7 @@ void drv_om24g_set_rf_parameters(om24g_rate_t data_rate, uint16_t frequency, flo
                 //REGW(&OM_PHY->H_RX_CTRL, MASK_2REG(PHY_H_RX_CTRL_FXP, 0x80, PHY_H_RX_CTRL_RVS_FXP, 0x40)); //RX modulation index = 1.0
                 //REGW(&OM_PHY->DET_MODE, MASK_1REG(PHY_DET_MODE_DET_MODE, 0x01)); // OM24G_SOFT_DETECTION
             #endif
-            drv_om24g_set_deviation(OM24G_DEVIATION_250K);
+            drv_om24g_set_deviation(250);
             break;
     }
 }
@@ -612,11 +601,11 @@ void drv_om24g_init(const om24g_config_t *cfg)
     #if (RTE_OM24G_RF_MODE == 3) // Compatible with NORDIC
     //Communicate with NORDIC: 1M RX:6A, TX:63  250k RX:78, TX:63, nordic_ack_timeout:300. 2M: RX:6A, TX:6F
     //REGW(&OM_24G->SETUP_VALUE, MASK_3REG(OM24G_RX_SETUP_VALUE, 0x6A, OM24G_TX_SETUP_VALUE, 0x68, OM24G_RX_TM_CNT, 0xFF)); // 1M
-    // REGW(&OM_24G->SETUP_VALUE, MASK_3REG(OM24G_RX_SETUP_VALUE, 0x6A, OM24G_TX_SETUP_VALUE, 0x74, OM24G_RX_TM_CNT, 0xFF)); // 2M
+    //REGW(&OM_24G->SETUP_VALUE, MASK_3REG(OM24G_RX_SETUP_VALUE, 0x6A, OM24G_TX_SETUP_VALUE, 0x74, OM24G_RX_TM_CNT, 0xFF)); // 2M
     REGW(&OM_24G->SETUP_VALUE, MASK_3REG(OM24G_RX_SETUP_VALUE, 0x78, OM24G_TX_SETUP_VALUE, 0x68, OM24G_RX_TM_CNT, 0xFF)); // 250K
     #else
     REGW(&OM_24G->SETUP_VALUE, MASK_3REG(OM24G_RX_SETUP_VALUE, 0x62, OM24G_TX_SETUP_VALUE, 0x5B, OM24G_RX_TM_CNT, 0xFF)); //0x3F00
-    //REGW(&OM_24G->SETUP_VALUE_H, MASK_2REG(OM24G_RX_SETUP_VALUE_H, 1, OM24G_TX_SETUP_VALUE_H, 1));
+    // REGW(&OM_24G->SETUP_VALUE_H, MASK_2REG(OM24G_RX_SETUP_VALUE_H, 1, OM24G_TX_SETUP_VALUE_H, 1));
     #endif
 #endif
     //GFSK OR FSK
@@ -638,7 +627,7 @@ void drv_om24g_init(const om24g_config_t *cfg)
     //REGW(&OM_24G->RX_CTRL, MASK_3REG(OM24G_ADDR_MISS_RESET_ANA_EN, 0, OM24G_MAX_LEN_RESET_ANA_EN, 0, OM24G_LOOP_SEND_MODE_EN, 0));
     // Read RSSI background noise
     //OM_PHY->RSSI_CAP_MODE = 1;
-    REGW(&OM_24G->RX_CTRL, MASK_1REG(OM24G_RX_DONG_DIS, 1));
+    REGW(&OM_24G->RX_CTRL, MASK_1REG(OM24G_RX_DONG_DIS, 0));
     NVIC_ClearPendingIRQ(OM24G_RF_IRQn);
     NVIC_SetPriority(OM24G_RF_IRQn, RTE_OM24G_IRQ_PRIORITY);
     NVIC_EnableIRQ(OM24G_RF_IRQn);
@@ -647,35 +636,91 @@ void drv_om24g_init(const om24g_config_t *cfg)
     NVIC_EnableIRQ(OM24G_TIM_WAKEUP_IRQn);
     REGW(&OM_24G->RF_PD_AHEAD, MASK_2REG(OM24G_RF_PD_AHEAD_EN, 1, OM24G_RF_PD_AHEAD, 1));
     //REGW(&OM_24G->ACK_MODE, MASK_1REG(OM24G_CONTINUOUS_MODE, 0));
+    // REGW(&OM_24G->ACK_MODE, MASK_1REG(OM24G_ACK_MODE, 0));
     drv_om24g_set_rf_parameters(cfg->data_rate, cfg->freq, 0);
     if (SYS_IS_FPGA()) {
         drv_om24g_rf_init_seq();
     }
 }
 
-__RAM_CODES("24G")
+__RAM_CODE
 void drv_om24g_store(void)
 {
-    //OM_LOG(OM_LOG_DEBUG, "store \r\n");
     #if HARDWARE_TIMER_ENABLE
     REGW1(&OM_PMU->BLE_CLK_SWITCH, PMU_BLE_CLK_SWITCH_BLE_CLK_SWITCH_MASK);
     #endif
 }
 
-__RAM_CODES("24G")
+__RAM_CODE
 void drv_om24g_restore(void)
 {
     #if HARDWARE_TIMER_ENABLE
     REGW0(&OM_PMU->BLE_CLK_SWITCH, PMU_BLE_CLK_SWITCH_BLE_CLK_SWITCH_MASK);
     while(!(OM_PMU->BLE_RECOVER_FLAG & PMU_BLE_RECOVER_FLAG_RECOVER_DONE_FLAG_MASK));
     OM_PMU->BLE_RECOVER_FLAG = 1;
-    pm_sleep_prevent(PM_ID_24G);
-    drv_gpio_toggle(OM_GPIO0, GPIO_MASK(7));
     #endif
-    //OM_LOG(OM_LOG_DEBUG, "restore \r\n");
 }
 
-__RAM_CODES("24G")
+// __RAM_CODE
+// void drv_om24g_isr(void)
+// {
+//     uint32_t status = 0;
+//     uint16_t rx_cnt = 0;
+//     bool rx_right_flag = false;
+
+//     status = OM_24G->INT_ST;
+//     OM_24G->INT_ST = status;
+//     if ((OM24G_INT_RX_DR_MASK & status) && (!(OM24G_INT_CRC_ERR_MASK & status))) {
+//         OM_CRITICAL_BEGIN();
+//         if((!(OM_24G->STATE & OM24G_SYNC_DET_MASK)) && (!(OM24G_INT_CRC_ERR_MASK & OM_24G->INT_ST)) && (!(OM24G_INT_MAX_LEN_MASK & OM_24G->INT_ST_RAW)) && (!(OM24G_RX_ADDR_MISS_MASK & OM_24G->INT_ST_RAW))) {
+//             om24g_env.rx_count = (om24g_env.rx_count + 1) % 2;
+//             OM_24G->DMA_RX_ADDR = (uint32_t)(om24g_env.rx_buf + om24g_env.max_rx_num * om24g_env.rx_count);
+//             rx_cnt = drv_om24g_read_rx_payload_width();
+//             rx_right_flag = true;
+//         } else {
+//             OM_24G->INT_ST = OM_24G->INT_ST_RAW;
+//             rx_right_flag = false;
+//         }
+//         OM_CRITICAL_END();
+//         if (om24g_env.event_cb && rx_right_flag) {
+//             om24g_env.event_cb(OM_24G, DRV_EVENT_COMMON_RECEIVE_COMPLETED, (void *)(om24g_env.rx_buf + om24g_env.max_rx_num * (om24g_env.rx_count ? 0 : 1)), (void *)((uint32_t)rx_cnt));
+//         }
+//     }
+//     if ((OM24G_INT_TX_DS_MASK & status)) {
+//         if (om24g_env.event_cb) {
+//             om24g_env.event_cb(OM_24G, DRV_EVENT_COMMON_TRANSMIT_COMPLETED, NULL, NULL);
+//         }
+//     }
+//     if (OM24G_INT_MAX_RT_MASK & status) {
+//         if (om24g_env.event_cb) {
+//             om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_MAX_RT, NULL, NULL);
+//         }
+//     }
+//     if (OM24G_INT_RX_TM_MASK & status) {
+//         if (om24g_env.event_cb) {
+//             om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_RX_TM, NULL, NULL);
+//         }
+//     }
+//     if (OM24G_INT_RX_OVERLAY_MASK & status) {
+//         if (om24g_env.event_cb) {
+//             om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_RX_OVERLAY, NULL, NULL);
+//         }
+//     }
+//     if (OM24G_INT_TIMER0_MASK & status) {
+//         if (om24g_env.event_cb) {
+//             om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_INT_TIMER0, NULL, NULL);
+//         }
+//     }
+//     if (OM24G_INT_TIMER1_MASK & status) {
+//         if (om24g_env.event_cb) {
+//             om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_INT_TIMER1, NULL, NULL);
+//         }
+//     }
+//     if (OM24G_INT_CRC_ERR_MASK & status) {
+//     }
+// }
+
+__RAM_CODE
 void drv_om24g_isr(void)
 {
     uint32_t status = 0;
@@ -683,9 +728,29 @@ void drv_om24g_isr(void)
     bool rx_right_flag = false;
 
     status = OM_24G->INT_ST;
-    //OM_LOG(OM_LOG_DEBUG, "T:%02x\r\n", OM_24G->INT_ST);
+    // OM_LOG(OM_LOG_DEBUG, "INT_ST: %02x\r\n", OM_24G->INT_ST_RAW);
     OM_24G->INT_ST = status;
-    // OM_LOG(OM_LOG_DEBUG, "TD:%02x\r\n", OM_24G->RX_DONE);
+    if ((OM24G_INT_RX_DR_MASK & status) && (!(OM24G_INT_CRC_ERR_MASK & status))) {
+        OM_CRITICAL_BEGIN();
+        if((!(OM_24G->STATE & OM24G_SYNC_DET_MASK)) && (!(OM24G_INT_CRC_ERR_MASK & OM_24G->INT_ST)) && (!(OM24G_INT_RX_OVERLAY_MASK & OM_24G->INT_ST_RAW)) && (!(OM24G_INT_MAX_LEN_MASK & OM_24G->INT_ST_RAW)) && (!(OM24G_RX_ADDR_MISS_MASK & OM_24G->INT_ST_RAW))) {
+            om24g_env.rx_count = (om24g_env.rx_count + 1) % 2;
+            OM_24G->DMA_RX_ADDR = (uint32_t)(om24g_env.rx_buf + om24g_env.max_rx_num * om24g_env.rx_count);
+            rx_cnt = drv_om24g_read_rx_payload_width();
+            rx_right_flag = true;
+            REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
+        } else {
+            OM_24G->INT_ST = OM_24G->INT_ST_RAW;
+            rx_right_flag = false;
+            REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
+        }
+        OM_CRITICAL_END();
+        if (om24g_env.event_cb && rx_right_flag) {
+            om24g_env.event_cb(OM_24G, DRV_EVENT_COMMON_RECEIVE_COMPLETED, (void *)(om24g_env.rx_buf + om24g_env.max_rx_num * (om24g_env.rx_count ? 0 : 1)), (void *)((uint32_t)rx_cnt));
+        }
+    } else {
+        OM_24G->INT_ST = OM_24G->INT_ST_RAW;
+        REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
+    }
     if ((OM24G_INT_TX_DS_MASK & status)) {
         if (om24g_env.event_cb) {
             om24g_env.event_cb(OM_24G, DRV_EVENT_COMMON_TRANSMIT_COMPLETED, NULL, NULL);
@@ -694,22 +759,6 @@ void drv_om24g_isr(void)
     if (OM24G_INT_MAX_RT_MASK & status) {
         if (om24g_env.event_cb) {
             om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_MAX_RT, NULL, NULL);
-        }
-    }
-    if ((OM24G_INT_RX_DR_MASK & status) && (!(OM24G_INT_CRC_ERR_MASK & status))) {
-        OM_CRITICAL_BEGIN();
-        if((!(OM_24G->STATE & OM24G_SYNC_DET_MASK)) && (!(OM24G_INT_CRC_ERR_MASK & OM_24G->INT_ST)) && (!(OM24G_INT_MAX_LEN_MASK & OM_24G->INT_ST_RAW))) {
-            om24g_env.rx_count = (om24g_env.rx_count + 1) % 2;
-            rx_right_flag = true;
-            rx_cnt = drv_om24g_read_rx_payload_width();
-            OM_24G->DMA_RX_ADDR = (uint32_t)(om24g_env.rx_buf + om24g_env.max_rx_num * om24g_env.rx_count);
-        } else {
-            OM_24G->INT_ST = OM_24G->INT_ST_RAW;
-            rx_right_flag = false;
-        }
-        OM_CRITICAL_END();
-        if (om24g_env.event_cb && rx_right_flag) {
-            om24g_env.event_cb(OM_24G, DRV_EVENT_COMMON_RECEIVE_COMPLETED, (void *)(om24g_env.rx_buf + om24g_env.max_rx_num * (om24g_env.rx_count ? 0 : 1)), (void *)((uint32_t)rx_cnt));
         }
     }
     if (OM24G_INT_RX_TM_MASK & status) {
@@ -765,7 +814,6 @@ void *drv_om24g_control(om24g_control_t control, void *argu)
                 #if PLL_CONTIMUE_OPEN
                 REGW(&OM_DAIF->PD_CFG1, MASK_2REG(DAIF_RFPLL_PD_ALL_ME, 0, DAIF_RFPLL_PD_ALL_MO, 1));
                 #endif
-                REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
                 OM_24G->INT_MASK = 0xFFFFFFFF;
                 REGW0(&OM_24G->PKTCTRL0, OM24G_PKTCTRL0_MAC_SEL_MASK); // switch phy between 2.4G and ble.
                 REGW(&OM_DAIF->FREQ_CFG0, MASK_1REG(DAIF_FREQ_REG_ME, 0));
@@ -785,7 +833,6 @@ void *drv_om24g_control(om24g_control_t control, void *argu)
                 REGW1(&OM_24G->PKTCTRL0, OM24G_PKTCTRL0_MAC_SEL_MASK);
                 OM24G_FLUSH_TX_FIFO();
                 OM24G_FLUSH_RX_FIFO();
-                REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
                 OM_24G->INT_MASK = 0xFFFFFFFF;
                 REGW(&OM_DAIF->FREQ_CFG0, MASK_1REG(DAIF_FREQ_REG_ME, 1));
                 if(om24g_env.deviation_below_250K) {
@@ -797,6 +844,7 @@ void *drv_om24g_control(om24g_control_t control, void *argu)
                 #if PLL_CONTIMUE_OPEN
                 REGW(&OM_DAIF->PD_CFG1, MASK_2REG(DAIF_RFPLL_PD_ALL_ME, 1, DAIF_RFPLL_PD_ALL_MO, 0));
                 #endif
+                REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
             }
             break;
         case OM24G_CONTROL_RESET:

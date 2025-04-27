@@ -40,7 +40,7 @@ def keil_value_set(tree, path, regName0, modifyStr0, regName1, modifyStr1, modif
                 else:
                     cnode1[0].text = modifyVal
 
-def gen_keil5_project(device, Projects, project, defs, ini_file, project_with_device=0, gen_lib=False):
+def gen_keil5_project(device, Projects, project, defs, ini_file, project_with_device=0, optim='-O2', lto=1, gen_lib=False):
     if project_with_device :
         project = project + '_' + device.lower()
 
@@ -69,6 +69,18 @@ def gen_keil5_project(device, Projects, project, defs, ini_file, project_with_de
     #Cpu
     text_node = tree.find("Targets/Target/TargetOption/TargetCommonOption/Cpu")
     text_node.text = cpu_text
+    # optim
+    keil_opt = ['-O0', '-O1', '-O2', '-O3', '-Ofast', '-Os balanced', '-Oz image size']
+    if optim not in keil_opt:
+        print('Paramater "optim" is error, keil optimization level must be: {}'.format(keil_opt))
+    for index in range(len(keil_opt)):
+        if optim == keil_opt[index]:
+            opt_level = index + 1
+    text_node=tree.find("Targets/Target/TargetOption/TargetArmAds/Cads/Optim")
+    text_node.text = str(opt_level)
+    # lto
+    text_node = tree.find("Targets/Target/TargetOption/TargetArmAds/Cads/v6Lto")
+    text_node.text = str(lto)
     #rom address
     text_node = tree.find("Targets/Target/TargetOption/TargetArmAds/LDads/TextAddressRange")
     text_node.text = rom_start_addr
@@ -173,7 +185,7 @@ def gen_keil5_project(device, Projects, project, defs, ini_file, project_with_de
         # after make
         # UserProg1Name
         text_node = tree.find("Targets/Target/TargetOption/TargetCommonOption/AfterMake/UserProg1Name")
-        text_node.text = 'fromelf.exe --bin --output "@L.bin" "#L"'
+        text_node.text = 'fromelf.exe --bin --output "$L@L.bin" "#L"'
         text_node = tree.find("Targets/Target/TargetOption/TargetCommonOption/AfterMake/UserProg2Name")
         text_node.text = 'fromelf.exe -c --output "$L@L.dis" "#L"'
 

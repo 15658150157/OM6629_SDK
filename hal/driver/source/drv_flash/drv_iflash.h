@@ -44,6 +44,11 @@ extern "C"
 /**
  *******************************************************************************
  * @brief Initialize internal FLASH controller with specified configuration struct
+ *        Note:
+ *          - This function will enable write protect,
+ *            and the type of write protect is FLASH_PROTECT_UPPER_4_SECTOR_UNPROTECTED,
+ *            if you want to change the type of write protect,
+ *            please call drv_iflash_write_protect_set function.
  *
  * @param om_flash  The FLASH controller device address
  * @param config    The configuration struct pointer, see@ref flash_config_t
@@ -52,6 +57,26 @@ extern "C"
  *******************************************************************************
  */
 extern om_error_t drv_iflash_init(OM_SF_Type *om_flash, const flash_config_t *config);
+
+/**
+ *******************************************************************************
+ * @brief           iflash delay recalib
+ *
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_iflash_delay_recalib(void);
+
+/**
+ *******************************************************************************
+ * @brief           iflash get delay info
+ *
+ * @param info      Delay information pointer, see@ref flash_delay_info_t
+ *
+ *******************************************************************************
+ */
+extern void drv_iflash_get_delay_info(flash_delay_info_t *info);
 
 /**
  *******************************************************************************
@@ -277,7 +302,7 @@ extern om_error_t drv_iflash_read_config_reg(OM_SF_Type *om_flash, uint8_t *conf
  * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
-extern om_error_t drv_iflash_write_status(OM_SF_Type *om_flash, uint8_t *status, uint32_t status_len);
+extern om_error_t drv_iflash_write_status(OM_SF_Type *om_flash, uint8_t *status, uint8_t status_len);
 
 /**
  *******************************************************************************

@@ -34,7 +34,6 @@
 /*********************************************************************
  * MACROS
  */
-#define LOG_UART    OM_UART0
 
 #define EVENT_BLUETOOTH_MASK        0x0001
 #define EVENT_SYSTEM_RESERVE_MASK   0x00FF
@@ -53,7 +52,6 @@
  * LOCAL VARIABLES
  */
 static osEventFlagsId_t xEvtEvent = NULL;
-// static evt_timer_t evt_timer_0;
 
 /*********************************************************************
  * GLOBAL VARIABLES
@@ -92,10 +90,6 @@ static void hardware_init(void)
  * @param[in] param  param
  *******************************************************************************
  */
-// static void evt_timer_0_handler(evt_timer_t *timer, void *param)
-// {
-//     om_log(OM_LOG_INFO, "evt timer: %08X\n", timer->time);
-// }
 
 /**
  * @brief  bluetooth event handler
@@ -119,6 +113,7 @@ static void vEvtScheduleTask(void *argument)
     drv_rf_init();
     nvds_init(0);
     app_shell_init();
+    evt_init();
 
     struct ob_stack_param param = {
         .max_connection         = OB_LE_HOST_CONNECTION_NB,
@@ -131,7 +126,6 @@ static void vEvtScheduleTask(void *argument)
     //ob_smp_config_allroles();
     omble_init(&param);
 
-    // evt_init();
     evt_timer_init();
     service_common_init();
     app_adv_init();
@@ -140,10 +134,6 @@ static void vEvtScheduleTask(void *argument)
     app_conn_init();
     app_scan_init();
     app_gatt_client_init();
-
-
-    // simple event timer
-    // evt_timer_set(&evt_timer_0, 2000, EVT_TIMER_REPEAT, evt_timer_0_handler, NULL);
 
     // Create event
     xEvtEvent = osEventFlagsNew(NULL);

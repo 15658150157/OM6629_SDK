@@ -58,6 +58,13 @@ void pm_sleep_callback(pm_sleep_state_t sleep_state, pm_status_t power_status)
 }
 #endif
 
+#if (RTE_PMU_POF_REGISTER_CALLBACK)
+static void pmu_pof_isr_callback(void *om_pmu, drv_event_t event, void *buff, void *num)
+{
+    OM_LOG(OM_LOG_WARN, "PMU POF event occured");
+}
+#endif
+
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS
@@ -73,6 +80,12 @@ void system_init(void)
     };
     drv_wdt_init(0);
     drv_flash_init(OM_FLASH0, &config);
+
+    // pmu pof enable
+    #if (RTE_PMU_POF_REGISTER_CALLBACK)
+    drv_pmu_pof_register_callback(pmu_pof_isr_callback);
+    #endif
+    drv_pmu_pof_enable(true, PMU_POF_VOLTAGE_2P5V, PMU_POF_INT_NEG_EDGE);
 
     #if (CONFIG_PM)
     pm_init();

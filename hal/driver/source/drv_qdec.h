@@ -122,10 +122,6 @@ typedef struct {
     qdec_sample_per_t       sample_per;
     /// debounce filters enable
     bool                    dbf_en;
-    /// sampling interrupt enable
-    bool                    sample_int_en;
-    /// report interrupt enable
-    bool                    report_int_en;
 } qdec_config_t;
 
 /// QDEC control
@@ -144,7 +140,10 @@ typedef enum {
     QDEC_CONTROL_GET_INIT_B     = 11U,  /*!< Get phase B first sample value after power on, return sample value B */
     QDEC_CONTROL_GET_INPUT_A    = 12U,  /*!< Get phase A last sample value before power down, return sample value A */
     QDEC_CONTROL_GET_INPUT_B    = 13U,  /*!< Get phase B last sample value before power down, return sample value B */
+    QDEC_CONTROL_INT_ENABLE     = 14U,  /*!< Interrupt Enable, return OM_ERROR_OK */
+    QDEC_CONTROL_INT_DISABLE    = 15U,  /*!< Interrupt Disable, return OM_ERROR_OK */
 } qdec_control_t;
+
 
 /*******************************************************************************
  * EXTERN FUNCTIONS
@@ -206,12 +205,18 @@ __STATIC_FORCEINLINE void *drv_qdec_control(OM_QDEC_Type *om_qdec, qdec_control_
     OM_CRITICAL_BEGIN();
     switch (control) {
         case QDEC_CONTROL_START:
+            // Enable QDEC
+            REGW(&om_qdec->ENABLE, MASK_1REG(QDEC_ENABLE_ENABLE, 1U));
+            while(!REGR(&om_qdec->ENABLE, MASK_POS(QDEC_ENABLE_ENABLE)));
             // Start the QDEC
             REGW(&om_qdec->START, MASK_1REG(QDEC_START_START, 1U));
             break;
         case QDEC_CONTROL_STOP:
             // Stop the QDEC
             REGW(&om_qdec->STOP, MASK_1REG(QDEC_STOP_STOP, 1U));
+            // Disable QDEC
+            REGW(&om_qdec->ENABLE, MASK_1REG(QDEC_ENABLE_ENABLE, 0U));
+            while(REGR(&om_qdec->ENABLE, MASK_POS(QDEC_ENABLE_ENABLE)));
             break;
         case QDEC_CONTROL_SET_SAMPLEPER:
             REGW(&om_qdec->SAMPLEPER, MASK_1REG(QDEC_SAMPLEPER_SAMPLEPER, (uint32_t)argu));
@@ -248,6 +253,12 @@ __STATIC_FORCEINLINE void *drv_qdec_control(OM_QDEC_Type *om_qdec, qdec_control_
             break;
         case QDEC_CONTROL_GET_INPUT_B:
             ret = REGR(&om_qdec->INPUT, MASK_POS(QDEC_INPUT_B));
+            break;
+        case QDEC_CONTROL_INT_ENABLE:
+            om_qdec->INTEN |= (uint32_t)argu;
+            break;
+        case QDEC_CONTROL_INT_DISABLE:
+            om_qdec->INTEN &= ~((uint32_t)argu);
             break;
         default:
             break;

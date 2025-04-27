@@ -34,7 +34,7 @@
 static struct dev_rec {
     uint8_t addr[6];
     uint8_t addr_type;
-    uint8_t rssi;
+    int8_t  rssi;
     uint8_t data_len;
     uint8_t data[31];
 } scan_dev_record[50];
@@ -79,8 +79,8 @@ static void dev_record(const ob_gap_evt_adv_report_t *report)
 {
     int min_rssi_idx = 0, min_rssi = 127, rec_idx = -1;
     for (int i = 0; i < scan_dev_count; i++) {
-        if (min_rssi > report->rssi) {
-            min_rssi = report->rssi;
+        if (min_rssi > scan_dev_record[i].rssi) {
+            min_rssi = scan_dev_record[i].rssi;
             min_rssi_idx = i;
         }
         if (scan_dev_record[i].addr_type == report->addr.addr_type && !memcmp(scan_dev_record[i].addr, &report->addr.addr, 6) &&

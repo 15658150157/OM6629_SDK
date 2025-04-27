@@ -14,7 +14,6 @@ PROJECT_EXAMPLE_SRCS = $(PROJECT_EXAMPLE_DIR)/example_aes.c                     
                        $(PROJECT_EXAMPLE_DIR)/example_lcd.c                                  \
                        $(PROJECT_EXAMPLE_DIR)/example_lptimer.c                              \
                        $(PROJECT_EXAMPLE_DIR)/example_pmu_timer.c                            \
-                       $(PROJECT_EXAMPLE_DIR)/example_psram.c                                \
                        $(PROJECT_EXAMPLE_DIR)/example_qdec.c                                 \
                        $(PROJECT_EXAMPLE_DIR)/example_rgb.c                                  \
                        $(PROJECT_EXAMPLE_DIR)/example_rtc.c                                  \

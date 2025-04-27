@@ -63,18 +63,6 @@ typedef enum {
     OM24G_ROLE_PTX,
 } om24g_role_t;
 
-/// OM24G DEVIATION
-typedef enum {
-    /// 62.5K TX frequency offset
-    OM24G_DEVIATION_62P5K,
-    /// 125K TX frequency offset
-    OM24G_DEVIATION_125K,
-    /// 250K TX frequency offset
-    OM24G_DEVIATION_250K,
-    /// 500K TX frequency offset
-    OM24G_DEVIATION_500K,
-} om24g_deviation_t;
-
 /// OM24G RATE
 typedef enum {
     /// 250K data rate

@@ -31,7 +31,6 @@
 #define PAD_RGB_OUT                  15
 #define MUX_RGB_OUT                  PINMUX_PAD15_RGB_OUT_CFG
 #define RGB_DATA_BUF_TOTAL_SIZE      (60 * 3)
-#define RGBW_DATA_BUF_TOTAL_SIZE     (60)
 
 /*******************************************************************************
  * TYPEDEFS
@@ -54,7 +53,6 @@ static uint32_t colors[7] = {
 };
 
 static uint8_t  rgb_data[RGB_DATA_BUF_TOTAL_SIZE];
-static uint32_t rgbw_data[RGBW_DATA_BUF_TOTAL_SIZE];
 
 /// Pinmux Configuration
 static pin_config_t pin_config[] = {
@@ -81,10 +79,6 @@ static void test_rgb_init(void)
         rgb_data[3 * i + 2] = (uint8_t)((colors[i%7] & 0x00FF0000) >> 16);
     }
 
-    for (int i = 0; i < RGBW_DATA_BUF_TOTAL_SIZE; i++) {
-        rgbw_data[i] = colors[i%7];
-    }
-
     rgb_stop = 0;
 }
 
@@ -103,7 +97,6 @@ void example_rgb_block(void)
 
     const rgb_config_t rgb_cfg = {
         .rgb_format       = RGB_FORMAT_RGB,
-        //.rgb_format       = RGB_FORMAT_RGBW,
         .idle_level       = RGB_IDLE_LEVEL_LOW,
         .data_per         = 40,
         .reset_per        = 3200,  // >2560(80us)
@@ -120,7 +113,6 @@ void example_rgb_block(void)
 
     drv_rgb_init(&rgb_cfg);
     drv_rgb_write((uint32_t *)rgb_data, RGB_DATA_BUF_TOTAL_SIZE/4);
-    //drv_rgb_write((uint32_t *)rgbw_data, RGBW_DATA_BUF_TOTAL_SIZE);
 }
 
 /**

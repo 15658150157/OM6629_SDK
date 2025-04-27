@@ -217,9 +217,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gaca065483cfe789215a4d194eda3fc931"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PM.html#gaca065483cfe789215a4d194eda3fc931">pm_power_manage</a> (void)</td></tr>
 <tr class="memdesc:gaca065483cfe789215a4d194eda3fc931"><td class="mdescLeft">&#160;</td><td class="mdescRight">pm power manage, it shall be called in critical section(disable global interrupt)  <br /></td></tr>
 <tr class="separator:gaca065483cfe789215a4d194eda3fc931"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gae9d1c8d7e754903bd934acf207fd7312"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PM.html#gae9d1c8d7e754903bd934acf207fd7312">pm_sleep_checker_callback_register</a> (<a class="el" href="group__PM.html#gaa07e17321710f78f2ba5e5ad40345118">pm_checker_priority_t</a> priority, <a class="el" href="group__PM.html#ga0fff22df61c06719d144c93bb025b7a7">pm_checker_callback_t</a> checker_cb)</td></tr>
-<tr class="memdesc:gae9d1c8d7e754903bd934acf207fd7312"><td class="mdescLeft">&#160;</td><td class="mdescRight">pm sleep checker register  <br /></td></tr>
-<tr class="separator:gae9d1c8d7e754903bd934acf207fd7312"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaec024639daf77b28278ef0a8d61b99ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__ERROR.html#gade1010dbf6169f89f4025b1187fea6cd">om_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PM.html#gaec024639daf77b28278ef0a8d61b99ef">pm_sleep_checker_callback_register</a> (<a class="el" href="group__PM.html#gaa07e17321710f78f2ba5e5ad40345118">pm_checker_priority_t</a> priority, <a class="el" href="group__PM.html#ga0fff22df61c06719d144c93bb025b7a7">pm_checker_callback_t</a> checker_cb)</td></tr>
+<tr class="memdesc:gaec024639daf77b28278ef0a8d61b99ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">pm sleep checker register  <br /></td></tr>
+<tr class="separator:gaec024639daf77b28278ef0a8d61b99ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf2990811ecb4e54150e5c3568fbca1e1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__ERROR.html#gade1010dbf6169f89f4025b1187fea6cd">om_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PM.html#gaf2990811ecb4e54150e5c3568fbca1e1">pm_sleep_store_restore_callback_register</a> (<a class="el" href="group__PM.html#ga63c665bc53fa193a029522404acef972">pm_sleep_callback_t</a> store_cb)</td></tr>
 <tr class="memdesc:gaf2990811ecb4e54150e5c3568fbca1e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">system sleep store restore callback register  <br /></td></tr>
 <tr class="separator:gaf2990811ecb4e54150e5c3568fbca1e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -460,14 +460,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="gae9d1c8d7e754903bd934acf207fd7312" name="gae9d1c8d7e754903bd934acf207fd7312"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gae9d1c8d7e754903bd934acf207fd7312">&#9670;&#160;</a></span>pm_sleep_checker_callback_register()</h2>
+<a id="gaec024639daf77b28278ef0a8d61b99ef" name="gaec024639daf77b28278ef0a8d61b99ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaec024639daf77b28278ef0a8d61b99ef">&#9670;&#160;</a></span>pm_sleep_checker_callback_register()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void pm_sleep_checker_callback_register </td>
+          <td class="memname"><a class="el" href="group__ERROR.html#gade1010dbf6169f89f4025b1187fea6cd">om_error_t</a> pm_sleep_checker_callback_register </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="group__PM.html#gaa07e17321710f78f2ba5e5ad40345118">pm_checker_priority_t</a>&#160;</td>
           <td class="paramname"><em>priority</em>, </td>
@@ -490,10 +490,11 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">priority</td><td>priority </td></tr>
-    <tr><td class="paramname">checker_cb</td><td>checker cb </td></tr>
+    <tr><td class="paramname">checker_cb</td><td>checker cb</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>register status -OM_ERROR_OK register success -OM_ERROR_OUT_OF_RANGE register failed </dd></dl>
 
 </div>
 </div>

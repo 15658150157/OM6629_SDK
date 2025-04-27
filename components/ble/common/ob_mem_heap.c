@@ -22,6 +22,7 @@
 /*********************************************************************
  * INCLUDES
  */
+#include "autoconf.h"
 #include "ob_config.h"
 
 #include <string.h>

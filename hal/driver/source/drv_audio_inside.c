@@ -366,6 +366,9 @@ om_error_t drv_audio_inside_record_stop(void)
         return OM_ERROR_STATUS;
     }
 
+    /// Disable interrupts
+    OM_AUDIO->CODEC_INT_CTRL = 0xFF;
+
     /// ADC off and clock gated
     register_set(&OM_AUDIO->ADC_CTRL, MASK_1REG(AU_CTRL_EN, 0));
 

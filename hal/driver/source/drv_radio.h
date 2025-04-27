@@ -40,22 +40,27 @@ extern "C"
  * TYPEDEFS
  */
 typedef enum {
-    RF_TX_POWER_8P5DBM  = 105,
-    RF_TX_POWER_8DBM    = 104,
-    RF_TX_POWER_7DBM    = 103,
-    RF_TX_POWER_6DBM    = 102,
-    RF_TX_POWER_5P5DBM  = 101,
-    RF_TX_POWER_5DBM    = 18,
-    RF_TX_POWER_4P5DBM  = 16,
-    RF_TX_POWER_4DBM    = 15,
-    RF_TX_POWER_3P5DBM  = 13,
-    RF_TX_POWER_3DBM    = 12,
-    RF_TX_POWER_2P5DBM  = 11,
-    RF_TX_POWER_2DBM    = 10,
-    RF_TX_POWER_1P5DBM  = 9,
-    RF_TX_POWER_1DBM    = 8,
-    RF_TX_POWER_0P5DBM  = 7,
-    RF_TX_POWER_0DBM    = 6,
+    RF_TX_POWER_9P5DBM  = 115,
+    RF_TX_POWER_9DBM    = 114,
+    RF_TX_POWER_8P5DBM  = 113,
+    RF_TX_POWER_8DBM    = 112,
+    RF_TX_POWER_7P5DBM  = 111,
+    RF_TX_POWER_7DBM    = 110,
+    RF_TX_POWER_6P5DBM  = 109,
+    RF_TX_POWER_6DBM    = 108,
+    RF_TX_POWER_5P5DBM  = 107,
+    RF_TX_POWER_5DBM    = 106,
+    RF_TX_POWER_4P5DBM  = 105,
+    RF_TX_POWER_4DBM    = 104,
+    RF_TX_POWER_3P5DBM  = 103,
+    RF_TX_POWER_3DBM    = 102,
+    RF_TX_POWER_2P5DBM  = 101,
+    RF_TX_POWER_2DBM    = 18,
+    RF_TX_POWER_1P5DBM  = 15,
+    RF_TX_POWER_1DBM    = 12,
+    RF_TX_POWER_0P5DBM  = 9,
+    RF_TX_POWER_0DBM    = 7, //0dBm
+    RF_TX_POWER_N0P5DBM = 6,
     RF_TX_POWER_N1DBM   = 5,
     RF_TX_POWER_N5DBM   = 4,
     RF_TX_POWER_N9DBM   = 3,
@@ -63,11 +68,16 @@ typedef enum {
     RF_TX_POWER_N47DBM  = 1,
 
     // Humanized description
-    RF_TX_POWER_MAX    = RF_TX_POWER_8DBM,
+    RF_TX_POWER_MAX    = RF_TX_POWER_9P5DBM,
     RF_TX_POWER_MIN    = RF_TX_POWER_N47DBM,
     RF_TX_POWER_NORMAL = RF_TX_POWER_0DBM,
 } rf_tx_power_t;
 
+typedef enum {
+    RF_RX_MODE_DEFAULT          = 0,
+    RF_RX_MODE_HIGH_PERFORMANCE = 1,
+    RF_RX_MODE_LOW_POWER        = 2,
+} rf_rx_mode_t;
 
 /*******************************************************************************
  * EXTERN FUNCTIONS
@@ -131,6 +141,14 @@ extern void drv_rf_full_rx_enable(bool enable, uint32_t freq);
  **/
 extern void drv_rf_tx_power_set(bool auto_ctrl_by_ble, rf_tx_power_t power);
 
+/**
+ *******************************************************************************
+ * @brief  rf rx mode set
+ *
+ * @param[in] mode  rx mode, see @ref rf_rx_mode_t
+ *******************************************************************************
+ **/
+extern void drv_rf_rx_mode_set(rf_rx_mode_t mode);
 
 #ifdef __cplusplus
 }

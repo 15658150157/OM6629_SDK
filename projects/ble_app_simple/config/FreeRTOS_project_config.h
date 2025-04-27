@@ -39,18 +39,18 @@
 //  <o>Minimal stack size [words] <0-65535>
 //  <i> Stack for idle task and default task stack in words.
 //  <i> Default: 128
-#define configMINIMAL_STACK_SIZE                ((uint16_t)(128*4))
+#define configMINIMAL_STACK_SIZE                ((uint16_t)(128))
 
 //  <o>Total heap size [bytes] <0-0xFFFFFFFF>
 //  <i> Heap memory size in bytes.
 //  <i> Default: 8192
-#define configTOTAL_HEAP_SIZE                   ((size_t)10240)
+#define configTOTAL_HEAP_SIZE                   ((size_t)1024*3)
 
 /* Software timer definitions ----------------------------------------------- */
 //  <o>Timer task stack depth [words] <0-65535>
 //  <i> Stack for timer task in words.
 //  <i> Default: 80
-#define configTIMER_TASK_STACK_DEPTH            256
+#define configTIMER_TASK_STACK_DEPTH            80
 
 //  <o>Timer task priority <0-56>
 //  <i> Timer task priority.

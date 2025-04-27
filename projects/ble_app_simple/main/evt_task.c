@@ -15,7 +15,9 @@
  * INCLUDES
  */
 #include "om_driver.h"
+#if (CONFIG_SHELL)
 #include "shell.h"
+#endif
 #include "evt.h"
 #include "pm.h"
 #include "bsp.h"
@@ -32,8 +34,6 @@
 /*********************************************************************
  * MACROS
  */
-#define LOG_UART    OM_UART0
-
 #define EVENT_BLUETOOTH_MASK        0x0001
 #define EVENT_SYSTEM_RESERVE_MASK   0x00FF
 
@@ -51,7 +51,6 @@
  * LOCAL VARIABLES
  */
 static osEventFlagsId_t xEvtEvent = NULL;
-//static evt_timer_t evt_timer_0;
 
 /*********************************************************************
  * GLOBAL VARIABLES
@@ -87,10 +86,6 @@ static void hardware_init(void)
  * @param[in] param  param
  *******************************************************************************
  */
-//static void evt_timer_0_handler(evt_timer_t *timer, void *param)
-//{
-////    OM_LOG_DEBUG("evt timer: %08X\n", timer->time);
-//}
 
 /**
  * @brief  bluetooth event handler
@@ -113,12 +108,14 @@ static void vEvtScheduleTask(void *argument)
     hardware_init();
     drv_rf_init();
     nvds_init(0);
+    OM_LOG_INIT();
     #if (CONFIG_SHELL)
     shell_init(NULL);
     #endif
+    evt_init();
 
     struct ob_stack_param param = {
-        .max_connection = 4,
+        .max_connection = 1,
         .max_ext_adv_set = 4,
         .max_att_mtu = 247,
         .max_gatt_serv_num = 8,
@@ -135,9 +132,6 @@ static void vEvtScheduleTask(void *argument)
     //app_media_hid_init();
     app_tspp_init();
     app_wechat_lite_init();
-
-    // simple event timer
-    //    evt_timer_set(&evt_timer_0, 2000, EVT_TIMER_REPEAT, evt_timer_0_handler, NULL);
 
     // Create event
     xEvtEvent = osEventFlagsNew(NULL);

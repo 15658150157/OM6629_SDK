@@ -50,10 +50,19 @@ extern "C"
 #define FLASH_STATUS_1_WEL_MASK                 (0x1U << 1)
 #define FLASH_STATUS_1_BP_POS                    2
 #define FLASH_STATUS_1_BP_MASK                  (0x1FU << 2)
+#define FLASH_STATUS_1_SRP0_POS                  7
+#define FLASH_STATUS_1_SRP0_MASK                (0x1U << 7)
+
+#define FLASH_STATUS_2_SRP1_POS                  0
+#define FLASH_STATUS_2_SRP1_MASK                (0x1U << 0)
 #define FLASH_STATUS_2_QE_POS                    1
 #define FLASH_STATUS_2_QE_MASK                  (0x1U << 1)
 #define FLASH_STATUS_2_CMP_POS                   6
 #define FLASH_STATUS_2_CMP_MASK                 (0x1U << 6)
+
+#define GD_FLASH_STATUS_2_DC_POS                 4
+#define GD_FLASH_STATUS_2_DC_MASK               (0x1U << 4)
+
 
 #define FLASH_READ_PARA_DUMMY_CYCLE_POS          4
 #define FLASH_READ_PARA_DUMMY_CYCLE_MASK        (0x03U << 4)
@@ -74,8 +83,10 @@ extern "C"
 
 #define FLASH_PAGE_SIZE                          (256)
 
+// flash default FREQ HZ (8M-DELAY2 is stable when DVDD is changed)
+#define FLASH_FREQ_HZ_DEFAULT                   8000000
 // flash default delay
-#define FLASH_DELAY_DEFAULT                     0x02
+#define FLASH_DELAY_DEFAULT                     2
 // flash max delay
 #define FLASH_DELAY_MAX                         0x0F
 // flash auto detect delay
@@ -98,29 +109,29 @@ typedef union {
 
 typedef enum {
     /* SPI mode */
-    FLASH_READ                       = 0U,
-    FLASH_FAST_READ                  = 1U,
-    FLASH_FAST_READ_DO               = 2U,
-    FLASH_FAST_READ_DIO              = 3U,
-    FLASH_FAST_READ_QO               = 4U,
-    FLASH_FAST_READ_QIO              = 5U,
+    FLASH_READ                       = 0x00,
+    FLASH_FAST_READ                  = 0x01,
+    FLASH_FAST_READ_DO               = 0x02,
+    FLASH_FAST_READ_DIO              = 0x03,
+    FLASH_FAST_READ_QO               = 0x04,
+    FLASH_FAST_READ_QIO              = 0x05,
     /* QPI mode, and for external flash only */
-    FLASH_FAST_READ_QPI_4_DUMMY      = 10U,
-    FLASH_FAST_READ_QPI_6_DUMMY      = 11U,
-    FLASH_FAST_READ_QPI_8_DUMMY      = 12U,
-    FLASH_FAST_READ_QPI_10_DUMMY     = 13U,
-    FLASH_FAST_READ_QIO_QPI_4_DUMMY  = 14U,
-    FLASH_FAST_READ_QIO_QPI_6_DUMMY  = 15U,
-    FLASH_FAST_READ_QIO_QPI_8_DUMMY  = 16U,
-    FLASH_FAST_READ_QIO_QPI_10_DUMMY = 17U,
+    FLASH_FAST_READ_QPI_4_DUMMY      = 0x10,
+    FLASH_FAST_READ_QPI_6_DUMMY      = 0x11,
+    FLASH_FAST_READ_QPI_8_DUMMY      = 0x12,
+    FLASH_FAST_READ_QPI_10_DUMMY     = 0x13,
+    FLASH_FAST_READ_QIO_QPI_4_DUMMY  = 0x14,
+    FLASH_FAST_READ_QIO_QPI_6_DUMMY  = 0x15,
+    FLASH_FAST_READ_QIO_QPI_8_DUMMY  = 0x16,
+    FLASH_FAST_READ_QIO_QPI_10_DUMMY = 0x17,
 } flash_read_t;
 
 typedef enum {
     /* SPI mode */
-    FLASH_PAGE_PROGRAM               = 0U,
-    FLASH_PAGE_PROGRAM_QI            = 1U,
+    FLASH_PAGE_PROGRAM               = 0x00,
+    FLASH_PAGE_PROGRAM_QI            = 0x01,
     /* QPI mode */
-    FLASH_PAGE_PROGRAM_QPI           = 10U,
+    FLASH_PAGE_PROGRAM_QPI           = 0x10,
 } flash_write_t;
 
 typedef enum {
@@ -130,17 +141,21 @@ typedef enum {
     FLASH_ERASE_CHIP,
 } flash_erase_t;
 
+/*
+ *  Attention:
+ *      The flash_protect_t support the following flash:
+ *      GD25WQ16E, GD25WQ80E, GD25WQ40E,
+ *      P25Q40SU, P25Q80SU, P25Q16SU,
+ *      GT25Q40D, GT25Q80A
+ */
 typedef enum {
     FLASH_PROTECT_ALL                        = 0x00U << FLASH_STATUS_1_BP_POS,
     FLASH_PROTECT_UPPER_1_BLOCK_UNPROTECTED  = 0x01U << FLASH_STATUS_1_BP_POS,
     FLASH_PROTECT_UPPER_2_BLOCK_UNPROTECTED  = 0x02U << FLASH_STATUS_1_BP_POS,
     FLASH_PROTECT_UPPER_4_BLOCK_UNPROTECTED  = 0x03U << FLASH_STATUS_1_BP_POS,
-    FLASH_PROTECT_UPPER_8_BLOCK_UNPROTECTED  = 0x04U << FLASH_STATUS_1_BP_POS,
-    FLASH_PROTECT_UPPER_16_BLOCK_UNPROTECTED = 0x05U << FLASH_STATUS_1_BP_POS,
     FLASH_PROTECT_UPPER_1_SECTOR_UNPROTECTED = 0x11U << FLASH_STATUS_1_BP_POS,
     FLASH_PROTECT_UPPER_2_SECTOR_UNPROTECTED = 0x12U << FLASH_STATUS_1_BP_POS,
     FLASH_PROTECT_UPPER_4_SECTOR_UNPROTECTED = 0x13U << FLASH_STATUS_1_BP_POS,
-    FLASH_PROTECT_UPPER_8_SECTOR_UNPROTECTED = 0x14U << FLASH_STATUS_1_BP_POS,
     FLASH_PROTECT_NONE                       = 0x1FU << FLASH_STATUS_1_BP_POS,
 } flash_protect_t;
 
@@ -215,6 +230,13 @@ typedef struct __PACKED {
     flash_write_t write_cmd;                /*!< Command for writing, see@ref flash_write_t */
     flash_spi_mode_t spi_mode;              /*!< Standard SPI mode, see@ref flash_spi_mode_t */
 } flash_config_t;
+
+typedef struct {
+    uint8_t auto_delay_en;                  /*!< Auto delay enable */
+    uint8_t auto_delay;                     /*!< Auto delay value */
+    uint8_t valid_delay_min;                /*!< Minimum valid delay value */
+    uint8_t valid_delay_max;                /*!< Maximum valid delay value */
+} flash_delay_info_t;
 
 #ifdef __cplusplus
 }

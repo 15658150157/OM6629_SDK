@@ -145,7 +145,7 @@ $(document).ready(function(){initNavTree('FAQ.html',''); initResizable(); });
 <h2><a class="anchor" id="autotoc_md43"></a>
 5. How to speed up the execution of my code ?</h2>
 <p>You can try following ways:</p><ul>
-<li>Use faster system and CPU clock, but this leads higher power consumption. (Refrence <a class="el" href="group__PMU.html#ga72023cb355be632499f72c5ed8b207e3">drv_pmu_xtal32m_x2_startup</a> and <a class="el" href="group__RCC.html#ga0a69a21da775ad8f903bd290a385c3ba">drv_rcc_clock_set</a> (RCC_CLK_CPU, 1))</li>
+<li>Use faster system and CPU clock, but this leads higher power consumption. (Refrence <a class="el" href="group__PMU.html#ga6aa87ec5b6d3ba5ba5674f142f1be70a">drv_pmu_clk64m_enable</a> and <a class="el" href="group__RCC.html#ga0a69a21da775ad8f903bd290a385c3ba">drv_rcc_clock_set</a> (RCC_CLK_CPU, 1))</li>
 <li>Do not use MicroLIB of KEIL.</li>
 <li>Put critical code into SRAM. (Use <code>__RAM_CODE</code> or <code>__RAM_RODATA</code> macro to critical function, or put the critical file(.o) into <code>ER_RAM</code> section in KEIL scatter file).</li>
 <li>Use higher compiler optimization level.</li>
@@ -218,7 +218,7 @@ $(document).ready(function(){initNavTree('FAQ.html',''); initResizable(); });
 <ul>
 <li>Point 1: Check a global variable, that is controled by functions <a class="el" href="group__PM.html#gaae0a5bf0f02a1932a9c7e67d1dd4c890" title="pm sleep prevent">pm_sleep_prevent()</a> / <a class="el" href="group__PM.html#ga3de7dba19bee189c19e82e5cc0dcc603" title="pm sleep allow">pm_sleep_allow()</a>;</li>
 <li>Point 2: Check drv_pmu_sleep_status() function, that is from <code>drv_pmu.c</code>;</li>
-<li>Point 3: Check some of the registered callback functions, that is registered by <a class="el" href="group__PM.html#gae9d1c8d7e754903bd934acf207fd7312" title="pm sleep checker register">pm_sleep_checker_callback_register()</a>;</li>
+<li>Point 3: Check some of the registered callback functions, that is registered by <a class="el" href="group__PM.html#gaec024639daf77b28278ef0a8d61b99ef" title="pm sleep checker register">pm_sleep_checker_callback_register()</a>;</li>
 <li>Point 4: Check the global sleep enable control, that is controled by function <a class="el" href="group__PM.html#ga9de92c7182c5638b6fcc51ac520d004c" title="pm sleep enable or disable">pm_sleep_enable()</a>;</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md46"></a>

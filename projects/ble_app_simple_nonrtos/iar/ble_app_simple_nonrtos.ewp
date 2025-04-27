@@ -216,21 +216,19 @@
           <name>CCDefines</name>
           <state>CONFIG_BLE_HOST</state>
           <state>CONFIG_LE_BROADCASTER=1</state>
-          <state>CONFIG_LE_OBSERVER=1</state>
           <state>CONFIG_LE_PERIPHERAL=1</state>
-          <state>CONFIG_LE_CENTRAL=1</state>
-          <state>CONFIG_LE_ACTIVITY_NB=10</state>
-          <state>CONFIG_LE_CONNECTION_NB=8</state>
+          <state>CONFIG_LE_ACTIVITY_NB=2</state>
+          <state>CONFIG_LE_CONNECTION_NB=1</state>
           <state>CONFIG_LE_WHITELIST_NB=6</state>
           <state>CONFIG_LE_LL_HCI_CMD_PKTS_NB=2</state>
           <state>CONFIG_LE_LL_RX_DATA_BUF_NB=3</state>
           <state>CONFIG_LE_LL_RX_DATA_BUF_SIZE=256</state>
           <state>CONFIG_LE_LL_TX_ACL_BUF_NB=3</state>
           <state>CONFIG_LE_LL_TX_ACL_BUF_SIZE=256</state>
-          <state>CONFIG_LE_LL_TX_ADV_BUF_NB=5</state>
-          <state>CONFIG_LE_LL_TX_ADV_FRAG_NB=2</state>
-          <state>CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254</state>
-          <state>CONFIG_LE_LL_TX_LLCP_BUF_NB=11</state>
+          <state>CONFIG_LE_LL_TX_ADV_BUF_NB=2</state>
+          <state>CONFIG_LE_LL_TX_ADV_FRAG_NB=1</state>
+          <state>CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=37</state>
+          <state>CONFIG_LE_LL_TX_LLCP_BUF_NB=3</state>
           <state>OM6627X=1</state>
           <state>CONFIG_HARDWARE_VERSION=1</state>
         </option>
@@ -545,21 +543,19 @@
           <name>ADefines</name>
           <state>CONFIG_BLE_HOST</state>
           <state>CONFIG_LE_BROADCASTER=1</state>
-          <state>CONFIG_LE_OBSERVER=1</state>
           <state>CONFIG_LE_PERIPHERAL=1</state>
-          <state>CONFIG_LE_CENTRAL=1</state>
-          <state>CONFIG_LE_ACTIVITY_NB=10</state>
-          <state>CONFIG_LE_CONNECTION_NB=8</state>
+          <state>CONFIG_LE_ACTIVITY_NB=2</state>
+          <state>CONFIG_LE_CONNECTION_NB=1</state>
           <state>CONFIG_LE_WHITELIST_NB=6</state>
           <state>CONFIG_LE_LL_HCI_CMD_PKTS_NB=2</state>
           <state>CONFIG_LE_LL_RX_DATA_BUF_NB=3</state>
           <state>CONFIG_LE_LL_RX_DATA_BUF_SIZE=256</state>
           <state>CONFIG_LE_LL_TX_ACL_BUF_NB=3</state>
           <state>CONFIG_LE_LL_TX_ACL_BUF_SIZE=256</state>
-          <state>CONFIG_LE_LL_TX_ADV_BUF_NB=5</state>
-          <state>CONFIG_LE_LL_TX_ADV_FRAG_NB=2</state>
-          <state>CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254</state>
-          <state>CONFIG_LE_LL_TX_LLCP_BUF_NB=11</state>
+          <state>CONFIG_LE_LL_TX_ADV_BUF_NB=2</state>
+          <state>CONFIG_LE_LL_TX_ADV_FRAG_NB=1</state>
+          <state>CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=37</state>
+          <state>CONFIG_LE_LL_TX_LLCP_BUF_NB=3</state>
           <state>OM6627X=1</state>
           <state>CONFIG_HARDWARE_VERSION=1</state>
         </option>
@@ -872,7 +868,7 @@
         </option>
         <option>
           <name>IlinkAdditionalLibs</name>
-          <state>$PROJ_DIR$/../../../components/ble/controller/lib/IAR/libblectlr_full.a</state>
+          <state>$PROJ_DIR$/../../../components/ble/controller/lib/IAR/libblectlr_1peripheral.a</state>
           <state>$PROJ_DIR$/../../../components/ble/host/lib/IAR/libblehost_full.a</state>
           <state>$PROJ_DIR$/../../../hal/device/IAR/libcpft.a</state>
         </option>

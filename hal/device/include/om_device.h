@@ -222,6 +222,11 @@ typedef enum {
 /* Memory base address */
 #define OM_MEM_ROM_BASE                0x00100000U
 #define OM_MEM_RAM_BASE                0x00200000U
+#if (OM6627X)
+#define OM_MEM_RAM_SIZE                (128*1024U)
+#else
+#define OM_MEM_RAM_SIZE                (256*1024U)
+#endif
 #define OM_MEM_FLASH0_NONCACHED_BASE   0x50000000U
 #define OM_MEM_FLASH0_CACHED_BASE      0x00400000U
 #define OM_MEM_FLASH1_NONCACHED_BASE   0x60000000U

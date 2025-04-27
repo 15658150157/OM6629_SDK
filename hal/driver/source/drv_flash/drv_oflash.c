@@ -125,18 +125,19 @@
  * TYPEDEFS
  */
 typedef struct {
-    drv_isr_callback_t isr_cb;      /*!< Interrupt callback */
-    uint32_t addr;                  /*!< Flash address to write */
-    uint8_t *data;                  /*!< Data buffer to write */
-    uint32_t data_len;              /*!< Total length of data to write */
-    uint32_t data_cnt;              /*!< Length of data written */
-    flash_read_t read_cmd;          /*!< Flash command used in reading data, see@flash_read_t */
-    flash_write_t write_cmd;        /*!< Flash command used in writing data, see@flash_write_t */
-    uint8_t xpi_mode;               /*!< Indicate flash is in QPI or SPI mode */
-    uint8_t xba_mode;               /*!< Indicate flash is in 4Byte or 3Byte address mode */
-    flash_trans_state_t write_int_s;/*!< Write state, used for write interrupt */
-    flash_state_t state;            /*!< Indicate flash is state on reading or writing */
-    flash_id_t id;                  /*!< Flash id, see@flash_id_t */
+    drv_isr_callback_t isr_cb;              /*!< Interrupt callback */
+    uint32_t addr;                          /*!< Flash address to write */
+    uint8_t *data;                          /*!< Data buffer to write */
+    uint32_t data_len;                      /*!< Total length of data to write */
+    uint32_t data_cnt;                      /*!< Length of data written */
+    flash_read_t read_cmd;                  /*!< Flash command used in reading data, see@flash_read_t */
+    flash_write_t write_cmd;                /*!< Flash command used in writing data, see@flash_write_t */
+    uint8_t xpi_mode;                       /*!< Indicate flash is in QPI or SPI mode */
+    uint8_t xba_mode;                       /*!< Indicate flash is in 4Byte or 3Byte address mode */
+    flash_trans_state_t write_int_s;        /*!< Write state, used for write interrupt */
+    flash_state_t state;                    /*!< Indicate flash is state on reading or writing */
+    flash_id_t id;                          /*!< Flash id, see@flash_id_t */
+    flash_delay_info_t delay_info;          /*!< Delay information */
 } oflash_env_t;
 
 
@@ -544,9 +545,12 @@ __OF_RAM_CODE static om_error_t oflash_auto_delay_init(flash_frame_t *id_frame,
     uint8_t retry_cnt = 0;
     om_error_t error = OM_ERROR_FAIL;
 
+    if (drv_rcc_clock_get(RCC_CLK_OSPI1) == 0) {
+        DRV_RCC_CLOCK_ENABLE(RCC_CLK_OSPI1, 1);
+    }
     OM_CRITICAL_BEGIN();
     // set flash low frequency so it can work
-    ospicfg.clk_div = 16;
+    ospicfg.clk_div = drv_rcc_clock_get(RCC_CLK_OSPI1) / FLASH_FREQ_HZ_DEFAULT;
     ospicfg.sample_cfg.sdr_async.sdr_async_dly = FLASH_DELAY_DEFAULT;
     drv_ospi_init(OM_OSPI1, &ospicfg);
     // read id twice, save the true id to id1
@@ -554,6 +558,7 @@ __OF_RAM_CODE static om_error_t oflash_auto_delay_init(flash_frame_t *id_frame,
         if ((oflash_read_id(id_frame, &id1) == OM_ERROR_OK) && (oflash_read_id(id_frame, &id2) == OM_ERROR_OK) && (id1.id == id2.id)) {
             break;
         }
+
         retry_cnt++;
         if (retry_cnt >= FLASH_AUTO_DLY_RETYR_CNT) {
             goto EXIT;
@@ -578,7 +583,7 @@ __OF_RAM_CODE static om_error_t oflash_auto_delay_init(flash_frame_t *id_frame,
     }
     if (delay1 == -1) {
         // faild, then set flash low frequency so it can work
-        ospicfg.clk_div = 16;
+        ospicfg.clk_div = drv_rcc_clock_get(RCC_CLK_OSPI1) / FLASH_FREQ_HZ_DEFAULT;
         ospicfg.sample_cfg.sdr_async.sdr_async_dly = FLASH_DELAY_DEFAULT;
     } else {
         ospicfg.sample_cfg.sdr_async.sdr_async_dly = (delay1 + delay2) / 2;
@@ -588,6 +593,10 @@ __OF_RAM_CODE static om_error_t oflash_auto_delay_init(flash_frame_t *id_frame,
     OM_CRITICAL_END();
 
 EXIT:
+    flash1_env.delay_info.auto_delay = ospicfg.sample_cfg.sdr_async.sdr_async_dly;
+    flash1_env.delay_info.valid_delay_max = delay2;
+    flash1_env.delay_info.valid_delay_min = delay1;
+    flash1_env.delay_info.auto_delay_en = 1;
     return error;
 }
 
@@ -601,6 +610,21 @@ om_error_t drv_oflash_init(OM_OSPI_Type *om_flash, const flash_config_t *config)
     oflash_env_t *env = &flash1_env;
     flash_frame_t read_frame = flash_read_frame_get(config->read_cmd);
     flash_frame_t write_frame = flash_write_frame_get(config->write_cmd);
+    flash_config_t flash_cfg;
+
+    if (drv_rcc_clock_get(RCC_CLK_OSPI1) == 0) {
+        DRV_RCC_CLOCK_ENABLE(RCC_CLK_OSPI1, 1);
+    }
+    if (!config) {
+        // If config is NULL, set default config, freq is 8MHz, delay is 2, bus width is 2
+        flash_cfg.clk_div = drv_rcc_clock_get(RCC_CLK_OSPI1) / FLASH_FREQ_HZ_DEFAULT;
+        flash_cfg.delay = FLASH_DELAY_DEFAULT;
+        flash_cfg.spi_mode = FLASH_SPI_MODE_0;
+        flash_cfg.read_cmd = FLASH_FAST_READ_DO;
+        flash_cfg.write_cmd = FLASH_PAGE_PROGRAM;
+    } else {
+        flash_cfg = *config;
+    }
     ospi_config_t ospi_config = {
         .cs_config          = NULL,
         .read_frame_cfg     = {
@@ -613,13 +637,13 @@ om_error_t drv_oflash_init(OM_OSPI_Type *om_flash, const flash_config_t *config)
         },
         .read_opcode        = read_frame.cmd,
         .write_opcode       = write_frame.cmd,
-        .mode               = (ospi_mode_t)config->spi_mode,
+        .mode               = (ospi_mode_t)flash_cfg.spi_mode,
         .page_cross_en      = 0,
         .page_size          = FLASH_PAGE_SIZE,
-        .clk_div            = config->clk_div,
+        .clk_div            = flash_cfg.clk_div,
         .sdr_async_en       = 1,
         .sample_cfg.sdr_async.sdr_async_dly
-                            = config->delay,
+                            = flash_cfg.delay,
         .rw_data_width      = 0,
         .opcode_bypass_en   = 0,
         .is_normal_protocol = 1,
@@ -630,10 +654,10 @@ om_error_t drv_oflash_init(OM_OSPI_Type *om_flash, const flash_config_t *config)
 
     // 1. Flash only support SPI mode 0/3.
     // 2. In SPI mode 3, clock division must be at least 2
-    if (config->spi_mode == FLASH_SPI_MODE_1 ||
-            config->spi_mode == FLASH_SPI_MODE_2 ||
-            (config->spi_mode == FLASH_SPI_MODE_3 && config->clk_div < 2)) {
-        return OM_ERROR_PARAMETER;
+    if (flash_cfg.spi_mode == FLASH_SPI_MODE_1 ||
+        flash_cfg.spi_mode == FLASH_SPI_MODE_2 ||
+        (flash_cfg.spi_mode == FLASH_SPI_MODE_3 && flash_cfg.clk_div < 2)) {
+            return OM_ERROR_PARAMETER;
     }
     // auto delay
     if (config->delay == FLASH_DELAY_AUTO) {
@@ -646,10 +670,10 @@ om_error_t drv_oflash_init(OM_OSPI_Type *om_flash, const flash_config_t *config)
         drv_ospi_init(om_flash, &ospi_config);
     }
     // Store read and write command
-    if ((error = drv_oflash_read_cmd_set(om_flash, config->read_cmd)) != OM_ERROR_OK) {
+    if ((error = drv_oflash_read_cmd_set(om_flash, flash_cfg.read_cmd)) != OM_ERROR_OK) {
         goto INIT_EXIT;
     }
-    if ((error = drv_oflash_write_cmd_set(om_flash, config->write_cmd)) != OM_ERROR_OK) {
+    if ((error = drv_oflash_write_cmd_set(om_flash, flash_cfg.write_cmd)) != OM_ERROR_OK) {
         goto INIT_EXIT;
     }
     // Read FLASH id
@@ -1037,6 +1061,7 @@ om_error_t drv_oflash_write_status(OM_OSPI_Type *om_flash, uint8_t status[2])
 {
     flash_frame_t reg_frame, wip_frame;
     oflash_env_t *env = &flash1_env;
+    om_error_t error;
 
     CMD_FRAME_SET(&reg_frame, FLASH_WRITE_STA_REG1_CFG(env->xpi_mode));
     CMD_FRAME_SET(&wip_frame, FLASH_READ_STA_REG1_CFG(env->xpi_mode));
@@ -1044,14 +1069,13 @@ om_error_t drv_oflash_write_status(OM_OSPI_Type *om_flash, uint8_t status[2])
     OM_CRITICAL_BEGIN();
     #endif
     // write enable
-    if (oflash_write_enable(om_flash) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
+    if ((error = oflash_write_enable(om_flash)) == OM_ERROR_OK) {
+        error = oflash_write_reg(&reg_frame, &wip_frame, status, 2);
     }
-    oflash_write_reg(&reg_frame, &wip_frame, status, 2);
     #if (RTE_FLASH1_XIP)
     OM_CRITICAL_END();
     #endif
-    return OM_ERROR_OK;
+    return error;
 }
 
 om_error_t drv_oflash_write_status_reg1(OM_OSPI_Type *om_flash, uint8_t *status)
@@ -1080,6 +1104,7 @@ om_error_t drv_oflash_write_status_reg1(OM_OSPI_Type *om_flash, uint8_t *status)
 om_error_t drv_oflash_write_status_reg2(OM_OSPI_Type *om_flash, uint8_t *status)
 {
     flash_frame_t reg_frame, wip_frame;
+    uint8_t rd_status;
 
     CMD_FRAME_SET(&reg_frame, FLASH_WRITE_STA_REG2_CFG(flash1_env.xpi_mode));
     CMD_FRAME_SET(&wip_frame, FLASH_READ_STA_REG1_CFG(flash1_env.xpi_mode));
@@ -1097,6 +1122,13 @@ om_error_t drv_oflash_write_status_reg2(OM_OSPI_Type *om_flash, uint8_t *status)
     #if (RTE_FLASH1_XIP)
     OM_CRITICAL_END();
     #endif
+    // read back to verify
+    if (drv_oflash_read_status_reg2(om_flash, &rd_status) != OM_ERROR_OK) {
+        return OM_ERROR_FAIL;
+    }
+    if (rd_status != *status) {
+        return OM_ERROR_VERIFY;
+    }
     return OM_ERROR_OK;
 }
 
@@ -1127,24 +1159,25 @@ om_error_t drv_oflash_modifiy_status_bits(OM_OSPI_Type *om_flash, uint8_t status
 {
     uint8_t s1[2];
     uint8_t s2[2];
+    om_error_t error;
 
     // Read status reg
-    if (drv_oflash_read_status_reg1(om_flash, &s1[0]) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
+    if ((error = drv_oflash_read_status_reg1(om_flash, &s1[0]) ) != OM_ERROR_OK) {
+        goto ERR;
     }
-    if (drv_oflash_read_status_reg2(om_flash, &s1[1]) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
+    if ((error = drv_oflash_read_status_reg2(om_flash, &s1[1])) != OM_ERROR_OK) {
+        goto ERR;
     }
     // Read status reg again
-    if (drv_oflash_read_status_reg1(om_flash, &s2[0]) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
+    if ((error = drv_oflash_read_status_reg1(om_flash, &s2[0])) != OM_ERROR_OK) {
+        goto ERR;
     }
-    if (drv_oflash_read_status_reg2(om_flash, &s2[1]) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
+    if ((error = drv_oflash_read_status_reg2(om_flash, &s2[1]) ) != OM_ERROR_OK) {
+        goto ERR;
     }
     // check status reg
     if (s1[0] != s2[0] || s1[1] != s2[1]) {
-        return OM_ERROR_FAIL;
+        return OM_ERROR_VERIFY;
     }
     if ((s1[0] & mask[0]) != (status[0] & mask[0]) ||
             (s1[1] & mask[1]) != (status[1] & mask[1])) {
@@ -1152,14 +1185,13 @@ om_error_t drv_oflash_modifiy_status_bits(OM_OSPI_Type *om_flash, uint8_t status
         s1[0] |= (status[0] & mask[0]);
         s1[1] &= ~mask[1];
         s1[1] |= (status[1] & mask[1]);
-        s1[0] |= FLASH_STATUS_1_WEL_MASK;
     } else {
         return OM_ERROR_OK;
     }
-    if(drv_oflash_write_status(om_flash, s1) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
-    }
-    return OM_ERROR_OK;
+    return drv_oflash_write_status(om_flash, s1);
+
+ERR:
+    return error;
 }
 
 om_error_t drv_oflash_write_protect_set(OM_OSPI_Type *om_flash, flash_protect_t protect)
@@ -1180,27 +1212,14 @@ om_error_t drv_oflash_write_protect_set(OM_OSPI_Type *om_flash, flash_protect_t 
 
 om_error_t drv_oflash_quad_enable(OM_OSPI_Type *om_flash, bool enable)
 {
+    uint8_t mask[2] = {0, FLASH_STATUS_2_QE_MASK};
     uint8_t status[2] = {0, 0};
-    uint8_t s2[2] = {0, 0};
 
-    // Read status reg
-    drv_oflash_read_status_reg1(om_flash, &status[0]);
-    drv_oflash_read_status_reg2(om_flash, &status[1]);
-    // Read status reg again
-    drv_oflash_read_status_reg1(om_flash, &s2[0]);
-    drv_oflash_read_status_reg2(om_flash, &s2[1]);
-    if (status[0] != s2[0] || status[1] != s2[1]) {
-        return OM_ERROR_FAIL;
-    }
-    // Set QE bit, enable or disable
     if (enable) {
-        status[1] |= FLASH_STATUS_2_QE_MASK;
-    } else {
-        status[1] &= ~FLASH_STATUS_2_QE_MASK;
+        status[1] = FLASH_STATUS_2_QE_MASK;
     }
-    // Write status reg back
-    drv_oflash_write_status(om_flash, status);
-    return OM_ERROR_OK;
+
+    return drv_oflash_modifiy_status_bits(om_flash, status, mask);
 }
 
 om_error_t drv_oflash_read_param_set(OM_OSPI_Type *om_flash, uint8_t param)

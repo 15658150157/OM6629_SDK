@@ -30,6 +30,7 @@
 #include "om_driver.h"
 #include "om_log.h"
 
+
 /*******************************************************************************
  * MACROS
  */
@@ -82,10 +83,6 @@ typedef struct {
 typedef struct {
     bool      use_efuse;
     bool      register_store;
-#if (RTE_GPDMA)
-    uint8_t   dma_chan;
-#endif
-
     uint16_t  busy;
     uint16_t  rx_cnt;
     uint16_t  rx_num;
@@ -95,8 +92,6 @@ typedef struct {
     uint32_t  gpadc_cfg1;
     uint32_t  gpadc_cfg2;
     uint32_t  cali_cfg;
-    drv_gpadc_mode_t                mode;
-    drv_gpadc_gain_t                gain;
     drv_isr_callback_t              isr_cb;
     drv_gpadc_calib_t               cp_calib_value;
     drv_gpadc_flash_calib_t         ft_calib_value;
@@ -105,7 +100,13 @@ typedef struct {
     drv_gpadc_flash_calib_ex_3_t    ft_calib_ex_3_value;
     drv_gpadc_flash_calib_ex_4_t    ft_calib_ex_4_value;
     drv_gpadc_calib_t               cp_calib_ex_1_value;
+    drv_gpadc_mode_t                mode;
+    drv_gpadc_gain_t                gain;
+    #if (RTE_GPDMA)
+    uint8_t                         dma_chan;
+    #endif
 } drv_gpadc_env_t;
+
 
 /*******************************************************************************
  * CONST & VARIABLES
@@ -160,9 +161,12 @@ static void drv_gpadc_set_calib2reg(drv_gpadc_gain_t gain)
         REGW(&OM_GPADC->DCALI_CFG, MASK_1REG(GPADC_GAIN_ERR_DIFF, gpadc_env.cp_calib_ex_1_value.gain_error & 0x3FFF));
         if (gpadc_env.cp_calib_value.vos >> 14 & 0x1) {
             REGW(&OM_GPADC->CALI_CFG, MASK_1REG(GPADC_VOS, gpadc_env.cp_calib_value.vos | (0x1 << 15)));
-            REGW(&OM_GPADC->DCALI_CFG, MASK_1REG(GPADC_VOS_DIFF, gpadc_env.cp_calib_ex_1_value.vos | (0x1 << 15)));
         } else {
             REGW(&OM_GPADC->CALI_CFG, MASK_1REG(GPADC_VOS, gpadc_env.cp_calib_value.vos));
+        }
+        if (gpadc_env.cp_calib_ex_1_value.vos >> 14 & 0x1) {
+            REGW(&OM_GPADC->DCALI_CFG, MASK_1REG(GPADC_VOS_DIFF, gpadc_env.cp_calib_ex_1_value.vos | (0x1 << 15)));
+        } else {
             REGW(&OM_GPADC->DCALI_CFG, MASK_1REG(GPADC_VOS_DIFF, gpadc_env.cp_calib_ex_1_value.vos));
         }
         if (gpadc_env.cp_calib_value.vos_temp >> 9 & 0x1) {

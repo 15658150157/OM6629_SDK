@@ -1,7 +1,7 @@
 var group__COMMON =
 [
     [ "TIME", "group__TIME.html", "group__TIME" ],
-    [ "COMPILER", "group__COMPILER.html", null ],
+    [ "COMPILER", "group__COMPILER.html", "group__COMPILER" ],
     [ "ERROR", "group__ERROR.html", "group__ERROR" ],
     [ "FIFO", "group__FIFO.html", "group__FIFO" ],
     [ "LIST", "group__LIST.html", "group__LIST" ],

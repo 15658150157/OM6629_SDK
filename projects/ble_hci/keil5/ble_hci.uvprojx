@@ -79,7 +79,7 @@
           <AfterMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>1</RunUserProg2>
-            <UserProg1Name>fromelf.exe --bin --output "@L.bin" "#L"</UserProg1Name>
+            <UserProg1Name>fromelf.exe --bin --output "$L@L.bin" "#L"</UserProg1Name>
             <UserProg2Name>fromelf.exe -c --output "$L@L.dis" "#L"</UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -329,14 +329,14 @@
             <v6LangP>3</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
-            <v6Lto>0</v6Lto>
+            <v6Lto>1</v6Lto>
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls/>
-              <Define>CONFIG_BLE_HOST,CONFIG_LE_BROADCASTER=1,CONFIG_LE_OBSERVER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_CENTRAL=1,CONFIG_LE_ACTIVITY_NB=10,CONFIG_LE_CONNECTION_NB=8,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=5,CONFIG_LE_LL_TX_ADV_FRAG_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254,CONFIG_LE_LL_TX_LLCP_BUF_NB=11,OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
+              <Define>CONFIG_LE_BROADCASTER=1,CONFIG_LE_OBSERVER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_CENTRAL=1,CONFIG_LE_ACTIVITY_NB=10,CONFIG_LE_CONNECTION_NB=8,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=5,CONFIG_LE_LL_TX_ADV_FRAG_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254,CONFIG_LE_LL_TX_LLCP_BUF_NB=11,OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -352,9 +352,9 @@
             <ClangAsOpt>2</ClangAsOpt>
             <VariousControls>
               <MiscControls/>
-              <Define>CONFIG_BLE_HOST,CONFIG_LE_BROADCASTER=1,CONFIG_LE_OBSERVER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_CENTRAL=1,CONFIG_LE_ACTIVITY_NB=10,CONFIG_LE_CONNECTION_NB=8,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=5,CONFIG_LE_LL_TX_ADV_FRAG_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254,CONFIG_LE_LL_TX_LLCP_BUF_NB=11,OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
+              <Define>CONFIG_LE_BROADCASTER=1,CONFIG_LE_OBSERVER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_CENTRAL=1,CONFIG_LE_ACTIVITY_NB=10,CONFIG_LE_CONNECTION_NB=8,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=5,CONFIG_LE_LL_TX_ADV_FRAG_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254,CONFIG_LE_LL_TX_LLCP_BUF_NB=11,OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Aads>
           <LDads>
@@ -372,7 +372,6 @@
             <IncludeLibsPath/>
             <Misc>--diag_suppress=L6314 --diag_suppress=L6439W&#13;
 ../../../components/ble/controller/lib/ARM/libblectlr_full.lib&#13;
-../../../components/ble/host/lib/ARM/libblehost_full.lib&#13;
 ../../../hal/device/ARM/libcpft.lib</Misc>
             <LinkerInputFile/>
             <DisabledWarnings/>
@@ -476,12 +475,27 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>manu_system</GroupName>
+          <Files>
+            <File>
+              <FileName>fault_handle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/manu_system/fault_handle/fault_handle.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>om_log</GroupName>
           <Files>
             <File>
               <FileName>om_log.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../components/om_log/om_log.c</FilePath>
+            </File>
+            <File>
+              <FileName>om_log_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/om_log/om_log_port.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -522,10 +536,6 @@
         </Group>
         <Group>
           <GroupName>controller</GroupName>
-          <Files/>
-        </Group>
-        <Group>
-          <GroupName>host</GroupName>
           <Files/>
         </Group>
         <Group>

@@ -58,8 +58,6 @@ extern void example_lptim_oneshot_pwm(void);
 extern void example_lptim_buffered_pwm(void);
 extern void example_lptim_double_pwm(void);
 extern void example_pmu_timer(void);
-extern void example_psram(void);
-extern void example_psram_quad(void);
 extern void example_qdec(void);
 extern void example_qdec_with_led(void);
 extern void example_rgb_block(void);

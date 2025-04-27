@@ -158,7 +158,7 @@ Enumerations</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:gaf4a363ceb046b34146202c94e772a709"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__ERROR.html#gade1010dbf6169f89f4025b1187fea6cd">om_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__FLASH.html#gaf4a363ceb046b34146202c94e772a709">drv_flash_init</a> (<a class="el" href="group__FLASH.html#ga16f5b28b79013653a4f2e4ef301197db">OM_FLASH_Type</a> om_flash, const flash_config_t *config)</td></tr>
-<tr class="memdesc:gaf4a363ceb046b34146202c94e772a709"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize FLASH controller with specified configuration struct.  <br /></td></tr>
+<tr class="memdesc:gaf4a363ceb046b34146202c94e772a709"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize FLASH controller with specified configuration struct Note:  <br /></td></tr>
 <tr class="separator:gaf4a363ceb046b34146202c94e772a709"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5d584c6c97fb9d44cd45318fff78e6dd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__ERROR.html#gade1010dbf6169f89f4025b1187fea6cd">om_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__FLASH.html#ga5d584c6c97fb9d44cd45318fff78e6dd">drv_flash_read_id</a> (<a class="el" href="group__FLASH.html#ga16f5b28b79013653a4f2e4ef301197db">OM_FLASH_Type</a> om_flash, flash_id_t *id)</td></tr>
 <tr class="memdesc:ga5d584c6c97fb9d44cd45318fff78e6dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">FLASH read id, it will send command to flash.  <br /></td></tr>
@@ -514,7 +514,10 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Initialize FLASH controller with specified configuration struct. </p>
+<p>Initialize FLASH controller with specified configuration struct Note: </p>
+<ul>
+<li>This function will enable write protect for FLASH0, but not for FLASH1, if you want to change the type of write protect for FLASH0, please call drv_flash_write_protect_set function, and the type of write protect for FLASH1 will not be changed in this function.</li>
+</ul>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">om_flash</td><td>The FLASH controller device address </td></tr>

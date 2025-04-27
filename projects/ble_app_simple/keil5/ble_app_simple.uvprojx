@@ -79,7 +79,7 @@
           <AfterMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>1</RunUserProg2>
-            <UserProg1Name>fromelf.exe --bin --output "@L.bin" "#L"</UserProg1Name>
+            <UserProg1Name>fromelf.exe --bin --output "$L@L.bin" "#L"</UserProg1Name>
             <UserProg2Name>fromelf.exe -c --output "$L@L.dis" "#L"</UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -334,9 +334,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls/>
-              <Define>CONFIG_BLE_HOST,CONFIG_LE_BROADCASTER=1,CONFIG_LE_OBSERVER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_CENTRAL=1,CONFIG_LE_ACTIVITY_NB=10,CONFIG_LE_CONNECTION_NB=8,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=5,CONFIG_LE_LL_TX_ADV_FRAG_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254,CONFIG_LE_LL_TX_LLCP_BUF_NB=11,OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
+              <Define>CONFIG_BLE_HOST,CONFIG_LE_BROADCASTER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_ACTIVITY_NB=2,CONFIG_LE_CONNECTION_NB=1,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_NB=1,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=37,CONFIG_LE_LL_TX_LLCP_BUF_NB=3,OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/ble/profile/om_ancs;../../../components/ble/profile/om_bms;../../../components/ble/profile/om_cgms;../../../components/ble/profile/om_dfu;../../../components/ble/profile/om_gap_dis_batt;../../../components/ble/profile/om_hid_media;../../../components/ble/profile/om_tspp;../../../components/ble/profile/om_wechat_lite;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/ble/profile/om_ancs;../../../components/ble/profile/om_bms;../../../components/ble/profile/om_cgms;../../../components/ble/profile/om_dfu;../../../components/ble/profile/om_gap_dis_batt;../../../components/ble/profile/om_hid_media;../../../components/ble/profile/om_tspp;../../../components/ble/profile/om_wechat_lite;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -352,9 +352,9 @@
             <ClangAsOpt>2</ClangAsOpt>
             <VariousControls>
               <MiscControls/>
-              <Define>CONFIG_BLE_HOST,CONFIG_LE_BROADCASTER=1,CONFIG_LE_OBSERVER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_CENTRAL=1,CONFIG_LE_ACTIVITY_NB=10,CONFIG_LE_CONNECTION_NB=8,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=5,CONFIG_LE_LL_TX_ADV_FRAG_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254,CONFIG_LE_LL_TX_LLCP_BUF_NB=11,OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
+              <Define>CONFIG_BLE_HOST,CONFIG_LE_BROADCASTER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_ACTIVITY_NB=2,CONFIG_LE_CONNECTION_NB=1,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_NB=1,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=37,CONFIG_LE_LL_TX_LLCP_BUF_NB=3,OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/ble/profile/om_ancs;../../../components/ble/profile/om_bms;../../../components/ble/profile/om_cgms;../../../components/ble/profile/om_dfu;../../../components/ble/profile/om_gap_dis_batt;../../../components/ble/profile/om_hid_media;../../../components/ble/profile/om_tspp;../../../components/ble/profile/om_wechat_lite;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/ble/profile/om_ancs;../../../components/ble/profile/om_bms;../../../components/ble/profile/om_cgms;../../../components/ble/profile/om_dfu;../../../components/ble/profile/om_gap_dis_batt;../../../components/ble/profile/om_hid_media;../../../components/ble/profile/om_tspp;../../../components/ble/profile/om_wechat_lite;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Aads>
           <LDads>
@@ -371,7 +371,7 @@
             <IncludeLibs/>
             <IncludeLibsPath/>
             <Misc>--diag_suppress=L6314 --diag_suppress=L6439W&#13;
-../../../components/ble/controller/lib/ARM/libblectlr_full.lib&#13;
+../../../components/ble/controller/lib/ARM/libblectlr_1peripheral.lib&#13;
 ../../../components/ble/host/lib/ARM/libblehost_full.lib&#13;
 ../../../hal/device/ARM/libcpft.lib</Misc>
             <LinkerInputFile/>
@@ -467,21 +467,6 @@
               <FileName>om_list.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../common/source/om_list.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>shell</GroupName>
-          <Files>
-            <File>
-              <FileName>shell_common.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/shell/shell_common.c</FilePath>
-            </File>
-            <File>
-              <FileName>shell_port_rtos.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/shell/shell_port_rtos.c</FilePath>
             </File>
           </Files>
         </Group>

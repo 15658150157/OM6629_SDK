@@ -126,7 +126,7 @@ static osKernelState_t KernelState = osKernelInactive;
 
     static __RAM_DATA_NON_INIT uint8_t ucHeap[configTOTAL_HEAP_SIZE];
 
-    static HeapRegion_t xHeapRegions[] = {
+    static const HeapRegion_t xHeapRegions[] = {
       { ucHeap, configTOTAL_HEAP_SIZE },
       { NULL,   0                     }
     };

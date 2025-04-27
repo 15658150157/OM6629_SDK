@@ -517,7 +517,6 @@ extern "C"
 
 // for compatibility
 #define REGW   register_set
-#define REGSW  drv_pmu_register_step_set
 #define REGWA  register_set_raw
 #define REGW1  register_set1
 #define REGW0  register_set0

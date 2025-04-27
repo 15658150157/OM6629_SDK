@@ -45,6 +45,8 @@
 #include <string.h>
 #include "om_driver.h"
 
+#if (!RTE_AES_KEEP_RAW_ENGINE)
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -143,6 +145,7 @@ typedef struct {
     uint8_t             key[32];
 } aes_cmac_config_t;
 
+#endif /* RTE_AES_KEEP_RAW_ENGINE */
 
 /*******************************************************************************
  * EXTERN FUNCTIONS
@@ -171,6 +174,7 @@ extern om_error_t drv_aes_hw_setkey_enc(OM_AES_HW_Type *om_aes, const uint8_t *k
  */
 extern void drv_aes_hw_encrypt(OM_AES_HW_Type *om_aes, const uint8_t input[16], uint8_t output[16]);
 
+#if (!RTE_AES_KEEP_RAW_ENGINE)
 /**
  *******************************************************************************
  * @brief Set AES encrypt key
@@ -511,6 +515,8 @@ extern om_error_t drv_aes_cmac_crypt_stop(uint32_t om_aes, uint8_t mac[AES_BLOCK
 #ifdef __cplusplus
 }
 #endif
+
+#endif  /* (RTE_AES_KEEP_RAW_ENGINE)*/
 
 #endif  /* (RTE_AES) */
 

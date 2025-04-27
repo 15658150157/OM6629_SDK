@@ -33,7 +33,7 @@
 /*******************************************************************************
  * MACROS
  */
-#define USE_TRNG                    0U
+#define USE_TRNG                    1U
 
 #if USE_TRNG
 #define RNG_CLOCK_ENABLE(en)        DRV_RCC_CLOCK_ENABLE(RCC_CLK_TRNG, en)
@@ -57,10 +57,22 @@ static void drv_trng_init(void)
     // calib 1Ghz
     OM_TRNG->CSR0 &= ~TRNG_CSR0_PD_3P3_MASK;
     DRV_DELAY_US(8);
-    // config HOSC_FSEL_INIT and K_TARGET
+
+    DRV_RCC_ANA_CLK_ENABLE();
+    DRV_RCC_CLOCK_ENABLE(RCC_CLK_DAIF, 1U);
+    uint8_t cko16m_st = OM_DAIF->CLK_CFG & DAIF_XTAL32M_EN_CKO16M_DIG_MASK;
+    REGW1(&OM_DAIF->CLK_CFG, DAIF_XTAL32M_EN_CKO16M_DIG_MASK);
 
     OM_TRNG->CSR1 |= TRNG_CSR1_AFC_EN_MASK;
     DRV_DWT_WAIT_MS_UNTIL_TO(!(OM_TRNG->ISR & TRNG_ISR_AFC_DONE_MASK), 1000, err);
+
+    // Restore
+    if (cko16m_st) {
+        REGW1(&OM_DAIF->CLK_CFG, DAIF_XTAL32M_EN_CKO16M_DIG_MASK);
+    } else {
+        REGW0(&OM_DAIF->CLK_CFG, DAIF_XTAL32M_EN_CKO16M_DIG_MASK);
+    }
+    DRV_RCC_ANA_CLK_RESTORE();
 
     (void)err;
 }
@@ -76,14 +88,23 @@ static void drv_trng_init(void)
 static uint32_t drv_rng_get(void)
 {
     om_error_t err;
-    uint32_t random_val;
+    uint32_t random_val = 0;
 
     #if USE_TRNG
+    #define REPEAT_NUM      2U
+
     drv_trng_init();
+    OM_CRITICAL_BEGIN();
     OM_TRNG->CSR0 &= ~TRNG_CSR0_PD_3P3_MASK;
-    OM_TRNG->CSR1 |= TRNG_CSR1_GEN_EN_MASK;
-    DRV_DWT_WAIT_MS_UNTIL_TO(!(OM_TRNG->ISR & TRNG_ISR_RND_VLD_MASK), 1000, err);
-    random_val = (err == OM_ERROR_OK) ? OM_TRNG->RNDDR : 0x0;
+
+    for (uint8_t i = 0; i < REPEAT_NUM; i++) {
+        OM_TRNG->CSR1 |= TRNG_CSR1_GEN_EN_MASK;
+        DRV_DWT_WAIT_MS_UNTIL_TO(!(OM_TRNG->ISR & TRNG_ISR_RND_VLD_MASK), 1000, err);
+        OM_TRNG->ISR = TRNG_ISR_RND_VLD_MASK;
+        random_val ^= (err == OM_ERROR_OK) ? OM_TRNG->RNDDR : 0x0;
+    }
+    OM_TRNG->CSR0 |= TRNG_CSR0_PD_3P3_MASK;
+    OM_CRITICAL_END();
     #else
     DRV_DWT_WAIT_MS_UNTIL_TO(!(OM_RNG->RDY & RNG_READY_MASK), 1000, err);
     random_val = (err == OM_ERROR_OK) ? OM_RNG->RANDOM : 0x0;

@@ -66,8 +66,12 @@ DEVICE := $(shell echo $(device) | tr '[:lower:]' '[:upper:]')
 DEFINES += $(DEVICE)=1
 
 DEFINES += CONFIG_HARDWARE_VERSION=$(CONFIG_HARDWARE_VERSION)
-DEFINES += '__SDK_VERSION="$(shell svnversion -n $(SDK_DIR))"'
-DEFINES += '__PROJECT_VERSION="$(shell svnversion -n $(PROJECT_DIR))"'
+
+SUBVERSION_EXISTS := $(shell command -v svnversion 2>/dev/null)
+ifneq ($(SUBVERSION_EXISTS), )
+	DEFINES += '__SDK_VERSION="$(shell svnversion -n $(SDK_DIR))"'
+	DEFINES += '__PROJECT_VERSION="$(shell svnversion -n $(PROJECT_DIR))"'
+endif
 
 VPATH = $(PROJECT_DIR):$(SDK_DIR)
 

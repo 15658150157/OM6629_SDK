@@ -214,7 +214,6 @@
         </option>
         <option>
           <name>CCDefines</name>
-          <state>CONFIG_BLE_HOST</state>
           <state>CONFIG_LE_BROADCASTER=1</state>
           <state>CONFIG_LE_OBSERVER=1</state>
           <state>CONFIG_LE_PERIPHERAL=1</state>
@@ -358,12 +357,12 @@
           <state>$PROJ_DIR$/../../../common/include</state>
           <state>$PROJ_DIR$/../../../common/source</state>
           <state>$PROJ_DIR$/../../../components/shell</state>
+          <state>$PROJ_DIR$/../../../components/manu_system/fault_handle</state>
           <state>$PROJ_DIR$/../../../components/om_log</state>
           <state>$PROJ_DIR$/../../../components/nvds</state>
           <state>$PROJ_DIR$/../../../components/evt</state>
           <state>$PROJ_DIR$/../../../components/ble/include</state>
           <state>$PROJ_DIR$/../../../components/ble/controller/include</state>
-          <state>$PROJ_DIR$/../../../components/ble/host/include</state>
           <state>$PROJ_DIR$/../../../components/pm</state>
           <state>$PROJ_DIR$/../../../hal/CMSIS/Core/Include</state>
           <state>$PROJ_DIR$/../../../hal/driver/include</state>
@@ -394,7 +393,7 @@
         <option>
           <name>CCOptStrategy</name>
           <version>0</version>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>CCOptLevelSlave</name>
@@ -541,7 +540,6 @@
         </option>
         <option>
           <name>ADefines</name>
-          <state>CONFIG_BLE_HOST</state>
           <state>CONFIG_LE_BROADCASTER=1</state>
           <state>CONFIG_LE_OBSERVER=1</state>
           <state>CONFIG_LE_PERIPHERAL=1</state>
@@ -656,12 +654,12 @@
           <state>$PROJ_DIR$/../../../common/include</state>
           <state>$PROJ_DIR$/../../../common/source</state>
           <state>$PROJ_DIR$/../../../components/shell</state>
+          <state>$PROJ_DIR$/../../../components/manu_system/fault_handle</state>
           <state>$PROJ_DIR$/../../../components/om_log</state>
           <state>$PROJ_DIR$/../../../components/nvds</state>
           <state>$PROJ_DIR$/../../../components/evt</state>
           <state>$PROJ_DIR$/../../../components/ble/include</state>
           <state>$PROJ_DIR$/../../../components/ble/controller/include</state>
-          <state>$PROJ_DIR$/../../../components/ble/host/include</state>
           <state>$PROJ_DIR$/../../../components/pm</state>
           <state>$PROJ_DIR$/../../../hal/CMSIS/Core/Include</state>
           <state>$PROJ_DIR$/../../../hal/driver/include</state>
@@ -869,7 +867,6 @@
         <option>
           <name>IlinkAdditionalLibs</name>
           <state>$PROJ_DIR$/../../../components/ble/controller/lib/IAR/libblectlr_full.a</state>
-          <state>$PROJ_DIR$/../../../components/ble/host/lib/IAR/libblehost_full.a</state>
           <state>$PROJ_DIR$/../../../hal/device/IAR/libcpft.a</state>
         </option>
         <option>
@@ -1187,9 +1184,18 @@
     </file>
   </group>
   <group>
+    <name>manu_system</name>
+    <file>
+      <name>$PROJ_DIR$/../../../components/manu_system/fault_handle/fault_handle.c</name>
+    </file>
+  </group>
+  <group>
     <name>om_log</name>
     <file>
       <name>$PROJ_DIR$/../../../components/om_log/om_log.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$/../../../components/om_log/om_log_port.c</name>
     </file>
   </group>
   <group>
@@ -1215,9 +1221,6 @@
   </group>
   <group>
     <name>controller</name>
-  </group>
-  <group>
-    <name>host</name>
   </group>
   <group>
     <name>pm</name>

@@ -5,9 +5,7 @@ var group__QDEC =
       [ "led_pol", "structqdec__config__t.html#aeadc22a2b6ec0c9a3495f73560aa9f1d", null ],
       [ "led_pre", "structqdec__config__t.html#a78f78b51696cfb8f0f15ceed94cd7410", null ],
       [ "pin_sel_led", "structqdec__config__t.html#a0b71586beacef1fb88d05551167744d7", null ],
-      [ "report_int_en", "structqdec__config__t.html#a3758d4a434745c54f2e6a1224a11fc89", null ],
       [ "report_per", "structqdec__config__t.html#a8a7504fc81110682728abfb28dfd289b", null ],
-      [ "sample_int_en", "structqdec__config__t.html#a9ce8abc87b349452fd4809e6dc65d71a", null ],
       [ "sample_per", "structqdec__config__t.html#a82fc18abd6ac2a2255f4aba7936fdb4b", null ]
     ] ],
     [ "qdec_control_t", "group__QDEC.html#ga3e69a314b8b4502582f04573608fd925", [
@@ -24,7 +22,9 @@ var group__QDEC =
       [ "QDEC_CONTROL_GET_INIT_A", "group__QDEC.html#gga3e69a314b8b4502582f04573608fd925a41a4b9c27a07411f519bc2a2faee5eae", null ],
       [ "QDEC_CONTROL_GET_INIT_B", "group__QDEC.html#gga3e69a314b8b4502582f04573608fd925a9bcc15d1af5397c0912927679d49dc86", null ],
       [ "QDEC_CONTROL_GET_INPUT_A", "group__QDEC.html#gga3e69a314b8b4502582f04573608fd925a50fbed82196d7dbf4a46ef3aff6700b9", null ],
-      [ "QDEC_CONTROL_GET_INPUT_B", "group__QDEC.html#gga3e69a314b8b4502582f04573608fd925a08922e994c24511cdc2236a644ce4baf", null ]
+      [ "QDEC_CONTROL_GET_INPUT_B", "group__QDEC.html#gga3e69a314b8b4502582f04573608fd925a08922e994c24511cdc2236a644ce4baf", null ],
+      [ "QDEC_CONTROL_INT_ENABLE", "group__QDEC.html#gga3e69a314b8b4502582f04573608fd925a6a8ea302950b6f3b25e916c71866a449", null ],
+      [ "QDEC_CONTROL_INT_DISABLE", "group__QDEC.html#gga3e69a314b8b4502582f04573608fd925a54fc49475f0ffb4a98bc42448e1e97ac", null ]
     ] ],
     [ "qdec_led_pol_t", "group__QDEC.html#gacda07ed92668a64826365316aa1bb406", [
       [ "QDEC_LED_POL_LOW", "group__QDEC.html#ggacda07ed92668a64826365316aa1bb406a7fe302f0273dab502ddcadb4c651c0a8", null ],

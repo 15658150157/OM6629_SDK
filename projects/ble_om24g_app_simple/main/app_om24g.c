@@ -156,7 +156,8 @@ static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void
             //OM_LOG(OM_LOG_DEBUG, "si: %d\r\n", drv_om24g_get_rssi());
             //osDelay(500);
             //DRV_DELAY_MS(500);
-            OM_LOG(OM_LOG_DEBUG, "E:%d  R:%d \r\n", error_count, right_count);
+            OM_LOG(OM_LOG_DEBUG, "E:%d ", error_count);
+            OM_LOG(OM_LOG_DEBUG, "R:%d \r\n", right_count);
 
             #if ENABLE_SLEEP_MODE
             OM24G_CE_LOW();

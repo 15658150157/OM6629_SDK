@@ -1,9 +1,18 @@
 var group__RADIO =
 [
+    [ "rf_rx_mode_t", "group__RADIO.html#ga83fdf8ca31fddeeabb63c26add4265cf", [
+      [ "RF_RX_MODE_DEFAULT", "group__RADIO.html#gga83fdf8ca31fddeeabb63c26add4265cfabe46f79ba72b84e4c589e526a577ba9d", null ],
+      [ "RF_RX_MODE_HIGH_PERFORMANCE", "group__RADIO.html#gga83fdf8ca31fddeeabb63c26add4265cfaa0ad89fe3b6ac6e014ca67e4518244fa", null ],
+      [ "RF_RX_MODE_LOW_POWER", "group__RADIO.html#gga83fdf8ca31fddeeabb63c26add4265cfa545b4b55479f8a0fee7dba6f4e6e3319", null ]
+    ] ],
     [ "rf_tx_power_t", "group__RADIO.html#gab6265305d854ca50c47f2f0a140a5a3d", [
+      [ "RF_TX_POWER_9P5DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3daa3d674a3e63daa05ba3966f6c1f6a720", null ],
+      [ "RF_TX_POWER_9DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3da6bf363ac085559817fd77c96b1ccf388", null ],
       [ "RF_TX_POWER_8P5DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3da0691464c85b20cafe6026a1c70561862", null ],
       [ "RF_TX_POWER_8DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3da57aa0cad6c283d2b093a8f504e9442f4", null ],
+      [ "RF_TX_POWER_7P5DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3dad22e133086de1885d981361799a0ee77", null ],
       [ "RF_TX_POWER_7DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3da14965e5c750fa1fa42d86eb0a4fe19c6", null ],
+      [ "RF_TX_POWER_6P5DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3da7952da848ee438ba0e5706c263226462", null ],
       [ "RF_TX_POWER_6DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3da68ff98a733c9e002254f61dd5bf7ada4", null ],
       [ "RF_TX_POWER_5P5DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3da90c39f6ee4194fbe24b61c1a7b23ef84", null ],
       [ "RF_TX_POWER_5DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3da6e10034bd7e4f8746a9a564e961d84d8", null ],
@@ -17,6 +26,7 @@ var group__RADIO =
       [ "RF_TX_POWER_1DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3daf592404ba613b1d4fc24a0eb7ecf3264", null ],
       [ "RF_TX_POWER_0P5DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3dabd397431888eac16f42f6c3443558bef", null ],
       [ "RF_TX_POWER_0DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3da62838079b4f099dee742a367facf8c02", null ],
+      [ "RF_TX_POWER_N0P5DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3da924198e2ca2930bdd5e020eea0199a95", null ],
       [ "RF_TX_POWER_N1DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3dae3a2ff36101ec8739f79c24697217f72", null ],
       [ "RF_TX_POWER_N5DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3da1c5160a0077615fb1eee6b65fff253c5", null ],
       [ "RF_TX_POWER_N9DBM", "group__RADIO.html#ggab6265305d854ca50c47f2f0a140a5a3da136d248c4887985b1abdb731cbaa3bab", null ],
@@ -29,6 +39,7 @@ var group__RADIO =
     [ "drv_rf_carrier_enable", "group__RADIO.html#ga190968d1953fd78a65d28da591aa9805", null ],
     [ "drv_rf_full_rx_enable", "group__RADIO.html#gaecd223bc86ec14a1028328b0f27b291e", null ],
     [ "drv_rf_init", "group__RADIO.html#gadff9ec99619373cce1330040be9b862c", null ],
+    [ "drv_rf_rx_mode_set", "group__RADIO.html#ga29ba2345dfbed7e7567c5d804957b783", null ],
     [ "drv_rf_single_tone_enable", "group__RADIO.html#ga779c7924214e75ba57a8c418b0668807", null ],
     [ "drv_rf_tx_power_set", "group__RADIO.html#gae7b24c0b60027ef5ca1cc385f2367404", null ],
     [ "drv_rf_txrx_pin_enable", "group__RADIO.html#gaaef393576fb8022473af987f2b813e2d", null ]

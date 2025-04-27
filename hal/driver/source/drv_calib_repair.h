@@ -57,13 +57,11 @@ extern "C"
  */
 typedef struct {
     // rf and rc temperature repiar
-    uint32_t rc_rf_repair_interval;    // unit: 32K tick
     uint32_t rc_rf_repair_time;        // repair PMU_Timer count
     int16_t  rc_repair_temperature;
     int16_t  rf_repair_temperature;
 
     // rc32k temperature repair
-    uint32_t rc32k_repair_interval;   // unit: 32K tick
     uint32_t rc32k_repair_time;       // repair PMU_Timer count
 
     // Fix RF bug: temperature
@@ -77,10 +75,26 @@ typedef struct {
     int8_t vco_ldo;             // in CP
     int8_t buff_ldo;            // in CP
     int8_t ana_ldo;             // in CP/FT
-    int8_t kdco_lut_1m;         // in FT
-    int8_t kdco_lut_2m;         // in FT
+    uint8_t  soft_major;        // in FT
+    uint8_t  soft_minor;        // in FT
+    uint16_t soft_svn;          // in FT
+    uint8_t  ate_svn;           // in FT
+    uint8_t kdco_lut_1m_2406;   // in FT
+    uint8_t kdco_lut_1m_2420;   // in FT
+    uint8_t kdco_lut_1m_2434;   // in FT
+    uint8_t kdco_lut_1m_2448;   // in FT
+    uint8_t kdco_lut_1m_2462;   // in FT
+    uint8_t kdco_lut_1m_2476;   // in FT
+    uint8_t kdco_lut_2m_2406;   // in FT
+    uint8_t kdco_lut_2m_2420;   // in FT
+    uint8_t kdco_lut_2m_2434;   // in FT
+    uint8_t kdco_lut_2m_2448;   // in FT
+    uint8_t kdco_lut_2m_2462;   // in FT
+    uint8_t kdco_lut_2m_2476;   // in FT
     int8_t con_bias_idac_pll;   // in FT
     int8_t vco_cur;             // in CP/FT
+    float kdco_df1_1m;       // in FT, float 253.2k
+    float kdco_df1_2m;       // in FT, float 253.2k
 } drv_calib_repair_t;
 
 

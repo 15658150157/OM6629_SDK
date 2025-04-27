@@ -63,6 +63,11 @@ typedef enum {
 /**
  *******************************************************************************
  * @brief Initialize FLASH controller with specified configuration struct
+ *        Note:
+ *          - This function will enable write protect for FLASH0, but not for FLASH1,
+ *            if you want to change the type of write protect for FLASH0,
+ *            please call drv_flash_write_protect_set function,
+ *            and the type of write protect for FLASH1 will not be changed in this function.
  *
  * @param om_flash  The FLASH controller device address
  * @param config    The configuration struct pointer

@@ -96,11 +96,11 @@ om_error_t drv_efuse_init(void)
     bool rc32m_is_last_enabled;
 
     // swicth efuse clock resource, if xtal32m is enabled, switch to xtal32m(xtal32m and rc32m should exist simultaneously)
-    if (drv_pmu_topclk_xtal32m_is_enabled()) {
-        rc32m_is_last_enabled = drv_pmu_topclk_rc32m_power_enable(true);
+    if (drv_pmu_xtal32m_is_enabled()) {
+        rc32m_is_last_enabled = drv_pmu_rc32m_enable(true);
         OM_CPM->EFUSE_CFG |= CPM_EFUSE_CFG_CLK_SRC_SEL_MASK; // switch xtal32m
         if (!rc32m_is_last_enabled) {
-            drv_pmu_topclk_rc32m_power_enable(false);
+            drv_pmu_rc32m_enable(false);
         }
     }
 

@@ -27,6 +27,17 @@
 
 
 /*******************************************************************************
+ * LOCAL FUNCTIONS
+ */
+#if (RTE_PMU_POF_REGISTER_CALLBACK)
+static void pmu_pof_isr_callback(void *om_pmu, drv_event_t event, void *buff, void *num)
+{
+    OM_LOG(OM_LOG_WARN, "PMU POF event occured");
+}
+#endif
+
+
+/*******************************************************************************
  * PUBLIC FUNCTIONS
  */
 int main(void)
@@ -37,7 +48,7 @@ int main(void)
     // Init internal flash
     flash_config_t config = {
         .clk_div    = 0,
-        .delay      = 2,
+        .delay      = FLASH_DELAY_AUTO,
         .read_cmd   = FLASH_FAST_READ_QIO,
         .write_cmd  = FLASH_PAGE_PROGRAM,
         .spi_mode   = FLASH_SPI_MODE_0,
@@ -46,6 +57,12 @@ int main(void)
 
     // Init board
     board_init();
+
+    // PMU pof enable
+    #if (RTE_PMU_POF_REGISTER_CALLBACK)
+    drv_pmu_pof_register_callback(pmu_pof_isr_callback);
+    #endif
+    drv_pmu_pof_enable(true, PMU_POF_VOLTAGE_2P5V, PMU_POF_INT_NEG_EDGE);
 
     // Initialize CMSIS-RTOS
     osKernelInitialize();

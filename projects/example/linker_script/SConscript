@@ -1,35 +1,15 @@
 from build.building import *
 
-xip2ld = None
 linker_script = None
-if GetDepend('CONFIG_TOOL_CHAIN_GCC'):
-    xip2ld = {
-        'CONFIG_XIP_ROM'   : 'GCC/cm4f_rom.ld',
-        'CONFIG_XIP_FLASH' : 'GCC/cm4f_flash.ld',
-        'CONFIG_XIP_RAM'   : 'GCC/cm4f_ram.ld',
-    }
-elif GetDepend('CONFIG_TOOL_CHAIN_ARMCLANG'):
-        xip2ld = {
-        'CONFIG_XIP_ROM'   : 'GCC/cm4f_rom.sct',
-        'CONFIG_XIP_FLASH' : 'GCC/cm4f_flash.sct',
-        'CONFIG_XIP_RAM'   : 'GCC/cm4f_ram.sct',
-    }
-elif GetDepend('CONFIG_TOOL_CHAIN_ICCARM'):
-        xip2ld = {
-        'CONFIG_XIP_ROM'   : 'GCC/cm4f_rom.icf',
-        'CONFIG_XIP_FLASH' : 'GCC/cm4f_flash.icf',
-        'CONFIG_XIP_RAM'   : 'GCC/cm4f_ram.icf',
-    }
-else:
-       raise Exception('Toolchain is not configured or SDK donot support the compiler')
 
-if xip2ld:
-    for xip_mode in xip2ld.keys():
-        if GetDepend(xip_mode):
-            linker_script = xip2ld[xip_mode]
-            break
-    else:
-        raise Exception('Linker script donot supportted the device/core')
+if GetDepend('CONFIG_TOOL_CHAIN_GCC'):
+    linker_script = 'GCC/cm4f_flash.ld'
+elif GetDepend('CONFIG_TOOL_CHAIN_ARMCLANG'):
+    linker_script = 'KEIL/cm4f_flash.sct'
+elif GetDepend('CONFIG_TOOL_CHAIN_ICCARM'):
+    linker_script = 'IAR/cm4f_flash.icf'
+else:
+    raise Exception('Toolchain is not configured or SDK donot support the compiler')
 
 group = DefineGroup(name='linker_script', srcs=None, incs=None, LINKER_SCRIPT=linker_script)
 

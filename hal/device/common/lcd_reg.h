@@ -133,11 +133,11 @@ extern "C"
 #define LCD_SW_SPI_CFG1_SDATA_BYTE_CNT_POS              0
 #define LCD_SW_SPI_CFG1_SDATA_BYTE_CNT_MASK            (0xFFFFFU << 0)
 #define LCD_SW_SPI_CFG1_SDATA_BUS_WIDTH_POS             20
-#define LCD_SW_SPI_CFG1_SDATA_BUS_WIDTH_MASK           (0x7U << 20)
+#define LCD_SW_SPI_CFG1_SDATA_BUS_WIDTH_MASK           (0x3U << 20)
 #define LCD_SW_SPI_CFG1_BUF_WIDTH_BYTES_POS             24
 #define LCD_SW_SPI_CFG1_BUF_WIDTH_BYTES_MASK           (0x7U << 24)
 #define LCD_SW_SPI_CFG1_LIST_LOAD_EN_POS                30
-#define LCD_SW_SPI_CFG1_LIST_LOAD_EN_MASK              (0x1U << 29)
+#define LCD_SW_SPI_CFG1_LIST_LOAD_EN_MASK              (0x1U << 30)
 #define LCD_SW_SPI_CFG1_CFG_EN_POS                      31
 #define LCD_SW_SPI_CFG1_CFG_EN_MASK                    (0x1U << 31)
 /*******************************************************************************

@@ -245,7 +245,7 @@ Power Control</h1>
 <p>Power mode control depends on user setting, peripherals’ status and BLE’s status.</p>
 <ul>
 <li>The user power mode setting is managed by user who can use API <a class="el" href="group__PM.html#gaae0a5bf0f02a1932a9c7e67d1dd4c890">pm_sleep_prevent()</a> / <a class="el" href="group__PM.html#ga3de7dba19bee189c19e82e5cc0dcc603">pm_sleep_allow()</a> to allow or prevent sleep.</li>
-<li>Before sleep, the sleep status is checked. That can use API <a class="el" href="group__PM.html#gae9d1c8d7e754903bd934acf207fd7312">pm_sleep_checker_callback_register()</a> to customized, and 1st checking callback is <a class="el" href="group__PMU.html#ga9f08c9bf1116ce3278b1c783d9265714">drv_pmu_deep_sleep_is_allow()</a>.</li>
+<li>Before sleep, the sleep status is checked. That can use API <a class="el" href="group__PM.html#gaec024639daf77b28278ef0a8d61b99ef">pm_sleep_checker_callback_register()</a> to customized, and 1st checking callback is <a class="el" href="group__PMU.html#ga9f08c9bf1116ce3278b1c783d9265714">drv_pmu_deep_sleep_is_allow()</a>.</li>
 <li>The most of the peripherals’ status is managed by drivers. Actually the driver knows when the peripherals cannot enter into sleep mode. For example when the ADC is sampling, the ADC driver knows the system cannot enter into sleep mode at this time. User does not take care of the peripherals’ status.</li>
 <li>Some peripherals require user to manage. For example, when UART receive data, the driver does not know when the long packet is recived. So user should tell system the information.</li>
 <li>The status of BLE is managed by BLE stack.</li>

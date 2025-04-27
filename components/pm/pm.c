@@ -34,29 +34,26 @@
  * MACROS
  */
 #ifndef CONFIG_PM_STORE_CALLBACK_NUM
-#define CONFIG_PM_STORE_CALLBACK_NUM      20U
+#define CONFIG_PM_STORE_CALLBACK_NUM      6U
 #endif
 #ifndef CONFIG_PM_CHECKER_NUM
-#define CONFIG_PM_CHECKER_NUM             10U
+#define CONFIG_PM_CHECKER_NUM             4U
 #endif
 
 
 /*******************************************************************************
  * TYPEDEFS
  */
-typedef struct {
-    pm_checker_priority_t priority;
-    pm_checker_callback_t callback;
-} pm_checker_t;
 
 typedef struct {
-    bool sleep_enable;
-    bool ultra_sleep_enable;
-    uint16_t min_sleep_time;
-    volatile uint32_t sleep_state;
-    pm_checker_t checker[CONFIG_PM_CHECKER_NUM];
-    pm_sleep_callback_t notify_cb;
-    pm_sleep_callback_t store_cb[CONFIG_PM_STORE_CALLBACK_NUM];
+    bool                   sleep_enable;
+    bool                   ultra_sleep_enable;
+    uint16_t               min_sleep_time;
+    volatile uint32_t      sleep_state;
+    pm_sleep_callback_t    notify_cb;
+    pm_sleep_callback_t    store_cb[CONFIG_PM_STORE_CALLBACK_NUM];
+    pm_checker_callback_t  checker_callback[CONFIG_PM_CHECKER_NUM];
+    pm_checker_priority_t  checker_priority[CONFIG_PM_CHECKER_NUM];
 } pm_env_t;
 
 
@@ -67,6 +64,7 @@ static pm_env_t pm_env = {
     .min_sleep_time = PMU_TIMER_MS2TICK(3),
 };
 uint32_t pm_cpu_context[3];  /* used for store CPU context, $control, $MSP, $PSP register */
+
 
 /*******************************************************************************
  * LOCAL FUNCTIONS
@@ -127,6 +125,11 @@ static pm_status_t pm_sleep_checker_check(void)
 {
     pm_status_t status;
 
+    // check pm self sleep state
+    if (pm_env.sleep_state) {
+        return PM_STATUS_IDLE;
+    }
+
     // check pmu pin-wakeup
     if (drv_pmu_deep_sleep_is_allow()) {
         status = PM_STATUS_DEEP_SLEEP;
@@ -155,9 +158,9 @@ static pm_status_t pm_sleep_checker_check(void)
     } while(0);
     #endif
 
-    for (int i = 0; i < sizeof(pm_env.checker)/sizeof(pm_env.checker[0]); ++i) {
-        if (pm_env.checker[i].callback != NULL) {
-            pm_status_t checker_status = pm_env.checker[i].callback();
+    for (int i = 0; i < sizeof(pm_env.checker_callback)/sizeof(pm_env.checker_callback[0]); ++i) {
+        if (pm_env.checker_callback[i] != NULL) {
+            pm_status_t checker_status = pm_env.checker_callback[i]();
             if (status > checker_status) {
                 status = checker_status;
             }
@@ -195,15 +198,15 @@ static void pm_sleep_notify(pm_sleep_state_t sleep_state, pm_status_t power_stat
             #endif
             break;
         case PM_SLEEP_RESTORE_HSI:
+            #if (RTE_OSPI1)
+            drv_ospi_restore();
+            #endif
             #if (RTE_CALIB)
             drv_calib_sys_restore();
             drv_calib_rf_restore();
             #endif
             #if (RTE_OM24G)
             drv_om24g_restore();
-            #endif
-            #if (RTE_OSPI1)
-            drv_ospi_restore();
             #endif
             break;
         case PM_SLEEP_RESTORE_HSE:
@@ -391,34 +394,35 @@ void pm_sleep_allow(pm_id_t id)
  * @param[in] checker_cb  checker cb
  *******************************************************************************
  **/
-void pm_sleep_checker_callback_register(pm_checker_priority_t priority, pm_checker_callback_t checker_cb)
+om_error_t pm_sleep_checker_callback_register(pm_checker_priority_t priority, pm_checker_callback_t checker_cb)
 {
     om_error_t error;
 
-    error = OM_ERROR_RESOURCES;
-    for (int n = 0; n < sizeof(pm_env.checker)/sizeof(pm_env.checker[0]); ++n) {
+    error = OM_ERROR_OUT_OF_RANGE;
+    for (int n = 0; n < sizeof(pm_env.checker_callback)/sizeof(pm_env.checker_callback[0]); ++n) {
         OM_CRITICAL_BEGIN();
-        if (pm_env.checker[n].callback == NULL) {
+        if (pm_env.checker_callback[n] == NULL) {
             // sort and insert
             for (int i = 0; i < n; ++i) {
                 // check priority
-                if (pm_env.checker[i].priority < priority) {
+                if (pm_env.checker_priority[i] < priority) {
                     // move
                     for (int j = n; j > i; --j) {
-                        pm_env.checker[j] = pm_env.checker[j-1];
+                        pm_env.checker_callback[j] = pm_env.checker_callback[j-1];
+                        pm_env.checker_priority[j] = pm_env.checker_priority[j-1];
                     }
                     // insert
-                    pm_env.checker[i].priority = priority;
-                    pm_env.checker[i].callback = checker_cb;
+                    pm_env.checker_priority[i] = priority;
+                    pm_env.checker_callback[i] = checker_cb;
                     error = OM_ERROR_OK;
                     goto _exit;
                 }
             }
 
-            pm_env.checker[n].priority = priority;
-            pm_env.checker[n].callback = checker_cb;
+            pm_env.checker_priority[n] = priority;
+            pm_env.checker_callback[n] = checker_cb;
             error = OM_ERROR_OK;
-        } else if (pm_env.checker[n].callback == checker_cb) {
+        } else if (pm_env.checker_callback[n] == checker_cb) {
             error = OM_ERROR_OK;
         }
 
@@ -429,7 +433,7 @@ void pm_sleep_checker_callback_register(pm_checker_priority_t priority, pm_check
         }
     }
 
-    OM_ASSERT(error == OM_ERROR_OK);
+    return error;
 }
 
 /**
@@ -467,16 +471,15 @@ void pm_power_manage(void)
 {
     pm_status_t status;
 
-    if (pm_env.sleep_enable) {
-        // 1. check pm self sleep state
-        status = pm_env.sleep_state ? PM_STATUS_IDLE : PM_STATUS_DEEP_SLEEP;
-        // 2. check registed sleep checker
+    // 1st. check pm sleep
+    status = pm_sleep_checker_check();
+    // 2th. check sleep enable
+    if (!pm_env.sleep_enable) {
         if (status > PM_STATUS_IDLE) {
-            status = pm_sleep_checker_check();
+            status = PM_STATUS_IDLE;
         }
-    } else {
-        status = PM_STATUS_IDLE;
     }
+
     pm_sleep(status);
 }
 
@@ -493,12 +496,16 @@ void pm_init(void)
 void pm_sleep_prevent(pm_id_t id)
 {
 }
+
 void pm_sleep_allow(pm_id_t id)
 {
 }
-void pm_sleep_checker_callback_register(pm_checker_priority_t priority, pm_checker_callback_t checker_cb)
+
+om_error_t pm_sleep_checker_callback_register(pm_checker_priority_t priority, pm_checker_callback_t checker_cb)
 {
+    return OM_ERROR_OK;
 }
+
 om_error_t pm_sleep_store_restore_callback_register(pm_sleep_callback_t store_cb)
 {
     return OM_ERROR_OK;

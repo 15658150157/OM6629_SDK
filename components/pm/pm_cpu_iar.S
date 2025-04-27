@@ -19,6 +19,9 @@
  * @{
  */
 
+#include "autoconf.h"
+
+#if (CONFIG_PM)
 /**
  * System sleep status:
  *
@@ -82,3 +85,5 @@ __SYSTEM_EXIT:
     pop {r0-r12, pc}
 
     END
+
+#endif  /* (CONFIG_PM) */

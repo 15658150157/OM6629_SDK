@@ -78,17 +78,24 @@ extern void drv_calib_rf(void);
 
 /**
  *******************************************************************************
+ * @brief  drv calib rf store
+ *******************************************************************************
+ */
+extern void drv_calib_rf_store(void);
+
+/**
+ *******************************************************************************
  * @brief  drv calib rf restore
  *******************************************************************************
  */
-void drv_calib_rf_restore(void);
+extern void drv_calib_rf_restore(void);
 
 /**
  *******************************************************************************
  * @brief  drv calib sys restore
  *******************************************************************************
  */
-void drv_calib_sys_restore(void);
+extern void drv_calib_sys_restore(void);
 
 #ifdef __cplusplus
 }

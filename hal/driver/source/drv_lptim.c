@@ -26,25 +26,8 @@
 #include "RTE_driver.h"
 #if (RTE_LPTIM)
 #include <stddef.h>
-#include "om_device.h"
 #include "om_driver.h"
 
-/*******************************************************************************
- * MACROS
- */
-/*
- * Used to define lptim_env_t and lptim_resource_t structures
- */
-#define DRV_LPTIM_DEFINE(NAMEn, namen)                                         \
-static lptim_env_t namen##_env = {                                             \
-    .isr_cb     = NULL,                                                        \
-};                                                                             \
-static const lptim_resource_t namen##_resource = {                             \
-    .reg      = OM_##NAMEn,                                                    \
-    .env      = (void *)&namen##_env,                                          \
-    .irq_num  = NAMEn##_IRQn,                                                  \
-    .irq_prio = RTE_##NAMEn##_IRQ_PRIORITY,                                    \
-}
 
 /*******************************************************************************
  * TYPEDEFS
@@ -53,47 +36,17 @@ typedef struct {
     drv_isr_callback_t  isr_cb;
 } lptim_env_t;
 
-/// LPTIM resource structure
-typedef struct {
-    void                        *reg;               /**< peripheral registers base  */
-    void                        *env;               /**< peripheral environment     */
-    IRQn_Type                    irq_num;           /**< peripheral IRQn_Type       */
-    uint8_t                      irq_prio;          /**< peripheral irq priority    */
-} lptim_resource_t;
 
+#if (RTE_LPTIM_REGISTER_CALLBACK)
 /*******************************************************************************
  * CONST & VARIABLES
  */
-/* lptim information */
-#if (RTE_LPTIM)
-DRV_LPTIM_DEFINE(LPTIM, lptim);
-#endif
+static lptim_env_t lptim_env;
 
-/*******************************************************************************
- * LOCAL FUNCTIONS
- */
-static const lptim_resource_t *lptim_get_resource(OM_LPTIM_Type *om_lptim)
-{
-    static const lptim_resource_t *lptim_resources[] = {
-        #if (RTE_LPTIM)
-        &lptim_resource,
-        #endif
-    };
-
-    for(uint32_t i=0; i<sizeof(lptim_resources)/sizeof(lptim_resources[0]); i++) {
-        if ((uint32_t)om_lptim == (uint32_t)lptim_resources[i]->reg) {
-            return lptim_resources[i];
-        }
-    }
-
-    OM_ASSERT(0);
-    return NULL;
-}
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS
  */
-#if (RTE_LPTIM_REGISTER_CALLBACK)
 /**
  *******************************************************************************
  * @brief Register isr callback for SPI command is complete by LPTIM interrupt mode
@@ -105,29 +58,16 @@ static const lptim_resource_t *lptim_get_resource(OM_LPTIM_Type *om_lptim)
  */
 void drv_lptim_register_isr_callback(OM_LPTIM_Type *om_lptim, drv_isr_callback_t cb)
 {
-    const lptim_resource_t *resource;
-    lptim_env_t            *env;
-
-    resource = lptim_get_resource(om_lptim);
-    if(resource != NULL) {
-        env = (lptim_env_t *)(resource->env);
-        env->isr_cb = cb;
-    }
+    (void)om_lptim;
+    lptim_env.isr_cb = cb;
 }
 #endif
 
 __WEAK void drv_lptim_isr_callback(OM_LPTIM_Type *om_lptim, drv_event_t event, void *param0, void *param1)
 {
     #if (RTE_LPTIM_REGISTER_CALLBACK)
-    const lptim_resource_t *resource;
-    lptim_env_t            *env;
-
-    resource = lptim_get_resource(om_lptim);
-    if (resource != NULL) {
-        env = (lptim_env_t *)(resource->env);
-        if (env->isr_cb != NULL) {
-            env->isr_cb(om_lptim, event, param0, param1);
-        }
+    if (lptim_env.isr_cb) {
+        lptim_env.isr_cb(om_lptim, event, param0, param1);
     }
     #endif
 }

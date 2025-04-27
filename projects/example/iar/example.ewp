@@ -764,7 +764,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>$PROJ_DIR$/../linker_script/GCC/cm4f_flash.icf</state>
+          <state>$PROJ_DIR$/../linker_script/IAR/cm4f_flash.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
@@ -1117,9 +1117,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$/../drv_example/example_pmu_timer.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$/../drv_example/example_psram.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$/../drv_example/example_qdec.c</name>

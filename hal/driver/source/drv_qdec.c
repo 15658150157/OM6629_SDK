@@ -26,7 +26,6 @@
 #include "RTE_driver.h"
 #if (RTE_QDEC)
 #include <stddef.h>
-#include "om_device.h"
 #include "om_driver.h"
 
 
@@ -48,6 +47,7 @@ static const drv_resource_t namen##_resource = {                               \
     .irq_prio = RTE_##NAMEn##_IRQ_PRIORITY,                                    \
 }
 
+
 /*******************************************************************************
  * TYPEDEFS
  */
@@ -55,23 +55,21 @@ typedef struct {
     drv_isr_callback_t  isr_cb;
 } qdec_env_t;
 
+
 /*******************************************************************************
  * CONST & VARIABLES
  */
 DRV_QDEC_DEFINE(QDEC, qdec);
+
 
 /*******************************************************************************
  * LOCAL FUNCTIONS
  */
 static const drv_resource_t *qdec_get_resource(OM_QDEC_Type *om_qdec)
 {
-    if ((uint32_t)om_qdec == (uint32_t)qdec_resource.reg) {
-        return &qdec_resource;
-    }
-
-    OM_ASSERT(0);
-    return NULL;
+    return &qdec_resource;
 }
+
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS
@@ -92,7 +90,6 @@ om_error_t drv_qdec_init(OM_QDEC_Type *om_qdec, const qdec_config_t *qdec_cfg)
 {
     const drv_resource_t *resource;
     qdec_env_t           *env;
-    uint32_t              inten = 0;
     uint32_t              clk_div = 0;
 
     OM_ASSERT(qdec_cfg);
@@ -102,10 +99,10 @@ om_error_t drv_qdec_init(OM_QDEC_Type *om_qdec, const qdec_config_t *qdec_cfg)
     }
     env = (qdec_env_t *)resource->env;
 
-    DRV_RCC_RESET((rcc_clk_t)(size_t)resource->reg);
+    DRV_RCC_RESET(RCC_CLK_QDEC);
 
     // Set QDEC 1M clock
-    clk_div = drv_rcc_clock_get((rcc_clk_t)(size_t)resource->reg) / (1000 * 1000);
+    clk_div = drv_rcc_clock_get(RCC_CLK_QDEC) / (1000 * 1000);
     REGW(&OM_CPM->QDEC_CFG, MASK_1REG(CPM_QDEC_CFG_DIV_COEFF, clk_div));
 
     // Debounce filters enable
@@ -120,22 +117,9 @@ om_error_t drv_qdec_init(OM_QDEC_Type *om_qdec, const qdec_config_t *qdec_cfg)
     REGW(&om_qdec->REPORTPER, MASK_1REG(QDEC_REPORTPER_REPORTPER, qdec_cfg->report_per));
     // Sampling period
     REGW(&om_qdec->SAMPLEPER, MASK_1REG(QDEC_SAMPLEPER_SAMPLEPER, qdec_cfg->sample_per));
-    // Enable QDEC
-    REGW(&om_qdec->ENABLE, MASK_1REG(QDEC_ENABLE_ENABLE, 1U));
 
     // Disable all interrupt
     om_qdec->INTEN = 0;
-    // Default interrupt enable.
-    inten = QDEC_INTST_DBLRDY_MASK | QDEC_INTST_ACCOF_MASK | QDEC_INTST_STOPPED_MASK;
-    // Sample interrupt enable.
-    if (qdec_cfg->sample_int_en) {
-        inten |= QDEC_INTEN_SAMPLERDY_MASK;
-    }
-    // Report interrupt enable.
-    if (qdec_cfg->report_int_en) {
-        inten |= QDEC_INTEN_REPORTRDY_MASK;
-    }
-    om_qdec->INTEN = inten;
 
     NVIC_ClearPendingIRQ(QDEC_IRQn);
     NVIC_SetPriority(QDEC_IRQn, RTE_QDEC_IRQ_PRIORITY);
@@ -145,7 +129,6 @@ om_error_t drv_qdec_init(OM_QDEC_Type *om_qdec, const qdec_config_t *qdec_cfg)
 
     return OM_ERROR_OK;
 }
-
 
 #if (RTE_QDEC_REGISTER_CALLBACK)
 /**
@@ -195,16 +178,10 @@ __WEAK void drv_qdec_isr_callback(OM_QDEC_Type *om_qdec, drv_event_t event, int 
  */
 void drv_qdec_isr(OM_QDEC_Type *om_qdec)
 {
-    const drv_resource_t  *resource;
     drv_event_t            drv_event;
     uint8_t                int_status;
     int                    acc;
     int                    accdbl;
-
-    resource = qdec_get_resource(om_qdec);
-    if (resource == NULL) {
-        return;
-    }
 
     // read and clear interrupt status
     int_status = om_qdec->INTST;

@@ -91,8 +91,8 @@ void example_aes(void)
         aes_result = (mode == AES_OP_DECRYPT) ? aes_test_ecb_dec[u] : aes_test_ecb_enc[u];
 
         memcpy(ecb_cfg.key, key, sizeof(key));
-        ecb_cfg.keybits = u;
-        ecb_cfg.operation = mode;
+        ecb_cfg.keybits = (aes_keybits_t)u;
+        ecb_cfg.operation = (aes_operation_t)mode;
 
         drv_aes_ecb_start(OM_AES0, &ecb_cfg);
         for (j = 0; j < 10000; j++) {

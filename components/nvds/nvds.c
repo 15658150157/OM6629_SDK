@@ -159,23 +159,17 @@ struct nvds_env_tag
     /// NVDS sector start address
     nvds_addr_len_t nvds_addr;
 
-    /// NVDS sector page start address mask
-    uint16_t nvds_mask;
-
     /// The spare address of current NVDS sector
     nvds_addr_len_t nvds_spare_addr;
+
+    /// NVDS sector page start address mask
+    uint16_t nvds_mask;
 
     /// Total used size of current NVDS sector
     uint16_t nvds_used_size;
 
-    /// Record all valid tag_id in NVDS sectors
-    uint8_t nvds_tag_record[NVDS_NUM_OF_PAGES];
-
     /// Backup sector start address
     nvds_addr_len_t bkup_addr;
-
-    /// Backup sector page start address mask
-    uint16_t bkup_mask;
 
     /// The spare address of current backup sector
     nvds_addr_len_t bkup_spare_addr;
@@ -183,8 +177,14 @@ struct nvds_env_tag
     /// The spare size of current backup sector
     uint16_t bkup_spare_size;
 
+    /// Backup sector page start address mask
+    uint16_t bkup_mask;
+
     /// Config sector start address
     nvds_addr_len_t conf_addr;
+
+    /// Record all valid tag_id in NVDS sectors
+    uint8_t nvds_tag_record[NVDS_NUM_OF_PAGES];
 
 #if CFG_FILE_SIMULATION
     /// The spare address of current config sector
@@ -202,7 +202,7 @@ static struct nvds_env_tag nvds_env;
 
 /// magic number keyword of each sector
 /// NOTE: flash controller DMA doesn't support ROM address
-static int32_t nvds_magic_number[TOTAL_NUM_OF_SECTORS] = {0x5344564e, /* NVDS */
+const static int32_t nvds_magic_number[TOTAL_NUM_OF_SECTORS] = {0x5344564e, /* NVDS */
                                                           0x50554b42, /* BKUP */
                                                           0x464e4f43  /* CONF */};
 

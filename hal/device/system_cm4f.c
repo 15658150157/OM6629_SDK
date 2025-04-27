@@ -43,8 +43,7 @@ typedef void(*VECTOR_TABLE_Type)(void);
  */
 extern const VECTOR_TABLE_Type __VECTOR_TABLE[];    /*lint !e526*/
 
-extern void lib_cpft_init(void);
-extern void lib_cpft_uninit(void);
+
 /*******************************************************************************
  * LOCAL FUNCTIONS
  */
@@ -83,15 +82,9 @@ void SystemInit(void)
     /* check chip version */
     while (((OM_SYS->REV_ID & SYS_REV_CHIP_VER_MASK) >> SYS_REV_CHIP_VER_POS) != (CONFIG_HARDWARE_VERSION - 1U));
     /* check RAM size */
-    do {
-        #if (OM6627X)
-        const uint32_t ram_limit = 128*1024 + 0x20000000U;
-        #endif
-        #if (OM6629X)
-        const uint32_t ram_limit = 256*1024 + 0x20000000U;
-        #endif
-        while (__get_MSP() > ram_limit);
-    } while(0);
+    #if (OM_MEM_RAM_SIZE)
+    while (__get_MSP() > (OM_MEM_RAM_SIZE + 0x20000000U));
+    #endif
 
     // Retention LDO: 0=0.6v 2=0.7v 3=0.75v 4=0.8v 5=0.85v 6=0.9v 7=0.95v(default) 8=1.0v
     register_set(&OM_PMU->ANA_PD_1, PMU_ANA_PD_1_DIG_RETLDO_TRIM_MASK, (5U << PMU_ANA_PD_1_DIG_RETLDO_TRIM_POS));
@@ -123,15 +116,19 @@ void SystemInit(void)
      * LCD and LPTIM is enabled as default
      * FLASH1 disabled in pm_init
      * RTC clock disabled
+     * RAM auto gate enable
      **/
     OM_CPM->UART1_CFG |= CPM_UART_CFG_GATE_EN_MASK | CPM_UART_CFG_SOFT_RESET_MASK;
     OM_CPM->EFUSE_CFG |= CPM_EFUSE_CFG_GATE_EN_MASK | CPM_EFUSE_CFG_SOFT_RESET_MASK;
     OM_CPM->GPDMA_CFG |= CPM_GPDMA_CFG_GATE_EN_MASK | CPM_GPDMA_CFG_SOFT_RESET_MASK;
     OM_CPM->LCD_CFG |= CPM_LCD_CFG_GATE_EN_MASK;
     register_pmu_basic_set(PMU_BASIC_LPTIM_32K_CLK_GATE_MASK, PMU_BASIC_LPTIM_32K_CLK_GATE_MASK);
+    OM_CPM->LPTIM_CFG |= CPM_LPTIM_CFG_GATE_EN_MASK;
     if (!(OM_PMU->RSVD_SW_REG[0] & PMU_RSVD_SW_REG_RTC_SECOND_RESTORE_PROCESS_MASK)) {
         register_pmu_basic_set(PMU_BASIC_RTC_CLK_GATE_MASK, PMU_BASIC_RTC_CLK_GATE_MASK);
+        OM_CPM->APB_CFG |= CPM_APB_CFG_RTC_APB_GATE_EN_MASK;
     }
+    OM_CPM->AHB_CFG |= CPM_AHB_CFG_RAM_AUTO_GATE_EN_MASK;
 
     // retention ALL SRAM, icache ram, ble ram, pso ram when deep sleep
     uint32_t ram_ctrl = OM_PMU->RAM_CTRL_2 & (~(0xFFFU << 18));
@@ -158,6 +155,10 @@ void SystemInit(void)
         CoreDebug->DEMCR |= (1U << CoreDebug_DEMCR_TRCENA_Pos);
         DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     } while(0);
+
+    // Set xtal32m load capacitance
+    register_set(&OM_PMU->CLK_CTRL_2, PMU_CLK_CTRL_2_CT_XTAL32M_MASK, (37U << PMU_CLK_CTRL_2_CT_XTAL32M_POS));      // TX
+    register_set(&OM_PMU->OM26B_CFG0, PMU_OM26B_CFG0_XTAL32M_CT_RX_MASK,(37U << PMU_OM26B_CFG0_XTAL32M_CT_RX_POS)); // RX
 }
 
 /**
@@ -169,7 +170,13 @@ void SystemInit(void)
  */
 __WEAK void SystemInitPost(void)
 {
+    extern void lib_cpft_init(void);
+    extern void lib_cpft_uninit(void);
+
     //TODO: CPFT & Flash settings
+    // NULL: Set iflash default config: freq is 8MHz, delay is 2, bus width is 2
+    extern uint8_t drv_iflash_init(OM_SF_Type *om_flash, void *cfg);
+    drv_iflash_init(OM_SF0, NULL);
     lib_cpft_init();
     lib_cpft_uninit();
 }

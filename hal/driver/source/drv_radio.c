@@ -57,16 +57,16 @@ void drv_rf_txrx_pin_enable(bool enable, int pol)
 {
     DRV_RCC_ANA_CLK_ENABLE();
 
-    REGW(&OM_DAIF->TRX_EXT_PD_CFG, MASK_2REG(DAIF_TX_EXT_PD_EN,0, DAIF_RX_EXT_PD_EN,0));
+    REGW(&OM_DAIF->TRX_EXT_PD_CFG, MASK_2REG(DAIF_TX_EXT_PD_EN, 0, DAIF_RX_EXT_PD_EN, 0));
 
     if (enable) {
         // Digital issue: DAIF_TX_EXT_PD_POL REG must open follow clock
         uint32_t clk_ens_save = OM_DAIF->CLK_ENS;
-        REGW1(&OM_DAIF->CLK_ENS, DAIF_PLL_CLK_REF_EN_MASK|DAIF_MAIN_FSM_CLK_EN_MASK);
+        REGW1(&OM_DAIF->CLK_ENS, DAIF_PLL_CLK_REF_EN_MASK | DAIF_MAIN_FSM_CLK_EN_MASK);
         uint32_t clk_cfg_save = OM_DAIF->CLK_CFG;
         REGW1(&OM_DAIF->CLK_CFG, DAIF_XTAL32M_EN_CKO16M_DIG_MASK);
         // setup pol
-        REGW(&OM_DAIF->TRX_EXT_PD_CFG, MASK_4REG(DAIF_TX_EXT_PD_POL,pol, DAIF_RX_EXT_PD_POL,pol, DAIF_TX_EXT_PD_TCFG,0, DAIF_RX_EXT_PD_TCFG,0));
+        REGW(&OM_DAIF->TRX_EXT_PD_CFG, MASK_4REG(DAIF_TX_EXT_PD_POL, pol, DAIF_RX_EXT_PD_POL, pol, DAIF_TX_EXT_PD_TCFG, 0, DAIF_RX_EXT_PD_TCFG, 0));
         // restore clock
         OM_DAIF->CLK_ENS = clk_ens_save;
         OM_DAIF->CLK_CFG = clk_cfg_save;
@@ -88,11 +88,11 @@ void drv_rf_txrx_pin_enable(bool enable, int pol)
  **/
 void drv_rf_carrier_enable(bool enable, uint32_t freq, float fract_freq)
 {
-    if(enable) {
+    if (enable) {
         drv_pmu_ana_enable(enable, PMU_ANA_RF);
         DRV_RCC_ANA_CLK_ENABLE();
         // frequency
-        REGW(&OM_DAIF->FREQ_CFG0, MASK_2REG(DAIF_FREQ_REG_ME,1, DAIF_FREQ_REG_MO,freq));
+        REGW(&OM_DAIF->FREQ_CFG0, MASK_2REG(DAIF_FREQ_REG_ME, 1, DAIF_FREQ_REG_MO, freq));
         if (fract_freq) {
             REGW(&OM_DAIF->FREQ_CFG3, MASK_2REG(DAIF_FREQ_FRAC_REG, (uint32_t)(fract_freq * 0x3FFFFF), DAIF_FREQ_0P5_EN, 1));
         } else {
@@ -104,17 +104,17 @@ void drv_rf_carrier_enable(bool enable, uint32_t freq, float fract_freq)
 //        REGW(&OM_DAIF->PLL_CTRL2, MASK_2REG(DAIF_DIN_SDM_TX_ME, 1, DAIF_DATA_SYNC_BYPASS, 1));
 
         // do TX
-        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG,1, DAIF_RX_EN_MO,0, DAIF_TX_EN_MO,0));
+        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG, 1, DAIF_RX_EN_MO, 0, DAIF_TX_EN_MO, 0));
         DRV_DELAY_US(100);
-        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG,1, DAIF_RX_EN_MO,0, DAIF_TX_EN_MO,1));
+        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG, 1, DAIF_RX_EN_MO, 0, DAIF_TX_EN_MO, 1));
 
         DRV_RCC_ANA_CLK_RESTORE();
     } else {
         DRV_RCC_ANA_CLK_ENABLE();
-        REGW(&OM_DAIF->FREQ_CFG0, MASK_1REG(DAIF_FREQ_REG_ME,0));
+        REGW(&OM_DAIF->FREQ_CFG0, MASK_1REG(DAIF_FREQ_REG_ME, 0));
         REGW(&OM_DAIF->PLL_CTRL1, MASK_2REG(DAIF_DIGI_DIN_BYPASS, 0, DAIF_DIGI_DIN_REG, 0));
 //        REGW(&OM_DAIF->PLL_CTRL2, MASK_2REG(DAIF_DIN_SDM_TX_ME, 0, DAIF_DATA_SYNC_BYPASS, 0));
-        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG,1, DAIF_RX_EN_MO,0, DAIF_TX_EN_MO,0));
+        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG, 1, DAIF_RX_EN_MO, 0, DAIF_TX_EN_MO, 0));
 //        REGW(&OM_DAIF->PD_CFG0, MASK_4REG(DAIF_PD_LDO_PA_ME,1, DAIF_PD_LDO_PA_MO,1,DAIF_PD_PA_ME,1,DAIF_PD_PA_MO,1));
         DRV_RCC_ANA_CLK_RESTORE();
 
@@ -176,16 +176,16 @@ void drv_rf_full_rx_enable(bool enable, uint32_t freq)
         drv_pmu_ana_enable(enable, PMU_ANA_RF);
         DRV_RCC_ANA_CLK_ENABLE();
         // frequency
-        REGW(&OM_DAIF->FREQ_CFG0, MASK_2REG(DAIF_FREQ_REG_ME,1, DAIF_FREQ_REG_MO,freq));
+        REGW(&OM_DAIF->FREQ_CFG0, MASK_2REG(DAIF_FREQ_REG_ME, 1, DAIF_FREQ_REG_MO, freq));
         // Do RX
-        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG,1, DAIF_RX_EN_MO,0, DAIF_TX_EN_MO,0));
+        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG, 1, DAIF_RX_EN_MO, 0, DAIF_TX_EN_MO, 0));
         DRV_DELAY_US(100);
-        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG,1, DAIF_RX_EN_MO,1, DAIF_TX_EN_MO,0));
+        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG, 1, DAIF_RX_EN_MO, 1, DAIF_TX_EN_MO, 0));
         DRV_RCC_ANA_CLK_RESTORE();
     } else {
         DRV_RCC_ANA_CLK_ENABLE();
-        REGW(&OM_DAIF->FREQ_CFG0, MASK_1REG(DAIF_FREQ_REG_ME,0));
-        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG,0, DAIF_RX_EN_MO,0, DAIF_TX_EN_MO,0));
+        REGW(&OM_DAIF->FREQ_CFG0, MASK_1REG(DAIF_FREQ_REG_ME, 0));
+        REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG, 0, DAIF_RX_EN_MO, 0, DAIF_TX_EN_MO, 0));
         DRV_RCC_ANA_CLK_RESTORE();
         drv_pmu_ana_enable(enable, PMU_ANA_RF);
     }
@@ -211,59 +211,147 @@ void drv_rf_tx_power_set(bool auto_ctrl_by_ble, rf_tx_power_t power)
         // DBG=0: SEL ctrl PA
         //   SEL=0: REG_TABLE ctrl PA
         //   SEL=1: RW ctrl PA
-        REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_PA_DBG,0, DAIF_PA_GAIN_IDX_REG,1));
+        REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_PA_DBG, 0, DAIF_PA_GAIN_IDX_REG, 1));
     } else {
         // FIXME: NOT 3DBM
-        if(power >= RF_TX_POWER_3DBM) {
-            switch(power) {
+        if (power >= RF_TX_POWER_2P5DBM) {
+            switch (power) {
+
+                case RF_TX_POWER_9P5DBM:
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 18));
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 13;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 10;
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0xF));
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_9DBM:
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 18));
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 10;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 8;
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0xF));
+                    high_tx_power_mode = true;
+                    break;
+
                 case RF_TX_POWER_8P5DBM:
-                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,1, DAIF_PA_GAIN_IDX_REG,18));
-                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + DRV_CALIB_REPAIR_DCDC_MAXDBM_DELTA;
-                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + DRV_CALIB_REPAIR_LDO_MAXDBM_DELTA;
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 7;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 5;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 18));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0xF));
                     high_tx_power_mode = true;
                     break;
 
                 case RF_TX_POWER_8DBM:
-                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,1, DAIF_PA_GAIN_IDX_REG,18));
-                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + DRV_CALIB_REPAIR_DCDC_8DBM_DELTA;
-                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + DRV_CALIB_REPAIR_LDO_8DBM_DELTA;
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 7;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 5;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 16));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0xF));
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_7P5DBM:
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 3;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 2;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 18));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0xF));
                     high_tx_power_mode = true;
                     break;
 
                 case RF_TX_POWER_7DBM:
-                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,1, DAIF_PA_GAIN_IDX_REG,18));
-                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + DRV_CALIB_REPAIR_DCDC_7DBM_DELTA;
-                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + DRV_CALIB_REPAIR_LDO_7DBM_DELTA;
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 3;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 2;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 16));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0xF));
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_6P5DBM:
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 3;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 2;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 14));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0xF));
                     high_tx_power_mode = true;
                     break;
 
                 case RF_TX_POWER_6DBM:
-                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,1, DAIF_PA_GAIN_IDX_REG,15));
-                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout;
-                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo;
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 3;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 2;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 13));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0xF));
                     high_tx_power_mode = true;
                     break;
 
                 case RF_TX_POWER_5P5DBM:
-                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,1, DAIF_PA_GAIN_IDX_REG,13));
-                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout;
-                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo;
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 3;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 2;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 11));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0x0));
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_5DBM:
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 3;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 2;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 10));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0x0));
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_4P5DBM:
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 3;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 2;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 14));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0x0));
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_4DBM:
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 3;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 2;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 10));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0x0));
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_3P5DBM:
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 3;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 2;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 8));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0x0));
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_3DBM:
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 3;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 2;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 6));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0x0));
+                    high_tx_power_mode = true;
+                    break;
+
+                case RF_TX_POWER_2P5DBM:
+                    pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 3;
+                    pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 2;
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 5));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0x0));
                     high_tx_power_mode = true;
                     break;
 
                 default:
-                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,0, DAIF_PA_GAIN_IDX_REG,power));
+                    REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 0, DAIF_PA_GAIN_IDX_REG, power));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0x0));
                     break;
             }
         } else {
-            REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,0, DAIF_PA_GAIN_IDX_REG,power));
+            REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 0, DAIF_PA_GAIN_IDX_REG, power));
+            REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0x0));
         }
     }
 
     if (!high_tx_power_mode) {
-        if (drv_calib_repair_env.temperature > 70) {
-            pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + DRV_CALIB_REPAIR_DCDC_HIGHT_T_DELTA;
-            pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + DRV_CALIB_REPAIR_LDO_HIGHT_T_DELTA;
+        if (drv_calib_repair_env.temperature > 85) {
+            pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout + 3;
+            pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo + 2;
         } else {
             pmu_dcdc_vout = drv_calib_repair_env.dcdc_vout;
             pmu_ldo_v1p2_vbat = drv_calib_repair_env.ana_ldo;
@@ -273,7 +361,33 @@ void drv_rf_tx_power_set(bool auto_ctrl_by_ble, rf_tx_power_t power)
     REGW(&OM_PMU->ANA_PD_1, MASK_1REG(PMU_ANA_PD_1_DCDC_VOUT, pmu_dcdc_vout));
     REGW(&OM_PMU->OM26B_CFG0, MASK_1REG(PMU_OM26B_CFG0_LDO_ANA1P2_TRIM, pmu_ldo_v1p2_vbat));
 
+    drv_calib_rf_store();
+
     DRV_RCC_ANA_CLK_RESTORE();
+}
+
+void drv_rf_rx_mode_set(rf_rx_mode_t mode)
+{
+    switch (mode) {
+        case RF_RX_MODE_DEFAULT:
+            REGW(&OM_DAIF->LNA_MIX_CFG, MASK_3REG(DAIF_RF_CONSTGM_CT, 0x0, DAIF_RF_LNA_VBCT, 0x3, DAIF_RF_MIX_VBCT, 0x3));
+            REGW(&OM_DAIF->TIA_DCOC_CFG, MASK_2REG(DAIF_TIA_GAIN_ME, 1, DAIF_TIA_GAIN_MO, 3));
+            REGW(&OM_DAIF->MIX_CFG0, MASK_1REG(DAIF_TIA_IBCT, 1));
+            break;
+        case RF_RX_MODE_HIGH_PERFORMANCE:
+            REGW(&OM_DAIF->LNA_MIX_CFG, MASK_3REG(DAIF_RF_CONSTGM_CT, 0x3, DAIF_RF_LNA_VBCT, 0x3, DAIF_RF_MIX_VBCT, 0x3));
+            REGW(&OM_DAIF->TIA_DCOC_CFG, MASK_2REG(DAIF_TIA_GAIN_ME, 1, DAIF_TIA_GAIN_MO, 3));
+            REGW(&OM_DAIF->MIX_CFG0, MASK_1REG(DAIF_TIA_IBCT, 1));
+            break;
+        case RF_RX_MODE_LOW_POWER:
+            REGW(&OM_DAIF->LNA_MIX_CFG, MASK_3REG(DAIF_RF_CONSTGM_CT, 0x2, DAIF_RF_LNA_VBCT, 0x1, DAIF_RF_MIX_VBCT, 0x3));
+            REGW(&OM_DAIF->TIA_DCOC_CFG, MASK_2REG(DAIF_TIA_GAIN_ME, 1, DAIF_TIA_GAIN_MO, 3));
+            REGW(&OM_DAIF->MIX_CFG0, MASK_1REG(DAIF_TIA_IBCT, 0));
+            break;
+        default:
+            break;
+    }
+    drv_calib_rf_store();
 }
 
 #endif  /* RTE_RADIO */

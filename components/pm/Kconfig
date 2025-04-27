@@ -5,8 +5,8 @@ config PM
 if PM
 config PM_CHECKER_NUM
     int "Num of checker before sleep"
-    default 10
+    default 4
 config PM_STORE_CALLBACK_NUM
     int "Num of store callbacks before sleep"
-    default 20
+    default 6
 endif

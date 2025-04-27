@@ -34,7 +34,9 @@
  * MACROS
  */
 /// Invalid TEMPERATURE
-#define DRV_INVALID_TEMPERATURE    0xFF
+#define DRV_INVALID_TEMPERATURE    0xFFU
+#define RC_RF_REPAIR_INTERVAL_MS   ((60*1000) * 32)
+#define RC32K_REPAIR_INTERVAL_MS   ((60*1000) * 32)
 
 
 /*******************************************************************************
@@ -42,11 +44,9 @@
  */
 drv_calib_repair_t drv_calib_repair_env = {
     .temperature            = 25,
-    .rc_rf_repair_interval  = PMU_TIMER_MS2TICK(60*1000),
     .rc_rf_repair_time      = PMU_TIMER_MAX_TICK,
     .rc_repair_temperature  = DRV_INVALID_TEMPERATURE,
     .rf_repair_temperature  = DRV_INVALID_TEMPERATURE,
-    .rc32k_repair_interval  = PMU_TIMER_MS2TICK(60*1000),
     .rc32k_repair_time      = PMU_TIMER_MAX_TICK,
     .trim_vref              = 12,
     .dig_ldo                = 6,
@@ -56,10 +56,26 @@ drv_calib_repair_t drv_calib_repair_env = {
     .vco_ldo                = 5,
     .buff_ldo               = 4,
     .ana_ldo                = 4,
-    .kdco_lut_1m            = -1,
-    .kdco_lut_2m            = -1,
+    .soft_major             = 0xFF,
+    .soft_minor             = 0xFF,
+    .soft_svn               = 0xFF,
+    .ate_svn                = 0xFF,
+    .kdco_lut_1m_2406       = 0x20,
+    .kdco_lut_1m_2420       = 0x20,
+    .kdco_lut_1m_2434       = 0x20,
+    .kdco_lut_1m_2448       = 0x20,
+    .kdco_lut_1m_2462       = 0x20,
+    .kdco_lut_1m_2476       = 0x20,
+    .kdco_lut_2m_2406       = 0x20,
+    .kdco_lut_2m_2420       = 0x20,
+    .kdco_lut_2m_2434       = 0x20,
+    .kdco_lut_2m_2448       = 0x20,
+    .kdco_lut_2m_2462       = 0x20,
+    .kdco_lut_2m_2476       = 0x20,
     .con_bias_idac_pll      = 0x1F,
     .vco_cur                = 15,
+    .kdco_df1_1m            = 250,
+    .kdco_df1_2m            = 500,
 };
 
 
@@ -73,7 +89,7 @@ drv_calib_repair_t drv_calib_repair_env = {
  **/
 static void drv_calib_repair_voltage_temperature(int16_t t)
 {
-    REGSW(&OM_PMU->TRIM_SET, MASK_STEP(PMU_TRIM_SET_PMU_TRIM_VREF, drv_calib_repair_env.trim_vref), true/*should_update*/, 10/*delay_us*/);
+    drv_pmu_register_step_set(&OM_PMU->TRIM_SET, MASK_STEP(PMU_TRIM_SET_PMU_TRIM_VREF, drv_calib_repair_env.trim_vref), true/*should_update*/, 10/*delay_us*/);
 }
 
 /**
@@ -88,112 +104,112 @@ void drv_calib_repair_rf_pll_temperature_repair(bool is_calib_start)
 
     if (is_calib_start) {
         calib_repair_env_calib_start_temperature = drv_calib_repair_env.rf_repair_temperature;
-        if(calib_repair_env_calib_start_temperature > 40) {
+        if (calib_repair_env_calib_start_temperature > 40) {
             ftun = 3;
-        } else if(calib_repair_env_calib_start_temperature <= 10) {
+        } else if (calib_repair_env_calib_start_temperature <= 10) {
             ftun = 0;
         } else {
             ftun = 1;
         }
     } else {
-        if((calib_repair_env_calib_start_temperature > 10) && (calib_repair_env_calib_start_temperature <= 40)) {
+        if ((calib_repair_env_calib_start_temperature > 10) && (calib_repair_env_calib_start_temperature <= 40)) {
             ftun = 1;
-            if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 80) {
+            if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 80) {
                 ftun = 3;
-            } else if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 20) {
+            } else if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 20) {
                 ftun = 3;
-            } else if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -20) {
+            } else if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -20) {
                 ftun = 0;
             }
-        } else if((calib_repair_env_calib_start_temperature>40)&&(calib_repair_env_calib_start_temperature <= 60)) {
+        } else if ((calib_repair_env_calib_start_temperature > 40) && (calib_repair_env_calib_start_temperature <= 60)) {
             ftun = 3;
-            if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 60) {
+            if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 60) {
                 ftun = 3;
-            } else if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 20) {
+            } else if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 20) {
                 ftun = 3;
             }
 
-            if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -40) {
+            if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -40) {
                 ftun = 0;
-            } else if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -20) {
-                ftun = 0;
-            }
-        } else if((calib_repair_env_calib_start_temperature>60)&&(calib_repair_env_calib_start_temperature<=80)) {  /// 70
-            ftun = 3;
-            if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -60) {  // -0
-                ftun = 0;
-            } else if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -40) { //25
+            } else if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -20) {
                 ftun = 0;
             }
-        } else if((calib_repair_env_calib_start_temperature>80) && (calib_repair_env_calib_start_temperature<=100)) { ///90
+        } else if ((calib_repair_env_calib_start_temperature > 60) && (calib_repair_env_calib_start_temperature <= 80)) {  /// 70
             ftun = 3;
-            if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -80) { //0
+            if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -60) {  // -0
                 ftun = 0;
-            } else if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -60) { //25
+            } else if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -40) { //25
                 ftun = 0;
-            } else if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -40) { //50
+            }
+        } else if ((calib_repair_env_calib_start_temperature > 80) && (calib_repair_env_calib_start_temperature <= 100)) { ///90
+            ftun = 3;
+            if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -80) { //0
+                ftun = 0;
+            } else if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -60) { //25
+                ftun = 0;
+            } else if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -40) { //50
                 ftun = 1;
             }
-        } else if(calib_repair_env_calib_start_temperature>100) { ///115
+        } else if (calib_repair_env_calib_start_temperature > 100) { ///115
             ftun = 3;
-        } else if((calib_repair_env_calib_start_temperature>-10)&&(calib_repair_env_calib_start_temperature<=10)) { ///0
+        } else if ((calib_repair_env_calib_start_temperature > -10) && (calib_repair_env_calib_start_temperature <= 10)) { ///0
             ftun = 0;
-            if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 106) {
+            if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 106) {
                 ftun = 3;
-            } else if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 50) {
+            } else if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 50) {
                 ftun = 3;
-            } else if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 30) {
+            } else if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 30) {
                 ftun = 3;
             }
 
-            if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -30) {
+            if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -30) {
                 ftun = 0;
             }
-        } else if((calib_repair_env_calib_start_temperature>-30)&&(calib_repair_env_calib_start_temperature<=-10)) {///-25
+        } else if ((calib_repair_env_calib_start_temperature > -30) && (calib_repair_env_calib_start_temperature <= -10)) {///-25
             ftun = 0;
-            if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 110) {
+            if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 110) {
                 ftun = 3;
-            } else if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 50) {
+            } else if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 50) {
                 ftun = 3;
-            } else if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 30) {
+            } else if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 30) {
                 ftun = 0;
             }
 
-            if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -15) {
+            if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) < -15) {
                 ftun = 0;
             }
-        } else if(calib_repair_env_calib_start_temperature<=-30) { ///-40
+        } else if (calib_repair_env_calib_start_temperature <= -30) { ///-40
             ftun = 0;
-            if((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 50) {
+            if ((drv_calib_repair_env.temperature - calib_repair_env_calib_start_temperature) > 50) {
                 ftun = 3;
             }
         }
 
-        if((drv_calib_repair_env.temperature>=-10)&&(drv_calib_repair_env.temperature<=70)) {
+        if ((drv_calib_repair_env.temperature >= -10) && (drv_calib_repair_env.temperature <= 70)) {
             con_bias_idac_pll_delta = 0;
-        } else if((drv_calib_repair_env.temperature) > 100) {
+        } else if ((drv_calib_repair_env.temperature) > 100) {
             con_bias_idac_pll_delta = 8;
-        } else if((drv_calib_repair_env.temperature) > 90) {
+        } else if ((drv_calib_repair_env.temperature) > 90) {
             con_bias_idac_pll_delta = 7;
-        } else if((drv_calib_repair_env.temperature) > 80) {
+        } else if ((drv_calib_repair_env.temperature) > 80) {
             con_bias_idac_pll_delta = 5;
-        } else if((drv_calib_repair_env.temperature) > 70) {
+        } else if ((drv_calib_repair_env.temperature) > 70) {
             con_bias_idac_pll_delta = 2;
-        } else if((drv_calib_repair_env.temperature) < -28) {
+        } else if ((drv_calib_repair_env.temperature) < -28) {
             con_bias_idac_pll_delta = 7;
-        } else if((drv_calib_repair_env.temperature) < -20) {
+        } else if ((drv_calib_repair_env.temperature) < -20) {
             con_bias_idac_pll_delta = 5;
-        } else if((drv_calib_repair_env.temperature) < -10) {
+        } else if ((drv_calib_repair_env.temperature) < -10) {
             con_bias_idac_pll_delta = 2;
         }
 
-        if((drv_calib_repair_env.temperature) < 0) {
+        if ((drv_calib_repair_env.temperature) < 0) {
             pll_vco_ibias_cur_delta = 1;
         }
     }
 
-    int8_t use_bias_idac_pll     = drv_calib_repair_env.con_bias_idac_pll+con_bias_idac_pll_delta;
-    int8_t use_pll_vco_ibias_cur = drv_calib_repair_env.vco_cur+pll_vco_ibias_cur_delta;
+    int8_t use_bias_idac_pll     = drv_calib_repair_env.con_bias_idac_pll + con_bias_idac_pll_delta;
+    int8_t use_pll_vco_ibias_cur = drv_calib_repair_env.vco_cur + pll_vco_ibias_cur_delta;
     if (use_bias_idac_pll < 0) {
         use_bias_idac_pll = 0;
     } else if (use_bias_idac_pll > 63) {
@@ -206,9 +222,9 @@ void drv_calib_repair_rf_pll_temperature_repair(bool is_calib_start)
     }
 
     DRV_RCC_ANA_CLK_ENABLE();
-    REGW(&OM_DAIF->PLL_CTRL1,  MASK_2REG(DAIF_CON_BIAS_IDAC_PLL,     use_bias_idac_pll,
-                                         DAIF_RDPLL_SEL_VCO_IBIAS,   use_pll_vco_ibias_cur));
-    REGW(&OM_DAIF->PLL_CTRL0,  MASK_1REG(DAIF_REG_FTUN,  ftun));
+    REGW(&OM_DAIF->PLL_CTRL1, MASK_2REG(DAIF_CON_BIAS_IDAC_PLL, use_bias_idac_pll,
+                                        DAIF_RDPLL_SEL_VCO_IBIAS, use_pll_vco_ibias_cur));
+    REGW(&OM_DAIF->PLL_CTRL0, MASK_1REG(DAIF_REG_FTUN, ftun));
     DRV_RCC_ANA_CLK_RESTORE();
 }
 
@@ -218,7 +234,7 @@ void drv_calib_repair_rf_pll_temperature_repair(bool is_calib_start)
 static void drv_calib_repair_rc_rf_temperature(uint32_t cur_time)
 {
     #if (RTE_GPADC)
-    if(!drv_gpadc_control(GPADC_CONTROL_IS_BUSY, NULL)) {
+    if (!drv_gpadc_control(GPADC_CONTROL_IS_BUSY, NULL)) {
         int16_t t = (int)drv_gpadc_control(GPADC_CONTROL_READ_TEMPERATURE, NULL);
         int16_t delta_t_rc = drv_calib_repair_env.rc_repair_temperature - t;
         int16_t pre_all_repair_t = drv_calib_repair_env.rf_repair_temperature;
@@ -228,7 +244,7 @@ static void drv_calib_repair_rc_rf_temperature(uint32_t cur_time)
         drv_calib_repair_env.rc_rf_repair_time = cur_time;
 
         // if delta-temperature>15C, re-calib rc
-        if ((delta_t_rc>15) || (delta_t_rc<-15)) {
+        if ((delta_t_rc > 15) || (delta_t_rc < -15)) {
             drv_calib_repair_env.rc_repair_temperature = t;
 
             drv_pmu_topclk_recalib();
@@ -236,11 +252,11 @@ static void drv_calib_repair_rc_rf_temperature(uint32_t cur_time)
         }
 
         // re-calib all
-        if (((pre_all_repair_t<85) && (t>90)) || ((pre_all_repair_t>90) && (t<85))) {
+        if (((pre_all_repair_t < 85) && (t > 90)) || ((pre_all_repair_t > 90) && (t < 85))) {
             drv_calib_repair_env.rc_repair_temperature = t;
             drv_calib_repair_env.rf_repair_temperature = t;
 
-            if(!topclk_recalibed) {
+            if (!topclk_recalibed) {
                 drv_pmu_topclk_recalib();
             }
             drv_calib_repair_voltage_temperature(t);
@@ -263,14 +279,13 @@ static void drv_calib_repair_rc_rf_temperature(uint32_t cur_time)
  **/
 void drv_calib_repair_init(void)
 {
-    int16_t t = 20;
-
-    if(0 == drv_calib_repair_env.rc_rf_repair_interval) {
-        return;
-    }
+    #if (RC_RF_REPAIR_INTERVAL_MS)
+    int16_t t;
 
     #if (RTE_GPADC)
     t = (int)drv_gpadc_control(GPADC_CONTROL_READ_TEMPERATURE, NULL);
+    #else
+    t = 20;
     #endif
 
     drv_calib_repair_env.temperature = t;
@@ -280,6 +295,7 @@ void drv_calib_repair_init(void)
 
     // voltage repair
     drv_calib_repair_voltage_temperature(t);
+    #endif
 }
 
 /**
@@ -289,21 +305,19 @@ void drv_calib_repair_init(void)
 __RAM_CODES("PM")
 bool drv_calib_repair_rc_rf_temperature_check(void)
 {
-    uint32_t pre_time_tmp;
-    bool repaired = false;
-
+    #if (RC_RF_REPAIR_INTERVAL_MS)
     do {
-        if(0 == drv_calib_repair_env.rc_rf_repair_interval) {
-            break;
-        }
-        pre_time_tmp = drv_calib_repair_env.rc_rf_repair_time;
-        if(om_time_delay_past(drv_calib_repair_env.rc_rf_repair_interval, &pre_time_tmp)) {
-            drv_calib_repair_rc_rf_temperature(pre_time_tmp);
-            repaired = true;
-        }
-    } while(0);
+        uint32_t pre_time_tmp;
 
-    return repaired;
+        pre_time_tmp = drv_calib_repair_env.rc_rf_repair_time;
+        if (om_time_delay_past(RC_RF_REPAIR_INTERVAL_MS, &pre_time_tmp)) {
+            drv_calib_repair_rc_rf_temperature(pre_time_tmp);
+            return true;
+        }
+    } while (0);
+    #endif
+
+    return false;
 }
 
 /**
@@ -313,25 +327,22 @@ bool drv_calib_repair_rc_rf_temperature_check(void)
 __RAM_CODES("PM")
 bool drv_calib_repair_rc32k_temperature_check(void)
 {
-    uint32_t pre_time_tmp;
     bool repaired = false;
 
+    #if (RC32K_REPAIR_INTERVAL_MS)
     do {
-        if (0 == drv_calib_repair_env.rc32k_repair_interval) {
+        if (drv_pmu_select_32k_get() != PMU_32K_SEL_RC) {
             break;
         }
-
-        if(drv_pmu_select_32k_get() != PMU_32K_SEL_RC) {
-            break;
-        }
-        pre_time_tmp = drv_calib_repair_env.rc32k_repair_time;
-        if(om_time_delay_past(drv_calib_repair_env.rc32k_repair_interval, &pre_time_tmp)) {  // delay is pasted
+        uint32_t pre_time_tmp = drv_calib_repair_env.rc32k_repair_time;
+        if (om_time_delay_past(RC32K_REPAIR_INTERVAL_MS, &pre_time_tmp)) {  // delay is pasted
             // check and re-select (will trigger calib_rc32k)
             drv_pmu_select_32k(PMU_32K_SEL_RC);
             drv_calib_repair_env.rc32k_repair_time = pre_time_tmp;
             repaired = true;
         }
-    } while(0);
+    } while (0);
+    #endif
 
     return repaired;
 }

@@ -46,7 +46,7 @@ var group__RCC =
     [ "rcc_cpu_clk_source_t", "group__RCC.html#ga8ab7581eef78979410f06c4252bf5e8b", [
       [ "RCC_CPU_CLK_SOURCE_RC32M", "group__RCC.html#gga8ab7581eef78979410f06c4252bf5e8ba7ccaf1265f106d9b63b53d2583750b17", null ],
       [ "RCC_CPU_CLK_SOURCE_XTAL32M", "group__RCC.html#gga8ab7581eef78979410f06c4252bf5e8ba016352495018104489aeec160bf11736", null ],
-      [ "RCC_CPU_CLK_SOURCE_CLK64M", "group__RCC.html#gga8ab7581eef78979410f06c4252bf5e8ba9af31dd26455ce0771e78260cca95545", null ],
+      [ "RCC_CPU_CLK_SOURCE_XTAL64M", "group__RCC.html#gga8ab7581eef78979410f06c4252bf5e8bab60c8baa6b53f7803a11ee3bfc7c68ea", null ],
       [ "RCC_CPU_CLK_SOURCE_SYSPLL96M", "group__RCC.html#gga8ab7581eef78979410f06c4252bf5e8ba940497c08f160c045c18085278fe73b7", null ],
       [ "RCC_CPU_CLK_SOURCE_SYSPLL48M", "group__RCC.html#gga8ab7581eef78979410f06c4252bf5e8ba63dbd777aa5e79d21db950b838628617", null ],
       [ "RCC_CPU_CLK_SOURCE_MAX", "group__RCC.html#gga8ab7581eef78979410f06c4252bf5e8ba5139b29be489d94fe21745d402631afc", null ]
@@ -55,7 +55,7 @@ var group__RCC =
       [ "RCC_PERIPH_CLK_SOURCE_RC32M", "group__RCC.html#ggaa855f253bfce0a888f48732c3bff1e24aa07dd0fe91ca2956eac3569b6885e292", null ],
       [ "RCC_PERIPH_CLK_SOURCE_XTAL32M", "group__RCC.html#ggaa855f253bfce0a888f48732c3bff1e24ac6d8be691120f05aa55ed84e3945ea0b", null ],
       [ "RCC_PERIPH_CLK_SOURCE_SYSPLL48M", "group__RCC.html#ggaa855f253bfce0a888f48732c3bff1e24a40080f89ed9459c923816be671078cfa", null ],
-      [ "RCC_PERIPH_CLK_SOURCE_CLK64M", "group__RCC.html#ggaa855f253bfce0a888f48732c3bff1e24aa0357621698c7690e3895be52559ce76", null ],
+      [ "RCC_PERIPH_CLK_SOURCE_XTAL64M", "group__RCC.html#ggaa855f253bfce0a888f48732c3bff1e24ab22833d38baa4703149ff221ee291b60", null ],
       [ "RCC_PERIPH_CLK_SOURCE_MAX", "group__RCC.html#ggaa855f253bfce0a888f48732c3bff1e24a9c27993d35c7c2b493bedac709408baf", null ]
     ] ],
     [ "drv_rcc_clock_get", "group__RCC.html#ga3c789bc1380fa3a0203799bf3c351f4e", null ],

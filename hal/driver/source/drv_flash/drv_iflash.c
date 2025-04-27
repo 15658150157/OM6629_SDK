@@ -108,22 +108,24 @@ typedef struct {
 } cmd_cfg_t;
 
 typedef struct {
-    drv_isr_callback_t isr_cb;      /*!< Interrupt callback */
-    uint32_t addr;                  /*!< Flash address to write */
-    uint8_t *data;                  /*!< Data buffer to write */
-    uint32_t data_len;              /*!< Total length of data to write */
-    uint32_t data_cnt;              /*!< Length of data written */
-    flash_trans_state_t write_int_s; /*!< Write state, used for write interrupt */
-    flash_read_t read_cmd;          /*!< Flash cmd used in reading data */
-    flash_write_t write_cmd;        /*!< Flash cmd used in writing data */
-    flash_state_t state;            /*!< Indicate flash is state on reading or writing */
-    flash_id_t id;                  /*!< Flash id, see@flash_id_t */
+    drv_isr_callback_t isr_cb;          /*!< Interrupt callback */
+    uint32_t addr;                      /*!< Flash address to write */
+    uint8_t *data;                      /*!< Data buffer to write */
+    uint32_t data_len;                  /*!< Total length of data to write */
+    uint32_t data_cnt;                  /*!< Length of data written */
+    cmd_cfg_t read_id_cmd_cfg;          /*!< Read ID frame configuration */
+    flash_delay_info_t delay_info;      /*!< Delay information */
+    flash_id_t id;                      /*!< Flash id, see@flash_id_t */
+    flash_trans_state_t write_int_s;    /*!< Write state, used for write interrupt */
+    flash_read_t read_cmd;              /*!< Flash cmd used in reading data */
+    flash_write_t write_cmd;            /*!< Flash cmd used in writing data */
+    flash_state_t state;                /*!< Indicate flash is state on reading or writing */
 } iflash_env_t;
 
 typedef struct {
-    uint32_t cap;               /*!< Capacity */
-    IRQn_Type irq_num;          /*!< IRQ number */
-    uint8_t irq_prio;           /*!< IRQ priority */
+    uint32_t cap;                       /*!< Capacity */
+    IRQn_Type irq_num;                  /*!< IRQ number */
+    uint8_t irq_prio;                   /*!< IRQ priority */
 } flash_resource_t;
 
 
@@ -137,6 +139,7 @@ static iflash_env_t flash0_env = {
     .data_len = 0,
     .data_cnt = 0,
     .id.id = 0,
+    .read_id_cmd_cfg = FLASH_READ_ID_CFG,
     .state = FLASH_STATE_UNINIT,
 };
 
@@ -159,10 +162,8 @@ __IF_RAM_CODE static void sf_hardware_init(const flash_config_t *config)
     // 4. Use OPCODE for transparent read opcode
     // 5. Disable 4 byte address
     // 6. Data unit 8bit
-    uint32_t irq_save;
 
-    DRV_RCC_CLOCK_ENABLE(RCC_CLK_SF0, 1);
-    OM_CRITICAL_BEGIN_EX(irq_save);
+    OM_CRITICAL_BEGIN();
     register_set(&OM_SF0->CFG[0].SPI_CFG,
                   MASK_4REG(SF_CONFIG_CLK_DIV, config->clk_div & (~(0x1)),
                             SF_CONFIG_SPI_MODE, config->spi_mode,
@@ -175,7 +176,7 @@ __IF_RAM_CODE static void sf_hardware_init(const flash_config_t *config)
     OM_SF0->INT_EN = 0;
     // Disable software control
     OM_SF0->SW_CFG1 = 0;
-    OM_CRITICAL_END_EX(irq_save);
+    OM_CRITICAL_END();
 }
 
 __IF_RAM_CODE static void sf_trans_dma_start(cmd_frame_t *cmd_frame, uint8_t *data, uint32_t data_len)
@@ -199,13 +200,12 @@ __IF_RAM_CODE static void sf_trans_dma_start_wait_done(cmd_frame_t *cmd_frame,
                                                        uint32_t data_len)
 {
     #if (RTE_FLASH0_XIP)
-    uint32_t irq_save;
-    OM_CRITICAL_BEGIN_EX(irq_save);
+    OM_CRITICAL_BEGIN();
     #endif
     sf_trans_dma_start(cmd_frame, (uint8_t *)data, data_len);
     sf_wait_trans_done();
     #if (RTE_FLASH0_XIP)
-    OM_CRITICAL_END_EX(irq_save);
+    OM_CRITICAL_END();
     #endif
 }
 
@@ -229,8 +229,7 @@ __IF_RAM_CODE static void iflash_read_reg(cmd_frame_t *cmd_frame, uint8_t *data,
     register_set(&cmd_cfg, MASK_1REG(SF_COMMAND_CMD_BITS, cmd_bits));
 
     #if (RTE_FLASH0_XIP)
-    uint32_t irq_save;
-    OM_CRITICAL_BEGIN_EX(irq_save);
+    OM_CRITICAL_BEGIN();
     #endif
     // send
     sf->ADDR = 0;
@@ -249,7 +248,7 @@ __IF_RAM_CODE static void iflash_read_reg(cmd_frame_t *cmd_frame, uint8_t *data,
         }
     }
     #if (RTE_FLASH0_XIP)
-    OM_CRITICAL_END_EX(irq_save);
+    OM_CRITICAL_END();
     #endif
 }
 
@@ -289,8 +288,7 @@ __IF_RAM_CODE static void iflash_write_reg(cmd_frame_t *write_reg_frame,
     register_set(&(write_reg_frame->cmd_cfg), MASK_1REG(SF_COMMAND_CMD_BITS, cmd_bits));
 
     #if (RTE_FLASH0_XIP)
-    uint32_t irq_save;
-    OM_CRITICAL_BEGIN_EX(irq_save);
+    OM_CRITICAL_BEGIN();
     #endif
 
     // send
@@ -303,7 +301,7 @@ __IF_RAM_CODE static void iflash_write_reg(cmd_frame_t *write_reg_frame,
     iflash_poll_wip(wip_frame);
 
     #if (RTE_FLASH0_XIP)
-    OM_CRITICAL_END_EX(irq_save);
+    OM_CRITICAL_END();
     #endif
 }
 
@@ -363,38 +361,41 @@ static om_error_t iflash_write_frame_get(uint32_t addr, cmd_frame_t *frame)
 __IF_RAM_CODE om_error_t iflash_suspend(cmd_frame_t *suspend_frame)
 {
     iflash_env_t *env = &flash0_env;
+    uint32_t wait_us;
 
     iflash_read_reg(suspend_frame, NULL, 0);
+
     // CS# High To Next Command After Suspend
     switch (env->id.man_id) {
         case FLASH_MID_PUYA:        // (0x856014) tPSL = 30us
         case FLASH_MID_GIGADEVICE:  // (0xc86514) tSUS = 40us
-            DRV_DELAY_US(50);
-            break;
         default:
-            DRV_DELAY_US(50);
+            wait_us = 50;
             break;
     }
+    DRV_DELAY_US(wait_us);
+
     return OM_ERROR_OK;
 }
 
 __IF_RAM_CODE om_error_t iflash_resume(cmd_frame_t *resume_frame)
 {
     iflash_env_t *env = &flash0_env;
+    uint32_t wait_us;
 
     iflash_read_reg(resume_frame, NULL, 0);
     // Latency between Program/Erase Resume and next Suspend
     switch (env->id.man_id) {
         case FLASH_MID_PUYA:        // (0x856014) tPRS = 20us
-            DRV_DELAY_US(20 * 2);
-            break;
-        case FLASH_MID_GIGADEVICE:  // (0xc86514) tRS = 100us
-            DRV_DELAY_US(110);
+            wait_us = 40;
             break;
         default:
-            DRV_DELAY_US(110);
+            // FLASH_MID_GIGADEVICE:  // (0xc86514) tRS = 100us
+            wait_us = 110;
             break;
     }
+    DRV_DELAY_US(wait_us);
+
     return OM_ERROR_OK;
 }
 
@@ -443,15 +444,18 @@ __IF_RAM_CODE static void iflash_trans_start_with_wip(cmd_frame_t *trans_frame,
 
 __IF_RAM_CODE static om_error_t iflash_deep_powerdown_exit(cmd_frame_t *dp_exit_frame)
 {
+    uint32_t wait_us;
+
     iflash_read_reg(dp_exit_frame, NULL, 0);
     switch (flash0_env.id.man_id) {
         case FLASH_MID_PUYA:
-            DRV_DELAY_US(8 * 2);    // tRES1=8us
+            wait_us = 8 * 2;    // tRES1=8us
             break;
         default:
-            DRV_DELAY_US(20);
+            wait_us = 20;
             break;
     }
+    DRV_DELAY_US(wait_us);
     return OM_ERROR_OK;
 }
 
@@ -530,8 +534,11 @@ __IF_RAM_CODE static om_error_t iflash_auto_delay_init(cmd_frame_t *read_id_fram
 
     OM_CRITICAL_BEGIN();
     // set flash low frequency so it can work
-    sfcfg.clk_div = 16;
+    sfcfg.clk_div = drv_rcc_clock_get(RCC_CLK_SF0) / FLASH_FREQ_HZ_DEFAULT;
     sfcfg.delay = FLASH_DELAY_DEFAULT;
+    if (sfcfg.clk_div < 2) {
+        OM_ASSERT(sfcfg.spi_mode == FLASH_SPI_MODE_0);
+    }
     sf_hardware_init(&sfcfg);
     // read id twice, save the true id to id1
     while (1) {
@@ -562,7 +569,7 @@ __IF_RAM_CODE static om_error_t iflash_auto_delay_init(cmd_frame_t *read_id_fram
     }
     if (delay1 == -1) {
         // faild, then set flash low frequency so it can work
-        sfcfg.clk_div = 16;
+        sfcfg.clk_div = drv_rcc_clock_get(RCC_CLK_SF0) / FLASH_FREQ_HZ_DEFAULT;
         sfcfg.delay = FLASH_DELAY_DEFAULT;
     } else {
         sfcfg.delay = (delay1 + delay2) / 2;
@@ -571,6 +578,10 @@ __IF_RAM_CODE static om_error_t iflash_auto_delay_init(cmd_frame_t *read_id_fram
     sf_hardware_init(&sfcfg);
 
 EXIT:
+    flash0_env.delay_info.auto_delay = sfcfg.delay;
+    flash0_env.delay_info.valid_delay_max = delay2;
+    flash0_env.delay_info.valid_delay_min = delay1;
+    flash0_env.delay_info.auto_delay_en = 1;
     OM_CRITICAL_END();
     return error;
 }
@@ -584,42 +595,74 @@ om_error_t drv_iflash_init(OM_SF_Type *om_flash, const flash_config_t *config)
     const flash_resource_t *resource = &flash0_resource;
     iflash_env_t *env = &flash0_env;
     om_error_t error = OM_ERROR_FAIL;
-    cmd_frame_t dp_exit_frame;
     cmd_frame_t read_id_frame;
-    volatile flash_config_t sfcfg = *config;
+    cmd_frame_t dp_exit_frame;
+    flash_config_t sfcfg;
+    uint8_t status[2] = {
+        (uint8_t)FLASH_PROTECT_UPPER_4_SECTOR_UNPROTECTED,
+        (1 << FLASH_STATUS_2_CMP_POS)
+    };
+    uint8_t mask[2] = {
+        FLASH_STATUS_1_BP_MASK | FLASH_STATUS_1_SRP0_MASK,
+        FLASH_STATUS_2_CMP_MASK | FLASH_STATUS_2_SRP1_MASK
+    };
 
-    // 1. Flash only support SPI mode 0/3.
-    // 2. In SPI mode 3, clock division must be at least 2
-    if ((!config) ||
-            config->spi_mode == FLASH_SPI_MODE_1 ||
+    // clock enable
+    if (drv_rcc_clock_get(RCC_CLK_SF0) == 0) {
+        DRV_RCC_CLOCK_ENABLE(RCC_CLK_SF0, 1);
+    }
+    if (!config) {
+        // If config is NULL, set default config, freq is 8MHz, delay is 2, bus width is 2
+        sfcfg.clk_div = drv_rcc_clock_get(RCC_CLK_SF0) / FLASH_FREQ_HZ_DEFAULT;
+        sfcfg.delay = FLASH_DELAY_DEFAULT;
+        sfcfg.spi_mode = FLASH_SPI_MODE_0;
+        sfcfg.read_cmd = FLASH_FAST_READ_DO;
+        sfcfg.write_cmd = FLASH_PAGE_PROGRAM;
+    } else {
+        if (config->spi_mode == FLASH_SPI_MODE_1 ||
             config->spi_mode == FLASH_SPI_MODE_2 ||
             (config->spi_mode == FLASH_SPI_MODE_3 && config->clk_div < 2)) {
-        return OM_ERROR_PARAMETER;
+                // Flash only support SPI mode 0/3,
+                // and in SPI mode 3, clock division must be at least 2
+                return OM_ERROR_PARAMETER;
+        }
+        sfcfg = *config;
     }
-    // Detect iflash by read flash id
-    CMD_FRAME_SET(&dp_exit_frame, FLASH_RELEASE_POWERDOWN_CFG, 0);
-    CMD_FRAME_SET(&read_id_frame, FLASH_READ_ID_CFG, 0);
-
-    if (config->delay == FLASH_DELAY_AUTO) {
+    // sf hardware init
+    read_id_frame.cmd_cfg = env->read_id_cmd_cfg.cmd_cfg;
+    read_id_frame.cmd_data[0] = env->read_id_cmd_cfg.cmd_code << 24;
+    read_id_frame.cmd_data[1] = 0;
+    if (sfcfg.delay == FLASH_DELAY_AUTO) {
         if(iflash_auto_delay_init(&read_id_frame, (flash_config_t *)&sfcfg) != OM_ERROR_OK) {
             return OM_ERROR_FAIL;
         }
     } else {
-        sf_hardware_init(config);
+        sf_hardware_init((flash_config_t *)&sfcfg);
+        flash0_env.delay_info.auto_delay_en = 0;
     }
-
+    // Detect iflash by read flash id
+    CMD_FRAME_SET(&dp_exit_frame, FLASH_RELEASE_POWERDOWN_CFG, 0);
     if ((error = iflash_detect(&read_id_frame, &dp_exit_frame)) != OM_ERROR_OK) {
         goto INIT_EXIT;
     }
-    // check quad mode
-    if (config->read_cmd == FLASH_FAST_READ_QO || config->read_cmd == FLASH_FAST_READ_QIO) {
-        error = drv_iflash_quad_enable(om_flash, 1);
+    // check DC bit for GD flash
+    if (env->id.man_id == FLASH_MID_GIGADEVICE) {
+        mask[1] |= GD_FLASH_STATUS_2_DC_MASK;
     }
-    // Set read/write command and frame
-    if ((error = drv_iflash_read_cmd_set(om_flash, config->read_cmd)) != OM_ERROR_OK) {
+    // check quad mode
+    if (sfcfg.read_cmd == FLASH_FAST_READ_QO || sfcfg.read_cmd == FLASH_FAST_READ_QIO) {
+        mask[1] |= FLASH_STATUS_2_QE_MASK;
+        status[1] |= FLASH_STATUS_2_QE_MASK;
+    }
+    // update status(WP, QE and DC of GD)
+    if ((error = drv_iflash_modifiy_status_bits(om_flash, status, mask))!= OM_ERROR_OK) {
         goto INIT_EXIT;
     }
-    if ((error = drv_iflash_write_cmd_set(om_flash, config->write_cmd)) != OM_ERROR_OK) {
+    // Set read/write command and frame
+    if ((error = drv_iflash_read_cmd_set(om_flash, sfcfg.read_cmd)) != OM_ERROR_OK) {
+        goto INIT_EXIT;
+    }
+    if ((error = drv_iflash_write_cmd_set(om_flash, sfcfg.write_cmd)) != OM_ERROR_OK) {
         goto INIT_EXIT;
     }
     // NVIC clear and Enable IRQ
@@ -633,6 +676,39 @@ INIT_EXIT:
     // Set state to none
     env->state = FLASH_STATE_UNINIT;
     return error;
+}
+
+__IF_RAM_CODE om_error_t drv_iflash_delay_recalib(void)
+{
+    flash_config_t flash_cfg;
+    iflash_env_t *env = &flash0_env;
+    uint32_t spi_cfg_reg;
+    cmd_frame_t read_id_frame;
+
+    // fill flash_cfg with current config
+    flash_cfg.read_cmd = env->read_cmd;
+    flash_cfg.write_cmd = env->write_cmd;
+    spi_cfg_reg = OM_SF0->CFG[0].SPI_CFG;
+    flash_cfg.spi_mode = (flash_spi_mode_t)((spi_cfg_reg & SF_CONFIG_SPI_MODE_MASK) >> SF_CONFIG_SPI_MODE_POS);
+    if (spi_cfg_reg & SF_CONFIG_CLK_BYPASS_MASK) {
+        flash_cfg.clk_div = 0;
+    } else {
+        flash_cfg.clk_div = (spi_cfg_reg & SF_CONFIG_CLK_DIV_MASK) >> SF_CONFIG_CLK_DIV_POS;
+    }
+    flash_cfg.delay = FLASH_DELAY_AUTO;
+    // fill read_id_frame
+    read_id_frame.cmd_cfg = env->read_id_cmd_cfg.cmd_cfg;
+    read_id_frame.cmd_data[0] = env->read_id_cmd_cfg.cmd_code << 24;
+    read_id_frame.cmd_data[1] = 0;
+    // re-init SF0
+    return iflash_auto_delay_init(&read_id_frame, &flash_cfg);
+}
+
+void drv_iflash_get_delay_info(flash_delay_info_t *info)
+{
+    if (info) {
+        *info = flash0_env.delay_info;
+    }
 }
 
 om_error_t drv_iflash_id_get(OM_SF_Type *om_flash, flash_id_t *id)
@@ -965,22 +1041,35 @@ om_error_t drv_iflash_read_config_reg(OM_SF_Type *om_flash, uint8_t *config)
     return OM_ERROR_OK;
 }
 
-om_error_t drv_iflash_write_status(OM_SF_Type *om_flash, uint8_t *status, uint32_t status_len)
+om_error_t drv_iflash_write_status(OM_SF_Type *om_flash, uint8_t *status, uint8_t status_len)
 {
     cmd_frame_t write_reg_frame;
     cmd_frame_t wip_frame;
+    uint8_t rd_status[2];
 
-    iflash_write_enable();
-    #if (RTE_FLASH0_XIP)
-    uint32_t irq_save;
-    OM_CRITICAL_BEGIN_EX(irq_save);
-    #endif
     CMD_FRAME_SET(&write_reg_frame, FLASH_WRITE_STATUS_REGS_CFG, 0);
     CMD_FRAME_SET(&wip_frame, FLASH_READ_STATUS_REG_1_CFG, 0);
+
+    #if (RTE_FLASH0_XIP)
+    OM_CRITICAL_BEGIN();
+    #endif
+    iflash_write_enable();
     iflash_write_reg(&write_reg_frame, &wip_frame, status, status_len);
     #if (RTE_FLASH0_XIP)
-    OM_CRITICAL_END_EX(irq_save);
+    OM_CRITICAL_END();
     #endif
+    // read back to verify
+    drv_iflash_read_status_reg1(om_flash, &rd_status[0]);
+    if ((rd_status[0] & (~(FLASH_STATUS_1_WIP_MASK | FLASH_STATUS_1_WEL_MASK))) !=
+        (status[0] & (~(FLASH_STATUS_1_WIP_MASK | FLASH_STATUS_1_WEL_MASK)))) {
+            return OM_ERROR_VERIFY;
+    }
+    if (status_len > 1) {
+        drv_iflash_read_status_reg2(om_flash, &rd_status[1]);
+        if (rd_status[1] != status[1]) {
+            return OM_ERROR_VERIFY;
+        }
+    }
     return OM_ERROR_OK;
 }
 
@@ -989,10 +1078,16 @@ om_error_t drv_iflash_write_config_reg(OM_SF_Type *om_flash, uint8_t *config)
     cmd_frame_t write_reg_frame;
     cmd_frame_t wip_frame;
 
-    iflash_write_enable();
     CMD_FRAME_SET(&write_reg_frame, FLASH_WRITE_CONFIG_REG_CFG, 0);
     CMD_FRAME_SET(&wip_frame, FLASH_READ_STATUS_REG_1_CFG, 0);
+    #if (RTE_FLASH0_XIP)
+    OM_CRITICAL_BEGIN();
+    #endif
+    iflash_write_enable();
     iflash_write_reg(&write_reg_frame, &wip_frame, config, 1);
+    #if (RTE_FLASH0_XIP)
+    OM_CRITICAL_END();
+    #endif
     return OM_ERROR_OK;
 }
 
@@ -1000,16 +1095,25 @@ om_error_t drv_iflash_modifiy_status_bits(OM_SF_Type *om_flash, uint8_t status[2
 {
     uint8_t s1[2] = {0, 0};
     uint8_t s2[2] = {0, 0};
+    om_error_t error;
 
     // Read status reg
-    drv_iflash_read_status_reg1(om_flash, &s1[0]);
-    drv_iflash_read_status_reg2(om_flash, &s1[1]);
+    if ((error = drv_iflash_read_status_reg1(om_flash, &s1[0])) != OM_ERROR_OK) {
+        goto ERR;
+    }
+    if ((error = drv_iflash_read_status_reg2(om_flash, &s1[1])) != OM_ERROR_OK) {
+        goto ERR;
+    }
     // Read status reg again
-    drv_iflash_read_status_reg1(om_flash, &s2[0]);
-    drv_iflash_read_status_reg2(om_flash, &s2[1]);
+    if ((error = drv_iflash_read_status_reg1(om_flash, &s2[0])) != OM_ERROR_OK) {
+        goto ERR;
+    }
+    if ((error = drv_iflash_read_status_reg2(om_flash, &s2[1])) != OM_ERROR_OK) {
+        goto ERR;
+    }
     // check status reg
     if (s1[0] != s2[0] || s1[1] != s2[1]) {
-        return OM_ERROR_FAIL;
+        return OM_ERROR_VERIFY;
     }
     if ((s1[0] & mask[0]) != (status[0] & mask[0]) ||
             (s1[1] & mask[1]) != (status[1] & mask[1])) {
@@ -1017,12 +1121,13 @@ om_error_t drv_iflash_modifiy_status_bits(OM_SF_Type *om_flash, uint8_t status[2
         s1[0] |= (status[0] & mask[0]);
         s1[1] &= ~mask[1];
         s1[1] |= (status[1] & mask[1]);
-        s1[0] |= FLASH_STATUS_1_WEL_MASK;
     } else {
         return OM_ERROR_OK;
     }
-    drv_iflash_write_status(om_flash, s1, 2);
-    return OM_ERROR_OK;
+    return drv_iflash_write_status(om_flash, s1, 2);
+
+ERR:
+    return error;
 }
 
 om_error_t drv_iflash_write_protect_set(OM_SF_Type *om_flash, flash_protect_t protect)
@@ -1043,29 +1148,14 @@ om_error_t drv_iflash_write_protect_set(OM_SF_Type *om_flash, flash_protect_t pr
 
 om_error_t drv_iflash_quad_enable(OM_SF_Type *om_flash, bool enable)
 {
+    uint8_t mask[2] = {0, FLASH_STATUS_2_QE_MASK};
     uint8_t status[2] = {0, 0};
-    uint8_t status_chk[2] = {0, 0};
 
-    // Read status reg
-    drv_iflash_read_status_reg1(om_flash, &status[0]);
-    drv_iflash_read_status_reg2(om_flash, &status[1]);
-    // Read status reg again
-    drv_iflash_read_status_reg1(om_flash, &status_chk[0]);
-    drv_iflash_read_status_reg2(om_flash, &status_chk[1]);
-    // check status reg
-    if (status[0] != status_chk[0] || status[1] != status_chk[1]) {
-        return OM_ERROR_FAIL;
-    }
-    // Set QE bit, enable or disable
     if (enable) {
-        status[1] |= FLASH_STATUS_2_QE_MASK;
-    } else {
-        status[1] &= ~FLASH_STATUS_2_QE_MASK;
+        status[1] = FLASH_STATUS_2_QE_MASK;
     }
-    status[0] |= FLASH_STATUS_1_WEL_MASK;
-    // Write status reg back
-    drv_iflash_write_status(om_flash, status, 2);
-    return OM_ERROR_OK;
+
+    return drv_iflash_modifiy_status_bits(om_flash, status, mask);
 }
 
 om_error_t drv_iflash_reset(OM_SF_Type *om_flash)

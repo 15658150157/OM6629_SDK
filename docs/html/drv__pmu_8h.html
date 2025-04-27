@@ -216,24 +216,39 @@ Enumerations</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:ga67920eb5bfd062833bcbe5afe5fc75e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1672f1503b5e434594d3f5d870a8fa63"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga1672f1503b5e434594d3f5d870a8fa63">pmu_pof_int_edge_t</a> { <a class="el" href="group__PMU.html#gga1672f1503b5e434594d3f5d870a8fa63a85205d590714ac4b15cf2bde5681763d">PMU_POF_INT_BOTH_EDGE</a> = 0U
+, <a class="el" href="group__PMU.html#gga1672f1503b5e434594d3f5d870a8fa63a8e35cd72ef6b0d62c92bd8ec1a3cea9e">PMU_POF_INT_POS_EDGE</a> = 1U
+, <a class="el" href="group__PMU.html#gga1672f1503b5e434594d3f5d870a8fa63ad40a619b455e4dfe20b58e2472aff916">PMU_POF_INT_NEG_EDGE</a> = 2U
+ }</td></tr>
+<tr class="separator:ga1672f1503b5e434594d3f5d870a8fa63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga64d43f15be2dc8311c2ef2fe0497706a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga64d43f15be2dc8311c2ef2fe0497706a">pmu_dvdd_voltage_t</a> { <br />
+&#160;&#160;<a class="el" href="group__PMU.html#gga64d43f15be2dc8311c2ef2fe0497706aa4be7bbe9d598fa3fd4ecab20baaa8f74">PMU_DVDD_VOLTAGE_0P80V</a> = 0xFC
+, <a class="el" href="group__PMU.html#gga64d43f15be2dc8311c2ef2fe0497706aa637d5118bbb024f41a1a417f8c7f0a87">PMU_DVDD_VOLTAGE_0P85V</a> = 0xFD
+, <a class="el" href="group__PMU.html#gga64d43f15be2dc8311c2ef2fe0497706aa716a0bd4c58f9ce13f65bbff83eabcd7">PMU_DVDD_VOLTAGE_0P90V</a> = 0xFE
+, <a class="el" href="group__PMU.html#gga64d43f15be2dc8311c2ef2fe0497706aa76fa5864ec9959ff0d03737cb774bc7f">PMU_DVDD_VOLTAGE_0P95V</a> = 0xFF
+, <br />
+&#160;&#160;<a class="el" href="group__PMU.html#gga64d43f15be2dc8311c2ef2fe0497706aa0daa84001410831b8350203a434a9d32">PMU_DVDD_VOLTAGE_1P00V</a> = 0x00
+, <a class="el" href="group__PMU.html#gga64d43f15be2dc8311c2ef2fe0497706aad1281021c39f260e25c95aae207da442">PMU_DVDD_VOLTAGE_1P05V</a> = 0x01
+, <a class="el" href="group__PMU.html#gga64d43f15be2dc8311c2ef2fe0497706aa96d55eae2886014f4e87ea780493309b">PMU_DVDD_VOLTAGE_1P10V</a> = 0x02
+, <a class="el" href="group__PMU.html#gga64d43f15be2dc8311c2ef2fe0497706aa689755585924db2bbbc8f896f5b896ba">PMU_DVDD_VOLTAGE_1P15V</a> = 0x03
+, <br />
+&#160;&#160;<a class="el" href="group__PMU.html#gga64d43f15be2dc8311c2ef2fe0497706aa8f387c634ab426e930b0156073619758">PMU_DVDD_VOLTAGE_1P20V</a> = 0x04
+, <a class="el" href="group__PMU.html#gga64d43f15be2dc8311c2ef2fe0497706aab9885e9fe0b146a6d4ba591cb0ec75c4">PMU_DVDD_VOLTAGE_1P25V</a> = 0x05
+<br />
+ }</td></tr>
+<tr class="separator:ga64d43f15be2dc8311c2ef2fe0497706a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ga0def298d82d4ae3be8ee0002d8c8c340"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga0def298d82d4ae3be8ee0002d8c8c340">drv_pmu_init</a> (void)</td></tr>
-<tr class="memdesc:ga0def298d82d4ae3be8ee0002d8c8c340"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu initialize  <br /></td></tr>
-<tr class="separator:ga0def298d82d4ae3be8ee0002d8c8c340"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa7bf605cad3670e6eba4b678d1ecea81"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#gaa7bf605cad3670e6eba4b678d1ecea81">drv_pmu_dvdd_voltage_set</a> (<a class="el" href="group__PMU.html#ga64d43f15be2dc8311c2ef2fe0497706a">pmu_dvdd_voltage_t</a> voltage)</td></tr>
+<tr class="memdesc:gaa7bf605cad3670e6eba4b678d1ecea81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set dvdd voltage.  <br /></td></tr>
+<tr class="separator:gaa7bf605cad3670e6eba4b678d1ecea81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga49c66f0d06bb67806927c4b436335331"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga49c66f0d06bb67806927c4b436335331">drv_pmu_xtal32m_startup</a> (void)</td></tr>
 <tr class="memdesc:ga49c66f0d06bb67806927c4b436335331"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu select xtal32m as top clock, call by system  <br /></td></tr>
 <tr class="separator:ga49c66f0d06bb67806927c4b436335331"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga72023cb355be632499f72c5ed8b207e3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga72023cb355be632499f72c5ed8b207e3">drv_pmu_xtal32m_x2_startup</a> (void)</td></tr>
-<tr class="memdesc:ga72023cb355be632499f72c5ed8b207e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu xtal32m x2 startup that lead system top clock is 64MHz  <br /></td></tr>
-<tr class="separator:ga72023cb355be632499f72c5ed8b207e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3867bdb5916448c8668d303925d8fa49"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga3867bdb5916448c8668d303925d8fa49">drv_pmu_xtal32m_x2_close</a> (void)</td></tr>
-<tr class="memdesc:ga3867bdb5916448c8668d303925d8fa49"><td class="mdescLeft">&#160;</td><td class="mdescRight">drv pmu xtal32m x2 close  <br /></td></tr>
-<tr class="separator:ga3867bdb5916448c8668d303925d8fa49"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga9c07768d1fd73508ee7b30f1ce17b6b7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga9c07768d1fd73508ee7b30f1ce17b6b7">drv_pmu_xtal32m_fast_startup</a> (bool force)</td></tr>
-<tr class="memdesc:ga9c07768d1fd73508ee7b30f1ce17b6b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu xtal32m fast startup  <br /></td></tr>
-<tr class="separator:ga9c07768d1fd73508ee7b30f1ce17b6b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6d82e78c9023a8fd90ed5cd98ec500c2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga6d82e78c9023a8fd90ed5cd98ec500c2">drv_pmu_syspll96m_startup</a> (void)</td></tr>
+<tr class="memdesc:ga6d82e78c9023a8fd90ed5cd98ec500c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">syspll 96M startup, NOTE: this function must be called after xtal32m_startup()  <br /></td></tr>
+<tr class="separator:ga6d82e78c9023a8fd90ed5cd98ec500c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga246f3f61bc55562987771d3b52e2a970"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga246f3f61bc55562987771d3b52e2a970">drv_pmu_select_32k</a> (<a class="el" href="group__PMU.html#ga8be2a2f24d33272140f5eb425d4f329f">pmu_32k_sel_t</a> clk32k)</td></tr>
 <tr class="memdesc:ga246f3f61bc55562987771d3b52e2a970"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu select 32k  <br /></td></tr>
 <tr class="separator:ga246f3f61bc55562987771d3b52e2a970"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -247,14 +262,20 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga5d7fa2112758c07e35dbc9a543582021"><td class="mdescLeft">&#160;</td><td class="mdescRight">control ram power state in sleep, It will work when the system enter sleep/deep sleep state. all ram (defined by pmu_ram_block_t) is power on from startup (ROM <a class="el" href="group__SYSTEM.html#ga93f514700ccf00d08dbdcff7f1224eb2" title="Setup the microcontroller system.">SystemInit()</a> and SDK <a class="el" href="group__SYSTEM.html#ga93f514700ccf00d08dbdcff7f1224eb2" title="Setup the microcontroller system.">SystemInit()</a>). the corresponding struct member setting as 1 indicate the blocks power down.  <br /></td></tr>
 <tr class="separator:ga5d7fa2112758c07e35dbc9a543582021"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2eebd20623e5458dedc0a8ad2bd2021b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga2eebd20623e5458dedc0a8ad2bd2021b">drv_pmu_register_step_set</a> (volatile uint32_t *reg, uint32_t mask, uint32_t pos, uint32_t value, bool should_update, uint32_t delay_us)</td></tr>
-<tr class="memdesc:ga2eebd20623e5458dedc0a8ad2bd2021b"><td class="mdescLeft">&#160;</td><td class="mdescRight">register step set, use: <a class="el" href="group__UTILS.html#ga07062e083e3c1d7f6d3d88f8d1526c68">REGSW(...)</a>  <br /></td></tr>
+<tr class="memdesc:ga2eebd20623e5458dedc0a8ad2bd2021b"><td class="mdescLeft">&#160;</td><td class="mdescRight">register step set, use: drv_pmu_register_step_set(...)  <br /></td></tr>
 <tr class="separator:ga2eebd20623e5458dedc0a8ad2bd2021b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga06c17516895dff40a33ebd2b31325871"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga06c17516895dff40a33ebd2b31325871">drv_pmu_32k_enable_in_deep_sleep</a> (bool enable)</td></tr>
 <tr class="memdesc:ga06c17516895dff40a33ebd2b31325871"><td class="mdescLeft">&#160;</td><td class="mdescRight">32k enable in deep sleep  <br /></td></tr>
 <tr class="separator:ga06c17516895dff40a33ebd2b31325871"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5de7bc38dc99b8826cf9c5e93d64e2e6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga5de7bc38dc99b8826cf9c5e93d64e2e6">drv_pmu_xtal32k_change_param</a> (int load_capacitance, int drive_current)</td></tr>
-<tr class="memdesc:ga5de7bc38dc99b8826cf9c5e93d64e2e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change xtal 32k params.  <br /></td></tr>
-<tr class="separator:ga5de7bc38dc99b8826cf9c5e93d64e2e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1858e5123ac1c31f7cc5454fee7508e0"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga1858e5123ac1c31f7cc5454fee7508e0">drv_pmu_xtal32k_change_param</a> (int load_capacitance, int drive_current)</td></tr>
+<tr class="memdesc:ga1858e5123ac1c31f7cc5454fee7508e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change xtal 32k params.  <br /></td></tr>
+<tr class="separator:ga1858e5123ac1c31f7cc5454fee7508e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga733c01e91ff8171654ed31c5d8ba6f7d"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga733c01e91ff8171654ed31c5d8ba6f7d">drv_pmu_xtal32m_change_param</a> (uint32_t load_capacitance)</td></tr>
+<tr class="memdesc:ga733c01e91ff8171654ed31c5d8ba6f7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change xtal 32m params.  <br /></td></tr>
+<tr class="separator:ga733c01e91ff8171654ed31c5d8ba6f7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8e754ce55778f1724c5bb227a3ddfd97"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga8e754ce55778f1724c5bb227a3ddfd97">drv_pmu_xtal32m_get_param</a> (void)</td></tr>
+<tr class="memdesc:ga8e754ce55778f1724c5bb227a3ddfd97"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu xtal32m get param  <br /></td></tr>
+<tr class="separator:ga8e754ce55778f1724c5bb227a3ddfd97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad84c9f7ce29d9c818d952c07a99c0d31"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#gad84c9f7ce29d9c818d952c07a99c0d31">drv_pmu_wakeup_pin_set</a> (uint8_t pin_idx, <a class="el" href="group__PMU.html#gaec4206204aaa76f111cd269ed44ee98b">pmu_pin_wakeup_type_t</a> trigger_type)</td></tr>
 <tr class="memdesc:gad84c9f7ce29d9c818d952c07a99c0d31"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu gpio wakeup pin setup  <br /></td></tr>
 <tr class="separator:gad84c9f7ce29d9c818d952c07a99c0d31"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -291,51 +312,54 @@ Functions</h2></td></tr>
 <tr class="memitem:ga7b1349af842b1798f529d1bd3447310f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga7b1349af842b1798f529d1bd3447310f">drv_pmu_reset</a> (<a class="el" href="group__PMU.html#gaefb51823b3e79670cb3be34b44353285">pmu_reboot_reason_t</a> reason)</td></tr>
 <tr class="memdesc:ga7b1349af842b1798f529d1bd3447310f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Force system to reset by the reason.  <br /></td></tr>
 <tr class="separator:ga7b1349af842b1798f529d1bd3447310f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafd13fc96c182a7b1968055283c929f8b"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE CC_DEPRECATED void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#gafd13fc96c182a7b1968055283c929f8b">drv_pmu_force_reboot</a> (void)</td></tr>
+<tr class="memdesc:gafd13fc96c182a7b1968055283c929f8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Force system to reboot by PMU_REBOOT_FROM_SOFT_RESET reason.  <br /></td></tr>
+<tr class="separator:gafd13fc96c182a7b1968055283c929f8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae7e8730fa9f56beb84acc6e46a74cd4d"><td class="memItemLeft" align="right" valign="top">__STATIC_FORCEINLINE <a class="el" href="group__PMU.html#gaefb51823b3e79670cb3be34b44353285">pmu_reboot_reason_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#gae7e8730fa9f56beb84acc6e46a74cd4d">drv_pmu_reboot_reason</a> (void)</td></tr>
 <tr class="memdesc:gae7e8730fa9f56beb84acc6e46a74cd4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">drv pmu reboot reason  <br /></td></tr>
 <tr class="separator:gae7e8730fa9f56beb84acc6e46a74cd4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7b63c3ea9c41f62e70cd2ca238953291"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__PMU.html#ga73a51b836281aad9703a4a3c761b69c8">pmu_charge_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga7b63c3ea9c41f62e70cd2ca238953291">drv_pmu_charge_status</a> (void)</td></tr>
 <tr class="memdesc:ga7b63c3ea9c41f62e70cd2ca238953291"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get charge status.  <br /></td></tr>
 <tr class="separator:ga7b63c3ea9c41f62e70cd2ca238953291"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf1ecc1f3770bc0820409958a7df36bd8"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#gaf1ecc1f3770bc0820409958a7df36bd8">drv_pmu_retention_reg_get</a> (void)</td></tr>
+<tr class="memdesc:gaf1ecc1f3770bc0820409958a7df36bd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">get retention reg value  <br /></td></tr>
+<tr class="separator:gaf1ecc1f3770bc0820409958a7df36bd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabe12a9a35757141ea45491cf21336a79"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#gabe12a9a35757141ea45491cf21336a79">drv_pmu_retention_reg_set</a> (uint16_t value)</td></tr>
+<tr class="memdesc:gabe12a9a35757141ea45491cf21336a79"><td class="mdescLeft">&#160;</td><td class="mdescRight">set retention reg  <br /></td></tr>
+<tr class="separator:gabe12a9a35757141ea45491cf21336a79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0997aca30ba9359a723c96eeb3cbb26f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga0997aca30ba9359a723c96eeb3cbb26f">drv_pmu_32k_switch_to_rc</a> (bool calib, bool pd_others)</td></tr>
 <tr class="memdesc:ga0997aca30ba9359a723c96eeb3cbb26f"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu 32k switch to rc  <br /></td></tr>
 <tr class="separator:ga0997aca30ba9359a723c96eeb3cbb26f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad949342a729bdc14981046b614626e6f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#gad949342a729bdc14981046b614626e6f">drv_pmu_dcdc_enable</a> (bool enable)</td></tr>
 <tr class="memdesc:gad949342a729bdc14981046b614626e6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">enable INSIDE DCDC  <br /></td></tr>
 <tr class="separator:gad949342a729bdc14981046b614626e6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2813e21102626ddc36b397d3649b87cd"><td class="memItemLeft" align="right" valign="top">__STATIC_INLINE bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga2813e21102626ddc36b397d3649b87cd">drv_pmu_dcdc_is_enabled</a> (void)</td></tr>
+<tr class="memdesc:ga2813e21102626ddc36b397d3649b87cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu dcdc is enabled  <br /></td></tr>
+<tr class="separator:ga2813e21102626ddc36b397d3649b87cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga26c0a7c1654e749f2334126326772541"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga26c0a7c1654e749f2334126326772541">drv_pmu_pin_wakeup_isr</a> (void)</td></tr>
 <tr class="memdesc:ga26c0a7c1654e749f2334126326772541"><td class="mdescLeft">&#160;</td><td class="mdescRight">drv pmu pin wakeup isr  <br /></td></tr>
 <tr class="separator:ga26c0a7c1654e749f2334126326772541"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga4674639770c8177239b1a08e990bf1f7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga4674639770c8177239b1a08e990bf1f7">drv_pmu_topclk_x2_enable</a> (bool enable)</td></tr>
-<tr class="memdesc:ga4674639770c8177239b1a08e990bf1f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu topclk double preset  <br /></td></tr>
-<tr class="separator:ga4674639770c8177239b1a08e990bf1f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5f3b85e46cc6d1b40917c5793932420a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga5f3b85e46cc6d1b40917c5793932420a">drv_pmu_topclk_switch_to_rc32m</a> (void)</td></tr>
-<tr class="memdesc:ga5f3b85e46cc6d1b40917c5793932420a"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu topclk switch to rc32m  <br /></td></tr>
-<tr class="separator:ga5f3b85e46cc6d1b40917c5793932420a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga25582bc40db15cf0346eec4140380d6b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga25582bc40db15cf0346eec4140380d6b">drv_pmu_topclk_switch_to_xtal32m</a> (void)</td></tr>
-<tr class="memdesc:ga25582bc40db15cf0346eec4140380d6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu xtal32m switch to 32m  <br /></td></tr>
-<tr class="separator:ga25582bc40db15cf0346eec4140380d6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa67f9fa0d57f0d1a1ce813dd5e1dff0a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#gaa67f9fa0d57f0d1a1ce813dd5e1dff0a">drv_pmu_topclk_switch_to_xtal32m_x2</a> (void)</td></tr>
-<tr class="memdesc:gaa67f9fa0d57f0d1a1ce813dd5e1dff0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu xtal32m switch to 64m  <br /></td></tr>
-<tr class="separator:gaa67f9fa0d57f0d1a1ce813dd5e1dff0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1126009c1bd89667877552d9d3e30313"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga1126009c1bd89667877552d9d3e30313">drv_pmu_topclk_rc32m_power_enable</a> (bool enable)</td></tr>
-<tr class="memdesc:ga1126009c1bd89667877552d9d3e30313"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu rc32m power enable NOTE: Make sure peripheral clock source is not rc32m before power down rc32m.  <br /></td></tr>
-<tr class="separator:ga1126009c1bd89667877552d9d3e30313"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaf2db2e84dcf3d4c2aa99ab4126cc137a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#gaf2db2e84dcf3d4c2aa99ab4126cc137a">drv_pmu_topclk_xtal32m_power_enable</a> (bool enable)</td></tr>
-<tr class="memdesc:gaf2db2e84dcf3d4c2aa99ab4126cc137a"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu topclk xtal32m power enable  <br /></td></tr>
-<tr class="separator:gaf2db2e84dcf3d4c2aa99ab4126cc137a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga574b31170ff21dd3bb2616bc97b04b25"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga574b31170ff21dd3bb2616bc97b04b25">drv_pmu_topclk_xtal32m_is_enabled</a> (void)</td></tr>
-<tr class="memdesc:ga574b31170ff21dd3bb2616bc97b04b25"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu topclk xtal32m is enabled  <br /></td></tr>
-<tr class="separator:ga574b31170ff21dd3bb2616bc97b04b25"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga898214863107a5c191aecb8d8c963f02"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga898214863107a5c191aecb8d8c963f02">drv_pmu_topclk_xtal32m_x2_is_enabled</a> (void)</td></tr>
-<tr class="memdesc:ga898214863107a5c191aecb8d8c963f02"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu topclk xtal32m is enabled  <br /></td></tr>
-<tr class="separator:ga898214863107a5c191aecb8d8c963f02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6aa87ec5b6d3ba5ba5674f142f1be70a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga6aa87ec5b6d3ba5ba5674f142f1be70a">drv_pmu_clk64m_enable</a> (bool enable)</td></tr>
+<tr class="memdesc:ga6aa87ec5b6d3ba5ba5674f142f1be70a"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu topclk double preset  <br /></td></tr>
+<tr class="separator:ga6aa87ec5b6d3ba5ba5674f142f1be70a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4e1c0e945a4d5c383029b7167e588573"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga4e1c0e945a4d5c383029b7167e588573">drv_pmu_rc32m_enable</a> (bool enable)</td></tr>
+<tr class="memdesc:ga4e1c0e945a4d5c383029b7167e588573"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu rc32m power enable NOTE: Make sure peripheral clock source is not rc32m before power down rc32m.  <br /></td></tr>
+<tr class="separator:ga4e1c0e945a4d5c383029b7167e588573"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0fb4a9c4a8491c502a5445ab0d81277e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga0fb4a9c4a8491c502a5445ab0d81277e">drv_pmu_xtal32m_enable</a> (bool enable)</td></tr>
+<tr class="memdesc:ga0fb4a9c4a8491c502a5445ab0d81277e"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu topclk xtal32m power enable  <br /></td></tr>
+<tr class="separator:ga0fb4a9c4a8491c502a5445ab0d81277e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9f8e19c2036952b275e1ea89f0c8e33c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga9f8e19c2036952b275e1ea89f0c8e33c">drv_pmu_xtal32m_is_enabled</a> (void)</td></tr>
+<tr class="memdesc:ga9f8e19c2036952b275e1ea89f0c8e33c"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu topclk xtal32m is enabled  <br /></td></tr>
+<tr class="separator:ga9f8e19c2036952b275e1ea89f0c8e33c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga05e9967344c17ad66677eb5d3e647bc0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga05e9967344c17ad66677eb5d3e647bc0">drv_pmu_clk64m_is_enabled</a> (void)</td></tr>
+<tr class="memdesc:ga05e9967344c17ad66677eb5d3e647bc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu topclk xtal32m is enabled  <br /></td></tr>
+<tr class="separator:ga05e9967344c17ad66677eb5d3e647bc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga85f423a25b6877bd04f7514336982be1"><td class="memItemLeft" align="right" valign="top">__STATIC_FORCEINLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga85f423a25b6877bd04f7514336982be1">drv_pmu_jtag_enable</a> (bool enable)</td></tr>
 <tr class="memdesc:ga85f423a25b6877bd04f7514336982be1"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu jtag enable  <br /></td></tr>
 <tr class="separator:ga85f423a25b6877bd04f7514336982be1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad8614666362588face466ab9c8222b4c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#gad8614666362588face466ab9c8222b4c">drv_pmu_pof_enable</a> (bool enable, <a class="el" href="group__PMU.html#ga67920eb5bfd062833bcbe5afe5fc75e9">pmu_pof_voltage_t</a> voltage)</td></tr>
-<tr class="memdesc:gad8614666362588face466ab9c8222b4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable the chip pof voltage, set trigger threshold. Accuracy is positive or negative 5% of the threshold.  <br /></td></tr>
-<tr class="separator:gad8614666362588face466ab9c8222b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga242df52a7f7cebd8cdcb84184d6ed7c7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga242df52a7f7cebd8cdcb84184d6ed7c7">drv_pmu_pof_enable</a> (bool enable, <a class="el" href="group__PMU.html#ga67920eb5bfd062833bcbe5afe5fc75e9">pmu_pof_voltage_t</a> voltage, <a class="el" href="group__PMU.html#ga1672f1503b5e434594d3f5d870a8fa63">pmu_pof_int_edge_t</a> mode)</td></tr>
+<tr class="memdesc:ga242df52a7f7cebd8cdcb84184d6ed7c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable the chip pof voltage, set trigger threshold. Accuracy is positive or negative 5% of the threshold.  <br /></td></tr>
+<tr class="separator:ga242df52a7f7cebd8cdcb84184d6ed7c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga28a54740508011180cefe02f936a1814"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga28a54740508011180cefe02f936a1814">drv_pmu_pof_isr_callback</a> (OM_PMU_Type *om_pmu, drv_event_t event)</td></tr>
 <tr class="memdesc:ga28a54740508011180cefe02f936a1814"><td class="mdescLeft">&#160;</td><td class="mdescRight">The interrupt callback for PMU POF. It is a weak function. User should define their own callback in user file, other than modify it in the PMU driver.  <br /></td></tr>
 <tr class="separator:ga28a54740508011180cefe02f936a1814"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -343,7 +367,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga6e790e01f89b37ccc6447abb9a3e24ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">drv pmu pof isr  <br /></td></tr>
 <tr class="separator:ga6e790e01f89b37ccc6447abb9a3e24ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga257a89ba18dd986de66f83b5a08e1cc6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga257a89ba18dd986de66f83b5a08e1cc6">drv_pmu_syspll_power_enable</a> (uint8_t enable)</td></tr>
-<tr class="memdesc:ga257a89ba18dd986de66f83b5a08e1cc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">syspll power enable  <br /></td></tr>
+<tr class="memdesc:ga257a89ba18dd986de66f83b5a08e1cc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">syspll power enable (pll96M and 48M)  <br /></td></tr>
 <tr class="separator:ga257a89ba18dd986de66f83b5a08e1cc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga188f41a2e4419ecd16f70dbe6629ee6e"><td class="memItemLeft" align="right" valign="top">__STATIC_FORCEINLINE bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga188f41a2e4419ecd16f70dbe6629ee6e">drv_pmu_iflash_ready_state_get</a> (void)</td></tr>
 <tr class="memdesc:ga188f41a2e4419ecd16f70dbe6629ee6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">iflash get iflash ready state  <br /></td></tr>
@@ -360,9 +384,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga6773d61cd13711cf69d9935ae487af0f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga6773d61cd13711cf69d9935ae487af0f">drv_pmu_shelf_mode_enable</a> (uint8_t enable)</td></tr>
 <tr class="memdesc:ga6773d61cd13711cf69d9935ae487af0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">ship mode sample enable check. If SM_CTRL(GPIO10) signal is 0 and call the function with enable = 1, then the system enter ship mdoe; If SM_CTRL(GPIO10) signal is 1 and call the function with enable = 0, then the system exit ship mode. Only sample one times at execute the funciton.  <br /></td></tr>
 <tr class="separator:ga6773d61cd13711cf69d9935ae487af0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga05369eabd1bc0c33a8424df1f3b34927"><td class="memItemLeft" align="right" valign="top">__STATIC_FORCEINLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga05369eabd1bc0c33a8424df1f3b34927">drv_pmu_basic_reg_set</a> (uint32_t mask, uint32_t value)</td></tr>
-<tr class="memdesc:ga05369eabd1bc0c33a8424df1f3b34927"><td class="mdescLeft">&#160;</td><td class="mdescRight">write PMU Basic register. This register use 32K clock to sync, the write operation is not atomic. So the function will recheck until the write operation is successful.  <br /></td></tr>
-<tr class="separator:ga05369eabd1bc0c33a8424df1f3b34927"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0d0f817c181db5e387a26603772625ab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga0d0f817c181db5e387a26603772625ab">drv_pmu_basic_reg_set</a> (uint32_t mask, uint32_t mask_value)</td></tr>
+<tr class="memdesc:ga0d0f817c181db5e387a26603772625ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">write PMU Basic register. This register use 32K clock to sync, the write operation is not atomic. So the function will recheck until the write operation is successful.  <br /></td></tr>
+<tr class="separator:ga0d0f817c181db5e387a26603772625ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->

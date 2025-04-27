@@ -91,9 +91,14 @@ end
 
 # LPTIM
 if OM_PMU->BASIC & (1 << 11)
-    echo LPTIM:     off\n
+    echo LPTIM 32K:     off\n
 else
-    echo LPTIM:     on\n
+    echo LPTIM 32K:     on\n
+end
+if OM_CPM->LPTIM_CFG & 1
+    echo LPTIM:      off\n
+else
+    echo LPTIM:      on\n
 end
 
 # UART0

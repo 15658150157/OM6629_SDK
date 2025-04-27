@@ -37,6 +37,8 @@ typedef struct {
 
     // Saved calibed data
     uint8_t icon_vco;
+    uint8_t trs_antcap_ct;
+    uint8_t tia_ibct;
 } drv_calib_t;
 
 
@@ -60,64 +62,36 @@ static drv_calib_t drv_calib_env = {
  **/
 static void drv_calib_patch(bool is_calib_start)
 {
-    #if 1
     if (is_calib_start) {
-        // FIX RF TX issue,增大PA开启后等待时间，避免PLL频率漂移
-        REGW(&OM_DAIF->MAIN_ST_CFG0, MASK_1REG(DAIF_TXLDO_WAIT, 0x180));
+        //增大PA开启后等待时间，避免PLL频率漂移
+        REGW(&OM_DAIF->MAIN_ST_CFG0, MASK_1REG(DAIF_TXLDO_WAIT, 0x180));//(Auto Restore)
         //默认值，不需要修改
         //REGW(&OM_DAIF->IR_RX_CFG, MASK_1REG(DAIF_WIN_CNT_THRESHOLD, 0xC000));
         //增大模拟调制增益
-        REGW(&OM_DAIF->PLL_CTRL2, MASK_1REG(DAIF_EN_KVCO2, 4U));
-
-        ///射频起来之前
-        //增大RF电流，提高灵敏度
-        REGW(&OM_DAIF->LNA_MIX_CFG, MASK_3REG(DAIF_RF_CONSTGM_CT, 0x0, DAIF_RF_LNA_VBCT, 0x3, DAIF_RF_MIX_VBCT, 0x3));
-        //提高TIA增益，提高灵敏度
-        REGW(&OM_DAIF->TIA_DCOC_CFG, MASK_2REG(DAIF_TIA_GAIN_ME, 1, DAIF_TIA_GAIN_MO, 3));
-        //提高RF电源电压增益，提高灵敏度，固定IFLDO电压
-        REGW(&OM_PMU->OM26B_CFG0, MASK_1REG(PMU_OM26B_CFG0_RF_LDO_TRIM, 3));
-        REGW(&OM_PMU->OM26B_CFG0, MASK_1REG(PMU_OM26B_CFG0_RXADC_LDO_TRIM, 1));
-        REGW(&OM_PMU->ANA_REG, MASK_1REG(PMU_ANA_REG_IF_LDO_TRIM, 2));
-        // REGW(&OM_DAIF->PLL_CTRL0, MASK_1REG(DAIF_CTRL_LDO_VCO, 4));
+        REGW(&OM_DAIF->PLL_CTRL2, MASK_1REG(DAIF_EN_KVCO2, 4U));//(Auto Restore)
         //better for TX drift
-        REGW(&OM_DAIF->PLL_CTRL0, MASK_2REG(DAIF_BP_DIOX, 0, DAIF_SEL_KVCO, 3));
-
-        REGW(&OM_DAIF->PLL_CTRL1, MASK_1REG(DAIF_CON_BIAS_IDAC_PLL, 48));
-
-        // REGW(&OM_DAIF->MIX_CFG1, MASK_2REG(DAIF_ICON_VCO_ME, 1, DAIF_ICON_VCO_MO, 4));
-    } else { // FIX RF TX issue
-        // save icon_vco
-        OM_DAIF->DBG_REG = 0x17;
-        drv_calib_env.icon_vco = (OM_DAIF->DBG_REG >> 25) & 0x7;
-        OM_DAIF->DBG_REG = 0;
+        REGW(&OM_DAIF->PLL_CTRL0, MASK_3REG(DAIF_BP_DIOX, 0,
+                                            DAIF_SEL_KVCO, 3,
+                                            DAIF_CTRL_LDO_BUF, 7));//(Auto Restore)
+        REGW(&OM_DAIF->PLL_CTRL1, MASK_1REG(DAIF_CON_BIAS_IDAC_PLL, 32));//(Auto Restore)
+        //提高RF电源电压增益，提高灵敏度，固定IFLDO和RXADC电压
+        REGW(&OM_PMU->OM26B_CFG0, MASK_2REG(PMU_OM26B_CFG0_RF_LDO_TRIM, 3, PMU_OM26B_CFG0_RXADC_LDO_TRIM, 1));
+        REGW(&OM_PMU->ANA_REG, MASK_1REG(PMU_ANA_REG_IF_LDO_TRIM, 2));
         //ramp的第二种模式,解决旁瓣杂散问题;
-        REGW1(&OM_DAIF->TRX_SW_CFG, DAIF_PA_PATTERN_SEL_MASK);
-        //增大PA开启后等待时间，避免PLL频率漂移
-        REGW(&OM_DAIF->MAIN_ST_CFG0, MASK_1REG(DAIF_TXLDO_WAIT, 0x180));
-        //pkd常开，避免对信号干扰
-        REGW(&OM_DAIF->PD_CFG0, MASK_2REG(DAIF_PKDT_PD_ME, 1, DAIF_PKDT_PD_MO, 0));
-        #if 0
-        ///抗干扰策略1
-        //有利于抗干扰测试，agc增益只有三档在调节；会比另一种agc增益调节差0.6dB;
-        REGW1(&OM_DAIF->AGC_CFG0, DAIF_FILTER_MAX6DB_MASK);
-        #else
-        ///抗干扰策略2;
+        REGW1(&OM_DAIF->TRX_SW_CFG, DAIF_PA_PATTERN_SEL_MASK);//(Auto Restore)
+
+        drv_rf_rx_mode_set((rf_rx_mode_t)RTE_RADIO_MODE);
+
+        // 抗干扰策略2;
         REGWA(&OM_DAIF->FILT_AGC_LUT_REG0, MASK_3REG(DAIF_FILT_AGC_LUT_0, 0x104, DAIF_FILT_AGC_LUT_1, 0x105, DAIF_FILT_AGC_LUT_2, 0x108));
         REGWA(&OM_DAIF->FILT_AGC_LUT_REG1, MASK_3REG(DAIF_FILT_AGC_LUT_3, 0x10B, DAIF_FILT_AGC_LUT_4, 0x110, DAIF_FILT_AGC_LUT_5, 0x116));
         REGWA(&OM_DAIF->FILT_AGC_LUT_REG2, MASK_3REG(DAIF_FILT_AGC_LUT_6, 0x120, DAIF_FILT_AGC_LUT_7, 0x12C, DAIF_FILT_AGC_LUT_8, 0x140));
-        #endif
-
-        //ramp的第二种模式,解决旁瓣杂散问题;
-        REGW1(&OM_DAIF->TRX_SW_CFG, DAIF_PA_PATTERN_SEL_MASK);
-
-        #if 0 // Fix RX gain
-        REGW(&OM_DAIF->LNA_MIX_CFG, MASK_2REG(DAIF_RF_ATTEN_EN_MO, 0, DAIF_RF_ATTEN_EN_ME, 1));
-        REGW(&OM_DAIF->LNA_MIX_CFG, MASK_2REG(DAIF_RF_ATTEN_GAIN_MO, 2, DAIF_RF_ATTEN_GAIN_ME, 1));
-        REGW(&OM_DAIF->LNA_MIX_CFG, MASK_2REG(DAIF_RF_LNA_GAIN_MO, 5, DAIF_RF_LNA_GAIN_ME, 1));  // useful
-        REGW(&OM_DAIF->TIA_LPF_CFG, MASK_2REG(DAIF_FILTER_GTUNE_MO, 4, DAIF_FILTER_GTUNE_ME, 1)); // useful
-        #endif
+    } else {
+        // restore code
+        drv_calib_rf_restore();
+        //射频校准结束之后需要pkd常开，避免对信号干扰；
+        REGW(&OM_DAIF->PD_CFG0, MASK_2REG(DAIF_PKDT_PD_ME, 1, DAIF_PKDT_PD_MO, 0));//(Auto Restore)
     }
-    #endif
 }
 /**
  *******************************************************************************
@@ -159,8 +133,7 @@ static void drv_calib_rf_afc(void)
     REGW(&OM_DAIF->PLL_AFC_CTRL, MASK_2REG(DAIF_PLL_AFC_START_FREQ, 2358, DAIF_PLL_AFC_STOP_FREQ, 2512));
     #endif
 
-    *(volatile uint32_t*)0x400a0078 =0x6A000000;
-    *(volatile uint32_t*)0x400a0058 |=1 << 9;
+    REGW1(&OM_DAIF->MIX_CFG0, DAIF_SDM_DIV_MASK);
 
     //do vco afc
     REGW1(&OM_DAIF->VCO_CTRL0, DAIF_AFC_START_MASK);
@@ -170,6 +143,39 @@ static void drv_calib_rf_afc(void)
     //pd_lotx power on
     REGW(&OM_DAIF->PD_CFG1, MASK_2REG(DAIF_RFPLL_PD_LOTX_MO, 0, DAIF_RFPLL_PD_LOTX_ME, 1));
 
+    #if (RTE_CALIB_USE_FT_KDCO_DATA)
+    // use kdco data in FT
+    REGW(&OM_DAIF->KDCO_LUT_1M_REG0, MASK_5REG(DAIF_KDCO_LUT_1M_0, drv_calib_repair_env.kdco_lut_1m_2406,
+                                               DAIF_KDCO_LUT_1M_1, drv_calib_repair_env.kdco_lut_1m_2406,
+                                               DAIF_KDCO_LUT_1M_2, drv_calib_repair_env.kdco_lut_1m_2406,
+                                               DAIF_KDCO_LUT_1M_3, drv_calib_repair_env.kdco_lut_1m_2406,
+                                               DAIF_KDCO_LUT_1M_4, drv_calib_repair_env.kdco_lut_1m_2420));
+    REGW(&OM_DAIF->KDCO_LUT_1M_REG1, MASK_5REG(DAIF_KDCO_LUT_1M_5, drv_calib_repair_env.kdco_lut_1m_2434,
+                                               DAIF_KDCO_LUT_1M_6, drv_calib_repair_env.kdco_lut_1m_2448,
+                                               DAIF_KDCO_LUT_1M_7, drv_calib_repair_env.kdco_lut_1m_2462,
+                                               DAIF_KDCO_LUT_1M_8, drv_calib_repair_env.kdco_lut_1m_2476,
+                                               DAIF_KDCO_LUT_1M_9, drv_calib_repair_env.kdco_lut_1m_2476));
+    REGW(&OM_DAIF->KDCO_LUT_2M_REG0, MASK_4REG(DAIF_KDCO_LUT_2M_0, drv_calib_repair_env.kdco_lut_2m_2406,
+                                               DAIF_KDCO_LUT_2M_1, drv_calib_repair_env.kdco_lut_2m_2420,
+                                               DAIF_KDCO_LUT_2M_2, drv_calib_repair_env.kdco_lut_2m_2434,
+                                               DAIF_KDCO_LUT_2M_3, drv_calib_repair_env.kdco_lut_2m_2448));
+    REGW(&OM_DAIF->KDCO_LUT_2M_REG1, MASK_3REG(DAIF_KDCO_LUT_2M_4, drv_calib_repair_env.kdco_lut_2m_2462,
+                                               DAIF_KDCO_LUT_2M_5, drv_calib_repair_env.kdco_lut_2m_2476,
+                                               DAIF_KDCO_LUT_1M_10, drv_calib_repair_env.kdco_lut_1m_2476));
+
+    #else
+    // do kdco
+    uint32_t win_cnt;
+    win_cnt = 0xD600;
+    #if (RTE_CALIB_USE_FT_DF1_DATA)
+    int32_t df1_delta_percent = 0;
+    // Calculate the delta percentage for 1M, take the floor of the value
+    // to make sure the repaired value is lower than the original
+    df1_delta_percent = (int32_t)((drv_calib_repair_env.kdco_df1_1m - 250.0f) / 250.0f * 100.0f);
+    win_cnt = win_cnt * (100 + df1_delta_percent) / 100;
+    #endif
+    REGW(&OM_DAIF->IR_RX_CFG, MASK_1REG(DAIF_WIN_CNT_THRESHOLD, win_cnt));
+
     //do kdco -- 1M
     REGW(&OM_DAIF->VCO_CTRL1, MASK_2REG(DAIF_BLE_1M_2M_SEL_MO, 0, DAIF_BLE_1M_2M_SEL_ME, 1));
     // try kdco 1M mode
@@ -177,7 +183,14 @@ static void drv_calib_rf_afc(void)
     //wait kdco done
     while (OM_DAIF->VCO_CTRL0 & DAIF_KDCO_START_MASK);
 
-    *(volatile uint32_t*)0x400a0078 =0x66000000;
+    win_cnt = 0xCC00;
+    #if (RTE_CALIB_USE_FT_DF1_DATA)
+    // Calculate the delta percentage for 2M, take the floor of the value
+    // to make sure the repaired value is lower than the original
+    df1_delta_percent = (int32_t)((drv_calib_repair_env.kdco_df1_2m - 500.0f) / 500.0f * 100.0f);
+    win_cnt = win_cnt * (100 + df1_delta_percent) / 100;
+    #endif
+    REGW(&OM_DAIF->IR_RX_CFG, MASK_1REG(DAIF_WIN_CNT_THRESHOLD, win_cnt));
 
     // FIXME: Digital BUG: 2M issue
     #if (RTE_CALIB_AFC_FAST)
@@ -195,6 +208,7 @@ static void drv_calib_rf_afc(void)
 
     // restore 1m/2m FSM ctrl
     REGW(&OM_DAIF->VCO_CTRL1, MASK_1REG(DAIF_BLE_1M_2M_SEL_ME, 0));
+    #endif
 
     //make analog blocks power controlled by trx FSM
     // change power control by FSM
@@ -238,21 +252,21 @@ static void drv_calib_rf_txfe(void)
     REGW(&OM_DAIF->PA_GAIN_REG_1, MASK_6REG(DAIF_PA_GAIN_1_DRV0_NCT, 16, DAIF_PA_GAIN_1_DRV0_PCT, 16, DAIF_PA_GAIN_2_DRV0_NCT, 16,
                                             DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 0, DAIF_PA_GAIN_2_DRIV_NUM, 1));
     REGW(&OM_DAIF->PA_GAIN_REG_2, MASK_6REG(DAIF_PA_GAIN_1_DRV0_NCT, 16, DAIF_PA_GAIN_1_DRV0_PCT, 16, DAIF_PA_GAIN_2_DRV0_NCT, 16,
-                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 4, DAIF_PA_GAIN_2_DRIV_NUM, 6));
+                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 3, DAIF_PA_GAIN_2_DRIV_NUM, 5));
     REGW(&OM_DAIF->PA_GAIN_REG_3, MASK_6REG(DAIF_PA_GAIN_1_DRV0_NCT, 16, DAIF_PA_GAIN_1_DRV0_PCT, 16, DAIF_PA_GAIN_2_DRV0_NCT, 16,
-                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 11, DAIF_PA_GAIN_2_DRIV_NUM, 13));
+                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 11, DAIF_PA_GAIN_2_DRIV_NUM, 13));///13  15
     REGW(&OM_DAIF->PA_GAIN_REG_4, MASK_6REG(DAIF_PA_GAIN_1_DRV0_NCT, 16, DAIF_PA_GAIN_1_DRV0_PCT, 16, DAIF_PA_GAIN_2_DRV0_NCT, 16,
-                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 14, DAIF_PA_GAIN_2_DRIV_NUM, 16));
+                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 15, DAIF_PA_GAIN_2_DRIV_NUM, 16));
     REGW(&OM_DAIF->PA_GAIN_REG_5, MASK_6REG(DAIF_PA_GAIN_1_DRV0_NCT, 16, DAIF_PA_GAIN_1_DRV0_PCT, 16, DAIF_PA_GAIN_2_DRV0_NCT, 16,
-                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 18, DAIF_PA_GAIN_2_DRIV_NUM, 20));
+                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 19, DAIF_PA_GAIN_2_DRIV_NUM, 21));
     REGW(&OM_DAIF->PA_GAIN_REG_6, MASK_6REG(DAIF_PA_GAIN_1_DRV0_NCT, 16, DAIF_PA_GAIN_1_DRV0_PCT, 16, DAIF_PA_GAIN_2_DRV0_NCT, 16,
-                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 23, DAIF_PA_GAIN_2_DRIV_NUM, 27));
+                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 24, DAIF_PA_GAIN_2_DRIV_NUM, 25));
     REGW(&OM_DAIF->PA_GAIN_REG_7, MASK_6REG(DAIF_PA_GAIN_1_DRV0_NCT, 16, DAIF_PA_GAIN_1_DRV0_PCT, 16, DAIF_PA_GAIN_2_DRV0_NCT, 16,
-                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 31, DAIF_PA_GAIN_2_DRIV_NUM, 38));
+                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 28, DAIF_PA_GAIN_2_DRIV_NUM, 34));
     REGW(&OM_DAIF->PA_GAIN_REG_8, MASK_6REG(DAIF_PA_GAIN_1_DRV0_NCT, 16, DAIF_PA_GAIN_1_DRV0_PCT, 16, DAIF_PA_GAIN_2_DRV0_NCT, 16,
-                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 43, DAIF_PA_GAIN_2_DRIV_NUM, 55));
+                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 36, DAIF_PA_GAIN_2_DRIV_NUM, 44));
     REGW(&OM_DAIF->PA_GAIN_REG_9, MASK_6REG(DAIF_PA_GAIN_1_DRV0_NCT, 16, DAIF_PA_GAIN_1_DRV0_PCT, 16, DAIF_PA_GAIN_2_DRV0_NCT, 16,
-                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 59, DAIF_PA_GAIN_2_DRIV_NUM, 63));
+                                            DAIF_PA_GAIN_2_DRV0_PCT, 16, DAIF_PA_GAIN_1_DRIV_NUM, 55, DAIF_PA_GAIN_2_DRIV_NUM, 63));
     //防止二次校准出问题，校准前需要关掉这个DONE信号
     REGW0(&OM_DAIF->PA_GAIN_CFG, DAIF_PA_GAIN_CALI_DONE_MASK);
     //do pag calib
@@ -263,15 +277,6 @@ static void drv_calib_rf_txfe(void)
     REGW(&OM_DAIF->VCO_CTRL0, MASK_3REG(DAIF_TRX_DBG, 0, DAIF_RX_EN_MO, 0, DAIF_TX_EN_MO, 0));
     // default is 0DBM
     ///REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO,0, DAIF_PA_GAIN_IDX_REG,RF_TX_POWER_0DBM));
-}
-
-/**
- *******************************************************************************
- * @brief  drv calib rf store
- *******************************************************************************
- */
-static void drv_calib_rf_store(void)//delete
-{
 }
 
 /**
@@ -565,12 +570,60 @@ void drv_calib_rf(void)
 
 /**
  *******************************************************************************
+ * @brief  drv calib rf store
+ *******************************************************************************
+ */
+void drv_calib_rf_store(void)
+{
+    // save icon_vco
+    OM_DAIF->DBG_REG = 0x17;
+    drv_calib_env.icon_vco = (OM_DAIF->DBG_REG >> 25) & 0x7;
+    OM_DAIF->DBG_REG = 0;
+
+    drv_calib_env.tia_ibct = REGR(&OM_DAIF->MIX_CFG0, MASK_POS(DAIF_TIA_IBCT));
+    drv_calib_env.trs_antcap_ct = REGR(&OM_DAIF->PA_CTRL, MASK_POS(DAIF_TRS_ANTCAP_CT));
+}
+
+/**
+ *******************************************************************************
  * @brief  drv calib rf restore
  *******************************************************************************
  */
 __RAM_CODES("PM")
 void drv_calib_rf_restore(void)
 {
+    REGW(&OM_DAIF->MIX_CFG1, MASK_2REG(DAIF_ICON_VCO_ME, 0, DAIF_ICON_VCO_MO, drv_calib_env.icon_vco));//睡眠唤醒后需要恢复校准值
+    // fix scan sync signal issue
+    REGW(&OM_DAIF->MIX_CFG0, MASK_1REG(DAIF_PHY_ADC_WAIT, 1));
+    // 高中低灵敏度配置，睡眠唤醒后需要恢复
+    REGW(&OM_DAIF->MIX_CFG0, MASK_1REG(DAIF_TIA_IBCT, drv_calib_env.tia_ibct));
+    // 睡眠唤醒后需要和drv_radio.c里面的drv_rf_tx_power_set设置功率处一样
+    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, drv_calib_env.trs_antcap_ct));
+    // improve scan performance
+    REGW(&OM_DAIF->MAIN_ST_CFG1, MASK_1REG(DAIF_RXLDO_WAIT, 0x0280));
+
+    #if 0
+    //抗干扰策略1
+    //有利于抗干扰测试，agc增益只有三档在调节；会比另一种agc增益调节差0.6dB;
+    REGW1(&OM_DAIF->AGC_CFG0, DAIF_FILTER_MAX6DB_MASK);
+    ///抗干扰策略2;
+    //REGWA(&OM_DAIF->FILT_AGC_LUT_REG0, MASK_3REG(DAIF_FILT_AGC_LUT_0, 0x104, DAIF_FILT_AGC_LUT_1, 0x105, DAIF_FILT_AGC_LUT_2, 0x108));//(Auto Restore)
+    //REGWA(&OM_DAIF->FILT_AGC_LUT_REG1, MASK_3REG(DAIF_FILT_AGC_LUT_3, 0x10B, DAIF_FILT_AGC_LUT_4, 0x110, DAIF_FILT_AGC_LUT_5, 0x116));//(Auto Restore)
+    //REGWA(&OM_DAIF->FILT_AGC_LUT_REG2, MASK_3REG(DAIF_FILT_AGC_LUT_6, 0x120, DAIF_FILT_AGC_LUT_7, 0x12C, DAIF_FILT_AGC_LUT_8, 0x140));//(Auto Restore)
+    #endif
+
+    // ramp的第二种模式,解决旁瓣杂散问题;
+    // REGW1(&OM_DAIF->TRX_SW_CFG, DAIF_PA_PATTERN_SEL_MASK);//(Auto Restore)
+
+    #if 0 // Fix RX gain
+    REGW(&OM_DAIF->LNA_MIX_CFG, MASK_2REG(DAIF_RF_ATTEN_EN_MO, 0, DAIF_RF_ATTEN_EN_ME, 1));
+    REGW(&OM_DAIF->LNA_MIX_CFG, MASK_2REG(DAIF_RF_ATTEN_GAIN_MO, 2, DAIF_RF_ATTEN_GAIN_ME, 1));
+    REGW(&OM_DAIF->LNA_MIX_CFG, MASK_2REG(DAIF_RF_LNA_GAIN_MO, 5, DAIF_RF_LNA_GAIN_ME, 1));  // useful
+    REGW(&OM_DAIF->TIA_LPF_CFG, MASK_2REG(DAIF_FILTER_GTUNE_MO, 0, DAIF_FILTER_GTUNE_ME, 1)); // useful //7=3.71mA
+    #endif
+
+    // FIX: prevent BLE rxen and mac_rx_win has gap
+    // REGW(&OM_DAIF->MAIN_ST_CFG2, MASK_1REG(DAIF_RX_PLL_WAIT, 0x510));
 }
 
 /**

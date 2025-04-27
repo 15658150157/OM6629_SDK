@@ -58,12 +58,6 @@ var group__OM24G =
       [ "OM24G_HARD_DETECTION", "group__OM24G.html#gga89021274417aae2990b2daf3399fc824ac757a04713e9d4013bb410aefc2ce483", null ],
       [ "OM24G_DPLL_DETECTION", "group__OM24G.html#gga89021274417aae2990b2daf3399fc824ae3d26379306f7b13c83f25426b6d87d2", null ]
     ] ],
-    [ "om24g_deviation_t", "group__OM24G.html#gaade6e4d8ab80d4a7df0fb4bc6c40a520", [
-      [ "OM24G_DEVIATION_62P5K", "group__OM24G.html#ggaade6e4d8ab80d4a7df0fb4bc6c40a520a7c1b29bdfebbb014c5a429c139d59465", null ],
-      [ "OM24G_DEVIATION_125K", "group__OM24G.html#ggaade6e4d8ab80d4a7df0fb4bc6c40a520a9f0287e5cada71609a89eda53a5023df", null ],
-      [ "OM24G_DEVIATION_250K", "group__OM24G.html#ggaade6e4d8ab80d4a7df0fb4bc6c40a520abc8ef0a4b27f1c2b30c73aa3c939dd92", null ],
-      [ "OM24G_DEVIATION_500K", "group__OM24G.html#ggaade6e4d8ab80d4a7df0fb4bc6c40a520af780c1d223535c666f4bff2dba25b04a", null ]
-    ] ],
     [ "om24g_endian_t", "group__OM24G.html#ga704ab7c57d3eb6a485b507b2fee6e4ef", [
       [ "OM24G_ENDIAN_LSB", "group__OM24G.html#gga704ab7c57d3eb6a485b507b2fee6e4efaa45dfae25d51f2c4299ad03598f5fd45", null ],
       [ "OM24G_ENDIAN_MSB", "group__OM24G.html#gga704ab7c57d3eb6a485b507b2fee6e4efa6d9818a1f7cd45d0a52f23cbc81a80ce", null ]

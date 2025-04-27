@@ -85,20 +85,20 @@ var NAVTREEINDEX =
 [
 "APPLICATION.html",
 "group__AES.html#gga02c517103062e4ab104b12ab0abcbc29a4e1d631563f09a9b4fa100c82fb48a72",
-"group__GPADC.html#gad0bb37bcadb0bf5685d19698fa53d67e",
-"group__LOG.html#ga5c5abe85c4214edef66ebc8f7ab86722",
-"group__MESH__API.html#ggadfeddc494e264fb03ee26f6dd3c057caab89e2fb69141f9051b33f2920113cb53",
-"group__OMBLE__GAP.html#gab121499bafd84a03a247999ab8870292",
-"group__PIN.html#ga42ccae97cdb85189adecab3d72f82b6b",
-"group__PIN.html#gga51e2d838438ba7cb0a757286ebbfa3fcabaa436cd09c0de7f2849d843d16b9734",
-"group__PIN.html#ggab40c1a295ca12b16b07833a178ae6fb1a8bbe05193dcef091bf9a6883785000b8",
-"group__PMU.html#gga73a51b836281aad9703a4a3c761b69c8a6e2e8692fabc9781f9771a3cb9bd13ed",
-"group__RGB.html#gabd33d2d25a6e3d7438ea75ed00b7154e",
-"group__UTILS.html#ga0de241750d60ebf2a4e40e7b738ea328",
-"structlcd__config__t.html#a2a1e4be8962f2f4c931cf1c1e3b598a1",
-"structob__gap__evt__data__len__changed__t.html#a3af6399e33c2b68434d231f6dbabb8dc",
-"structom24g__config__t.html#a4580e6df18b2c7aeaeb5710d22436773",
-"structtim__pwm__output__config__t.html#aef120d448970e65685e1d402d187e0b3"
+"group__GPADC.html#gacb19ad16a17496eddce870d353b7835f",
+"group__LOG.html",
+"group__MESH__API.html#ggadfeddc494e264fb03ee26f6dd3c057caaa3ef0117cc9a21ae2e2fd4b7dd57e523",
+"group__OMBLE__GAP.html#gaba4c595db0193b50d1166659a1667c10",
+"group__PIN.html#ga51e2d838438ba7cb0a757286ebbfa3fc",
+"group__PIN.html#gga51e2d838438ba7cb0a757286ebbfa3fcaf76293ae4718f73afeccbaf94f18b034",
+"group__PIN.html#ggab40c1a295ca12b16b07833a178ae6fb1ab1c714a5a16e08b45e1b762597182223",
+"group__PMU.html#gga64d43f15be2dc8311c2ef2fe0497706aa96d55eae2886014f4e87ea780493309b",
+"group__RCC.html#ggaaee8f2af0dbce5e75b4fc45a2b97e9bba89a50f3e728c4606e8e1075fc34f794e",
+"group__UART.html#gaff3ec9d6747cd8fbacff4bd4a32ac92a",
+"structecdsa__config__t.html",
+"structob__gap__evt__adv__report__t.html#ad3ab8047f78894c2cc81354238e50e67",
+"structob__pairing__param__t.html#ad829ae360dc2d0b3fbe6130688d2c0df",
+"structtim__capture__config__t.html#a4298de393af052101aed0879f9a4cc92"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

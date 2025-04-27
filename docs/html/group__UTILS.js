@@ -36,7 +36,6 @@ var group__UTILS =
     [ "OM_OFFSET", "group__UTILS.html#ga1677e3fc57fabf39be2339ff4bffbdef", null ],
     [ "REG_SSAT", "group__UTILS.html#gadbf719a40286e072e7ea5cba5d1d5231", null ],
     [ "REGR", "group__UTILS.html#ga8882329d432c0e882c1b5a456a539d70", null ],
-    [ "REGSW", "group__UTILS.html#ga07062e083e3c1d7f6d3d88f8d1526c68", null ],
     [ "REGW", "group__UTILS.html#ga2508c3b6e936bf180326e8cdce7c0476", null ],
     [ "REGW0", "group__UTILS.html#gae03e6c6f7943c4a62e91629af8953e6d", null ],
     [ "REGW1", "group__UTILS.html#ga62325b4a26a5ef6d257a439e93559a70", null ],

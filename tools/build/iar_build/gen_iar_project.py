@@ -52,7 +52,7 @@ def gen_iar_eww(project_name):
     text_node.text = '$WS_DIR$/' + project_name + '.ewp'
     tree.write(output_name, pretty_print=True, xml_declaration=True, encoding='utf-8')
 
-def gen_iar_ewp(project_name, device, projects, defs, proj_path_relative_gen, gen_lib):
+def gen_iar_ewp(project_name, device, projects, defs, proj_path_relative_gen, optim, gen_lib):
     parser = etree.XMLParser(remove_blank_text=True)
     ewp_template = os.path.join(os.path.dirname(__file__), 'iar.ewp')
     tree = etree.parse(ewp_template, parser=parser)
@@ -83,7 +83,21 @@ def gen_iar_ewp(project_name, device, projects, defs, proj_path_relative_gen, ge
     # mask warning
     ccdiagsuppress = 'Pe111,Pe177,Pe128,Ta022,Ta023'
     iar_value_set(tree, 'ICCARM', 'data/option/name', 'CCDiagSuppress', 'state', ccdiagsuppress)
-
+    # opt level
+    iar_opt = ['None', 'Low', 'Medium', 'High Balanced', 'High Size', 'High Speed']
+    if optim not in iar_opt:
+        print('Paramater "optim" is error, iar optimization level must be: {}'.format(iar_opt))
+    for index in range(len(iar_opt)):
+        if optim == iar_opt[index]:
+            if index < 3:
+                opt_level = index
+            else:
+                opt_level = 3
+                opt_strategy = index - 3
+    ccoptlevel = str(opt_level)
+    iar_value_set(tree, 'ICCARM', 'data/option/name', 'CCOptLevel', 'state', ccoptlevel)
+    ccoptstrategy = str(opt_strategy)
+    iar_value_set(tree, 'ICCARM', 'data/option/name', 'CCOptStrategy', 'state', ccoptstrategy)
     proj_path_relative_gen = os.path.join('$PROJ_DIR$', proj_path_relative_gen)
     # outputformat(bin) and outputfilepath
     outputfilepath = '{}\{}.bin'.format(proj_path_relative_gen, project_name)
@@ -149,11 +163,11 @@ def gen_iar_ewd(project_name, macfile_path):
     tree.write(output_name, pretty_print=True, xml_declaration=True, encoding='utf-8')
 
 
-def gen_iar_project(device, Projects, project, defs, macfile_path, project_with_device=0, gen_lib=False):
+def gen_iar_project(device, Projects, project, defs, macfile_path, project_with_device=0, optim='Medium', gen_lib=False):
     if project_with_device :
         project = project + '_' + device.lower()
     gen_iar_eww(project)
-    gen_iar_ewp(project, device, Projects, defs, '../', gen_lib)
+    gen_iar_ewp(project, device, Projects, defs, '../', optim, gen_lib)
     gen_iar_ewd(project, macfile_path)
     output_dir = 'iar/'
     if not os.path.exists(output_dir):

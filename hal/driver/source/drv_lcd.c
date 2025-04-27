@@ -79,7 +79,7 @@ void cmd_format(uint8_t *cmd, uint8_t cmd_bits, uint32_t cmd32[2])
 
 static void drv_lcd_raw_read(uint32_t *cmd, uint8_t cmd_bits, uint8_t *data, uint16_t data_len)
 {
-    OM_ASSERT(((uint32_t)data) & 0x3);  // data must be 4 bytes aligned while reading
+    OM_ASSERT(!(((uint32_t)data) & 0x3));  // data must be 4 bytes aligned while reading
 
     OM_LCD_Type *LCD = lcd_resource.reg;
     OM_ASSERT(cmd_bits > 1);
@@ -303,10 +303,7 @@ void drv_lcd_control(lcd_control_t control, void *argu)
 
 void drv_lcd_isr(void)
 {
-    OM_LCD_Type *om_lcd;
-
-    om_lcd = lcd_resource.reg;
-    om_lcd->RAW_INTR_STATUS |= LCD_RAW_INTR_STATUS_SPI_CMD_DONE_MASK;
+    OM_LCD->RAW_INTR_STATUS |= LCD_RAW_INTR_STATUS_SPI_CMD_DONE_MASK;
     drv_lcd_isr_callback();
 }
 

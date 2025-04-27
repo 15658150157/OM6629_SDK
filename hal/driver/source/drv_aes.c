@@ -70,6 +70,7 @@ static aes_env_t aesn##_env = {                                     \
         }                                                                      \
     } while (0)
 
+#if (!RTE_AES_KEEP_RAW_ENGINE)
 #define AES_RT0(idx) RT0[idx]
 #define AES_RT1(idx) RT1[idx]
 #define AES_RT2(idx) RT2[idx]
@@ -703,6 +704,7 @@ static void aes_gcm_mult(aes_env_t *env, const uint8_t x[16], uint8_t output[16]
     DRV_PUT_UINT32_BE(zl >> 32, output, 8);
     DRV_PUT_UINT32_BE(zl, output, 12);
 }
+#endif /* (RTE_AES_KEEP_RAW_ENGINE) */
 
 /**
  *******************************************************************************
@@ -760,6 +762,7 @@ void drv_aes_hw_encrypt(OM_AES_HW_Type *om_aes, const uint8_t input[16], uint8_t
     OM_CRITICAL_END();
 }
 
+#if (!RTE_AES_KEEP_RAW_ENGINE)
 /**
  *******************************************************************************
  * @brief Software AES set encrypt key
@@ -2258,6 +2261,8 @@ om_error_t drv_aes_cmac_crypt_stop(uint32_t om_aes, uint8_t mac[AES_BLOCK_SIZE])
 
     return OM_ERROR_OK;
 }
+
+#endif  /* (RTE_AES_KEEP_RAW_ENGINE) */
 
 #endif  /* (RTE_AES) */
 

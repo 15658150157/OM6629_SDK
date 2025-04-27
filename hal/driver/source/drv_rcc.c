@@ -103,6 +103,7 @@ static om_error_t rcc_clk_uart_div_set(volatile uint32_t *rcc_reg, uint32_t freq
 }
 #endif
 
+
 /*******************************************************************************
  * PUBLIC FUNCTIONS
  */
@@ -242,18 +243,16 @@ om_error_t drv_rcc_clock_set(rcc_clk_t rcc_clk, uint32_t freq)
 
 void drv_rcc_cpu_clk_source_set(rcc_cpu_clk_source_t source)
 {
-    uint32_t irq_saved;
     uint32_t target_clk = 0U;
     uint8_t rc32m_is_last_enabled;
 
-    OM_ASSERT(source < RCC_CPU_CLK_SOURCE_MAX);
+    OM_CRITICAL_BEGIN();
+    DRV_RCC_ANA_CLK_ENABLE_NOIRQ();
 
-    DRV_RCC_ANA_CLK_ENABLE();
-    OM_CRITICAL_BEGIN_EX(irq_saved);
-
-    rc32m_is_last_enabled = drv_pmu_topclk_rc32m_power_enable(true);
-
+    rc32m_is_last_enabled = drv_pmu_rc32m_enable(true);
     if (source == RCC_CPU_CLK_SOURCE_RC32M) {
+        drv_pmu_dvdd_voltage_set(PMU_DVDD_VOLTAGE_0P95V);
+
         rc32m_is_last_enabled = true;
         REGW0(&OM_PMU->MISC_CTRL, PMU_MISC_CTRL_MAIN_CLK_SEL_MASK); // 0:RC32MHz  1:CPU_CLK_IN
         while(!(OM_CPM->CPU_CFG & CPM_CPU_CFG_CPU_MAIN_CLK_SYNC_DONE_MASK));
@@ -264,18 +263,27 @@ void drv_rcc_cpu_clk_source_set(rcc_cpu_clk_source_t source)
     drv_rcc_cpu_clk_source_set(RCC_CPU_CLK_SOURCE_RC32M);
     // switch cpu_clk_in
     if (source == RCC_CPU_CLK_SOURCE_XTAL32M) {
+        drv_pmu_dvdd_voltage_set(PMU_DVDD_VOLTAGE_0P95V);
+
         REGW0(&OM_PMU->XTAL32M_CNS0, PMU_XTAL32M_CNS0_SEL_CPUCLK_MASK);
         REGW0(&OM_DAIF->SYSPLL_CNS0, DAIF_SYSPLL_SEL_CPUCLK_MASK);
         target_clk = 32 * 1000 * 1000U;
-    } else if (source == RCC_CPU_CLK_SOURCE_CLK64M) {
-        REGW1(&OM_PMU->XTAL32M_CNS0, PMU_XTAL32M_CNS0_SEL_CPUCLK_MASK);
+    } else if (source == RCC_CPU_CLK_SOURCE_XTAL64M) {
+        drv_pmu_dvdd_voltage_set(PMU_DVDD_VOLTAGE_1P05V);
+
+        REGW0(&OM_PMU->CLK_CTRL_2, PMU_CLK_CTRL_2_SEL_RCOSC_MASK);      // 0:XTAL 1:RC
+        REGW1(&OM_PMU->XTAL32M_CNS0, PMU_XTAL32M_CNS0_SEL_CPUCLK_MASK); // 0:xtal32m 1:64m
         REGW0(&OM_DAIF->SYSPLL_CNS0, DAIF_SYSPLL_SEL_CPUCLK_MASK);
         target_clk = 64 * 1000 * 1000U;
     } else if (source == RCC_CPU_CLK_SOURCE_SYSPLL96M) {
+        drv_pmu_dvdd_voltage_set(PMU_DVDD_VOLTAGE_1P15V);
+
         REGW0(&OM_PMU->XTAL32M_CNS0, PMU_XTAL32M_CNS0_SEL_CPUCLK_MASK);
         REGW1(&OM_DAIF->SYSPLL_CNS0, DAIF_SYSPLL_SEL_CPUCLK_MASK);
         target_clk = 96 * 1000 * 1000U;
     } else if (source == RCC_CPU_CLK_SOURCE_SYSPLL48M) {
+        drv_pmu_dvdd_voltage_set(PMU_DVDD_VOLTAGE_1P05V);
+
         REGW1(&OM_PMU->XTAL32M_CNS0, PMU_XTAL32M_CNS0_SEL_CPUCLK_MASK);
         REGW1(&OM_DAIF->SYSPLL_CNS0, DAIF_SYSPLL_SEL_CPUCLK_MASK);
         target_clk = 48 * 1000 * 1000U;
@@ -289,26 +297,22 @@ _exit:
     SystemCoreClock = target_clk;
 
     if (!rc32m_is_last_enabled) {
-        drv_pmu_topclk_rc32m_power_enable(false);
+        drv_pmu_rc32m_enable(false);
     }
 
-    OM_CRITICAL_END_EX(irq_saved);
-    DRV_RCC_ANA_CLK_RESTORE();
+    DRV_RCC_ANA_CLK_RESTORE_NOIRQ();
+    OM_CRITICAL_END();
 }
 
-void drv_rcc_periph_clk_source_set(rcc_periph_clk_source_t source)
+__RAM_CODE void drv_rcc_periph_clk_source_set(rcc_periph_clk_source_t source)
 {
-    uint32_t irq_saved;
     uint32_t target_clk = 0U;
     uint8_t rc32m_is_last_enabled;
 
-    OM_ASSERT(source < RCC_PERIPH_CLK_SOURCE_MAX);
+    OM_CRITICAL_BEGIN();
+    DRV_RCC_ANA_CLK_ENABLE_NOIRQ();
 
-    DRV_RCC_ANA_CLK_ENABLE();
-    OM_CRITICAL_BEGIN_EX(irq_saved);
-
-    rc32m_is_last_enabled = drv_pmu_topclk_rc32m_power_enable(true);
-
+    rc32m_is_last_enabled = drv_pmu_rc32m_enable(true);
     if (source == RCC_PERIPH_CLK_SOURCE_RC32M) {
         rc32m_is_last_enabled = true;
         REGW0(&OM_CPM->CPU_CFG, CPM_CPU_CFG_PERI_MAIN_CLK_SEL_MASK);
@@ -325,7 +329,8 @@ void drv_rcc_periph_clk_source_set(rcc_periph_clk_source_t source)
     } else if (source == RCC_PERIPH_CLK_SOURCE_SYSPLL48M) {
         REGW(&OM_DAIF->SYSPLL_CNS0, MASK_1REG(DAIF_SYSPLL_SEL_PERICLK, 1U));
         target_clk = 48 * 1000 * 1000U;
-    } else if (source == RCC_PERIPH_CLK_SOURCE_CLK64M) {
+    } else if (source == RCC_PERIPH_CLK_SOURCE_XTAL64M) {
+        REGW0(&OM_PMU->CLK_CTRL_2, PMU_CLK_CTRL_2_SEL_RCOSC_MASK);      // 0:XTAL 1:RC
         REGW(&OM_DAIF->SYSPLL_CNS0, MASK_1REG(DAIF_SYSPLL_SEL_PERICLK, 2U));
         target_clk = 64 * 1000 * 1000U;
     }
@@ -338,11 +343,13 @@ _exit:
     rcc_env.periph_freq = target_clk;
 
     if (!rc32m_is_last_enabled) {
-        drv_pmu_topclk_rc32m_power_enable(false);
+        drv_pmu_rc32m_enable(false);
     }
+    // recalibrate iflash delay
+    drv_iflash_delay_recalib();
 
-    OM_CRITICAL_END_EX(irq_saved);
-    DRV_RCC_ANA_CLK_RESTORE();
+    DRV_RCC_ANA_CLK_RESTORE_NOIRQ();
+    OM_CRITICAL_END();
 }
 
 #endif /* RTE_RCC */

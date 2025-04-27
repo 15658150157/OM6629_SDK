@@ -89,9 +89,6 @@ int main(void)
 
     // example_pmu_timer();
 
-    // example_psram();
-    // example_psram_quad();
-
     // example_qdec();
     // example_qdec_with_led();
 
