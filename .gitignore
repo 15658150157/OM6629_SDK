@@ -7,4 +7,10 @@ out/
 *.map
 *.d
 *.o
+*.obj
+*.zip
 *.uvguix.*
+JLinkLog.txt
+JLinkSettings.ini
+UIConfig.ini
+uv4.log
