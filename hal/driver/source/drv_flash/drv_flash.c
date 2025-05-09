@@ -25,9 +25,20 @@
  */
 #include "RTE_driver.h"
 #if (RTE_FLASH0 || RTE_FLASH1)
-#include "om_device.h"
 #include "om_driver.h"
-#include <stddef.h>
+
+
+/*******************************************************************************
+ * MACROS
+ */
+#ifndef __RAM_BASE
+#define __RAM_BASE 0x20000000U
+#endif
+#define CHECK_DATA_ADDR(data_ptr)                                                       \
+            OM_ASSERT(((uint32_t)data_ptr >= OM_MEM_RAM_BASE &&                         \
+                       (uint32_t)data_ptr < (OM_MEM_RAM_BASE + OM_MEM_RAM_SIZE)) ||     \
+                      ((uint32_t)data_ptr >= __RAM_BASE &&                              \
+                       (uint32_t)data_ptr < (__RAM_BASE + OM_MEM_RAM_SIZE)))
 
 
 /*******************************************************************************
@@ -95,6 +106,7 @@ om_error_t drv_flash_id_get(OM_FLASH_Type om_flash, flash_id_t *id)
 
 om_error_t drv_flash_read(OM_FLASH_Type om_flash, uint32_t addr, uint8_t *data, uint32_t data_len)
 {
+    CHECK_DATA_ADDR(data);
     #if (RTE_FLASH0)
     if (om_flash == OM_FLASH0) {
         return drv_iflash_read((OM_SF_Type *)om_flash, addr, data, data_len);
@@ -110,6 +122,7 @@ om_error_t drv_flash_read(OM_FLASH_Type om_flash, uint32_t addr, uint8_t *data, 
 
 om_error_t drv_flash_read_int(OM_FLASH_Type om_flash, uint32_t addr, uint8_t *data, uint32_t data_len)
 {
+    CHECK_DATA_ADDR(data);
     #if (RTE_FLASH0)
     if (om_flash == OM_FLASH0) {
         return drv_iflash_read_int((OM_SF_Type *)om_flash, addr, data, data_len);
@@ -128,6 +141,7 @@ om_error_t drv_flash_write(OM_FLASH_Type om_flash,
                            volatile uint8_t *data,
                            uint32_t data_len)
 {
+    CHECK_DATA_ADDR(data);
     #if (RTE_FLASH0)
     if (om_flash == OM_FLASH0) {
         return drv_iflash_write((OM_SF_Type *)om_flash, addr, data, data_len);
@@ -146,6 +160,7 @@ om_error_t drv_flash_write_int_start(OM_FLASH_Type om_flash,
                                      volatile uint8_t *data,
                                      uint32_t data_len)
 {
+    CHECK_DATA_ADDR(data);
     #if (RTE_FLASH0)
     if (om_flash == OM_FLASH0) {
         return drv_iflash_write_int_start((OM_SF_Type *)om_flash, addr, data, data_len);

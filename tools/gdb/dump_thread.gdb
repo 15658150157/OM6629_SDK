@@ -101,7 +101,11 @@ set $curItem = xSuspendedTaskList.xListEnd.pxNext
 set $numNode = xSuspendedTaskList.uxNumberOfItems
 
 while $numNode > 0
-    printTCB $curItem->pvOwner 3
+    set $taskState = 3
+    if (((TCB_t *)$curItem->pvOwner)->xEventListItem.pvContainer != 0) || (((TCB_t *)$curItem->pvOwner)->ucNotifyState[0] == 1)
+        set $taskState = 2
+    end
+    printTCB $curItem->pvOwner $taskState
     set $numNode -= 1
     set $curItem = $curItem->pxNext
 end

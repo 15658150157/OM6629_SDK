@@ -98,9 +98,9 @@ extern void fault_callback(fault_id_t fault_id, uint8_t *context, uint32_t conte
 /**
  *******************************************************************************
  * @brief Fault Context store. It is a weak function. The default Context store is
- *        endless loop. the SystemFaultContextStore is called by SystemFaultCallback.
+ *        endless loop. the SystemFaultContextStore is called by fault_callback.
  *        User may define own callback in user/project file, not modify it in the
- *        isr driver. the parameter is the same as SystemFaultCallback function.
+ *        isr driver. the parameter is the same as fault_callback function.
  *
  *        Context is different by the fault_id. As follows:
  *        FAULT_ID_ASSERT:

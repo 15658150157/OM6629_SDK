@@ -170,12 +170,12 @@ static pm_status_t pm_sleep_checker_check(void)
         }
     }
 
+_exit:
     #if (RTE_CALIB)
     drv_calib_repair_rc_rf_temperature_check();
     drv_calib_repair_rc32k_temperature_check();
     #endif
 
-_exit:
     return status;
 }
 
@@ -205,13 +205,13 @@ static void pm_sleep_notify(pm_sleep_state_t sleep_state, pm_status_t power_stat
             drv_calib_sys_restore();
             drv_calib_rf_restore();
             #endif
-            #if (RTE_OM24G)
-            drv_om24g_restore();
-            #endif
             break;
         case PM_SLEEP_RESTORE_HSE:
             break;
         case PM_SLEEP_LEAVE_BOTTOM_HALF:
+            #if (RTE_OM24G)
+            drv_om24g_restore();
+            #endif
             break;
         default:
             break;
@@ -244,6 +244,7 @@ static void pm_sleep_enter_common_sleep(pm_status_t power_status)
 
     // modified default LCD clock disable from sleep
     DRV_RCC_CLOCK_ENABLE(RCC_CLK_LCD, 0);
+    OM_CPM->AHB_CFG |= CPM_AHB_CFG_RAM_AUTO_GATE_EN_MASK;
 
     drv_pmu_sleep_leave(PMU_SLEEP_LEAVE_STEP1_ON_RC32M);
     pm_sleep_notify(PM_SLEEP_RESTORE_HSI, power_status);

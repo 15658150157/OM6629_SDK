@@ -44,32 +44,6 @@ extern "C"
  */
 /**
  *******************************************************************************
- *  @brief Get member offset from struct or union data type
- *
- *  @param type_t        Struct or union data type
- *  @param type_member  Member of struct or union data type
- *
- *  @return Offset from struct or union data type
- *******************************************************************************
- */
-#define OM_OFFSET(type_t, type_member)                   \
-    /*lint -save -e413 */                                \
-    ((uint32_t)(&(((type_t *)0)->type_member)))          \
-    /*lint –restore */
-
-/**
- *******************************************************************************
- *  @brief Get array size, array shall be a array type
- *
- *  @param array         Array type
- *
- *  @return array size
- *******************************************************************************
- */
-#define OM_ARRAY_SIZE(array)      ((unsigned)(sizeof(array)/sizeof((array)[0])))
-
-/**
- *******************************************************************************
  * @brief  The OM_ASSERT macro is used for function's parameters check.
  * @param  expr: If expr is false, it calls om_assert_failed function
  *         which reports the name of the source file and the source
@@ -82,7 +56,7 @@ extern "C"
 #define OM_ASSERT(expr)   ((expr) ? (void)0U : om_assert_failed((char *)__FILE__, __LINE__))
 #define OM_ASSERT_WHILE(cond, expr)                                            \
     if ((unsigned)(cond)) {                                                    \
-        ((expr) ? (void)0U : om_assert_failed((char *)__FILE__, __LINE__)); \
+        ((expr) ? (void)0U : om_assert_failed((char *)__FILE__, __LINE__));    \
     }
 
 extern void om_assert_failed(char *file, uint32_t line);

@@ -467,7 +467,7 @@ void drv_uart_lin_send_break(OM_UART_Type *om_uart)
     OM_ASSERT(lcr&UART_LCR_LIN_EN);
 
     om_uart->LCR = lcr | UART_LCR_SBRK;
-    DRV_DELAY_US(1);
+    while(om_uart->USR & UART_USR_LIN_BREAK);
     om_uart->LCR = lcr & ~UART_LCR_SBRK;
 }
 

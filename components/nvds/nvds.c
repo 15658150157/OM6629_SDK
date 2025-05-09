@@ -402,6 +402,8 @@ static bool _nvds_is_magic_number_ok(uint32_t sector_addr, enum SECTOR_MAGIC sec
  **/
 static void _nvds_format_sector(uint32_t sector_addr, enum SECTOR_MAGIC sector_magic)
 {
+    int32_t magic_num;
+
 #if !CFG_FILE_SIMULATION
     // Shall not format the config sector
     if (sector_magic == CONF_SECTOR)
@@ -411,9 +413,10 @@ static void _nvds_format_sector(uint32_t sector_addr, enum SECTOR_MAGIC sector_m
     _nvds_erase(sector_addr, NVDS_MAX_STORAGE_SIZE);
 
     // Write correct magic number
+    magic_num = nvds_magic_number[sector_magic];
     _nvds_write(sector_addr,
                 (uint32_t)NVDS_MAGIC_NUMBER_LENGTH,
-                (uint8_t *)&nvds_magic_number[sector_magic]);
+                (uint8_t *)&magic_num);
 }
 
 /**
@@ -597,7 +600,7 @@ static void _nvds_update_used_size(void)
  **/
 #if NVDS_DEBUG_MODE
 // define print function
-#define NVDS_PRINTF(fmt, args...) printf(fmt, ##args)
+#define NVDS_PRINTF(fmt, args...)    om_printf(fmt, ##args)
 // function declaration
 static void _nvds_print_data(void *printf_dump_func, uint16_t data_len, uint8_t *data);
 // used for storing complete tag data
@@ -1203,6 +1206,7 @@ static uint8_t _nvds_purge(uint8_t *buf_ptr)
     uint8_t status = NVDS_OK, idx = 1, crc = 0;
     uint8_t start = 0, end = NVDS_MAX_NUM_OF_TAGS;
     uint8_t tag_map[32] = {0};
+    int32_t magic_num;
 
     // Erase nvds sector
     _nvds_erase(nvds_env.nvds_addr, NVDS_MAX_STORAGE_SIZE);
@@ -1237,9 +1241,10 @@ static uint8_t _nvds_purge(uint8_t *buf_ptr)
     } while (start < end && read_len == FLASH_PAGE_SIZE);
 
     // Since data purge finished, write magic to this sector
+    magic_num = nvds_magic_number[BKUP_SECTOR];
     _nvds_write(nvds_env.nvds_addr,
                 (uint32_t)NVDS_MAGIC_NUMBER_LENGTH,
-                (uint8_t *)&nvds_magic_number[BKUP_SECTOR]);
+                (uint8_t *)&magic_num);
 
     // Erase backup sector
     _nvds_format_sector(nvds_env.bkup_addr, NVDS_SECTOR);

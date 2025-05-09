@@ -195,7 +195,9 @@ __RAM_CODE void drv_pmu_dvdd_voltage_set(pmu_dvdd_voltage_t voltage)
 {
     OM_CRITICAL_BEGIN();
     drv_pmu_register_step_set(&OM_PMU->ANA_REG, MASK_STEP_SSAT(PMU_ANA_REG_PMU_DIG_LDO_TRIM, drv_calib_repair_env.dig_ldo + (int8_t)voltage), true/*should_update*/, 10/*delay_us*/);
+    #if (RTE_FLASH0)
     drv_iflash_delay_recalib();
+    #endif
     OM_CRITICAL_END();
 }
 
@@ -1124,14 +1126,7 @@ __RAM_CODE void drv_pmu_register_step_set(volatile uint32_t *reg, uint32_t mask,
             OM_PMU->ANA_REG |= PMU_ANA_REG_DIG_LDO_UPDATE_MASK;
             while(OM_PMU->ANA_REG & PMU_ANA_REG_DIG_LDO_UPDATE_MASK);
         }
-
-        #if 0
-        // DRV_DELAY_US(delay_us);
-        #else
-        for (uint32_t i=0; i < 32U*delay_us; i++) {    // CPU max 96M
-            __NOP();
-        }
-        #endif
+        DRV_DELAY_US(delay_us);
     }
 }
 

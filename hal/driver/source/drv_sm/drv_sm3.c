@@ -27,7 +27,7 @@
 #if (RTE_SM3)
 #include <stdint.h>
 #include <string.h>
-#include "om_device.h"
+#include <stddef.h>
 #include "om_driver.h"
 #include "sm_endian.h"
 
@@ -487,7 +487,7 @@ om_error_t drv_sm3_hmac_stop(uint32_t om_sm3_hmac, uint8_t mac[SM3_DIGEST_SIZE])
 	drv_sm3_update(&env->sm3_ctx, mac, SM3_DIGEST_SIZE);
 	drv_sm3_stop(&env->sm3_ctx, mac);
 
-    memset(&env->sm3_ctx, 0x0, sizeof(sm3_hmac_env_t) - OM_OFFSET(sm3_hmac_env_t, sm3_ctx));
+    memset(&env->sm3_ctx, 0x0, sizeof(sm3_hmac_env_t) - offsetof(sm3_hmac_env_t, sm3_ctx));
     env->state = DRV_STATE_STOP;
 
     return OM_ERROR_OK;

@@ -151,10 +151,10 @@ __low_level_init
                 POP  {PC}
 
 
-; NMI_Handler_C & fault_hanler_c
+; NMI_Handler_C & fault_handler_c
                 PUBWEAK  NMI_Handler_C
-                PUBWEAK fault_hanler_c
-fault_hanler_c
+                PUBWEAK  fault_handler_c
+fault_handler_c
 NMI_Handler_C
                 B    .
 
@@ -183,7 +183,7 @@ UsageFault_Handler
                 MRSEQ R1, MSP
                 MRSNE R1, PSP
                 MOV   R0, LR
-                B     fault_hanler_c
+                B     fault_handler_c
 
                 PUBWEAK SVC_Handler
                 PUBWEAK DebugMon_Handler

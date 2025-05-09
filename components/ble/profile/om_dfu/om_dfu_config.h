@@ -56,10 +56,13 @@ const dfu_image_t dfu_image_types[] = {
  /* Image type               |  Base address1 |  Base address2 |  Max length |  Image describe  |
         Image ops API                                | Image info ops API                       |  Info ID */
 //----------------------------------------------------------------------------------------------------------
-	{IMAGE_TYPE_APP          ,  0x00044000    ,  0x00044000    ,   0x00040000,  "Application"   ,
+	{IMAGE_TYPE_APP          ,  0x00060000    ,  0x00060000    ,   0x0005C000,  "Application"   ,
         &dfu_nvds_itf[DFU_NVDS_ITF_TYPE_FLASH]       , NULL                                     , 0x00    },
 //----------------------------------------------------------------------------------------------------------
-	{IMAGE_TYPE_DUMMY        ,  0x00000000    ,  0x00000000    ,   0xFFFFFFFF,  "Dummy"     ,
+	{IMAGE_TYPE_MBR_USR1     ,  0x00003000    ,  0x00003000    ,   0x00001000,  "MBR"         ,
+        &dfu_nvds_itf[DFU_NVDS_ITF_TYPE_FLASH]       , NULL                                     , 0x00    },
+//----------------------------------------------------------------------------------------------------------
+	{IMAGE_TYPE_DUMMY        ,  0x00000000    ,  0x00000000    ,   0xFFFFFFFF,  "Dummy"         ,
         &dfu_nvds_itf[DFU_NVDS_ITF_TYPE_DUMMY]       , NULL                                     , 0x00    },
 //----------------------------------------------------------------------------------------------------------
 };

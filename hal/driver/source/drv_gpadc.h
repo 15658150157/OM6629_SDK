@@ -94,12 +94,10 @@ typedef enum {
 
 /// GPADC gain
 typedef enum {
-    /// gain: 1, select VBAT as reference voltage
-    GPADC_GAIN_1            = 0U,
-    /// gain: 1/3, select internal reference
+    /// gain: 1/3
     GPADC_GAIN_1_3          = 1U,
-    /// gain: 1, select internal reference
-    GPADC_GAIN_1_SEL_VREF_0 = 2U,
+    /// gain: 1
+    GPADC_GAIN_1            = 2U,
 
     GPADC_GAIN_MAX,
 } drv_gpadc_gain_t;
@@ -239,6 +237,24 @@ typedef struct {
     drv_gpadc_calib_t data_diff[GPADC_GAIN_MAX-1];
 } __PACKED drv_gpadc_flash_calib_ex_4_t;
 
+/// GPADC extral calibration parameters in flash
+typedef struct {
+    uint16_t vbg_code_trim_1_vbat_3p3v_diff;
+    uint16_t vbg_code_trim_3_vbat_3p3v_diff;
+} __PACKED drv_gpadc_flash_calib_ex_5_t;
+
+/// GPADC extral calibration parameters in flash
+typedef struct {
+    uint16_t vbg_code_trim_1_vbat_3p3v_gain_1;
+    uint16_t vbg_code_trim_3_vbat_3p3v_gain_1;
+} __PACKED drv_gpadc_flash_calib_ex_6_t;
+
+/// GPADC extral calibration parameters in flash
+typedef struct {
+    uint16_t vbg_code_trim_1_vbat_3p3v_gain_1_diff;
+    uint16_t vbg_code_trim_3_vbat_3p3v_gain_1_diff;
+} __PACKED drv_gpadc_flash_calib_ex_7_t;
+
 /// GPADC calibration parameters
 typedef struct {
     const drv_gpadc_calib_t             *efuse;
@@ -248,7 +264,10 @@ typedef struct {
     const drv_gpadc_flash_calib_ex_3_t  *flash_ex_3;
     const drv_gpadc_flash_calib_ex_4_t  *flash_ex_4;
     const drv_gpadc_calib_t             *efuse_ex_1;
-    const void                          *reserved[5];
+    const drv_gpadc_flash_calib_ex_5_t  *flash_ex_5;
+    const drv_gpadc_flash_calib_ex_6_t  *flash_ex_6;
+    const drv_gpadc_flash_calib_ex_7_t  *flash_ex_7;
+    const void                          *reserved[2];
 } drv_gpadc_cpft_calib_t;
 
 
@@ -372,26 +391,24 @@ extern void *drv_gpadc_control(drv_gpadc_control_t control, void *argu);
  *******************************************************************************
  * @brief Calibrate GPADC and initialize GPADC compensation parameters.
  *
- * @param[in] gain           gpadc gain
- * @param[in] calib_sel      gpadc select calibration phase
- * @param[out] pvalue        Pointer to @p drv_gpadc_calib_t object where the
- *                           calibration parameters are to be returned.
- * @param[out] pvalue_vbat   Pointer to @p drv_gpadc_flash_calib_ex_1_t object where the
- *                           calibration extra parameters are to be returned.
- * @param[out] pvalue_temp   Pointer to @p drv_gpadc_flash_calib_ex_2_t object where the
- *                           calibration extra parameters are to be returned.
- * @param[out] pvalue_temp_2 Pointer to @p drv_gpadc_flash_calib_ex_3_t object where the
- *                           calibration extra parameters are to be returned.
- * @param[out] pvalue_diff   Pointer to @p drv_gpadc_calib_t object where the
- *                           calibration extra parameters are to be returned.
+ * @param[in] gain                  gpadc gain
+ * @param[in] calib_sel             gpadc select calibration phase
+ * @param[out] pvalue               Pointer to @p drv_gpadc_calib_t object where the
+ *                                  calibration parameters are to be returned.
+ * @param[out] pvalue_vbat          Pointer to @p drv_gpadc_flash_calib_ex_1_t object where the
+ *                                  calibration extra parameters are to be returned.
+ * @param[out] pvalue_power_on_3p3v Pointer to @p drv_gpadc_flash_calib_ex_2_t object where the
+ *                                  calibration extra parameters are to be returned.
+ * @param[out] pvalue_power_on_2p3v Pointer to @p drv_gpadc_flash_calib_ex_3_t object where the
+ *                                  calibration extra parameters are to be returned.
  *
  * @return status:
- *    - OM_ERROR_OK:         Calibrate done
- *    - others:              No
+ *    - OM_ERROR_OK:                Calibrate done
+ *    - others:                     No
  *******************************************************************************
  */
-om_error_t drv_gpadc_calibrate(drv_gpadc_calib_t *pvalue, drv_gpadc_flash_calib_ex_1_t *pvalue_vbat, drv_gpadc_flash_calib_ex_2_t *pvalue_temp,
-                               drv_gpadc_flash_calib_ex_3_t *pvalue_temp_2, drv_gpadc_calib_t *pvalue_diff,
+om_error_t drv_gpadc_calibrate(drv_gpadc_calib_t *pvalue, drv_gpadc_flash_calib_ex_1_t *pvalue_vbat,
+                               drv_gpadc_flash_calib_ex_2_t *pvalue_power_on_3p3v, drv_gpadc_flash_calib_ex_3_t *pvalue_power_on_2p3v,
                                drv_gpadc_gain_t gain, drv_gpadc_calib_sel_t calib_sel);
 #endif
 

@@ -48,6 +48,11 @@ typedef struct {
     uint8_t                     *rx_buf;              /**< Pointer to in data buffer            */
     bool                         deviation_below_250K;/**< Flag with frequency deviation less than 250K */
     uint8_t                      rx_count;            /**< rx_count is used for alternate counting of ping pong buffers, not the number of received packets. */
+    struct {
+        uint32_t MIX_CFG0;
+        uint32_t PD_CFG1;
+        uint32_t MAIN_ST_CFG1;
+    } reg_store;
 } om24g_env_t;
 
 /*******************************************************************************
@@ -646,6 +651,11 @@ void drv_om24g_init(const om24g_config_t *cfg)
 __RAM_CODE
 void drv_om24g_store(void)
 {
+    DRV_RCC_ANA_CLK_ENABLE_NOIRQ();
+    om24g_env.reg_store.MIX_CFG0 = OM_DAIF->MIX_CFG0;
+    om24g_env.reg_store.PD_CFG1 = OM_DAIF->PD_CFG1;
+    om24g_env.reg_store.MAIN_ST_CFG1 = OM_DAIF->MAIN_ST_CFG1;
+    DRV_RCC_ANA_CLK_RESTORE_NOIRQ();
     #if HARDWARE_TIMER_ENABLE
     REGW1(&OM_PMU->BLE_CLK_SWITCH, PMU_BLE_CLK_SWITCH_BLE_CLK_SWITCH_MASK);
     #endif
@@ -654,71 +664,17 @@ void drv_om24g_store(void)
 __RAM_CODE
 void drv_om24g_restore(void)
 {
+    DRV_RCC_ANA_CLK_ENABLE_NOIRQ();
+    OM_DAIF->MIX_CFG0 = om24g_env.reg_store.MIX_CFG0;
+    OM_DAIF->PD_CFG1 = om24g_env.reg_store.PD_CFG1;
+    OM_DAIF->MAIN_ST_CFG1 = om24g_env.reg_store.MAIN_ST_CFG1;
+    DRV_RCC_ANA_CLK_RESTORE_NOIRQ();
     #if HARDWARE_TIMER_ENABLE
     REGW0(&OM_PMU->BLE_CLK_SWITCH, PMU_BLE_CLK_SWITCH_BLE_CLK_SWITCH_MASK);
     while(!(OM_PMU->BLE_RECOVER_FLAG & PMU_BLE_RECOVER_FLAG_RECOVER_DONE_FLAG_MASK));
     OM_PMU->BLE_RECOVER_FLAG = 1;
     #endif
 }
-
-// __RAM_CODE
-// void drv_om24g_isr(void)
-// {
-//     uint32_t status = 0;
-//     uint16_t rx_cnt = 0;
-//     bool rx_right_flag = false;
-
-//     status = OM_24G->INT_ST;
-//     OM_24G->INT_ST = status;
-//     if ((OM24G_INT_RX_DR_MASK & status) && (!(OM24G_INT_CRC_ERR_MASK & status))) {
-//         OM_CRITICAL_BEGIN();
-//         if((!(OM_24G->STATE & OM24G_SYNC_DET_MASK)) && (!(OM24G_INT_CRC_ERR_MASK & OM_24G->INT_ST)) && (!(OM24G_INT_MAX_LEN_MASK & OM_24G->INT_ST_RAW)) && (!(OM24G_RX_ADDR_MISS_MASK & OM_24G->INT_ST_RAW))) {
-//             om24g_env.rx_count = (om24g_env.rx_count + 1) % 2;
-//             OM_24G->DMA_RX_ADDR = (uint32_t)(om24g_env.rx_buf + om24g_env.max_rx_num * om24g_env.rx_count);
-//             rx_cnt = drv_om24g_read_rx_payload_width();
-//             rx_right_flag = true;
-//         } else {
-//             OM_24G->INT_ST = OM_24G->INT_ST_RAW;
-//             rx_right_flag = false;
-//         }
-//         OM_CRITICAL_END();
-//         if (om24g_env.event_cb && rx_right_flag) {
-//             om24g_env.event_cb(OM_24G, DRV_EVENT_COMMON_RECEIVE_COMPLETED, (void *)(om24g_env.rx_buf + om24g_env.max_rx_num * (om24g_env.rx_count ? 0 : 1)), (void *)((uint32_t)rx_cnt));
-//         }
-//     }
-//     if ((OM24G_INT_TX_DS_MASK & status)) {
-//         if (om24g_env.event_cb) {
-//             om24g_env.event_cb(OM_24G, DRV_EVENT_COMMON_TRANSMIT_COMPLETED, NULL, NULL);
-//         }
-//     }
-//     if (OM24G_INT_MAX_RT_MASK & status) {
-//         if (om24g_env.event_cb) {
-//             om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_MAX_RT, NULL, NULL);
-//         }
-//     }
-//     if (OM24G_INT_RX_TM_MASK & status) {
-//         if (om24g_env.event_cb) {
-//             om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_RX_TM, NULL, NULL);
-//         }
-//     }
-//     if (OM24G_INT_RX_OVERLAY_MASK & status) {
-//         if (om24g_env.event_cb) {
-//             om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_RX_OVERLAY, NULL, NULL);
-//         }
-//     }
-//     if (OM24G_INT_TIMER0_MASK & status) {
-//         if (om24g_env.event_cb) {
-//             om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_INT_TIMER0, NULL, NULL);
-//         }
-//     }
-//     if (OM24G_INT_TIMER1_MASK & status) {
-//         if (om24g_env.event_cb) {
-//             om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_INT_TIMER1, NULL, NULL);
-//         }
-//     }
-//     if (OM24G_INT_CRC_ERR_MASK & status) {
-//     }
-// }
 
 __RAM_CODE
 void drv_om24g_isr(void)
@@ -803,7 +759,6 @@ void *drv_om24g_control(om24g_control_t control, void *argu)
     switch (control) {
         case OM24G_CONTROL_CLK_DISABLE:
             {
-                DRV_RCC_CLOCK_ENABLE(RCC_CLK_2P4, 1U);
                 DRV_RCC_ANA_CLK_ENABLE_NOIRQ();
                 OM24G_CE_LOW();
                 OM24G_FLUSH_TX_FIFO();
@@ -820,7 +775,6 @@ void *drv_om24g_control(om24g_control_t control, void *argu)
                 REGW1(&OM_DAIF->MIX_CFG0, DAIF_FREQ_DEVIA_BYPASS_TX_MASK); //freq devia bypass=0d
                 REGW1(&OM_DAIF->PLL_CTRL1, DAIF_FREQ_DEVIA_BYPASS_3RD_MASK); //freq devia bypass=0d
                 DRV_RCC_ANA_CLK_RESTORE_NOIRQ();
-                DRV_RCC_CLOCK_ENABLE(RCC_CLK_2P4, 0U);
                 drv_pmu_ana_enable(false, PMU_ANA_RF_24G);
             }
             break;

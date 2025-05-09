@@ -557,7 +557,7 @@ def MakeBuilding():
     if Env.GetOption('keil5'):
         import build.keil_build.gen_keil_project as keil
         inifile_path = ''
-        lto = 1
+        lto = 0
         keil_project = keil.gen_keil5_project(device, Projects, Project_name, Env['CPPDEFINES'], inifile_path, 0, keil_optim, lto, False)
         print('keil project generated: ' +  keil_project)
         if Env.GetOption('distclean'):
@@ -568,6 +568,8 @@ def MakeBuilding():
         if not (Env.GetOption('nobuild')):
             print('building keil project...')
             os.system('embuild ' + keil_project)
+            os.system('axf2elf.sh keil5/out/' + Project_name + '.axf' + ' keil5/out_elf')
+            print("generated .elf in keil5/out_elf")
         exit(0)
 
     if Env.GetOption('iar'):

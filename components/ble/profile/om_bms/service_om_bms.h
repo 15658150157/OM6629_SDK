@@ -13,14 +13,14 @@
  *
  * @{
  */
-#ifndef __SERVICE_OM_CGMS_H__
-#define __SERVICE_OM_CGMS_H__
+#ifndef __SERVICE_OM_BMS_H__
+#define __SERVICE_OM_BMS_H__
 
 /*******************************************************************************
  * EXTERN FUNCTIONS
  */
 void service_om_bms_init(void);
 
-#endif /* __SERVICE_OM_CGMS_H__ */
+#endif /* __SERVICE_OM_BMS_H__ */
 
 /** @} */

@@ -41,6 +41,8 @@ extern "C"
  * MACROS
  */
 #define GPIO_MASK(gpio_idx)       (1U << (gpio_idx))
+#define GPIO_LEVEL_LOW            (0)
+#define GPIO_LEVEL_HIGH           (1)
 
 
 /*******************************************************************************
@@ -48,14 +50,6 @@ extern "C"
  */
 /// GPIO Mask: bit field for gpio, 1 indicates valid, 0 indicates invalid
 typedef uint32_t gpio_mask_t;
-
-/// GPIO Level
-typedef enum {
-    /// gpio level is low
-    GPIO_LEVEL_LOW  = 0,
-    /// gpio level is high
-    GPIO_LEVEL_HIGH = 1,
-} gpio_level_t;
 
 /// GPIO Direction
 typedef enum {
@@ -90,7 +84,7 @@ typedef struct {
     /// GPIO direction
     gpio_dir_t             dir;
     /// Used when dir config as output, range in [0, 1]
-    gpio_level_t           out_val;
+    uint8_t                out_val;
     /// Used when dir config as input
     gpio_trig_type_t       trig_type;
 } gpio_config_t;
@@ -161,7 +155,7 @@ __STATIC_FORCEINLINE uint32_t drv_gpio_read(OM_GPIO_Type *om_gpio, gpio_mask_t g
  * @param[in] val            GPIO pin value
  *******************************************************************************
  */
-__STATIC_FORCEINLINE void drv_gpio_write(OM_GPIO_Type *om_gpio, gpio_mask_t gpio_mask, gpio_level_t val)
+__STATIC_FORCEINLINE void drv_gpio_write(OM_GPIO_Type *om_gpio, gpio_mask_t gpio_mask, uint8_t val)
 {
     OM_CRITICAL_BEGIN();
     if (val) {

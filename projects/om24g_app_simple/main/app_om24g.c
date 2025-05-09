@@ -715,17 +715,19 @@ static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void
             break;
         case DRV_EVENT_OM24G_INT_TIMER0:
             //OM_LOG(OM_LOG_DEBUG, "om24g int timer\r\n");
+            pm_sleep_prevent(PM_ID_24G);
             drv_gpio_toggle(OM_GPIO0, GPIO_MASK(7));
             break;
         case DRV_EVENT_OM24G_INT_TIMER1:
+            pm_sleep_prevent(PM_ID_24G);
             break;
         case DRV_EVENT_COMMON_TRANSMIT_COMPLETED:
-            pm_sleep_allow(PM_ID_24G);
             drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
-            drv_pmu_timer_trig_set(PMU_TIMER_TRIG_VAL0, (drv_pmu_timer_cnt_get() + PMU_TIMER_MS2TICK(500)));
+            drv_pmu_timer_trig_set(PMU_TIMER_TRIG_VAL0, (drv_pmu_timer_cnt_get() + PMU_TIMER_MS2TICK(200)));
             tx_count++;
             drv_gpio_toggle(OM_GPIO0, GPIO_MASK(8));
-            OM_LOG(OM_LOG_DEBUG, "tx_cnt: %d\r\n", tx_count);
+            // OM_LOG(OM_LOG_DEBUG, "tx_cnt: %d\r\n", tx_count);
+            pm_sleep_allow(PM_ID_24G);
             if(tx_count == 100) {
                 tx_count = 0;
                 drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_DISABLE, NULL);
@@ -860,7 +862,6 @@ static void om24g_write_it(void)
     }
     //om24g_control(OM24G_CONTROL_DUMP_RF_REGISTER, NULL);
     drv_om24g_write_int(om24g_tx_payload, 32);
-
 }
 
 static void om24g_write_it_ack_mode(void)
@@ -1687,7 +1688,7 @@ static void timer1_callback(void *om_reg, drv_event_t drv_event, void *param0, v
     OM24G_CE_LOW();
     //drv_gpio_toggle(OM_GPIO0, GPIO_MASK(8));
     drv_om24g_control(OM24G_CONTROL_CLK_ENABLE, NULL);
-    //drv_om24g_dump_rf_register();
+    // drv_om24g_dump_rf_register();
     pm_sleep_prevent(PM_ID_24G);
     #if TX_ROLE
     #if OM24G_ACK_MODE

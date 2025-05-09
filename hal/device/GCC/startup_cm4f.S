@@ -222,17 +222,17 @@ NMI_Handler:
 
 /* The default macro is not used for HardFault_Handler
  * because this results in a poor debug illusion.
- * We can using fault_hanler_c function to display Fault status:
- * void fault_hanler_c(uint32_t exc_return_code, uint32_t sp)
+ * We can using fault_handler_c function to display Fault status:
+ * void fault_handler_c(uint32_t exc_return_code, uint32_t sp)
  */
                 .thumb_func
-                .type    fault_hanler_c, %function
-                .weak    fault_hanler_c
+                .type    fault_handler_c, %function
+                .weak    fault_handler_c
                 .fnstart
-fault_hanler_c:
+fault_handler_c:
                 b    .
                 .fnend
-                .size    fault_hanler_c, . - fault_hanler_c
+                .size    fault_handler_c, . - fault_handler_c
 
                 .thumb_func
                 .type    HardFault_Handler, %function
@@ -244,7 +244,7 @@ HardFault_Handler:
                 mrseq r1, msp
                 mrsne r1, psp
                 mov   r0, lr
-                b     fault_hanler_c
+                b     fault_handler_c
                 .fnend
                 .size    HardFault_Handler, . - HardFault_Handler
 

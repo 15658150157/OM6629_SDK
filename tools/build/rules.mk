@@ -138,7 +138,6 @@ ASFLAGS += $(DEFS) $(INCS)
 LDFLAGS += $(CFLAGS) $(LINKFLAGS) $(SCRIPT) $(LIB_DIR) $(LIBS) -Wl,-Map=$(TARGET_MAP)
 
 BUILDDIR = $(CURDIR)/.build
-OUTDIR = $(CURDIR)/out/project_$(PROJECT)
 
 # build obj files directory
 FILES_C_OBJ = $(patsubst %,$(BUILDDIR)/%,$(filter %.o, $(SOURCES:%.c=%.o)))
@@ -168,8 +167,6 @@ $(TARGET_BIN) : $(TARGET_HEX)
 	@echo -e "\nEach object size:" >> $(TARGET_MAP)
 	@find $(BUILDDIR) -name '*.o' | xargs $(OBJSIZE) -B -d >> $(TARGET_MAP)
 	@echo ------------------- Build Done for $(DEVICE) ------------------------
-	$(shell if [ ! -d $(OUTDIR) ]; then mkdir -p $(OUTDIR); fi)
-	@cp -f $@ $(OUTDIR)/
 
 # hex
 $(TARGET_HEX) : $(TARGET_ELF)

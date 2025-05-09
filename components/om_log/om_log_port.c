@@ -23,6 +23,8 @@
 /*******************************************************************************
  * INCLUDES
  */
+#include "autoconf.h"
+#if CONFIG_OM_LOG
 #include "om_log.h"
 #include "om_log_config.h"
 #include "om_common.h"
@@ -35,8 +37,6 @@
 #elif (CONFIG_OM_LOG_TO_RTT)
 #include "SEGGER_SYSVIEW.h"
 #endif
-
-#if CONFIG_OM_LOG
 
 #if (CONFIG_SHELL && CONFIG_OM_LOG_TO_UART && (CONFIG_SHELL_UART_IDX == CONFIG_OM_LOG_UART_IDX))
 #error "CONFIG_OM_LOG_UART_IDX and CONFIG_SHELL_UART_IDX are conflict"

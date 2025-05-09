@@ -80,6 +80,7 @@ static inline void register_pmu_basic_set(uint32_t mask, uint32_t value)
 void SystemInit(void)
 {
     /* check chip version */
+    while((SYS_CHIP_ID_GET() & 0xFFFFU) != 26151U);
     while (((OM_SYS->REV_ID & SYS_REV_CHIP_VER_MASK) >> SYS_REV_CHIP_VER_POS) != (CONFIG_HARDWARE_VERSION - 1U));
     /* check RAM size */
     #if (OM_MEM_RAM_SIZE)

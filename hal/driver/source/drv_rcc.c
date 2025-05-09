@@ -124,8 +124,15 @@ uint32_t drv_rcc_clock_get(rcc_clk_t rcc_clk)
     switch (rcc_clk) {
         case RCC_CLK_MAIN:
             if (OM_PMU->MISC_CTRL & PMU_MISC_CTRL_MAIN_CLK_SEL_MASK) {
-                return (OM_PMU->XTAL32M_CNS0 & PMU_XTAL32M_CNS0_SEL_CPUCLK_MASK) ? 64U*1000U*1000U : 32U*1000U*1000U;
+                // select sys clock
+                // sel_cpuclk[1:0] = 00: xtal32m, 01: clk64m, 10: syspll96m, 11: syspll48m
+                if (OM_DAIF->SYSPLL_CNS0 & DAIF_SYSPLL_SEL_CPUCLK_MASK) {
+                    return (OM_PMU->XTAL32M_CNS0 & PMU_XTAL32M_CNS0_SEL_CPUCLK_MASK) ? 48U*1000U*1000U : 96U*1000U*1000U;
+                } else {
+                    return (OM_PMU->XTAL32M_CNS0 & PMU_XTAL32M_CNS0_SEL_CPUCLK_MASK) ? 64U*1000U*1000U : 32U*1000U*1000U;
+                }
             } else {
+                // select rc32m
                 return 32U*1000U*1000U; // use rc32m
             }
             break;  /*lint !e527 */

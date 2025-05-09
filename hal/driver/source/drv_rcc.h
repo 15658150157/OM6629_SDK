@@ -102,27 +102,6 @@ typedef enum {
 
 
 /*******************************************************************************
- * INLINE FUNCTIONS
- */
-/**
- *******************************************************************************
- * @brief RC32K update
- *******************************************************************************
- */
-__STATIC_FORCEINLINE void drv_rcc_rc32k_upd_rdy(void)
-{
-    // clear status
-    do {
-        OM_CPM->REG_UPD = CPM_REG_UPD_STATUS_CLR_MASK;
-    } while(OM_CPM->REG_UPD);
-
-    // update
-    OM_CPM->REG_UPD = CPM_REG_UPD_RC32K_APB_MASK;
-    while(!(OM_CPM->REG_UPD & CPM_REG_UPD_RC32K_STATUS_MASK));
-}
-
-
-/*******************************************************************************
  * MACROS
  */
 /**
@@ -191,7 +170,11 @@ __STATIC_FORCEINLINE void drv_rcc_rc32k_upd_rdy(void)
                 break;                                                                                           \
             case RCC_CLK_RNG:                                                                                    \
                 register_set(&OM_CPM->RNG_CFG, MASK_1REG(CPM_RNG_CFG_GATE_EN, (enable) ? 0 : 1));                \
-                drv_rcc_rc32k_upd_rdy();                                                                         \
+                do {                                                                                             \
+                    OM_CPM->REG_UPD = CPM_REG_UPD_STATUS_CLR_MASK;                                               \
+                } while(OM_CPM->REG_UPD);                                                                        \
+                OM_CPM->REG_UPD = CPM_REG_UPD_RC32K_APB_MASK;                                                    \
+                while(!(OM_CPM->REG_UPD & CPM_REG_UPD_RC32K_STATUS_MASK));                                       \
                 break;                                                                                           \
             case RCC_CLK_TRNG:                                                                                   \
                 register_set(&OM_CPM->TRNG_CFG, MASK_1REG(CPM_TRNG_CFG_GATE_EN, (enable) ? 0 : 1));              \

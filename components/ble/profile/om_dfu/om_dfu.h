@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
+#include "om_log.h"
 #include "om_dfu_nvds.h"
 /*lint -restore */
 /*
@@ -34,7 +35,7 @@ extern void ebh_debug(char *fmt, ...);
 /*********************************************************************
  * MACROS
  */
-#define log_debug printf
+#define log_debug(fmt, ...) OM_LOG(OM_LOG_INFO, fmt, ##__VA_ARGS__)
 #define DFU_APP_DESCRIBE "Version1.0"
 #ifndef __ALIGNED
 #define __ALIGNED(n)

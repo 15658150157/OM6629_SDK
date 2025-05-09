@@ -250,13 +250,6 @@ extern void drv_pmu_xtal32m_startup(void);
 
 /**
  *******************************************************************************
- * @brief syspll 96M startup, NOTE: this function must be called after xtal32m_startup()
- *******************************************************************************
- */
-extern void drv_pmu_syspll96m_startup(void);
-
-/**
- *******************************************************************************
  * @brief pmu select 32k
  *
  * @param[in] clk32k  32k clock select

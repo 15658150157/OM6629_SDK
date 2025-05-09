@@ -39,7 +39,6 @@
 #include "RTE_driver.h"
 #if (RTE_AES)
 #include <stddef.h>
-#include "om_device.h"
 #include "om_driver.h"
 
 
@@ -1252,7 +1251,7 @@ om_error_t drv_aes_ecb_crypt_stop(uint32_t om_aes)
 
     OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == DRV_AES_MODE_ECB);
 
-    memset(&env->mode, 0x0, sizeof(aes_env_t) - OM_OFFSET(aes_env_t, mode));
+    memset(&env->mode, 0x0, sizeof(aes_env_t) - offsetof(aes_env_t, mode));
 
     env->state = DRV_STATE_STOP;
 
@@ -1396,7 +1395,7 @@ om_error_t drv_aes_cbc_crypt_stop(uint32_t om_aes)
 
     OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == DRV_AES_MODE_CBC);
 
-    memset(&env->mode, 0x0, sizeof(aes_env_t) - OM_OFFSET(aes_env_t, mode));
+    memset(&env->mode, 0x0, sizeof(aes_env_t) - offsetof(aes_env_t, mode));
 
     env->state = DRV_STATE_STOP;
 
@@ -1530,7 +1529,7 @@ om_error_t drv_aes_cfb_crypt_stop(uint32_t om_aes)
 
     OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == DRV_AES_MODE_CFB);
 
-    memset(&env->mode, 0x0, sizeof(aes_env_t) - OM_OFFSET(aes_env_t, mode));
+    memset(&env->mode, 0x0, sizeof(aes_env_t) - offsetof(aes_env_t, mode));
 
     env->state = DRV_STATE_STOP;
 
@@ -1646,7 +1645,7 @@ om_error_t drv_aes_ofb_crypt_stop(uint32_t om_aes)
 
     OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == DRV_AES_MODE_OFB);
 
-    memset(&env->mode, 0x0, sizeof(aes_env_t) - OM_OFFSET(aes_env_t, mode));
+    memset(&env->mode, 0x0, sizeof(aes_env_t) - offsetof(aes_env_t, mode));
 
     env->state = DRV_STATE_STOP;
 
@@ -1774,7 +1773,7 @@ om_error_t drv_aes_ctr_crypt_stop(uint32_t om_aes)
 
     OM_ASSERT(env->state == DRV_STATE_CONTINUE && env->mode == DRV_AES_MODE_CTR);
 
-    memset(&env->mode, 0x0, sizeof(aes_env_t) - OM_OFFSET(aes_env_t, mode));
+    memset(&env->mode, 0x0, sizeof(aes_env_t) - offsetof(aes_env_t, mode));
 
     env->state = DRV_STATE_STOP;
 
@@ -2029,7 +2028,7 @@ om_error_t drv_aes_gcm_crypt_stop(uint32_t om_aes, uint8_t *tag, uint8_t tag_len
         for(i = 0; i < tag_len; i++) tag[i] ^= env->mode_ctx.gcm_ctx.buf[i];
     }
 
-    memset(&env->mode, 0x0, sizeof(aes_env_t) - OM_OFFSET(aes_env_t, mode));
+    memset(&env->mode, 0x0, sizeof(aes_env_t) - offsetof(aes_env_t, mode));
     env->state = DRV_STATE_STOP;
 
     return OM_ERROR_OK;

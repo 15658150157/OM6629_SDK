@@ -123,11 +123,10 @@ static void ble_init(void)
 static void oele_init(void)
 {
     // example: Event timer
-    evt_timer_set(&example_evt_timer, 2000, EVT_TIMER_REPEAT, example_evt_timer_handler, NULL);
+    // evt_timer_set(&example_evt_timer, 2000, EVT_TIMER_REPEAT, example_evt_timer_handler, NULL);
 
     // example: sleep
-    pm_init();
-    pm_sleep_enable(false);
+    pm_sleep_enable(true);
     pm_sleep_notify_user_callback_register(example_pm_sleep_notify_handler);
 
     // example: pin wakeup
@@ -195,13 +194,16 @@ int main(void)
 
     // Init evt and evt timer
     evt_init();
-    evt_timer_init();
+    // evt_timer_init();
 
     // pmu pof enable
     #if (RTE_PMU_POF_REGISTER_CALLBACK)
     drv_pmu_pof_register_callback(pmu_pof_isr_callback);
     #endif
     drv_pmu_pof_enable(true, PMU_POF_VOLTAGE_2P5V, PMU_POF_INT_NEG_EDGE);
+
+    // Init Power management
+    pm_init();
 
     // Init BLE
     ble_init();

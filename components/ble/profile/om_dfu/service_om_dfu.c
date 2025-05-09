@@ -135,7 +135,7 @@ void service_om_dfu_evt_cb(uint16_t evt_id, const omble_evt_t *evt)
     } else if (evt_id == OB_GAP_EVT_DISCONNECTED) {
         dfu_reset(DFU_UPDATE_ST_DISCONNECT);
         if (m_end_state == DFU_UPDATE_ST_SUCCESS) {
-            // drv_pmu_force_reboot(); // TODO
+            drv_pmu_reset(PMU_REBOOT_FROM_SOFT_RESET);
         }
     } else if (evt_id == OB_GATT_EVT_TX_COMPLETE) {
         if (m_end_state != NOT_END) {

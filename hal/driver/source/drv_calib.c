@@ -73,7 +73,7 @@ static void drv_calib_patch(bool is_calib_start)
         REGW(&OM_DAIF->PLL_CTRL0, MASK_3REG(DAIF_BP_DIOX, 0,
                                             DAIF_SEL_KVCO, 3,
                                             DAIF_CTRL_LDO_BUF, 7));//(Auto Restore)
-        REGW(&OM_DAIF->PLL_CTRL1, MASK_1REG(DAIF_CON_BIAS_IDAC_PLL, 32));//(Auto Restore)
+        REGW(&OM_DAIF->PLL_CTRL1, MASK_1REG(DAIF_CON_BIAS_IDAC_PLL, 48));//(Auto Restore)
         //提高RF电源电压增益，提高灵敏度，固定IFLDO和RXADC电压
         REGW(&OM_PMU->OM26B_CFG0, MASK_2REG(PMU_OM26B_CFG0_RF_LDO_TRIM, 3, PMU_OM26B_CFG0_RXADC_LDO_TRIM, 1));
         REGW(&OM_PMU->ANA_REG, MASK_1REG(PMU_ANA_REG_IF_LDO_TRIM, 2));
@@ -166,7 +166,7 @@ static void drv_calib_rf_afc(void)
     #else
     // do kdco
     uint32_t win_cnt;
-    win_cnt = 0xD600;
+    win_cnt = 0xD700;
     #if (RTE_CALIB_USE_FT_DF1_DATA)
     int32_t df1_delta_percent = 0;
     // Calculate the delta percentage for 1M, take the floor of the value
@@ -183,7 +183,7 @@ static void drv_calib_rf_afc(void)
     //wait kdco done
     while (OM_DAIF->VCO_CTRL0 & DAIF_KDCO_START_MASK);
 
-    win_cnt = 0xCC00;
+    win_cnt = 0xCB00;
     #if (RTE_CALIB_USE_FT_DF1_DATA)
     // Calculate the delta percentage for 2M, take the floor of the value
     // to make sure the repaired value is lower than the original

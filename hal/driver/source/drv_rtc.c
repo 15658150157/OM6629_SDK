@@ -163,15 +163,15 @@ static uint32_t rtc_mktime(const rtc_tm_t *tm)
     do {
         int32_t month = tm->tm_mon;
         month -= 1U;
-         while(month >= 0) {
+        while(month >= 0) {
             days += days_in_month_get(is_leap_year(tm->tm_year), month);
             month -= 1U;
         }
     } while(0);
     do {
-        int32_t year = tm->tm_year - 70U;   // 1970U
+        int32_t year = tm->tm_year;
         year-=1U;
-        while (year >= 0) {
+        while (year >= 70U) {
             days += DAYS_IN_YEAR(year);
             year -= 1U;
         }

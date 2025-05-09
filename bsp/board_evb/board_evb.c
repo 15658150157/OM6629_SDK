@@ -44,8 +44,8 @@ static const pin_config_t pin_config[] = {
     #endif
 
     #if (RTE_UART1)
-    {PAD_UART1_TXD, {PINMUX_PAD4_UART1_TRX_CFG}, PMU_PIN_MODE_PP, PMU_PIN_DRIVER_CURRENT_NORMAL},
-    {PAD_UART1_RXD, {PINMUX_PAD3_UART1_RX_CFG},  PMU_PIN_MODE_PU, PMU_PIN_DRIVER_CURRENT_NORMAL},
+    {PAD_UART1_TXD, {PINMUX_PAD5_UART1_TRX_CFG}, PMU_PIN_MODE_PP, PMU_PIN_DRIVER_CURRENT_NORMAL},
+    {PAD_UART1_RXD, {PINMUX_PAD6_UART1_RX_CFG},  PMU_PIN_MODE_PU, PMU_PIN_DRIVER_CURRENT_NORMAL},
     #endif
 
     #if (defined(PAD_RF_TXEN) && defined(PAD_RF_RXEN))
@@ -86,11 +86,17 @@ static const gpio_config_t gpio_config[] = {
  */
 void board_init(void)
 {
-    // Use DCDC (Default is LDO mode)
-    drv_pmu_dcdc_enable(false);
+    // Use DCDC
+    drv_pmu_dcdc_enable(true);
 
+    /* Change xtal 32m params & startup */
+    // drv_pmu_xtal32m_change_param(37);
     drv_pmu_xtal32m_startup();
+
+    /* Change xtal 32k params & select 32K source */
+    // drv_pmu_xtal32k_change_param(load_capacitance, drive_current);
     drv_pmu_select_32k(PMU_32K_SEL_RC);
+
     drv_pin_init(pin_config, sizeof(pin_config) / sizeof(pin_config[0]));
     drv_gpio_init(gpio_config, sizeof(gpio_config) / sizeof(gpio_config[0]));
 }
