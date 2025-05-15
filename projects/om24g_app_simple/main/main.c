@@ -24,13 +24,11 @@
  * INCLUDES
  */
 #include "cmsis_os2.h"
-#include "bsp.h"
-#include "om_driver.h"
+
 
 /*******************************************************************************
  * Extern FUNCTIONS
  */
-extern void vStartOm24gTask(void);
 extern void system_init(void);
 
 /*******************************************************************************
@@ -38,15 +36,10 @@ extern void system_init(void);
  */
 int main(void)
 {
-    board_init();
-    system_init();
-    drv_rf_init();
-
     // Initialize CMSIS-RTOS
     osKernelInitialize();
 
-    // Start Om24g Task
-    vStartOm24gTask();
+    system_init();
 
     // Start thread execution
     if (osKernelGetState() == osKernelReady) {

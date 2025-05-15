@@ -205,14 +205,6 @@ static void vEvtScheduleTask(void *argument)
 
     hardware_init();
     drv_rf_init();
-    nvds_init(0);
-    #if (CONFIG_SHELL)
-    const shell_cmd_t ble_hci_shell_cmd[] = {
-        { "pta",     cmd_shell_pta,     "pta <priority_threshold>" },
-        { NULL,      NULL,              NULL},     /* donot deleted */
-    };
-    shell_init(ble_hci_shell_cmd);
-    #endif
     evt_init();
     ble_controller_init();
 

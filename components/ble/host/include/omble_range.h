@@ -21,11 +21,11 @@
 #include <stdint.h>
 
 
-/// 各模块事件的起始值
+///  event base value of each modules
 enum OB_EVENTS_BASE {
-    /// GAP 事件起始值
+    /// GAP Event base value
     OB_GAP_EVTS_BASE = 0x0100,
-    /// GATT 事件起始值
+    /// GATT Event base value
     OB_GATT_EVTS_BASE = 0x0200,
 };
 

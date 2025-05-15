@@ -76,19 +76,6 @@ static void msh_app_init(void)
 
 static void mesh_thread(void *arguments)
 {
-    // NVDS initialization
-    nvds_init(0);
-
-    // LOG initialization
-#if CONFIG_OM_LOG
-    om_log_init();
-#endif
-
-#if CONFIG_SHELL
-    extern const shell_cmd_t mesh_shell_cmd[];
-    shell_init(&mesh_shell_cmd[0]);
-#endif
-
     // Evt and evt timer initialization
     evt_init();
     evt_timer_init();

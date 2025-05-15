@@ -198,7 +198,7 @@ static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void
             OM_LOG(OM_LOG_DEBUG, "tx_cnt: %d\r\n", tx_count);
             if(tx_count == 100) {
                 tx_count = 0;
-                drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_DISABLE, NULL);
+                drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_ENABLE, (void *)0);
                 drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
             }
             break;

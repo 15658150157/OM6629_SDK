@@ -123,10 +123,10 @@ static void evt_timer_hw_prog(evt_timer_t *timer)
             if (evt_timer_compare_equal_lesser(time, cur_time))
                 time = cur_time + EVT_TIMER_RESOLUTION;
             drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_SET_TIMER_VAL, (void *)(time));
-            drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_ENABLE, NULL);
+            drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_ENABLE, (void*)1);
         }
     } else {
-        drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_DISABLE, NULL);
+        drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_ENABLE, 0);
     }
 }
 

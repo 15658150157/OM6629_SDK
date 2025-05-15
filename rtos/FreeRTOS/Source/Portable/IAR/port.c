@@ -154,7 +154,9 @@ static UBaseType_t uxCriticalNesting = 0xaaaaaaaa;
  * The number of SysTick increments that make up one tick period.
  */
 #if ( configUSE_TICKLESS_IDLE == 1 )
+    #if configUSE_SYSTICK
     static uint32_t ulTimerCountsForOneTick = 0;
+    #endif
 #endif /* configUSE_TICKLESS_IDLE */
 
 /*
@@ -162,7 +164,9 @@ static UBaseType_t uxCriticalNesting = 0xaaaaaaaa;
  * 24 bit resolution of the SysTick timer.
  */
 #if ( configUSE_TICKLESS_IDLE == 1 )
+    #if configUSE_SYSTICK
     static uint32_t xMaximumPossibleSuppressedTicks = 0;
+    #endif
 #endif /* configUSE_TICKLESS_IDLE */
 
 /*
@@ -170,7 +174,9 @@ static UBaseType_t uxCriticalNesting = 0xaaaaaaaa;
  * power functionality only.
  */
 #if ( configUSE_TICKLESS_IDLE == 1 )
+    #if configUSE_SYSTICK
     static uint32_t ulStoppedTimerCompensation = 0;
+    #endif
 #endif /* configUSE_TICKLESS_IDLE */
 
 /*
@@ -423,6 +429,8 @@ static uint32_t vSleepTimerGetReloadVal(void)
 #define vSleepTimerGetReloadVal()   ((uint32_t)drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_TIMER_VAL, NULL))
 #endif
 
+#define vSleepTimerEnable(en)       drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_ENABLE, (void *)en)
+
 #if 0
 static uint32_t vSleepTimerGetTick(void)
 {
@@ -645,18 +653,19 @@ __RAM_CODES("PM")
 #else
         uint32_t ulCompletedTime, ulCompletedTick, ulCurrentTick;
         uint32_t ulSleepTimerReloadTick1, ulSleepTimerReloadTick2;
+        eSleepModeStatus eSleepMode;
 
         __disable_irq();
 
         /* If a context switch is pending or a task is waiting for the scheduler
          * to be unsuspended then abandon the low power entry. */
-        switch (eTaskConfirmSleepModeStatus())
+        eSleepMode = eTaskConfirmSleepModeStatus();
+        switch (eSleepMode)
         {
             case eAbortSleep:
                 break;
 
             case eStandardSleep:
-            case eNoTasksWaitingTimeout:
                 /* Make sure the Tick reload value does not overflow the counter. */
                 if(xExpectedIdleTime > configTICK_TIMER_DELAY_MAX/configTICK_PERIOD)
                     xExpectedIdleTime = configTICK_TIMER_DELAY_MAX/configTICK_PERIOD;
@@ -667,6 +676,11 @@ __RAM_CODES("PM")
                 ulSleepTimerReloadTick1 = vSleepTimerGetReloadVal();
                 vSleepTimerSetTick(ulSleepTimerTick + xExpectedIdleTime * configTICK_PERIOD);
 
+            case eNoTasksWaitingTimeout:
+                if (eSleepMode == eNoTasksWaitingTimeout) {
+                    ulSleepTimerReloadTick1 = vSleepTimerGetReloadVal();
+                    vSleepTimerEnable(0);
+                }
                 // sleep
                 #if (CONFIG_PM)
                 pm_power_manage();
@@ -711,6 +725,7 @@ __RAM_CODES("PM")
  */
 __weak void vPortSetupTimerInterrupt( void )
 {
+#if configUSE_SYSTICK
     /* Calculate the constants required to configure the tick interrupt. */
     #if ( configUSE_TICKLESS_IDLE == 1 )
         {
@@ -720,7 +735,6 @@ __weak void vPortSetupTimerInterrupt( void )
         }
     #endif /* configUSE_TICKLESS_IDLE */
 
-#if configUSE_SYSTICK
     /* Stop and clear the SysTick. */
     portNVIC_SYSTICK_CTRL_REG = 0UL;
     portNVIC_SYSTICK_CURRENT_VALUE_REG = 0UL;

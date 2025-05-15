@@ -24,8 +24,10 @@
  * INCLUDES
  */
 #include "autoconf.h"
+#include "bsp.h"
 #include "om_log.h"
 #include "om_driver.h"
+#include "nvds.h"
 #if (CONFIG_PM)
 #include "pm.h"
 #endif
@@ -35,6 +37,12 @@
 #if (CONFIG_FAULT_HANDLE)
 #include "fault_handle.h"
 #endif
+
+
+/*******************************************************************************
+ * Extern FUNCTIONS
+ */
+extern void vStartEvtTask(void);
 
 
 /*******************************************************************************
@@ -78,9 +86,15 @@ void system_init(void)
         .write_cmd = FLASH_PAGE_PROGRAM,
         .spi_mode = FLASH_SPI_MODE_0,
     };
+
+    board_init();
     drv_wdt_init(0);
     drv_flash_init(OM_FLASH0, &config);
-
+    #if (CONFIG_SHELL)
+    shell_init(NULL);
+    #endif
+    OM_LOG_INIT();
+    nvds_init(0);
     // pmu pof enable
     #if (RTE_PMU_POF_REGISTER_CALLBACK)
     drv_pmu_pof_register_callback(pmu_pof_isr_callback);
@@ -92,6 +106,8 @@ void system_init(void)
     pm_sleep_enable(true);
     pm_sleep_notify_user_callback_register(pm_sleep_callback);
     #endif
+
+    vStartEvtTask();
 }
 
 /** @} */

@@ -36,15 +36,12 @@ static void pmu_pof_isr_callback(void *om_pmu, drv_event_t event, void *buff, vo
 }
 #endif
 
-
-/*******************************************************************************
- * PUBLIC FUNCTIONS
- */
-int main(void)
+static void system_init(void)
 {
     // Disable WDT
     drv_wdt_init(0);
-
+    // Init board
+    board_init();
     // Init internal flash
     flash_config_t config = {
         .clk_div    = 0,
@@ -55,8 +52,12 @@ int main(void)
     };
     drv_flash_init(OM_FLASH0, &config);
 
-    // Init board
-    board_init();
+    #if CONFIG_SHELL
+    extern const shell_cmd_t mesh_shell_cmd[];
+    shell_init(&mesh_shell_cmd[0]);
+    #endif
+
+    OM_LOG_INIT();
 
     // PMU pof enable
     #if (RTE_PMU_POF_REGISTER_CALLBACK)
@@ -64,11 +65,22 @@ int main(void)
     #endif
     drv_pmu_pof_enable(true, PMU_POF_VOLTAGE_2P5V, PMU_POF_INT_NEG_EDGE);
 
-    // Initialize CMSIS-RTOS
-    osKernelInitialize();
+    nvds_init(0);
 
     // Start BLE Mesh Task
     vStartBleMeshTask();
+}
+
+
+/*******************************************************************************
+ * PUBLIC FUNCTIONS
+ */
+int main(void)
+{
+    // Initialize CMSIS-RTOS
+    osKernelInitialize();
+
+    system_init();
 
     // Start thread execution
     if (osKernelGetState() == osKernelReady) {

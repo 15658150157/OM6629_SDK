@@ -1181,6 +1181,9 @@
     <file>
       <name>$PROJ_DIR$/../../../components/om_log/om_log.c</name>
     </file>
+    <file>
+      <name>$PROJ_DIR$/../../../components/om_log/om_log_port.c</name>
+    </file>
   </group>
   <group>
     <name>pm</name>

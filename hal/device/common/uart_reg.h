@@ -211,7 +211,7 @@ typedef struct {
 #define UART_USR_TFE                                (1U << 2)       /* Transmit FIFO empty */
 #define UART_USR_RFNE                               (1U << 3)       /* Receive FIFO not empty */
 #define UART_USR_RFF                                (1U << 4)       /* Receive FIFO full */
-#define UART_USR_LIN_BREAK                          (1U << 5)       /* LIN break status, only valid in LIN mode */
+#define UART_USR_LIN_BREAK                          (1U << 6)       /* LIN break status, only valid in LIN mode */
 
 
 #ifdef __cplusplus

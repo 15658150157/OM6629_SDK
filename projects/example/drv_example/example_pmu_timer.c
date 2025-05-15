@@ -76,8 +76,8 @@ void example_pmu_timer(void)
 
     drv_pmu_timer_register_isr_callback(PMU_TIMER_TRIG_VAL0, pmu_timer_val0_test_callback);
     drv_pmu_timer_register_isr_callback(PMU_TIMER_TRIG_VAL1, pmu_timer_val1_test_callback);
-    drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_ENABLE, NULL);
-    drv_pmu_timer_control(PMU_TIMER_TRIG_VAL1, PMU_TIMER_CONTROL_ENABLE, NULL);
+    drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_ENABLE, (void*)1);
+    drv_pmu_timer_control(PMU_TIMER_TRIG_VAL1, PMU_TIMER_CONTROL_ENABLE, (void*)1);
     drv_pmu_timer_init();
 
     cnt_val = drv_pmu_timer_cnt_get();
@@ -101,8 +101,8 @@ void example_pmu_timer(void)
     cnt_val = drv_pmu_timer_cnt_get();
     om_printf("cnt_val3:%ld\r\n", cnt_val);
 
-    drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_DISABLE, NULL);
-    drv_pmu_timer_control(PMU_TIMER_TRIG_VAL1, PMU_TIMER_CONTROL_DISABLE, NULL);
+    drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_ENABLE, (void*)0);
+    drv_pmu_timer_control(PMU_TIMER_TRIG_VAL1, PMU_TIMER_CONTROL_ENABLE, (void*)0);
 }
 
 

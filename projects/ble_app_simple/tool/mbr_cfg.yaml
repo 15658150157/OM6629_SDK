@@ -1,0 +1,18 @@
+output_path: './mbr.bin'
+
+private_key: 0x0134893E
+
+# iflash config中任意一个为None,则代表不对flash进行配置
+iflash_config:
+  clk_div: 0x2
+  delay: 0       # when flash clock is high, just auto delay
+  read_cmd: 'FLASH_FAST_READ_QIO'
+  write_cmd: 'FLASH_PAGE_PROGRAM'
+  spi_mode: 'SPI_MODE_0'
+  encrypt_en: 0       # NOT USED
+
+manifest_config:
+  img_ver: 0x00000001
+  img_vma: 0x00404000
+  img_lma: 0x00460000
+  img_path: './ble_app_simple.bin'

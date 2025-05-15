@@ -159,10 +159,16 @@ static void dfu_end_ind_handler(uint8_t status, void *p)
     m_end_state = status;
 }
 
+uint8_t dfu_user_check_handler(uint8_t img_type, uint32_t img_size, uint32_t img_version)
+{
+    return app_om_dfu_user_check_ind_handler(img_type, img_size, img_version);
+}
+
 const dfu_cb_itf_t dfu_cb_itf = {
     dfu_begin_ind_handler,
     dfu_prog_ind_handler,
     dfu_end_ind_handler,
+    dfu_user_check_handler,
 };
 
 
@@ -178,6 +184,17 @@ __WEAK void app_om_dfu_update_prog_ind_handler(uint8_t status, void *p) {}
 __WEAK void app_om_dfu_update_end_ind_handler(uint8_t status, void *p)
 {
     ob_gap_disconnect(0, 0x13);
+}
+
+__WEAK uint8_t app_om_dfu_user_check_ind_handler(uint8_t img_type, uint32_t img_size, uint32_t img_version)
+{
+    if (img_type == IMAGE_TYPE_MBR_USR1) {
+        om_error_t upgrade_check(uint32_t upgrade_img_ver);
+        if (OM_ERROR_OK != upgrade_check(img_version)) {
+            return DFU_VERSION_NOT_MATCH;
+        }
+    }
+    return DFU_SUCCESS;
 }
 
 void app_om_dfu_init(void)

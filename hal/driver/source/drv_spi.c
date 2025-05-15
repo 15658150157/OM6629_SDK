@@ -626,7 +626,7 @@ om_error_t drv_spi_transfer_int(OM_SPI_Type *om_spi, const uint8_t *tx_data, uin
     if (wire == SPI_WIRE_4) {
         if (env->tx_num == 0) {
             env->tx_num = env->rx_num;
-            OM_ASSERT(tx_num);
+            OM_ASSERT(env->tx_num);
         }
         if (env->rx_num == 0) {
             env->rx_num = env->tx_num;

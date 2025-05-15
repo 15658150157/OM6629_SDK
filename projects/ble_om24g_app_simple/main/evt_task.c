@@ -43,6 +43,7 @@
 #define EVENT_BLUETOOTH_MASK        0x0001
 #define EVENT_SYSTEM_RESERVE_MASK   0x00FF
 
+
 /*********************************************************************
  * TYPEDEFS
  */
@@ -115,10 +116,6 @@ static void vEvtScheduleTask(void *argument)
 
     hardware_init();
     drv_rf_init();
-    nvds_init(0);
-    #if (CONFIG_SHELL)
-    shell_init(NULL);
-    #endif
     evt_init();
     app_24g_init();
     struct ob_stack_param param = {

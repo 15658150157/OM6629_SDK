@@ -8,7 +8,7 @@
 
 /**
  * @addtogroup OMBLE_ERROR
- * @brief 错误代码
+ * @brief Error Code
  * @version
  * Version 1.0
  *  - Initial release
@@ -21,12 +21,12 @@
 
 /// 错误定义
 typedef enum ob_error {
-    OB_ERROR_NO_ERR                  = 0x00, ///< 执行成功
-    OB_ERROR_NO_CONNECTION,                  ///< 无连接错误
-    OB_ERROR_INVALID_STATE,                  ///< 状态错误
-    OB_ERROR_INSUFFICIENT_RESOURCES,         ///< 无可用资源错误
-    OB_ERROR_NOT_SUPPORT,                    ///< 操作或请求不支持
-    OB_ERROR_INVALID_PARAM,                  ///< 参数错误
+    OB_ERROR_NO_ERR                  = 0x00, ///< Execution Success
+    OB_ERROR_NO_CONNECTION,                  ///< No connection errors
+    OB_ERROR_INVALID_STATE,                  ///< Status Error
+    OB_ERROR_INSUFFICIENT_RESOURCES,         ///< Insufficient resources error
+    OB_ERROR_NOT_SUPPORT,                    ///< The operation or request is not supported
+    OB_ERROR_INVALID_PARAM,                  ///< Parameter error
 } ob_error_t;
 
 /// GATT 错误定义

@@ -21,7 +21,6 @@
 #include "evt.h"
 #include "pm.h"
 #include "bsp.h"
-#include "nvds.h"
 #include "omble.h"
 #include "om_log.h"
 
@@ -107,11 +106,6 @@ static void vEvtScheduleTask(void *argument)
     uint32_t uxBits;
     hardware_init();
     drv_rf_init();
-    nvds_init(0);
-    OM_LOG_INIT();
-    #if (CONFIG_SHELL)
-    shell_init(NULL);
-    #endif
     evt_init();
 
     struct ob_stack_param param = {

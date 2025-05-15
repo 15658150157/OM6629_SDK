@@ -1,6 +1,25 @@
 SDK Release Notes:
 
 --------------------------------------------------------------------------------
+20250514
+
+Version:
+    0.5.1899
+
+Changes:
+    1. 修改PMU_TIMER control接口（删去PMU_TIMER_CONTROL_DISABLE）
+    2. FreeRTOS系统增加DEEP_SLEEP睡眠状态的支持
+    3. 修复IAR工程编译的warning问题
+    4. 修复灵敏度低2dBm的问题
+    5. 增加OTA升级固件的功能
+    6. 修复spi驱动4线模式下发送长度不能为0的问题
+    7. 增加evt_timer_init在ble_app_simple_nonrtos工程里
+    8. 修复不同版本SEGGER兼容性问题
+
+Existing Bugs:
+    1. 无
+
+--------------------------------------------------------------------------------
 20250509
 
 Version:

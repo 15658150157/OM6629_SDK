@@ -601,6 +601,11 @@
               <FileType>1</FileType>
               <FilePath>../../../components/ble/profile/om_wechat_lite/app_wechat_lite.c</FilePath>
             </File>
+            <File>
+              <FileName>om_dfu_ver_check.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\ble\profile\om_dfu\om_dfu_ver_check.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

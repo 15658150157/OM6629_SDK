@@ -10,6 +10,7 @@ BLE_PROFILE_SRCS = $(BLE_PROFILE_DIR)/om_ancs/ancs_client.c                    \
                    $(BLE_PROFILE_DIR)/om_cgms/service_om_cgms.c                \
                    $(BLE_PROFILE_DIR)/om_dfu/om_dfu_nvds.c                     \
                    $(BLE_PROFILE_DIR)/om_dfu/om_dfu.c                          \
+                   $(BLE_PROFILE_DIR)/om_dfu/om_dfu_ver_check.c                \
                    $(BLE_PROFILE_DIR)/om_dfu/service_om_dfu.c                  \
                    $(BLE_PROFILE_DIR)/om_gap_dis_batt/service_common.c         \
                    $(BLE_PROFILE_DIR)/om_hid_media/app_hid_media.c             \

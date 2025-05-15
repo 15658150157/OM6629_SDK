@@ -313,7 +313,7 @@
 //   <o.0..1> RTE_RADIO_MODE
 //     <i> Set the RADIO mode configuration.
 //     <0=>Default Mode   <1=>High Performance Mode   <2=>Low Power Mode
-#define RTE_RADIO_MODE                                  0
+#define RTE_RADIO_MODE                                  1
 // </e>
 
 // <e> RTE_USB

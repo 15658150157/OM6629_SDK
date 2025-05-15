@@ -24,29 +24,24 @@
  * INCLUDES
  */
 #include "cmsis_os2.h"
-#include "bsp.h"
-#include "om_driver.h"
+
 
 /*******************************************************************************
  * Extern FUNCTIONS
  */
-
 void vStartEvtTask(void);
 extern void system_init(void);
+
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS
  */
 int main(void)
 {
-    board_init();
-    system_init();
-
     // Initialize CMSIS-RTOS
     osKernelInitialize();
 
-    // Start Evt Task
-    vStartEvtTask();
+    system_init();
 
     // Start thread execution
     if (osKernelGetState() == osKernelReady) {

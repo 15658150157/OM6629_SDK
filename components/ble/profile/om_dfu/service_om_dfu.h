@@ -56,6 +56,16 @@ extern void app_om_dfu_update_prog_ind_handler(uint8_t status, void *p);
  *******************************************************************************
  */
 extern void app_om_dfu_update_end_ind_handler(uint8_t status, void *p);
+/**
+ *******************************************************************************
+ * @brief callback for Image information verification 
+ * @param[in] img_type       Type of image
+ * @param[in] img_size       Size of image
+ * @param[in] img_version    Version of image
+ * @return error code, DFU_SUCCESS for success
+ *******************************************************************************
+ */
+extern uint8_t app_om_dfu_user_check_ind_handler(uint8_t img_type, uint32_t img_size, uint32_t img_version);
 
 #endif /* __SERVICE_OM_DFU_H__ */
 

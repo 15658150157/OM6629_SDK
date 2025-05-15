@@ -8,6 +8,7 @@ BLE_PROFILE_SRCS = [
     'om_cgms/service_om_cgms.c',
     'om_dfu/om_dfu.c',
     'om_dfu/om_dfu_nvds.c',
+    'om_dfu/om_dfu_ver_check.c',
     'om_dfu/service_om_dfu.c',
     'om_gap_dis_batt/service_common.c',
     'om_hid_media/app_hid_media.c',

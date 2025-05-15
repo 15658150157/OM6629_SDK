@@ -34,12 +34,6 @@
 #include "om_log.h"
 
 
-/*********************************************************************
- * LOCAL VARIABLES
- */
-static evt_timer_t example_evt_timer;
-
-
 /*******************************************************************************
  * EXTERN FUNCTIONS
  */
@@ -58,11 +52,6 @@ void app_om_bms_init(void);
 /*******************************************************************************
  * EXAMPLE MODULE CALLBACK FUNCTIONS
  */
-static void example_evt_timer_handler(evt_timer_t *timer, void *param)
-{
-    OM_LOG(OM_LOG_INFO, "evt timer: %d\n", PMU_TIMER_TICK2MS(drv_pmu_timer_cnt_get()));
-}
-
 static void example_pin_wakeup_isr_handler(void *om_reg, drv_event_t event, void *int_status, void *data)
 {
     OM_LOG(OM_LOG_INFO, "pin wakeup: 0x%08X\n", (uint32_t)int_status);
@@ -194,7 +183,7 @@ int main(void)
 
     // Init evt and evt timer
     evt_init();
-    // evt_timer_init();
+    evt_timer_init();
 
     // pmu pof enable
     #if (RTE_PMU_POF_REGISTER_CALLBACK)

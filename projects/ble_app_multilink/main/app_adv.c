@@ -33,7 +33,7 @@
 static uint8_t sdata[] = {
     0x02, 0x01, 0x06,
     0x09, 0x09,
-    'O', 'm', '6', '6', '2', '7', '_', '0',
+    'O', 'm', '6', '6', '4', '7', '_', '0',
 };
 static const int adv_idx_off = 12;
 static uint8_t local_addr[] = { 0x00, 0x26, 0x66, 0xBF, 0x01, 0xCC };

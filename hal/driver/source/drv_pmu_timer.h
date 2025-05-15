@@ -69,8 +69,7 @@ typedef enum {
 
 /// PMU Timer Control
 typedef enum {
-    PMU_TIMER_CONTROL_ENABLE,                     /*!< Not used */
-    PMU_TIMER_CONTROL_DISABLE,                    /*!< Not used */
+    PMU_TIMER_CONTROL_ENABLE,                     /*!< Enable PMU timer, argu is 0: indicate disable; others indicate enable */
     PMU_TIMER_CONTROL_GET_TIMER_VAL,              /*!< Get PMU timer val */
     PMU_TIMER_CONTROL_SET_TIMER_VAL,              /*!< Set PMU timer val */
     PMU_TIMER_CONTROL_GET_OVERFLOW,               /*!< Get PMU timer interrupt flag, argu is NULL, return overflow */
@@ -241,17 +240,17 @@ __STATIC_FORCEINLINE void *drv_pmu_timer_control(pmu_timer_trig_t trig_type, pmu
     OM_PMU_Type *pmu_timer = OM_PMU;
 
     switch (control) {
-        case PMU_TIMER_CONTROL_DISABLE:
-            OM_CRITICAL_BEGIN();
-            if (trig_type == PMU_TIMER_TRIG_VAL0) {
-                pmu_timer->TIMER_CTRL &= ~PMU_TIMER_CTRL_PMU_TIMER_INT_VAL0_EN_MASK;
-            } else if (trig_type == PMU_TIMER_TRIG_VAL1) {
-                pmu_timer->TIMER_CTRL &= ~PMU_TIMER_CTRL_PMU_TIMER_INT_VAL1_EN_MASK;
-            }
-            #if (PMU_TIMER_DEBUG)
-            pmu_timer_env.record[trig_type].is_enabled = false;
-            #endif
-            OM_CRITICAL_END();
+        case PMU_TIMER_CONTROL_ENABLE:
+            do {
+                uint32_t int_mask;
+                int_mask = (trig_type == PMU_TIMER_TRIG_VAL0) ? PMU_TIMER_CTRL_PMU_TIMER_INT_VAL0_EN_MASK : PMU_TIMER_CTRL_PMU_TIMER_INT_VAL1_EN_MASK;
+                OM_CRITICAL_BEGIN();
+                register_set(&(pmu_timer->TIMER_CTRL), int_mask, ((uint32_t)argu) ? int_mask : 0);
+                #if (PMU_TIMER_DEBUG)
+                pmu_timer_env.record[trig_type].is_enabled = (uint32_t)argu ? true : false;
+                #endif
+                OM_CRITICAL_END();
+            } while(0);
             break;
         case PMU_TIMER_CONTROL_GET_TIMER_VAL:
             if (trig_type == PMU_TIMER_TRIG_VAL0) {

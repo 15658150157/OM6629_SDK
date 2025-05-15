@@ -29,9 +29,8 @@
 #include "shell.h"
 #include "evt.h"
 #include "pm.h"
-#include "bsp.h"
-#include "nvds.h"
 #include "om_log.h"
+
 
 /*******************************************************************************
  * MACROS
@@ -730,7 +729,7 @@ static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void
             pm_sleep_allow(PM_ID_24G);
             if(tx_count == 100) {
                 tx_count = 0;
-                drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_DISABLE, NULL);
+                drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_ENABLE, (void *)0);
                 drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
             }
             break;
@@ -1722,14 +1721,7 @@ static void vEvtEventHandler(void)
 
 static void om24g_thread(void *arguments)
 {
-    nvds_init(0);
-
-    #if CONFIG_OM_LOG
-    om_log_init();
-    #endif
-    #if (CONFIG_SHELL)
-    shell_init(NULL);
-    #endif
+    drv_rf_init();
     drv_pmu_timer_init();
     OM_LOG(OM_LOG_DEBUG, "start run om24g \r\n");
     pm_sleep_prevent(PM_ID_24G);
@@ -1766,9 +1758,6 @@ static void om24g_thread(void *arguments)
     }
 }
 
-/*******************************************************************************
- * Extern FUNCTIONS
- */
 
 /**
  * @brief  Start ble mesh task
@@ -1784,4 +1773,3 @@ void vStartOm24gTask(void)
     // Create om24g Task
     osThreadNew(om24g_thread, NULL, &Om24gThreadAttr);
 }
-

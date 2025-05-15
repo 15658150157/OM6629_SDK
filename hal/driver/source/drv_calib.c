@@ -599,8 +599,6 @@ void drv_calib_rf_restore(void)
     REGW(&OM_DAIF->MIX_CFG0, MASK_1REG(DAIF_TIA_IBCT, drv_calib_env.tia_ibct));
     // 睡眠唤醒后需要和drv_radio.c里面的drv_rf_tx_power_set设置功率处一样
     REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, drv_calib_env.trs_antcap_ct));
-    // improve scan performance
-    REGW(&OM_DAIF->MAIN_ST_CFG1, MASK_1REG(DAIF_RXLDO_WAIT, 0x0280));
 
     #if 0
     //抗干扰策略1

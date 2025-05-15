@@ -26,6 +26,8 @@
 #include "autoconf.h"
 #include "om_log.h"
 #include "om_driver.h"
+#include "bsp.h"
+#include "nvds.h"
 #if (CONFIG_PM)
 #include "pm.h"
 #endif
@@ -35,6 +37,13 @@
 #if (CONFIG_FAULT_HANDLE)
 #include "fault_handle.h"
 #endif
+
+
+/*******************************************************************************
+ * EXTERN FUNCTIONS
+ */
+extern void vStartEvtTask(void);
+extern void cmd_shell_pta(int argc, char *argv[]);
 
 
 /*******************************************************************************
@@ -79,7 +88,18 @@ void system_init(void)
         .spi_mode = FLASH_SPI_MODE_0,
     };
     drv_wdt_init(0);
+    board_init();
     drv_flash_init(OM_FLASH0, &config);
+
+    #if (CONFIG_SHELL)
+    const shell_cmd_t ble_hci_shell_cmd[] = {
+        { "pta",     cmd_shell_pta,     "pta <priority_threshold>" },
+        { NULL,      NULL,              NULL},     /* donot deleted */
+    };
+    shell_init(ble_hci_shell_cmd);
+    #endif
+
+    OM_LOG_INIT();
 
     // pmu pof enable
     #if (RTE_PMU_POF_REGISTER_CALLBACK)
@@ -92,6 +112,11 @@ void system_init(void)
     pm_sleep_enable(false);
     pm_sleep_notify_user_callback_register(pm_sleep_callback);
     #endif
+
+    nvds_init(0);
+
+    // Start Evt Task
+    vStartEvtTask();
 }
 
 /** @} */

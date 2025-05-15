@@ -18,8 +18,6 @@
 #include "shell.h"
 #include "evt.h"
 #include "pm.h"
-#include "bsp.h"
-#include "nvds.h"
 #include "omble.h"
 #include "om_log.h"
 #include "app_common.h"
@@ -70,7 +68,6 @@ void app_tspp_init(void);
 void app_wechat_lite_init();
 void app_om_cgms_init(void);
 void app_om_bms_init(void);
-void app_shell_init(void);
 void app_shell_proc(void);
 extern void ob_smp_config_allroles(void);
 
@@ -111,8 +108,6 @@ static void vEvtScheduleTask(void *argument)
     uint32_t uxBits;
     hardware_init();
     drv_rf_init();
-    nvds_init(0);
-    app_shell_init();
     evt_init();
 
     struct ob_stack_param param = {

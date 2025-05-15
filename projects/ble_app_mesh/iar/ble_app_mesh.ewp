@@ -360,6 +360,11 @@
           <state>$PROJ_DIR$/../../../bsp/include</state>
           <state>$PROJ_DIR$/../../../common/include</state>
           <state>$PROJ_DIR$/../../../common/source</state>
+          <state>$PROJ_DIR$/../../../components/shell</state>
+          <state>$PROJ_DIR$/../../../components/manu_system/fault_handle</state>
+          <state>$PROJ_DIR$/../../../components/om_log</state>
+          <state>$PROJ_DIR$/../../../components/nvds</state>
+          <state>$PROJ_DIR$/../../../components/evt</state>
           <state>$PROJ_DIR$/../../../components/ble/include</state>
           <state>$PROJ_DIR$/../../../components/ble/controller/include</state>
           <state>$PROJ_DIR$/../../../components/ble/host/include</state>
@@ -372,12 +377,7 @@
           <state>$PROJ_DIR$/../../../components/ble/profile/om_tspp</state>
           <state>$PROJ_DIR$/../../../components/ble/profile/om_wechat_lite</state>
           <state>$PROJ_DIR$/../../../components/ble/mesh/include</state>
-          <state>$PROJ_DIR$/../../../components/evt</state>
-          <state>$PROJ_DIR$/../../../components/manu_system/fault_handle</state>
-          <state>$PROJ_DIR$/../../../components/nvds</state>
-          <state>$PROJ_DIR$/../../../components/om_log</state>
           <state>$PROJ_DIR$/../../../components/pm</state>
-          <state>$PROJ_DIR$/../../../components/shell</state>
           <state>$PROJ_DIR$/../../../hal/CMSIS/Core/Include</state>
           <state>$PROJ_DIR$/../../../hal/driver/include</state>
           <state>$PROJ_DIR$/../../../hal/device/include</state>
@@ -407,7 +407,7 @@
         <option>
           <name>CCOptStrategy</name>
           <version>0</version>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>CCOptLevelSlave</name>
@@ -671,6 +671,11 @@
           <state>$PROJ_DIR$/../../../bsp/include</state>
           <state>$PROJ_DIR$/../../../common/include</state>
           <state>$PROJ_DIR$/../../../common/source</state>
+          <state>$PROJ_DIR$/../../../components/shell</state>
+          <state>$PROJ_DIR$/../../../components/manu_system/fault_handle</state>
+          <state>$PROJ_DIR$/../../../components/om_log</state>
+          <state>$PROJ_DIR$/../../../components/nvds</state>
+          <state>$PROJ_DIR$/../../../components/evt</state>
           <state>$PROJ_DIR$/../../../components/ble/include</state>
           <state>$PROJ_DIR$/../../../components/ble/controller/include</state>
           <state>$PROJ_DIR$/../../../components/ble/host/include</state>
@@ -683,12 +688,7 @@
           <state>$PROJ_DIR$/../../../components/ble/profile/om_tspp</state>
           <state>$PROJ_DIR$/../../../components/ble/profile/om_wechat_lite</state>
           <state>$PROJ_DIR$/../../../components/ble/mesh/include</state>
-          <state>$PROJ_DIR$/../../../components/evt</state>
-          <state>$PROJ_DIR$/../../../components/manu_system/fault_handle</state>
-          <state>$PROJ_DIR$/../../../components/nvds</state>
-          <state>$PROJ_DIR$/../../../components/om_log</state>
           <state>$PROJ_DIR$/../../../components/pm</state>
-          <state>$PROJ_DIR$/../../../components/shell</state>
           <state>$PROJ_DIR$/../../../hal/CMSIS/Core/Include</state>
           <state>$PROJ_DIR$/../../../hal/driver/include</state>
           <state>$PROJ_DIR$/../../../hal/device/include</state>
@@ -1223,6 +1223,45 @@
     </file>
   </group>
   <group>
+    <name>shell</name>
+    <file>
+      <name>$PROJ_DIR$/../../../components/shell/shell_common.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$/../../../components/shell/shell_port_rtos.c</name>
+    </file>
+  </group>
+  <group>
+    <name>manu_system</name>
+    <file>
+      <name>$PROJ_DIR$/../../../components/manu_system/fault_handle/fault_handle.c</name>
+    </file>
+  </group>
+  <group>
+    <name>om_log</name>
+    <file>
+      <name>$PROJ_DIR$/../../../components/om_log/om_log.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$/../../../components/om_log/om_log_port.c</name>
+    </file>
+  </group>
+  <group>
+    <name>nvds</name>
+    <file>
+      <name>$PROJ_DIR$/../../../components/nvds/nvds.c</name>
+    </file>
+  </group>
+  <group>
+    <name>evt</name>
+    <file>
+      <name>$PROJ_DIR$/../../../components/evt/evt.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$/../../../components/evt/evt_timer.c</name>
+    </file>
+  </group>
+  <group>
     <name>ble_stack_common</name>
     <file>
       <name>$PROJ_DIR$/../../../components/ble/common/ob_mem_heap.c</name>
@@ -1277,51 +1316,12 @@
     <name>mesh</name>
   </group>
   <group>
-    <name>evt</name>
-    <file>
-      <name>$PROJ_DIR$/../../../components/evt/evt.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$/../../../components/evt/evt_timer.c</name>
-    </file>
-  </group>
-  <group>
-    <name>manu_system</name>
-    <file>
-      <name>$PROJ_DIR$/../../../components/manu_system/fault_handle/fault_handle.c</name>
-    </file>
-  </group>
-  <group>
-    <name>nvds</name>
-    <file>
-      <name>$PROJ_DIR$/../../../components/nvds/nvds.c</name>
-    </file>
-  </group>
-  <group>
-    <name>om_log</name>
-    <file>
-      <name>$PROJ_DIR$/../../../components/om_log/om_log.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$/../../../components/om_log/om_log_port.c</name>
-    </file>
-  </group>
-  <group>
     <name>pm</name>
     <file>
       <name>$PROJ_DIR$/../../../components/pm/pm.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$/../../../components/pm/pm_cpu_iar.S</name>
-    </file>
-  </group>
-  <group>
-    <name>shell</name>
-    <file>
-      <name>$PROJ_DIR$/../../../components/shell/shell_common.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$/../../../components/shell/shell_port_rtos.c</name>
     </file>
   </group>
   <group>

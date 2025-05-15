@@ -342,8 +342,10 @@ void drv_rf_tx_power_set(bool auto_ctrl_by_ble, rf_tx_power_t power)
 
     if (drv_calib_repair_env.temperature > 70) {
         pmu_pll_vco_vout += 2;
-        pmu_pll_vco_vout = (pmu_pll_vco_vout > 0x7) ? 0x7 : pmu_pll_vco_vout;
+    } else {
+        pmu_pll_vco_vout += 1;
     }
+    pmu_pll_vco_vout = (pmu_pll_vco_vout > 0x7) ? 0x7 : pmu_pll_vco_vout;
 
     REGW(&OM_PMU->ANA_PD_1, MASK_1REG(PMU_ANA_PD_1_DCDC_VOUT, pmu_dcdc_vout));
     REGW(&OM_PMU->OM26B_CFG0, MASK_1REG(PMU_OM26B_CFG0_LDO_ANA1P2_TRIM, pmu_ldo_v1p2_vbat));
