@@ -82,22 +82,22 @@ if $hfsr_reg & (1<<1)
 end
 
 #DFSR
-# set $dfsr_reg = *(unsigned int*)0xE000ED30
-# if $dfsr_reg & (1<4)
-#     printf "Debug Fault: Indicate the debug event is caused by an external signal.\n"
-# end
-# if $dfsr_reg & (1<3)
-#     printf "Debug Fault: Indicate the debug event is caused by a vector catch.\n"
-# end
-# if $dfsr_reg & (1<2)
-#     printf "Debug Fault: Indicate the debug event is caused by a watchpoint.\n"
-# end
-# if $dfsr_reg & (1<1)
-#     printf "Debug Fault: Indicate the debug event is caused by a breakpoint.\n"
-# end
-# if $dfsr_reg & (1<0)
-#     printf "Debug Fault: Indicate the processor is halted by debugger request.\n"
-# end
+set $dfsr_reg = *(unsigned int*)0xE000ED30
+if $dfsr_reg & (1<4)
+    printf "Debug Fault: Indicate the debug event is caused by an external signal.\n"
+end
+if $dfsr_reg & (1<3)
+    printf "Debug Fault: Indicate the debug event is caused by a vector catch.\n"
+end
+if $dfsr_reg & (1<2)
+    printf "Debug Fault: Indicate the debug event is caused by a watchpoint.\n"
+end
+if $dfsr_reg & (1<1)
+    printf "Debug Fault: Indicate the debug event is caused by a breakpoint.\n"
+end
+if $dfsr_reg & (1<0)
+    printf "Debug Fault: Indicate the processor is halted by debugger request.\n"
+end
 
 #fault context
 if $lr & (0x04)

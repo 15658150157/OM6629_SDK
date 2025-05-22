@@ -563,6 +563,9 @@ void drv_pmu_sleep_enter(uint8_t is_deep_sleep, bool reboot_req)
     if ((SystemCoreClock == 96 * 1000 * 1000U) || (SystemCoreClock == 48 * 1000 * 1000U)) {
         drv_rcc_cpu_clk_source_set(RCC_CPU_CLK_SOURCE_XTAL32M);
     }
+    if (drv_rcc_clock_get(RCC_CLK_PERI) != 32 * 1000 * 1000U) {
+        drv_rcc_periph_clk_source_set(RCC_PERIPH_CLK_SOURCE_XTAL32M);
+    }
 
     // clear pmu gpio interrupt
     #if (PMU_IO_OUTPUT_LATCH_CTRL_BY_SOFTWARE)
@@ -1094,7 +1097,7 @@ void drv_pmu_topclk_recalib(void)
     drv_calib_sys_rc32m();
 
     if (drv_pmu_clk64m_is_enabled()) {
-        drv_rcc_periph_clk_source_set(RCC_PERIPH_CLK_SOURCE_XTAL64M);
+        drv_rcc_cpu_clk_source_set(RCC_CPU_CLK_SOURCE_XTAL64M);
     }
     // power off rc32m
     drv_pmu_rc32m_enable(false);
@@ -1171,9 +1174,16 @@ void drv_pmu_pof_enable(bool enable, pmu_pof_voltage_t voltage, pmu_pof_int_edge
 {
     OM_CRITICAL_BEGIN();
     if(enable) {
-        REGW(&OM_PMU->POF_INT_CTRL, MASK_3REG(PMU_POF_INT_CTRL_PMU_POF_INT_EN, 1,
+        REGW(&OM_PMU->POF_INT_CTRL, MASK_3REG(PMU_POF_INT_CTRL_PMU_POF_INT_EN, 0,
                                               PMU_POF_INT_CTRL_PMU_POF_TH_REG, voltage,
                                               PMU_POF_INT_CTRL_PMU_POF_INT_MODE, mode));
+        // wait for 3 * 32K clock at least for PMU_POF_FLAG_DET
+        DRV_DELAY_US(150);
+        if (((OM_PMU->POF_INT_CTRL & PMU_POF_INT_CTRL_PMU_POF_FLAG_DET_MASK) == 0) && (drv_pmu_env.enable_pof == 0)) {
+            drv_pmu_env.enable_pof = 1;
+            drv_pmu_pof_isr_callback(OM_PMU, DRV_EVENT_PMU_POF);
+        }
+        REGW(&OM_PMU->POF_INT_CTRL, MASK_1REG(PMU_POF_INT_CTRL_PMU_POF_INT_EN, 1));
         if (!NVIC_GetEnableIRQ(PMU_POF_IRQn)) {
             NVIC_ClearPendingIRQ(PMU_POF_IRQn);
             NVIC_SetPriority(PMU_POF_IRQn, RTE_PMU_POF_IRQ_PRIORITY);
@@ -1200,7 +1210,9 @@ __WEAK void drv_pmu_pof_isr_callback(OM_PMU_Type *om_pmu, drv_event_t event)
 {
     #if (RTE_PMU_POF_REGISTER_CALLBACK)
     if(drv_pmu_env.pof_isr_callback) {
-        drv_pmu_env.pof_isr_callback(om_pmu, event, NULL, NULL);
+        uint32_t vol = REGR(&OM_PMU->POF_INT_CTRL, MASK_POS(PMU_POF_INT_CTRL_PMU_POF_TH_REG));
+        uint32_t mode = REGR(&OM_PMU->POF_INT_CTRL, MASK_POS(PMU_POF_INT_CTRL_PMU_POF_INT_MODE));
+        drv_pmu_env.pof_isr_callback(om_pmu, event, (void *)vol, (void *)mode);
     }
     #endif
 }

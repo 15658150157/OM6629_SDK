@@ -83,6 +83,10 @@ extern "C"
 
 #define PHY_TX_CTRL1_NDUTY_POS                             0
 #define PHY_TX_CTRL1_NDUTY_MASK                            (0x3U << 0U)
+#define PHY_TX_CTRL1_GF_GCMP1_POS                          4
+#define PHY_TX_CTRL1_GF_GCMP1_MASK                         (0xFU << 4U)
+#define PHY_TX_CTRL1_GF_GCMP2_POS                          8
+#define PHY_TX_CTRL1_GF_GCMP2_MASK                         (0xFU << 8U)
 
 #define PHY_DPLL_DET_SEL_POS                               0
 #define PHY_DPLL_DET_SEL_MASK                              (0x1U << 0U)

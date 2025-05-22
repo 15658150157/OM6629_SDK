@@ -68,9 +68,10 @@ void pm_sleep_callback(pm_sleep_state_t sleep_state, pm_status_t power_status)
 #endif
 
 #if (RTE_PMU_POF_REGISTER_CALLBACK)
-static void pmu_pof_isr_callback(void *om_pmu, drv_event_t event, void *buff, void *num)
+static void pmu_pof_isr_callback(void *om_pmu, drv_event_t event, void *voltage, void *mode)
 {
-    OM_LOG(OM_LOG_WARN, "PMU POF event occured");
+    OM_LOG(OM_LOG_WARN, "PMU POF event occured, voltage: [%d], mode: [%d]",
+        (uint32_t)voltage, (uint32_t)mode);
 }
 #endif
 

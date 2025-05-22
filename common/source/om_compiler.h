@@ -38,7 +38,7 @@ extern "C"
 #define __RAM_CODES(s)          __attribute((section("RAM_CODE."s), noinline))
 #define __RAM_RODATA            __attribute((section("RAM_RODATA")))
 #define __RAM_RODATAS(s)        __attribute((section("RAM_RODATA."s)))
-#define __RAM_DATA_NON_INIT     __attribute((section("RAM_DATA_NON_INIT")))
+#define __RAM_DATA_NON_INIT     __attribute((section(".bss.RAM_DATA_NON_INIT")))
 #ifndef CC_DEPRECATED
 #define CC_DEPRECATED           __attribute__((deprecated))
 #endif
@@ -56,7 +56,7 @@ extern "C"
 #define __RAM_CODE              /*_Pragma("location=\".ram_code\"")*/ __ramfunc
 #define __RAM_CODES(s)          /*_Pragma("location=\".ram_code\"")*/ __ramfunc
 #define __RAM_RODATA            _Pragma("location=\".ram_rodata\"")
-#define __RAM_DATA_NON_INIT     _Pragma("location=\".ram_data_non_init\"")
+#define __RAM_DATA_NON_INIT     __no_init
 #ifndef CC_DEPRECATED
 #define CC_DEPRECATED
 #endif
@@ -64,6 +64,7 @@ extern "C"
 #error Donot Support Compiler!
 #endif
 
+#define __NOINLINE             __attribute__((noinline))
 
 #ifdef __cplusplus
 extern "C"

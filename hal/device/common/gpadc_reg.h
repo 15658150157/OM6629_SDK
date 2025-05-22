@@ -105,7 +105,7 @@
 #define GPADC_MODE_SEL_MASK             0x00000080
 #define GPADC_VCTRL_LDO_MASK            0x00000300
 #define GPADC_CTRL_VREF_MASK            0x00000C00
-#define GPADC_DEM_MASK                  0x00001000
+#define GPADC_EN_DEM_MASK               0x00001000
 #define GPADC_EN_TST_MASK               0x00002000
 #define GPADC_TST_SEL_MASK              0x0001C000
 #define GPADC_STARTB_MO_MASK            0x00020000

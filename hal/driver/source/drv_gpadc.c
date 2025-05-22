@@ -109,7 +109,7 @@ typedef struct {
     drv_gpadc_mode_t                mode;
     drv_gpadc_gain_t                gain;
     #if (RTE_GPDMA)
-    uint8_t                         dma_chan;
+    uint8_t                         gpdma_chan;
     #endif
 } drv_gpadc_env_t;
 
@@ -135,7 +135,7 @@ static drv_gpadc_calib_param_t gpadc_para;
 
 static drv_gpadc_env_t gpadc_env = {
 #if (RTE_GPDMA)
-    .dma_chan     = GPDMA_NUMBER_OF_CHANNELS,
+    .gpdma_chan     = GPDMA_NUMBER_OF_CHANNELS,
 #endif
     .calib_temper = 25,
     .busy         = 0,
@@ -227,32 +227,55 @@ static int16_t drv_gpadc_temperature_compen(drv_gpadc_temperature_compen_t *argu
  **/
 static void drv_gpadc_get_channel_data(uint16_t channel_p, int16_t *data, uint16_t num)
 {
+    int i = 0;
+    int ch_count = 0;
+    uint8_t ch[GPADC_CH_MAX];
+    for (uint8_t j = 0; j < GPADC_CH_MAX; j++) {
+        if ((channel_p >> j) & 0x1) {
+            ch[ch_count] = j;
+            ch_count++;
+        }
+    }
     /* clear interrupt */
     OM_GPADC->INTR = GPADC_INTR_ALL_MASK;
 
     /* power-on GPADC */
     REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PD, 0));
 
-    int i = 0;
-    int ch = 0;
-    for (uint8_t j = 0; j < GPADC_CH_MAX; j++) {
-        if ((channel_p >> j) & 0x1) {
-            ch = j;
-        }
-    }
-
-    /* discard first data */
-    while ((OM_GPADC->INTR & channel_p) != channel_p);
-    OM_GPADC->INTR |= channel_p;
-
-    while (i < num) {
-        /* check interrupt from ch0 to ch9 and clear*/
+    if (ch_count == 1) {
+        /* discard first data */
         while ((OM_GPADC->INTR & channel_p) != channel_p);
         OM_GPADC->INTR |= channel_p;
 
-        data[i%num] = REGR(((uint32_t *)&OM_GPADC->CH_0_DATA) + ch, MASK_POS(GPADC_DATA_LOW));
-        i++;
+        while (i < num) {
+            /* check interrupt from ch0 to ch9 and clear*/
+            while ((OM_GPADC->INTR & channel_p) != channel_p);
+            OM_GPADC->INTR |= channel_p;
+
+            data[i%num] = REGR(((uint32_t *)&OM_GPADC->CH_0_DATA) + ch[0], MASK_POS(GPADC_DATA_LOW));
+            i++;
+        }
+    } else {
+        /* discard first date */
+        for (uint8_t j = 0; j < ch_count; j++) {
+            /* check interrupt from ch0 to ch9 and clear*/
+            while ((OM_GPADC->INTR & (1 << ch[j])) != (1 << ch[j]));
+            OM_GPADC->INTR |= 1 << ch[j];
+        }
+
+        /* get channel data */
+        while (i < num) {
+            for (uint8_t j = 0; j < ch_count; j++) {
+                /* check interrupt from ch0 to ch9 and clear*/
+                while ((OM_GPADC->INTR & (1 << ch[j])) != (1 << ch[j]));
+                OM_GPADC->INTR |= 1 << ch[j];
+
+                data[i%num] = REGR(((uint32_t *)&OM_GPADC->CH_0_DATA) + ch[j], MASK_POS(GPADC_DATA_LOW));
+                i++;
+            }
+        }
     }
+
     /* power-down ADC */
     REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PD, 1));
 }
@@ -311,7 +334,7 @@ static void drv_gpadc_config(const drv_gpadc_config_t* config)
                                          GPADC_EN_SCALE, (GPADC_GAIN_1_3 == config->gain)? 1 : 0,
                                          GPADC_SEL_VREF, 0,
                                          GPADC_PD_VBAT_DET, ((GPADC_CH_P_VBAT & config->channel_p) == GPADC_CH_P_VBAT)? 0 : 1,
-                                         GPADC_PMU_TS_ICTRL, ((GPADC_CH_P_TEMPERATURE & config->channel_p) == GPADC_CH_P_TEMPERATURE)? 3 : 0,
+                                         GPADC_PMU_TS_ICTRL, (GPADC_CH_P_TEMPERATURE == config->channel_p)? 3 : 0,
                                          GPADC_VCTRL_LDO, 1,
                                          GPADC_CTRL_VREF, 2,
                                          GPADC_INPUT_SELN_ME, (GPADC_MODE_DIFF == config->mode)? 1 : 0,
@@ -364,7 +387,7 @@ static void gpadc_dma_event_cb(void *resource, drv_event_t event, gpdma_chain_tr
     drv_event_t drv_event = DRV_EVENT_COMMON_NONE;
 
     switch (event) {
-        case DRV_GPDMA_EVENT_TERMINAL_COUNT_REQUEST:
+        case DRV_GPDMA_EVENT_TERMINAL_COUNT_REQUEST: {
             drv_event = DRV_EVENT_COMMON_READ_COMPLETED;
 
             /* disable GPADC DMA */
@@ -373,10 +396,16 @@ static void gpadc_dma_event_cb(void *resource, drv_event_t event, gpdma_chain_tr
             /* power-down GPADC */
             REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PD, 1));
 
-            for (uint32_t i = 0; i < gpadc_env.rx_num; i++) {
-                gpadc_env.rx_buf[i] = drv_gpadc_convert_channel_data((drv_gpadc_channel_p_t)gpadc_env.busy, gpadc_env.rx_buf[i]);
+            int i = 0;
+            while (i < gpadc_env.rx_num) {
+                for (uint8_t j = 0; j < GPADC_CH_MAX; j++) {
+                    if ((gpadc_env.busy >> j) & 0x1) {
+                        gpadc_env.rx_buf[i%gpadc_env.rx_num] = drv_gpadc_convert_channel_data((drv_gpadc_channel_p_t)(0x1 << j), gpadc_env.rx_buf[i%gpadc_env.rx_num]);
+                        i++;
+                    }
+                }
             }
-            break;
+        }   break;
         case DRV_GPDMA_EVENT_ABORT:
             drv_event = DRV_EVENT_COMMON_ABORT;
             break;
@@ -795,26 +824,34 @@ void drv_gpadc_isr(void)
             if ((src & (1 << i)) && (gpadc_env.busy & (1 << i))) {
                 gpadc_env.rx_buf[gpadc_env.rx_cnt] = REGR(((uint32_t *)&OM_GPADC->CH_0_DATA) + i, MASK_POS(GPADC_DATA_LOW));
                 gpadc_env.rx_cnt++;
+            
+                if (gpadc_env.rx_cnt == gpadc_env.rx_num) {
+                    OM_GPADC->INTR_MSK &= ~gpadc_env.busy;
+                    NVIC_DisableIRQ(GPADC_IRQn);
+
+                    /* power-down GPADC */
+                    REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PD, 1));
+
+                    int k = 0;
+                    while (k < gpadc_env.rx_num) {
+                        for (uint8_t j = 0; j < GPADC_CH_MAX; j++) {
+                            if ((gpadc_env.busy >> j) & 0x1) {
+                                gpadc_env.rx_buf[k%gpadc_env.rx_num] = drv_gpadc_convert_channel_data((drv_gpadc_channel_p_t)(0x1 << j), gpadc_env.rx_buf[k%gpadc_env.rx_num]);
+                                k++;
+                            }
+                        }
+                    }
+
+                    gpadc_env.busy = 0;
+                    gpadc_env.isr_cb(OM_GPADC, DRV_EVENT_COMMON_READ_COMPLETED, (void *)gpadc_env.rx_buf, (void *)((uint32_t)gpadc_env.rx_num));
+                } else {
+                    OM_GPADC->INTR_MSK = intr_mask;
+                }
             }
-        }
     }
+}
 
-    if (gpadc_env.rx_cnt == gpadc_env.rx_num) {
-        OM_GPADC->INTR_MSK &= ~gpadc_env.busy;
-        NVIC_DisableIRQ(GPADC_IRQn);
 
-        /* power-down GPADC */
-        REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PD, 1));
-
-        for (int i = 0; i < gpadc_env.rx_num; i++) {
-            gpadc_env.rx_buf[i] = drv_gpadc_convert_channel_data((drv_gpadc_channel_p_t)gpadc_env.busy, gpadc_env.rx_buf[i]);
-        }
-
-        gpadc_env.busy = 0;
-        gpadc_env.isr_cb(OM_GPADC, DRV_EVENT_COMMON_READ_COMPLETED, (void *)gpadc_env.rx_buf, (void *)((uint32_t)gpadc_env.rx_num));
-    } else {
-        OM_GPADC->INTR_MSK = intr_mask;
-    }
 }
 
 /**
@@ -830,6 +867,11 @@ void drv_gpadc_isr(void)
  */
 om_error_t drv_gpadc_init(const drv_gpadc_config_t *config)
 {
+    if (((GPADC_CH_P_TEMPERATURE & config->channel_p) && (GPADC_CH_P_VBAT & config->channel_p)) ||
+        ((GPADC_CH_P_TEMPERATURE & config->channel_p) && (config->channel_p > GPADC_CH_P_GPIO2))) {
+        return OM_ERROR_PARAMETER;
+    }
+
     if (GPADC_MODE_DIFF == config->mode && (GPADC_CH_P_TEMPERATURE == config->channel_p || GPADC_CH_P_VBAT == config->channel_p)) {
         return OM_ERROR_PARAMETER;
     }
@@ -944,18 +986,18 @@ om_error_t drv_gpadc_read_int(uint16_t channel_p, int16_t *data, uint16_t num)
 #if (RTE_GPDMA)
 /**
  *******************************************************************************
- * @brief Allocate dma channel for gpadc
+ * @brief Allocate gpdma channel for gpadc
  *
  * @return status:
  *    - OM_ERROR_OK:         Allocate ok
  *    - others:              No
  *******************************************************************************
  */
-om_error_t drv_gpadc_dma_channel_allocate(void)
+om_error_t drv_gpadc_gpdma_channel_allocate(void)
 {
-    if (gpadc_env.dma_chan >= GPDMA_NUMBER_OF_CHANNELS) {
-        gpadc_env.dma_chan = drv_gpdma_channel_allocate();
-        if (gpadc_env.dma_chan >= GPDMA_NUMBER_OF_CHANNELS) {
+    if (gpadc_env.gpdma_chan >= GPDMA_NUMBER_OF_CHANNELS) {
+        gpadc_env.gpdma_chan = drv_gpdma_channel_allocate();
+        if (gpadc_env.gpdma_chan >= GPDMA_NUMBER_OF_CHANNELS) {
             return OM_ERROR_RESOURCES;
         }
     }
@@ -965,17 +1007,17 @@ om_error_t drv_gpadc_dma_channel_allocate(void)
 
 /**
  *******************************************************************************
- * @brief Release dma channel for gpadc
+ * @brief Release gpdma channel for gpadc
  *
  * @return status:
  *    - OM_ERROR_OK:         Release ok
  *    - others:              No
  *******************************************************************************
  */
-om_error_t drv_gpadc_dma_channel_release(void)
+om_error_t drv_gpadc_gpdma_channel_release(void)
 {
-    drv_gpdma_channel_release(gpadc_env.dma_chan);
-    gpadc_env.dma_chan = GPDMA_NUMBER_OF_CHANNELS;
+    drv_gpdma_channel_release(gpadc_env.gpdma_chan);
+    gpadc_env.gpdma_chan = GPDMA_NUMBER_OF_CHANNELS;
 
     return OM_ERROR_OK;
 }
@@ -1024,7 +1066,7 @@ om_error_t drv_gpadc_read_dma(uint16_t channel_p, int16_t *data, uint16_t num)
     dma_config.chain_trans   = NULL;
     dma_config.chain_trans_num = 0;
 
-    error = drv_gpdma_channel_config(gpadc_env.dma_chan, &dma_config);
+    error = drv_gpdma_channel_config(gpadc_env.gpdma_chan, &dma_config);
     if (error) {
         return error;
     }
@@ -1035,7 +1077,7 @@ om_error_t drv_gpadc_read_dma(uint16_t channel_p, int16_t *data, uint16_t num)
     /* power-on GPADC */
     REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PD, 0));
 
-    error = drv_gpdma_channel_enable(gpadc_env.dma_chan, (uint32_t)data, (uint32_t)&OM_GPADC->CH_DMA_DATA, 2 * num);
+    error = drv_gpdma_channel_enable(gpadc_env.gpdma_chan, (uint32_t)data, (uint32_t)&OM_GPADC->CH_DMA_DATA, 2 * num);
     if (error) {
         return error;
     }
@@ -1095,6 +1137,15 @@ void *drv_gpadc_control(drv_gpadc_control_t control, void *argu)
                 break;
             }
             drv_gpadc_set_calibrate_param((drv_gpadc_cpft_calib_t *)argu, false);
+            break;
+        case GPADC_CONTROL_CHANNEL_CFG:
+            if ((uint32_t)argu == GPADC_CH_P_TEMPERATURE) {
+                REGW(&OM_DAIF->PD_CFG1, MASK_1REG(DAIF_PMU_PD_TS, 0));
+                REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PMU_TS_ICTRL, 3));
+            } else if ((uint32_t)argu == GPADC_CH_P_VBAT) {
+                REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PD_VBAT_DET, 0));
+            }
+            REGW(&OM_GPADC->ADC_CFG2, MASK_1REG(GPADC_SEQ_VECT, (uint32_t)argu));
             break;
         default:
             break;

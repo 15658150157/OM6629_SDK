@@ -174,7 +174,8 @@ typedef enum {
     GPADC_CONTROL_READ_TEMPERATURE                  = 4U,    /**< read temperature */
     GPADC_CONTROL_SET_CALIB_TEMPER                  = 5U,    /**< set temperature during calibration */
     GPADC_CONTROL_TEMPERATURE_COMPEN                = 6U,    /**< check GPADC is busy */
-    GPADC_CONTROL_SET_PARAM_WITHOUT_POWER_ON_PARAM  = 7U,  /**< set calibration paramters without power on paramters */
+    GPADC_CONTROL_SET_PARAM_WITHOUT_POWER_ON_PARAM  = 7U,    /**< set calibration paramters without power on paramters */
+    GPADC_CONTROL_CHANNEL_CFG                       = 8U,    /**< config GPADC channels */
 } drv_gpadc_control_t;
 
 /// GPADC temperature compensation
@@ -338,25 +339,25 @@ om_error_t drv_gpadc_read_int(uint16_t channel_p, int16_t *data, uint16_t num);
 #if (RTE_GPDMA)
 /**
  *******************************************************************************
- * @brief Allocate dma channel for gpadc
+ * @brief Allocate gpdma channel for gpadc
  *
  * @return status:
  *    - OM_ERROR_OK:         Allocate ok
  *    - others:              No
  *******************************************************************************
  */
-om_error_t drv_gpadc_dma_channel_allocate(void);
+om_error_t drv_gpadc_gpdma_channel_allocate(void);
 
 /**
  *******************************************************************************
- * @brief Release dma channel for gpadc
+ * @brief Release gpdma channel for gpadc
  *
  * @return status:
  *    - OM_ERROR_OK:         Release ok
  *    - others:              No
  *******************************************************************************
  */
-om_error_t drv_gpadc_dma_channel_release(void);
+om_error_t drv_gpadc_gpdma_channel_release(void);
 
 /**
  *******************************************************************************

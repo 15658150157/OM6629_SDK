@@ -597,6 +597,11 @@
               <FilePath>../../../components/ble/profile/om_dfu/om_dfu_nvds.c</FilePath>
             </File>
             <File>
+              <FileName>om_dfu_ver_check.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/profile/om_dfu/om_dfu_ver_check.c</FilePath>
+            </File>
+            <File>
               <FileName>service_om_dfu.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../components/ble/profile/om_dfu/service_om_dfu.c</FilePath>

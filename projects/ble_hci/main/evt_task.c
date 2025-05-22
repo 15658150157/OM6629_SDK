@@ -30,7 +30,7 @@
 /*********************************************************************
  * MACROS
  */
-#define HCI_UART    OM_UART0
+#define HCI_UART    OM_UART1
 
 #define EVT_TYPE_HCI_H4  ((evt_type_t)(EVT_TYPE_USR_FIRST+0))
 

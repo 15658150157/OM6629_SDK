@@ -673,6 +673,7 @@ void drv_om24g_restore(void)
     REGW0(&OM_PMU->BLE_CLK_SWITCH, PMU_BLE_CLK_SWITCH_BLE_CLK_SWITCH_MASK);
     while(!(OM_PMU->BLE_RECOVER_FLAG & PMU_BLE_RECOVER_FLAG_RECOVER_DONE_FLAG_MASK));
     OM_PMU->BLE_RECOVER_FLAG = 1;
+    drv_om24g_control(OM24G_CONTROL_CLK_ENABLE, NULL);
     #endif
 }
 
@@ -728,6 +729,13 @@ void drv_om24g_isr(void)
         }
     }
     if (OM24G_INT_TIMER0_MASK & status) {
+        // TIMER0
+        // OM_24G->TMR0_NXT_32K_TP = last_32k + 16384; // 512ms
+        // OM_24G->TMR0_NXT_8M_TP = last_8M + 0;
+        // last_32k = last_32k + 16384;
+        // last_8M = last_8M + 0;
+        // OM_PMU->TMR_2G4_TIM_WAKEUP_NATIVE = last_32k - 100;
+        // OM_PMU->TMR_2G4_TIM_WAKEUP_SKIP = 0x20;
         if (om24g_env.event_cb) {
             om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_INT_TIMER0, NULL, NULL);
         }
@@ -783,10 +791,8 @@ void *drv_om24g_control(om24g_control_t control, void *argu)
                 drv_pmu_ana_enable(true, PMU_ANA_RF_24G);
                 DRV_RCC_CLOCK_ENABLE(RCC_CLK_DAIF, 1U);
                 DRV_RCC_CLOCK_ENABLE(RCC_CLK_2P4, 1U);
-                OM24G_CE_LOW();
                 REGW1(&OM_24G->PKTCTRL0, OM24G_PKTCTRL0_MAC_SEL_MASK);
-                OM24G_FLUSH_TX_FIFO();
-                OM24G_FLUSH_RX_FIFO();
+                OM24G_CE_LOW();
                 OM_24G->INT_MASK = 0xFFFFFFFF;
                 REGW(&OM_DAIF->FREQ_CFG0, MASK_1REG(DAIF_FREQ_REG_ME, 1));
                 if(om24g_env.deviation_below_250K) {

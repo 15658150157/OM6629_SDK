@@ -155,6 +155,7 @@ uint32_t drv_rcc_clock_get(rcc_clk_t rcc_clk)
         case RCC_CLK_GPIO1:
         case RCC_CLK_SHA256:
              return SystemCoreClock;
+        case RCC_CLK_PERI:
         case RCC_CLK_TIM0:
         case RCC_CLK_TIM1:
         case RCC_CLK_TIM2:

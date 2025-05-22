@@ -244,6 +244,7 @@ typedef enum {
     OM24G_STATIC_LENTH,
     OM24G_BLE_MODE,
     OM24G_HARDWARE_TIMER_TX,
+    OM24G_TIMESTAMP,
 } om24g_transfer_t;
 
 

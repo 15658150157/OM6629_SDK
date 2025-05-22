@@ -61,7 +61,7 @@ __WEAK void fault_context_store(fault_id_t fault_id, uint8_t *context, uint32_t 
     #endif
 
     while(1) {
-        #if (RTE_WDT)
+        #if 0 && (RTE_WDT)
         drv_wdt_keep_alive();
         #endif
         DRV_DELAY_MS(100);

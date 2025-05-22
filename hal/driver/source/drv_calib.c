@@ -600,6 +600,8 @@ void drv_calib_rf_restore(void)
     // 睡眠唤醒后需要和drv_radio.c里面的drv_rf_tx_power_set设置功率处一样
     REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, drv_calib_env.trs_antcap_ct));
 
+    REGW(&OM_PHY->TX_CTRL1, MASK_1REG(PHY_TX_CTRL1_GF_GCMP1, 0x1));
+
     #if 0
     //抗干扰策略1
     //有利于抗干扰测试，agc增益只有三档在调节；会比另一种agc增益调节差0.6dB;

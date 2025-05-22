@@ -53,13 +53,22 @@ extern "C"
  *******************************************************************************
  */
 #if (CONFIG_OM_ASSERT)
-#define OM_ASSERT(expr)   ((expr) ? (void)0U : om_assert_failed((char *)__FILE__, __LINE__))
-#define OM_ASSERT_WHILE(cond, expr)                                            \
-    if ((unsigned)(cond)) {                                                    \
-        ((expr) ? (void)0U : om_assert_failed((char *)__FILE__, __LINE__));    \
-    }
+#define OM_ASSERT(expr)                                                        \
+    do {                                                                       \
+        if (!(expr)) {                                                         \
+            __BKPT(0); __builtin_unreachable();                                \
+        }                                                                      \
+    } while (0)
 
-extern void om_assert_failed(char *file, uint32_t line);
+/// assert with while
+#define OM_ASSERT_WHILE(cond, expr)                                            \
+    do {                                                                       \
+        if ((unsigned)(cond)) {                                                \
+            if (!(expr)) {                                                     \
+                __BKPT(0); __builtin_unreachable();                            \
+            }                                                                  \
+        }                                                                      \
+    } while (0)
 #else
 #define OM_ASSERT(expr)                 ((void)0U)
 #define OM_ASSERT_WHILE(cond, expr)     ((void)0U)

@@ -1297,6 +1297,9 @@
       <name>$PROJ_DIR$/../../../components/ble/profile/om_dfu/om_dfu_nvds.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$/../../../components/ble/profile/om_dfu/om_dfu_ver_check.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$/../../../components/ble/profile/om_dfu/service_om_dfu.c</name>
     </file>
     <file>

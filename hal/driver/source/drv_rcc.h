@@ -44,6 +44,7 @@ extern "C"
 typedef enum {
     RCC_CLK_MAIN        = 0x0100U,
     RCC_CLK_CPU         = 0x0200U,
+    RCC_CLK_PERI        = 0x0300U,
 
     RCC_CLK_SF0         = OM_SF0_BASE,
     RCC_CLK_OSPI1       = OM_OSPI1_BASE,
@@ -148,6 +149,7 @@ typedef enum {
                 break;                                                                                           \
             case RCC_CLK_LPTIM:                                                                                  \
                 drv_pmu_basic_reg_set(MASK_1REG(PMU_BASIC_LPTIM_32K_CLK_GATE, (enable) ? 0 : 1));                \
+                register_set(&OM_CPM->LPTIM_CFG, MASK_1REG(CPM_LPTIM_CFG_GATE_EN, (enable) ? 0 : 1));            \
                 break;                                                                                           \
             case RCC_CLK_BLE:                                                                                    \
                 register_set(&OM_CPM->BLE_CFG, MASK_4REG(CPM_BLE_CFG_BLE_AHB_GATE_EN,   (enable) ? 0 : 1,        \
