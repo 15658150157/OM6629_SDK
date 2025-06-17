@@ -259,12 +259,11 @@ void drv_rcc_cpu_clk_source_set(rcc_cpu_clk_source_t source)
 
     rc32m_is_last_enabled = drv_pmu_rc32m_enable(true);
     if (source == RCC_CPU_CLK_SOURCE_RC32M) {
-        drv_pmu_dvdd_voltage_set(PMU_DVDD_VOLTAGE_0P95V);
-
         rc32m_is_last_enabled = true;
         REGW0(&OM_PMU->MISC_CTRL, PMU_MISC_CTRL_MAIN_CLK_SEL_MASK); // 0:RC32MHz  1:CPU_CLK_IN
         while(!(OM_CPM->CPU_CFG & CPM_CPU_CFG_CPU_MAIN_CLK_SYNC_DONE_MASK));
         target_clk = 32 * 1000 * 1000U;
+        drv_pmu_dvdd_voltage_set(PMU_DVDD_VOLTAGE_0P95V);
         goto _exit;
     }
 

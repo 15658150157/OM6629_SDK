@@ -63,6 +63,17 @@ extern "C"
 #define GD_FLASH_STATUS_2_DC_POS                 4
 #define GD_FLASH_STATUS_2_DC_MASK               (0x1U << 4)
 
+#define PUYA_FLASH_CONFIG_DC_POS                 1
+#define PUYA_FLASH_CONFIG_DC_MASK               (0x1U << 1)
+#define PUYA_FLASH_CONFIG_WPS_POS                2
+#define PUYA_FLASH_CONFIG_WPS_MASK               (0x1U << 2)
+#define PUYA_FLASH_CONFIG_HD_RST_POS             7
+#define PUYA_FLASH_CONFIG_HD_RST_MASK            (0x1U << 7)
+
+#define GT_FLASH_CONFIG_DRV0_POS                 5
+#define GT_FLASH_CONFIG_DRV0_MASK                (0x1U << 5)
+#define GT_FLASH_CONFIG_DRV1_POS                 6
+#define GT_FLASH_CONFIG_DRV1_MASK                (0x1U << 6)
 
 #define FLASH_READ_PARA_DUMMY_CYCLE_POS          4
 #define FLASH_READ_PARA_DUMMY_CYCLE_MASK        (0x03U << 4)
@@ -196,6 +207,7 @@ typedef enum {
     FLASH_MID_TI                = 0x97,    /* Texas Instruments */
     FLASH_MID_WINBOND_NEX       = 0xEF,    /* Winbond (ex Nexcom) serial flashes */
     FLASH_MID_WINBOND           = 0xDA,    /* Winbond */
+    FLASH_MID_GT                = 0xC4,    /* Giantec */
 } flash_mid_t;
 
 typedef enum {
@@ -237,6 +249,12 @@ typedef struct {
     uint8_t valid_delay_min;                /*!< Minimum valid delay value */
     uint8_t valid_delay_max;                /*!< Maximum valid delay value */
 } flash_delay_info_t;
+
+typedef enum {
+    SR_WRITE_EN_NONE = 0,                   /*!< Not send write enable command */
+    SR_WRITE_EN_VOLATILE,                   /*!< Send volatile write enable command (0x50) */
+    SR_WRITE_EN_PERMANENT,                  /*!< Send permanent write enable command (0x06) */
+} flash_reg_write_en_t;
 
 #ifdef __cplusplus
 }

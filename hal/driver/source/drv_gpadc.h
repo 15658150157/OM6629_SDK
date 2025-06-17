@@ -94,10 +94,12 @@ typedef enum {
 
 /// GPADC gain
 typedef enum {
-    /// gain: 1/3
-    GPADC_GAIN_1_3          = 1U,
-    /// gain: 1
-    GPADC_GAIN_1            = 2U,
+    /// gain: 1, external reference
+    GPADC_GAIN_1_EXTERNAL_REF            = 0U,
+    /// gain: 1/3, internal reference
+    GPADC_GAIN_1_3_INTERNAL_REF          = 1U,
+    /// gain: 1, internal reference
+    GPADC_GAIN_1_INTERNAL_REF            = 2U,
 
     GPADC_GAIN_MAX,
 } drv_gpadc_gain_t;
@@ -142,7 +144,7 @@ typedef enum {
     GPADC_SAMPLING_CYCLES_80  = 6U,
     /// sampling cycles: 128
     GPADC_SAMPLING_CYCLES_128 = 7U,
-/// sampling cycles: 256
+    /// sampling cycles: 256
     GPADC_SAMPLING_CYCLES_256 = 8U,
     /// sampling cycles: 512
     GPADC_SAMPLING_CYCLES_512 = 9U,

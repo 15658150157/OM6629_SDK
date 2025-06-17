@@ -215,7 +215,6 @@
         <option>
           <name>CCDefines</name>
           <state>OM6627X=1</state>
-          <state>CONFIG_HARDWARE_VERSION=1</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -535,7 +534,6 @@
         <option>
           <name>ADefines</name>
           <state>OM6627X=1</state>
-          <state>CONFIG_HARDWARE_VERSION=1</state>
         </option>
         <option>
           <name>AList</name>

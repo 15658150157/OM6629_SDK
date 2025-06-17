@@ -307,7 +307,12 @@ static int16_t drv_gpadc_convert_channel_data(drv_gpadc_channel_p_t channel_p, i
                 if ((ret_raw >> 15) & 0x1) {
                     ret = 0;
                 } else {
-                    ret = (int16_t)(ret_raw * 1000 / 2048.0f + 0.5f);
+                    if (GPADC_GAIN_1_EXTERNAL_REF == gpadc_env.gain) {
+                        /* fix digital bug : ret = ret / 1.25 * 3.3 */
+                        ret = (int16_t)(ret_raw * 132000 / 102400.0f + 0.5f);
+                    } else {
+                        ret = (int16_t)(ret_raw * 1000 / 2048.0f + 0.5f);
+                    }
                 }
             } else {
                 ret = (int16_t)(ret_raw * 1000 / 2048.0f);
@@ -331,8 +336,8 @@ static void drv_gpadc_config(const drv_gpadc_config_t* config)
 {
     /* ADC_CFG0 config */
     REGW(&OM_GPADC->ADC_CFG0, MASK_10REG(GPADC_MODE_SEL, config->mode,
-                                         GPADC_EN_SCALE, (GPADC_GAIN_1_3 == config->gain)? 1 : 0,
-                                         GPADC_SEL_VREF, 0,
+                                         GPADC_EN_SCALE, (GPADC_GAIN_1_3_INTERNAL_REF == config->gain)? 1 : 0,
+                                         GPADC_SEL_VREF, (GPADC_GAIN_1_EXTERNAL_REF == config->gain)? 1 : 0,
                                          GPADC_PD_VBAT_DET, ((GPADC_CH_P_VBAT & config->channel_p) == GPADC_CH_P_VBAT)? 0 : 1,
                                          GPADC_PMU_TS_ICTRL, (GPADC_CH_P_TEMPERATURE == config->channel_p)? 3 : 0,
                                          GPADC_VCTRL_LDO, 1,
@@ -342,14 +347,10 @@ static void drv_gpadc_config(const drv_gpadc_config_t* config)
                                          GPADC_CMREG_EN, (GPADC_MODE_DIFF == config->mode)? 1 : 0));
 
     /* ADC_CFG1 config */
-    REGW(&OM_GPADC->ADC_CFG1, MASK_8REG(GPADC_SMP_TIME, config->sampling_cycles,
+    REGW(&OM_GPADC->ADC_CFG1, MASK_4REG(GPADC_SMP_TIME, config->sampling_cycles,
                                         GPADC_AVG_BYPASS, 1,
                                         GPADC_SUM_NUM, config->sum_num,
-                                        GPADC_VIN_OUTPUT_MODE, 1,
-                                        GPADC_AUTO_PD1, 0,
-                                        GPADC_AUTO_PD2, 0,
-                                        GPADC_TRIG_RES, 0,
-                                        GPADC_DIGI_CLK_FREQ, 0x20));
+                                        GPADC_VIN_OUTPUT_MODE, 1));
 
     /* ADC_CFG2 config */
     REGW(&OM_GPADC->ADC_CFG2, MASK_4REG(GPADC_SEQ_VECT, config->channel_p,
@@ -443,10 +444,10 @@ static void drv_gpadc_set_new_calibrate_param(void)
     float delta = 0;
 
     for (uint8_t mode = GPADC_MODE_SINGLE; mode <= GPADC_MODE_DIFF; mode++) {
-        for (uint8_t gain = GPADC_GAIN_1_3; gain < GPADC_GAIN_MAX; gain++) {
+        for (uint8_t gain = GPADC_GAIN_1_3_INTERNAL_REF; gain < GPADC_GAIN_MAX; gain++) {
             if (mode == GPADC_MODE_SINGLE) {
                 gain_error = gpadc_env.ft_calib_value.data[gain].gain_error;
-                if (gain == GPADC_GAIN_1_3) {
+                if (gain == GPADC_GAIN_1_3_INTERNAL_REF) {
                     vbg_code_trim_1_old = gpadc_env.ft_calib_ex_2_value.vbg_code_trim_1_vbat_3p3v;
                     vbg_code_trim_3_old = gpadc_env.ft_calib_ex_2_value.vbg_code_trim_3_vbat_3p3v;
                 } else {
@@ -458,8 +459,8 @@ static void drv_gpadc_set_new_calibrate_param(void)
                     }
                 }
             } else {
-                gain_error = gpadc_env.ft_calib_ex_4_value.data_diff[gain].gain_error;
-                if (gain == GPADC_GAIN_1_3) {
+                gain_error = gpadc_env.ft_calib_ex_4_value.data_diff[gain-1].gain_error;
+                if (gain == GPADC_GAIN_1_3_INTERNAL_REF) {
                     if (gpadc_env.use_flash_ex_5 == true) {
                         vbg_code_trim_1_old = gpadc_env.ft_calib_ex_5_value.vbg_code_trim_1_vbat_3p3v_diff;
                         vbg_code_trim_3_old = gpadc_env.ft_calib_ex_5_value.vbg_code_trim_3_vbat_3p3v_diff;
@@ -521,7 +522,7 @@ static void drv_gpadc_set_new_calibrate_param(void)
             if (mode == GPADC_MODE_SINGLE) {
                 gpadc_env.ft_calib_value.data[gain].gain_error = gain_error_new;
             } else {
-                gpadc_env.ft_calib_ex_4_value.data_diff[gain].gain_error = gain_error_new;
+                gpadc_env.ft_calib_ex_4_value.data_diff[gain-1].gain_error = gain_error_new;
             }
         }
     }
@@ -649,7 +650,7 @@ static float drv_gpadc_calib_vos_temp(drv_gpadc_gain_t gain, uint16_t gainErr_se
 
     float v_gain_error = 8192.0f / gainErr_set;
     float v_vos = (int16_t)vos_set / 16.0f;
-    float v_gain = (GPADC_GAIN_1_3 == gain) ? 3 : 1;
+    float v_gain = (GPADC_GAIN_1_3_INTERNAL_REF == gain) ? 3 : 1;
 
     float vt = ((ret_raw / 16.0f) - v_vos) * 1.25f / 4096.0f / v_gain_error * v_gain;
 
@@ -783,7 +784,7 @@ static int drv_gpadc_temperature_read(void)
     config.channel_p = GPADC_CH_P_TEMPERATURE;
     config.channel_n = GPADC_CH_N_AVSS;
     config.mode = GPADC_MODE_SINGLE;
-    config.gain = GPADC_GAIN_1_3;
+    config.gain = GPADC_GAIN_1_3_INTERNAL_REF;
     config.sum_num = GPADC_SUM_NUM_2;
     config.sampling_cycles = GPADC_SAMPLING_CYCLES_128;
 
@@ -1044,12 +1045,6 @@ om_error_t drv_gpadc_read_dma(uint16_t channel_p, int16_t *data, uint16_t num)
     gpdma_config_t    dma_config;
     om_error_t      error;
 
-    /* ADC_CFG1 */
-    REGW(&OM_GPADC->ADC_CFG1, MASK_4REG(GPADC_AUTO_PD1, 0x1,
-                                        GPADC_AUTO_PD2, 0x1,
-                                        GPADC_TRIG_RES, 0x1,
-                                        GPADC_DIGI_CLK_FREQ, 0x1F));
-
     gpadc_env.busy = channel_p;
     gpadc_env.rx_cnt = 0;
     gpadc_env.rx_buf = data;
@@ -1240,7 +1235,7 @@ om_error_t drv_gpadc_calibrate(drv_gpadc_calib_t *pvalue, drv_gpadc_flash_calib_
                 pvalue->vos = gpadc_para.vos_set;
                 pvalue->vos_temp = gpadc_para.vosTemp_set;
 
-                if (gain == GPADC_GAIN_1_3) {
+                if (gain == GPADC_GAIN_1_3_INTERNAL_REF) {
                     gpadc_para.vosTemp_cal_gain_1_3 = gpadc_para.vosTemp_cal;
                     gpadc_para.gainErr_set_gain_1_3 = gpadc_para.gainErr_set;
                     gpadc_para.vos_set_gain_1_3 = gpadc_para.vos_set;

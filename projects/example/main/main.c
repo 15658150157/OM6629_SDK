@@ -50,6 +50,9 @@ int main(void)
     drv_uart_init(OM_UART1, &uart_cfg);
 
     om_printf("Example project\r\n");
+
+    // example_aes();
+
     // example_efuse();
 
     // example_audio();
@@ -118,8 +121,6 @@ int main(void)
     // example_uart_flow_control();
 
     // example_wdt();
-
-    // example_gpadc();
 
     // #if (CONFIG_NVDS)
     // example_nvds();

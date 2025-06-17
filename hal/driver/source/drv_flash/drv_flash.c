@@ -234,6 +234,21 @@ om_error_t drv_flash_write_protect_set(OM_FLASH_Type om_flash, flash_protect_t p
     return OM_ERROR_UNSUPPORTED;
 }
 
+om_error_t drv_flash_write_protect_set_volatile(OM_FLASH_Type om_flash, flash_protect_t protect)
+{
+    #if (RTE_FLASH0)
+    if (om_flash == OM_FLASH0) {
+        return drv_iflash_write_protect_set_volatile((OM_SF_Type *)om_flash, protect);
+    } else
+    #endif
+    #if (RTE_FLASH1)
+    if (om_flash == OM_FLASH1) {
+        return drv_oflash_write_protect_set_volatile((OM_OSPI_Type *)om_flash, protect);
+    } else
+    #endif
+    return OM_ERROR_UNSUPPORTED;
+}
+
 om_error_t drv_flash_read_cmd_set(OM_FLASH_Type om_flash, flash_read_t read_cmd)
 {
     #if (RTE_FLASH0)
@@ -274,6 +289,21 @@ om_error_t drv_flash_quad_enable(OM_FLASH_Type om_flash, bool enable)
     #if (RTE_FLASH1)
     if (om_flash == OM_FLASH1) {
         return drv_oflash_quad_enable((OM_OSPI_Type *)om_flash, enable);
+    } else
+    #endif
+    return OM_ERROR_UNSUPPORTED;
+}
+
+om_error_t drv_flash_quad_enable_volatile(OM_FLASH_Type om_flash, bool enable)
+{
+    #if (RTE_FLASH0)
+    if (om_flash == OM_FLASH0) {
+        return drv_iflash_quad_enable_volatile((OM_SF_Type *)om_flash, enable);
+    } else
+    #endif
+    #if (RTE_FLASH1)
+    if (om_flash == OM_FLASH1) {
+        return drv_oflash_quad_enable_volatile((OM_OSPI_Type *)om_flash, enable);
     } else
     #endif
     return OM_ERROR_UNSUPPORTED;
@@ -369,6 +399,21 @@ om_error_t drv_flash_write_status(OM_FLASH_Type om_flash, uint8_t status[2])
     return OM_ERROR_UNSUPPORTED;
 }
 
+om_error_t drv_flash_write_status_volatile(OM_FLASH_Type om_flash, uint8_t status[2])
+{
+    #if (RTE_FLASH0)
+    if (om_flash == OM_FLASH0) {
+        return drv_iflash_write_status_volatile((OM_SF_Type *)om_flash, status, 2);
+    } else
+    #endif
+    #if (RTE_FLASH1)
+    if (om_flash == OM_FLASH1) {
+        return drv_oflash_write_status_volatile((OM_OSPI_Type *)om_flash, status);
+    } else
+    #endif
+    return OM_ERROR_UNSUPPORTED;
+}
+
 om_error_t drv_flash_modifiy_status_bits(OM_FLASH_Type om_flash, uint8_t status[2], uint8_t mask[2])
 {
     #if (RTE_FLASH0)
@@ -379,6 +424,21 @@ om_error_t drv_flash_modifiy_status_bits(OM_FLASH_Type om_flash, uint8_t status[
     #if (RTE_FLASH1)
     if (om_flash == OM_FLASH1) {
         return drv_oflash_modifiy_status_bits((OM_OSPI_Type *)om_flash, status, mask);
+    } else
+    #endif
+    return OM_ERROR_UNSUPPORTED;
+}
+
+om_error_t drv_flash_modifiy_status_bits_volatile(OM_FLASH_Type om_flash, uint8_t status[2], uint8_t mask[2])
+{
+    #if (RTE_FLASH0)
+    if (om_flash == OM_FLASH0) {
+        return drv_iflash_modifiy_status_bits_volatile((OM_SF_Type *)om_flash, status, mask);
+    } else
+    #endif
+    #if (RTE_FLASH1)
+    if (om_flash == OM_FLASH1) {
+        return drv_oflash_modifiy_status_bits_volatile((OM_OSPI_Type *)om_flash, status, mask);
     } else
     #endif
     return OM_ERROR_UNSUPPORTED;
@@ -399,11 +459,36 @@ om_error_t drv_flash_write_status_reg1(OM_FLASH_Type om_flash, uint8_t *status)
     return OM_ERROR_UNSUPPORTED;
 }
 
+om_error_t drv_flash_write_status_reg1_volatile(OM_FLASH_Type om_flash, uint8_t *status)
+{
+    #if (RTE_FLASH0)
+    if (om_flash == OM_FLASH0) {
+        return drv_iflash_write_status_volatile((OM_SF_Type *)om_flash, status, 1);
+    } else
+    #endif
+    #if (RTE_FLASH1)
+    if (om_flash == OM_FLASH1) {
+        return drv_oflash_write_status_reg1_volatile((OM_OSPI_Type *)om_flash, status);
+    } else
+    #endif
+    return OM_ERROR_UNSUPPORTED;
+}
+
 om_error_t drv_flash_write_status_reg2(OM_FLASH_Type om_flash, uint8_t *status)
 {
     #if (RTE_FLASH1)
     if (om_flash == OM_FLASH1) {
         return drv_oflash_write_status_reg2((OM_OSPI_Type *)om_flash, status);
+    }
+    #endif
+    return OM_ERROR_UNSUPPORTED;
+}
+
+om_error_t drv_flash_write_status_reg2_volatile(OM_FLASH_Type om_flash, uint8_t *status)
+{
+    #if (RTE_FLASH1)
+    if (om_flash == OM_FLASH1) {
+        return drv_oflash_write_status_reg2_volatile((OM_OSPI_Type *)om_flash, status);
     }
     #endif
     return OM_ERROR_UNSUPPORTED;
@@ -419,6 +504,21 @@ om_error_t drv_flash_write_config_reg(OM_FLASH_Type om_flash, uint8_t *config)
     #if (RTE_FLASH1)
     if (om_flash == OM_FLASH1) {
         return drv_oflash_write_config_reg((OM_OSPI_Type *)om_flash, config);
+    } else
+    #endif
+    return OM_ERROR_UNSUPPORTED;
+}
+
+om_error_t drv_flash_write_config_reg_volatile(OM_FLASH_Type om_flash, uint8_t *config)
+{
+    #if (RTE_FLASH0)
+    if (om_flash == OM_FLASH0) {
+        return drv_iflash_write_config_reg_volatile((OM_SF_Type *)om_flash, config);
+    } else
+    #endif
+    #if (RTE_FLASH1)
+    if (om_flash == OM_FLASH1) {
+        return drv_oflash_write_config_reg_volatile((OM_OSPI_Type *)om_flash, config);
     } else
     #endif
     return OM_ERROR_UNSUPPORTED;

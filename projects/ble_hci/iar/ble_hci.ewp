@@ -231,7 +231,6 @@
           <state>CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254</state>
           <state>CONFIG_LE_LL_TX_LLCP_BUF_NB=11</state>
           <state>OM6627X=1</state>
-          <state>CONFIG_HARDWARE_VERSION=1</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -557,7 +556,6 @@
           <state>CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254</state>
           <state>CONFIG_LE_LL_TX_LLCP_BUF_NB=11</state>
           <state>OM6627X=1</state>
-          <state>CONFIG_HARDWARE_VERSION=1</state>
         </option>
         <option>
           <name>AList</name>

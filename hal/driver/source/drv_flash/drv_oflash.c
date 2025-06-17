@@ -100,6 +100,7 @@
 #define FLASH_READ_CFG_REG_CFG(xpi)         {0x15U, FCFG(XBUS(xpi), 8, XBUS(xpi), 0, 0, XBUS(xpi))}
 #define FLASH_WRITE_CFG_REG_CFG(xpi)        {0x11U, FCFG(XBUS(xpi), 8, XBUS(xpi), 8, 0, XBUS(xpi))}
 // Write enable/disable
+#define FLASH_WRIET_ENABLE_VSR_CFG(xpi)     {0x50U, FCFG(XBUS(xpi), 8, XBUS(xpi), 0, 0, XBUS(xpi))}
 #define FLASH_WRITE_ENABLE_CFG(xpi)         {0x06U, FCFG(XBUS(xpi), 8, XBUS(xpi), 0, 0, XBUS(xpi))}
 #define FLASH_WRITE_DISABLE_CFG(xpi)        {0x04U, FCFG(XBUS(xpi), 8, XBUS(xpi), 0, 0, XBUS(xpi))}
 // Reset
@@ -252,6 +253,22 @@ __OF_RAM_CODE static om_error_t oflash_read_reg(flash_frame_t *frame, uint8_t *d
     return error;
 }
 
+__OF_RAM_CODE static om_error_t oflash_write_enable(OM_OSPI_Type *om_flash)
+{
+    flash_frame_t frame;
+
+    CMD_FRAME_SET(&frame, FLASH_WRITE_ENABLE_CFG(flash1_env.xpi_mode));
+    return oflash_read_reg(&frame, NULL, 0);
+}
+
+__OF_RAM_CODE static om_error_t oflash_write_enable_vsr(OM_OSPI_Type *om_flash)
+{
+    flash_frame_t frame;
+
+    CMD_FRAME_SET(&frame, FLASH_WRIET_ENABLE_VSR_CFG(flash1_env.xpi_mode));
+    return oflash_read_reg(&frame, NULL, 0);
+}
+
 __OF_RAM_CODE static om_error_t oflash_poll_wip(flash_frame_t *wip_frame)
 {
     uint8_t status = 0xFF;
@@ -272,7 +289,8 @@ __OF_RAM_CODE static om_error_t oflash_poll_wip(flash_frame_t *wip_frame)
 __OF_RAM_CODE static om_error_t oflash_write_reg(flash_frame_t *write_reg_frame,
                                                  flash_frame_t *wip_frame,
                                                  uint8_t *data,
-                                                 uint8_t data_len)
+                                                 uint8_t data_len,
+                                                 flash_reg_write_en_t wr_en_type)
 {
     om_error_t error;
     oflash_env_t *env = &flash1_env;
@@ -298,6 +316,12 @@ __OF_RAM_CODE static om_error_t oflash_write_reg(flash_frame_t *write_reg_frame,
     frame_cfg[1] = write_reg_frame->frame_cfg[1];
     drv_ospi_sec_cfg_set(OM_OSPI1, 0);
     drv_ospi_read_cfg_set(OM_OSPI1, frame_cfg);
+    // Set write enable
+    if (wr_en_type == SR_WRITE_EN_PERMANENT) {
+        oflash_write_enable(OM_OSPI1);
+    } else if (wr_en_type == SR_WRITE_EN_VOLATILE) {
+        oflash_write_enable_vsr(OM_OSPI1);
+    }
     // Start Read
     error = drv_ospi_read(OM_OSPI1, cmd, NULL, 0);
     // Restore frame config
@@ -306,14 +330,6 @@ __OF_RAM_CODE static om_error_t oflash_write_reg(flash_frame_t *write_reg_frame,
     OM_CRITICAL_END();
     // wait done
     return error == OM_ERROR_OK ? oflash_poll_wip(wip_frame) : error;
-}
-
-static om_error_t oflash_write_enable(OM_OSPI_Type *om_flash)
-{
-    flash_frame_t frame;
-
-    CMD_FRAME_SET(&frame, FLASH_WRITE_ENABLE_CFG(flash1_env.xpi_mode));
-    return oflash_read_reg(&frame, NULL, 0);
 }
 
 __OF_RAM_CODE static om_error_t oflash_read_frame_set(OM_OSPI_Type *om_flash,
@@ -597,6 +613,132 @@ EXIT:
     flash1_env.delay_info.valid_delay_max = delay2;
     flash1_env.delay_info.valid_delay_min = delay1;
     flash1_env.delay_info.auto_delay_en = 1;
+    return error;
+}
+
+static om_error_t oflash_write_status(OM_OSPI_Type *om_flash, uint8_t status[2], uint8_t is_volatile)
+{
+    flash_frame_t reg_frame, wip_frame;
+    oflash_env_t *env = &flash1_env;
+    om_error_t error;
+
+    CMD_FRAME_SET(&reg_frame, FLASH_WRITE_STA_REG1_CFG(env->xpi_mode));
+    CMD_FRAME_SET(&wip_frame, FLASH_READ_STA_REG1_CFG(env->xpi_mode));
+    #if (RTE_FLASH1_XIP)
+    OM_CRITICAL_BEGIN();
+    #endif
+    error = oflash_write_reg(&reg_frame, &wip_frame, status, 2,
+                is_volatile ? SR_WRITE_EN_VOLATILE : SR_WRITE_EN_PERMANENT);
+    #if (RTE_FLASH1_XIP)
+    OM_CRITICAL_END();
+    #endif
+    return error;
+}
+
+static om_error_t oflash_write_status_reg1(OM_OSPI_Type *om_flash, uint8_t *status, uint8_t is_volatile)
+{
+    flash_frame_t reg_frame, wip_frame;
+
+    CMD_FRAME_SET(&reg_frame, FLASH_WRITE_STA_REG1_CFG(flash1_env.xpi_mode));
+    CMD_FRAME_SET(&wip_frame, FLASH_READ_STA_REG1_CFG(flash1_env.xpi_mode));
+
+    #if (RTE_FLASH1_XIP)
+    OM_CRITICAL_BEGIN();
+    #endif
+    if (oflash_write_reg(&reg_frame, &wip_frame, status, 1,
+            is_volatile ? SR_WRITE_EN_VOLATILE : SR_WRITE_EN_PERMANENT) != OM_ERROR_OK) {
+        return OM_ERROR_FAIL;
+    }
+    #if (RTE_FLASH1_XIP)
+    OM_CRITICAL_END();
+    #endif
+    return OM_ERROR_OK;
+}
+
+
+static om_error_t oflash_write_status_reg2(OM_OSPI_Type *om_flash, uint8_t *status, uint8_t is_volatile)
+{
+    flash_frame_t reg_frame, wip_frame;
+    uint8_t rd_status;
+
+    CMD_FRAME_SET(&reg_frame, FLASH_WRITE_STA_REG2_CFG(flash1_env.xpi_mode));
+    CMD_FRAME_SET(&wip_frame, FLASH_READ_STA_REG1_CFG(flash1_env.xpi_mode));
+
+    #if (RTE_FLASH1_XIP)
+    OM_CRITICAL_BEGIN();
+    #endif
+    if (oflash_write_reg(&reg_frame, &wip_frame, status, 1,
+            is_volatile ? SR_WRITE_EN_VOLATILE : SR_WRITE_EN_PERMANENT) != OM_ERROR_OK) {
+        return OM_ERROR_FAIL;
+    }
+    #if (RTE_FLASH1_XIP)
+    OM_CRITICAL_END();
+    #endif
+    // read back to verify
+    if (drv_oflash_read_status_reg2(om_flash, &rd_status) != OM_ERROR_OK) {
+        return OM_ERROR_FAIL;
+    }
+    if (rd_status != *status) {
+        return OM_ERROR_VERIFY;
+    }
+    return OM_ERROR_OK;
+}
+
+static om_error_t oflash_write_config_reg(OM_OSPI_Type *om_flash, uint8_t *config, uint8_t is_volatile)
+{
+    flash_frame_t reg_frame, wip_frame;
+    CMD_FRAME_SET(&reg_frame, FLASH_WRITE_CFG_REG_CFG(flash1_env.xpi_mode));
+    CMD_FRAME_SET(&wip_frame, FLASH_READ_STA_REG1_CFG(flash1_env.xpi_mode));
+
+    #if (RTE_FLASH1_XIP)
+    OM_CRITICAL_BEGIN();
+    #endif
+    if (oflash_write_reg(&reg_frame, &wip_frame, config, 1,
+            is_volatile ? SR_WRITE_EN_VOLATILE : SR_WRITE_EN_PERMANENT) != OM_ERROR_OK) {
+        return OM_ERROR_FAIL;
+    }
+    #if (RTE_FLASH1_XIP)
+    OM_CRITICAL_END();
+    #endif
+    return OM_ERROR_OK;
+}
+
+static om_error_t oflash_modifiy_status_bits(OM_OSPI_Type *om_flash, uint8_t status[2], uint8_t mask[2], uint8_t is_volatile)
+{
+    uint8_t s1[2];
+    uint8_t s2[2];
+    om_error_t error;
+
+    // Read status reg
+    if ((error = drv_oflash_read_status_reg1(om_flash, &s1[0]) ) != OM_ERROR_OK) {
+        goto ERR;
+    }
+    if ((error = drv_oflash_read_status_reg2(om_flash, &s1[1])) != OM_ERROR_OK) {
+        goto ERR;
+    }
+    // Read status reg again
+    if ((error = drv_oflash_read_status_reg1(om_flash, &s2[0])) != OM_ERROR_OK) {
+        goto ERR;
+    }
+    if ((error = drv_oflash_read_status_reg2(om_flash, &s2[1]) ) != OM_ERROR_OK) {
+        goto ERR;
+    }
+    // check status reg
+    if (s1[0] != s2[0] || s1[1] != s2[1]) {
+        return OM_ERROR_VERIFY;
+    }
+    if ((s1[0] & mask[0]) != (status[0] & mask[0]) ||
+            (s1[1] & mask[1]) != (status[1] & mask[1])) {
+        s1[0] &= ~mask[0];
+        s1[0] |= (status[0] & mask[0]);
+        s1[1] &= ~mask[1];
+        s1[1] |= (status[1] & mask[1]);
+    } else {
+        return OM_ERROR_OK;
+    }
+    return oflash_write_status(om_flash, s1, is_volatile);
+
+ERR:
     return error;
 }
 
@@ -1059,139 +1201,52 @@ om_error_t drv_oflash_read_config_reg(OM_OSPI_Type *om_flash, uint8_t *config)
 
 om_error_t drv_oflash_write_status(OM_OSPI_Type *om_flash, uint8_t status[2])
 {
-    flash_frame_t reg_frame, wip_frame;
-    oflash_env_t *env = &flash1_env;
-    om_error_t error;
+    return oflash_write_status(om_flash, status, 0);
+}
 
-    CMD_FRAME_SET(&reg_frame, FLASH_WRITE_STA_REG1_CFG(env->xpi_mode));
-    CMD_FRAME_SET(&wip_frame, FLASH_READ_STA_REG1_CFG(env->xpi_mode));
-    #if (RTE_FLASH1_XIP)
-    OM_CRITICAL_BEGIN();
-    #endif
-    // write enable
-    if ((error = oflash_write_enable(om_flash)) == OM_ERROR_OK) {
-        error = oflash_write_reg(&reg_frame, &wip_frame, status, 2);
-    }
-    #if (RTE_FLASH1_XIP)
-    OM_CRITICAL_END();
-    #endif
-    return error;
+om_error_t drv_oflash_write_status_volatile(OM_OSPI_Type *om_flash, uint8_t status[2])
+{
+    return oflash_write_status(om_flash, status, 1);
 }
 
 om_error_t drv_oflash_write_status_reg1(OM_OSPI_Type *om_flash, uint8_t *status)
 {
-    flash_frame_t reg_frame, wip_frame;
+    return oflash_write_status_reg1(om_flash, status, 0);
+}
 
-    CMD_FRAME_SET(&reg_frame, FLASH_WRITE_STA_REG1_CFG(flash1_env.xpi_mode));
-    CMD_FRAME_SET(&wip_frame, FLASH_READ_STA_REG1_CFG(flash1_env.xpi_mode));
-
-    // write enable
-    if (oflash_write_enable(om_flash) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
-    }
-    #if (RTE_FLASH1_XIP)
-    OM_CRITICAL_BEGIN();
-    #endif
-    if (oflash_write_reg(&reg_frame, &wip_frame, status, 1) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
-    }
-    #if (RTE_FLASH1_XIP)
-    OM_CRITICAL_END();
-    #endif
-    return OM_ERROR_OK;
+om_error_t drv_oflash_write_status_reg1_volatile(OM_OSPI_Type *om_flash, uint8_t *status)
+{
+    return oflash_write_status_reg1(om_flash, status, 1);
 }
 
 om_error_t drv_oflash_write_status_reg2(OM_OSPI_Type *om_flash, uint8_t *status)
 {
-    flash_frame_t reg_frame, wip_frame;
-    uint8_t rd_status;
+    return oflash_write_status_reg2(om_flash, status, 0);
+}
 
-    CMD_FRAME_SET(&reg_frame, FLASH_WRITE_STA_REG2_CFG(flash1_env.xpi_mode));
-    CMD_FRAME_SET(&wip_frame, FLASH_READ_STA_REG1_CFG(flash1_env.xpi_mode));
-
-    // write enable
-    if (oflash_write_enable(om_flash) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
-    }
-    #if (RTE_FLASH1_XIP)
-    OM_CRITICAL_BEGIN();
-    #endif
-    if (oflash_write_reg(&reg_frame, &wip_frame, status, 1) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
-    }
-    #if (RTE_FLASH1_XIP)
-    OM_CRITICAL_END();
-    #endif
-    // read back to verify
-    if (drv_oflash_read_status_reg2(om_flash, &rd_status) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
-    }
-    if (rd_status != *status) {
-        return OM_ERROR_VERIFY;
-    }
-    return OM_ERROR_OK;
+om_error_t drv_oflash_write_status_reg2_volatile(OM_OSPI_Type *om_flash, uint8_t *status)
+{
+    return oflash_write_status_reg2(om_flash, status, 1);
 }
 
 om_error_t drv_oflash_write_config_reg(OM_OSPI_Type *om_flash, uint8_t *config)
 {
-    flash_frame_t reg_frame, wip_frame;
+    return oflash_write_config_reg(om_flash, config, 0);
+}
 
-    CMD_FRAME_SET(&reg_frame, FLASH_WRITE_CFG_REG_CFG(flash1_env.xpi_mode));
-    CMD_FRAME_SET(&wip_frame, FLASH_READ_STA_REG1_CFG(flash1_env.xpi_mode));
-
-    // write enable
-    if (oflash_write_enable(om_flash) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
-    }
-    #if (RTE_FLASH1_XIP)
-    OM_CRITICAL_BEGIN();
-    #endif
-    if (oflash_write_reg(&reg_frame, &wip_frame, config, 1) != OM_ERROR_OK) {
-        return OM_ERROR_FAIL;
-    }
-    #if (RTE_FLASH1_XIP)
-    OM_CRITICAL_END();
-    #endif
-    return OM_ERROR_OK;
+om_error_t drv_oflash_write_config_reg_volatile(OM_OSPI_Type *om_flash, uint8_t *config)
+{
+    return oflash_write_config_reg(om_flash, config, 1);
 }
 
 om_error_t drv_oflash_modifiy_status_bits(OM_OSPI_Type *om_flash, uint8_t status[2], uint8_t mask[2])
 {
-    uint8_t s1[2];
-    uint8_t s2[2];
-    om_error_t error;
+    return oflash_modifiy_status_bits(om_flash, status, mask, 0);
+}
 
-    // Read status reg
-    if ((error = drv_oflash_read_status_reg1(om_flash, &s1[0]) ) != OM_ERROR_OK) {
-        goto ERR;
-    }
-    if ((error = drv_oflash_read_status_reg2(om_flash, &s1[1])) != OM_ERROR_OK) {
-        goto ERR;
-    }
-    // Read status reg again
-    if ((error = drv_oflash_read_status_reg1(om_flash, &s2[0])) != OM_ERROR_OK) {
-        goto ERR;
-    }
-    if ((error = drv_oflash_read_status_reg2(om_flash, &s2[1]) ) != OM_ERROR_OK) {
-        goto ERR;
-    }
-    // check status reg
-    if (s1[0] != s2[0] || s1[1] != s2[1]) {
-        return OM_ERROR_VERIFY;
-    }
-    if ((s1[0] & mask[0]) != (status[0] & mask[0]) ||
-            (s1[1] & mask[1]) != (status[1] & mask[1])) {
-        s1[0] &= ~mask[0];
-        s1[0] |= (status[0] & mask[0]);
-        s1[1] &= ~mask[1];
-        s1[1] |= (status[1] & mask[1]);
-    } else {
-        return OM_ERROR_OK;
-    }
-    return drv_oflash_write_status(om_flash, s1);
-
-ERR:
-    return error;
+om_error_t drv_oflash_modifiy_status_bits_volatile(OM_OSPI_Type *om_flash, uint8_t status[2], uint8_t mask[2])
+{
+    return oflash_modifiy_status_bits(om_flash, status, mask, 1);
 }
 
 om_error_t drv_oflash_write_protect_set(OM_OSPI_Type *om_flash, flash_protect_t protect)
@@ -1210,6 +1265,14 @@ om_error_t drv_oflash_write_protect_set(OM_OSPI_Type *om_flash, flash_protect_t 
     return drv_oflash_modifiy_status_bits(om_flash, status, mask);
 }
 
+om_error_t drv_oflash_write_protect_set_volatile(OM_OSPI_Type *om_flash, flash_protect_t protect)
+{
+    uint8_t mask[2] = {FLASH_STATUS_1_BP_MASK, FLASH_STATUS_2_CMP_MASK};
+    uint8_t status[2] = {protect, FLASH_STATUS_2_CMP_MASK};
+
+    return drv_oflash_modifiy_status_bits_volatile(om_flash, status, mask);
+}
+
 om_error_t drv_oflash_quad_enable(OM_OSPI_Type *om_flash, bool enable)
 {
     uint8_t mask[2] = {0, FLASH_STATUS_2_QE_MASK};
@@ -1220,6 +1283,18 @@ om_error_t drv_oflash_quad_enable(OM_OSPI_Type *om_flash, bool enable)
     }
 
     return drv_oflash_modifiy_status_bits(om_flash, status, mask);
+}
+
+om_error_t drv_oflash_quad_enable_volatile(OM_OSPI_Type *om_flash, bool enable)
+{
+    uint8_t mask[2] = {0, FLASH_STATUS_2_QE_MASK};
+    uint8_t status[2] = {0, 0};
+
+    if (enable) {
+        status[1] = FLASH_STATUS_2_QE_MASK;
+    }
+
+    return drv_oflash_modifiy_status_bits_volatile(om_flash, status, mask);
 }
 
 om_error_t drv_oflash_read_param_set(OM_OSPI_Type *om_flash, uint8_t param)
@@ -1234,7 +1309,7 @@ om_error_t drv_oflash_read_param_set(OM_OSPI_Type *om_flash, uint8_t param)
     if (env->xpi_mode != M_QPI) {
         return OM_ERROR_PERMISSION;
     }
-    return oflash_write_reg(&set_param_frame, &wip_frame, &param, 1);
+    return oflash_write_reg(&set_param_frame, &wip_frame, &param, 1, SR_WRITE_EN_NONE);
 }
 
 om_error_t drv_oflash_4byte_addr_enable(OM_OSPI_Type *om_flash, uint8_t enable)

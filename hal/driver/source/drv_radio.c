@@ -278,14 +278,14 @@ void drv_rf_tx_power_set(bool auto_ctrl_by_ble, rf_tx_power_t power)
                     pmu_dcdc_vout += 3;
                     pmu_ldo_v1p2_vbat += 2;
                     REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 11));
-                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0x0));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0xF));
                     break;
 
                 case RF_TX_POWER_5DBM:
                     pmu_dcdc_vout += 3;
                     pmu_ldo_v1p2_vbat += 2;
                     REGW(&OM_DAIF->PA_CNS, MASK_2REG(DAIF_EN_BYPASS_PALDO, 1, DAIF_PA_GAIN_IDX_REG, 10));
-                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0x0));
+                    REGW(&OM_DAIF->PA_CTRL, MASK_1REG(DAIF_TRS_ANTCAP_CT, 0xF));
                     break;
 
                 case RF_TX_POWER_4P5DBM:
@@ -341,11 +341,9 @@ void drv_rf_tx_power_set(bool auto_ctrl_by_ble, rf_tx_power_t power)
     }
 
     if (drv_calib_repair_env.temperature > 70) {
-        pmu_pll_vco_vout += 2;
-    } else {
         pmu_pll_vco_vout += 1;
+        pmu_pll_vco_vout = (pmu_pll_vco_vout > 0x7) ? 0x7 : pmu_pll_vco_vout;
     }
-    pmu_pll_vco_vout = (pmu_pll_vco_vout > 0x7) ? 0x7 : pmu_pll_vco_vout;
 
     REGW(&OM_PMU->ANA_PD_1, MASK_1REG(PMU_ANA_PD_1_DCDC_VOUT, pmu_dcdc_vout));
     REGW(&OM_PMU->OM26B_CFG0, MASK_1REG(PMU_OM26B_CFG0_LDO_ANA1P2_TRIM, pmu_ldo_v1p2_vbat));

@@ -38,13 +38,12 @@ extern "C"
  * TYPEDEFS
  */
 typedef enum {
-    FAULT_ID_ASSERT       = 0U,    /* Assert Fault */
-    FAULT_ID_LOW_VOLTAGE  = 1U,    /* low voltage detect */
-    FAULT_ID_WDT          = 2U,    /* WDT interrupt */
-    FAULT_ID_HARD_FAULT   = 3U,    /* hard fault */
-    FAULT_ID_USER         = 4U,    /* user check fault */
+    FAULT_ID_LOW_VOLTAGE,       /* low voltage detect */
+    FAULT_ID_WDT,               /* WDT interrupt */
+    FAULT_ID_HARD_FAULT,        /* hard fault */
+    FAULT_ID_USER,              /* user check fault */
 
-    FAULT_ID_MAX          = 0xFFFFFFFFU,
+    FAULT_ID_MAX  = 0xFFFFFFFFU,
 } fault_id_t;
 
 
@@ -55,7 +54,8 @@ typedef enum {
  *******************************************************************************
  * @brief Fault Callback. The function will be called when system fault.
  *        Hardfault（MemManage_Handler/BusFault_Handler/UsageFault_Handler）,
- *        OM_ASSERT, WDT（NMI）Handler，call it.
+ *        OM_ASSERT, WDT（NMI）Handler，call it. OM_ASSERT call BKPT instument,
+ *        will trig DebugException_Handler, then Hardfault.
  *        User may call this function for self-check failed, It need User added.
  *
  *        The processing as follows:
@@ -66,15 +66,13 @@ typedef enum {
  *        5. reset system
  *
  *        Context is different by the fault_id. As follows:
- *        FAULT_ID_ASSERT:
- *                             context is __FILE__ name string, context_len is
- *                             __FILE__ name string len, param is __LINE__ number.
- *
+
+
  *        FAULT_ID_LOW_VOLTAGE:
  *        FAULT_ID_WDT:
  *        FAULT_ID_HARD_FAULT:
- *                              context is pointer to stacked regs, as follows:
- *                              struct stacked_reg_tag {
+ *                             context is pointer to stacked regs, as follows:
+ *                             struct stacked_reg_tag {
  *                                  uint32_t stacked_r0;
  *                                  uint32_t stacked_r1;
  *                                  uint32_t stacked_r2;
@@ -97,16 +95,12 @@ extern void fault_callback(fault_id_t fault_id, uint8_t *context, uint32_t conte
 
 /**
  *******************************************************************************
- * @brief Fault Context store. It is a weak function. The default Context store is
- *        endless loop. the SystemFaultContextStore is called by fault_callback.
+ * @brief Fault context store. It is a weak function. The default context store is
+ *        endless loop. the fault_context_store is called by fault_callback.
  *        User may define own callback in user/project file, not modify it in the
  *        isr driver. the parameter is the same as fault_callback function.
  *
  *        Context is different by the fault_id. As follows:
- *        FAULT_ID_ASSERT:
- *                             context is __FILE__ name string, context_len is
- *                             __FILE__ name string len, param is __LINE__ number.
- *
  *        FAULT_ID_LOW_VOLTAGE:
  *        FAULT_ID_WDT:
  *        FAULT_ID_HARD_FAULT:

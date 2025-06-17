@@ -180,38 +180,25 @@ static void i2s_disable_daif_16m(void)
 }
 
 #if RTE_AUDIO_USE_EXTERNAL
-static void i2s_set_sr_reg(i2s_sr_t sr)
+static void i2s_set_blck_ws(i2s_sr_t sr, i2s_bw_t bit_width)
 {
-    uint8_t is12m = 1, coeff = 4, odd = 0, high = 0;
+    uint8_t is12m, coeff, odd, high;
+    uint32_t bclk;
 
-    switch (sr) {
-    case I2S_SR_8K:
-    case I2S_SR_16K:
-    case I2S_SR_32K:
+    bclk = 2 * sr * bit_width;
+
+    // odd   = (bclk / sr % 2) ? 1 : 0
+    odd = (bclk / sr % 2) ? 1 : 0;
+    // high  = round(bclk / sr / 2)
+    high = bclk / sr / 2;
+
+    // coeff = mclk / bclk
+    if(sr == I2S_SR_8K || sr == I2S_SR_16K || sr == I2S_SR_32K) {
+        coeff = 16000000 / bclk;
         is12m = 0;
-        coeff = 0xA;
-        high = (uint8_t)(1600000/sr/2);
-        break;
-
-    case I2S_SR_11K:
-    case I2S_SR_12K:
-    case I2S_SR_22K:
-    case I2S_SR_44P1K:
-        high = (uint8_t)(3000000/sr/2);
-        break;
-
-    case I2S_SR_24K:
-        odd = 1;
-        high = 63;
-        break;
-
-    case I2S_SR_48K:
-        high = 31;
-        break;
-
-    default:
-        I2S_ASSERT(0);
-        break;
+    } else {
+        coeff = 12000000 / bclk;
+        is12m = 1;
     }
 
     /// Clock Source 48M
@@ -228,8 +215,8 @@ static void i2s_set_sr_reg(i2s_sr_t sr)
 
     /// Calculate blck and ws
     register_set(&OM_CPM->I2S_CFG, MASK_3REG(CPM_I2S_CFG_MST_DIV_COEFF,   coeff,    /* BCLK = I2S clock / coeff */
-                 CPM_I2S_CFG_MST_ODD,      odd,      /* odd  = (BCLK/Rate % 2) ? 1 : 0 */
-                 CPM_I2S_CFG_MST_HIGH_NUM, high));   /* high = round(BCLK / Rate / 2) */
+                 CPM_I2S_CFG_MST_ODD,      odd,                                     /* odd  = (BCLK/Rate % 2) ? 1 : 0 */
+                 CPM_I2S_CFG_MST_HIGH_NUM, high));                                  /* high = round(BCLK / Rate / 2) */
 }
 #endif /* RTE_AUDIO_USE_EXTERNAL */
 
@@ -289,7 +276,8 @@ static void i2s_set_ws_bclk(i2s_config_t *config)
         register_set(&OM_CPM->I2S_CFG, MASK_2REG(CPM_I2S_CFG_MST_EN, 1, CPM_I2S_CFG_MS_SEL, 1));
 
         /// Set sample rate divider
-        i2s_set_sr_reg(config->sample_rate);
+        //i2s_set_sr_reg(config->sample_rate);
+        i2s_set_blck_ws(config->sample_rate, config->bit_width);
 
     } else {
         /// Master clock generation disable, Make as slave role

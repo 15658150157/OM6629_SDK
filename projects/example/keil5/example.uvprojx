@@ -334,7 +334,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls/>
-              <Define>OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
+              <Define>OM6627X=1,</Define>
               <Undefine/>
               <IncludePath>../config;../drv_example;../../../bsp/include;../../../common/include;../../../common/source;../../../components/om_log;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;</IncludePath>
             </VariousControls>
@@ -352,7 +352,7 @@
             <ClangAsOpt>2</ClangAsOpt>
             <VariousControls>
               <MiscControls/>
-              <Define>OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
+              <Define>OM6627X=1,</Define>
               <Undefine/>
               <IncludePath>../config;../drv_example;../../../bsp/include;../../../common/include;../../../common/source;../../../components/om_log;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;</IncludePath>
             </VariousControls>

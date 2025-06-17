@@ -31,6 +31,7 @@ extern "C"
 /*******************************************************************************
  * EXTERN FUNCTIONS
  */
+extern void example_aes(void);
 extern void example_efuse(void);
 extern void example_audio(void);
 extern void example_flash(void);

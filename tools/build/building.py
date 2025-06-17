@@ -394,9 +394,6 @@ def PrepareBuild(sdk_dir=None):
     else:
         opt_level = 3
 
-    if GetDepend('CONFIG_HARDWARE_VERSION'):
-        defines += ['CONFIG_HARDWARE_VERSION=' + str(GetDepend('CONFIG_HARDWARE_VERSION'))]
-
     if not GetOption('keil5') and not GetOption('iar'):
         with os.popen('svnversion -n ' + sdk_dir) as version:
             try:

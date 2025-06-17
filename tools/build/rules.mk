@@ -65,8 +65,6 @@ DEVICE := $(shell echo $(device) | tr '[:lower:]' '[:upper:]')
 # defines in compiler
 DEFINES += $(DEVICE)=1
 
-DEFINES += CONFIG_HARDWARE_VERSION=$(CONFIG_HARDWARE_VERSION)
-
 SUBVERSION_EXISTS := $(shell command -v svnversion 2>/dev/null)
 ifneq ($(SUBVERSION_EXISTS), )
 	DEFINES += '__SDK_VERSION="$(shell svnversion -n $(SDK_DIR))"'

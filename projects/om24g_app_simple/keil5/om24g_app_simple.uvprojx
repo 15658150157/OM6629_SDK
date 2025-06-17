@@ -334,7 +334,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls/>
-              <Define>OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
+              <Define>OM6627X=1,</Define>
               <Undefine/>
               <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
@@ -352,7 +352,7 @@
             <ClangAsOpt>2</ClangAsOpt>
             <VariousControls>
               <MiscControls/>
-              <Define>OM6627X=1,CONFIG_HARDWARE_VERSION=1,</Define>
+              <Define>OM6627X=1,</Define>
               <Undefine/>
               <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>

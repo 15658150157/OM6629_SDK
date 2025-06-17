@@ -25,7 +25,7 @@
  * INCLUDES
  */
 #include "RTE_driver.h"
-#if (RTE_AUDIO_USE_EXTERNAL)
+#if (RTE_AUDIO && RTE_AUDIO_USE_EXTERNAL)
 #include "om_device.h"
 #include "om_driver.h"
 

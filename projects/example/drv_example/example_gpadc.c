@@ -37,7 +37,6 @@
 #define PAD_GPADC_CH_GPIO8        8
 #define MUX_GPADC_CH_GPIO8        PINMUX_PAD8_INPUT_MODE_CFG
 
-#define TEMPERATURRE_COMPEN_EN
 /*******************************************************************************
  * TYPEDEFS
  */
@@ -63,7 +62,6 @@ static const pin_config_t diff_pin_config[] = {
 
 /// Buffer that stores the data to be received
 static int16_t out[TEST_SIZE];
-static int16_t out_ex[TEST_SIZE];
 static int16_t out_multi[3*TEST_SIZE];
 /// Read finish flag
 static volatile uint8_t gpadc_done;
@@ -107,7 +105,7 @@ void example_gpadc_read(void)
     config.channel_p = GPADC_CH_P_GPIO2;
     config.channel_n = GPADC_CH_N_AVSS;
     config.mode = GPADC_MODE_SINGLE;
-    config.gain = GPADC_GAIN_1_3;
+    config.gain = GPADC_GAIN_1_3_INTERNAL_REF;
     config.sum_num = GPADC_SUM_NUM_256;
     config.sampling_cycles = GPADC_SAMPLING_CYCLES_128;
 
@@ -131,7 +129,7 @@ void example_gpadc_read_int(void)
     config.channel_p = GPADC_CH_P_GPIO2;
     config.channel_n = GPADC_CH_N_AVSS;
     config.mode = GPADC_MODE_SINGLE;
-    config.gain = GPADC_GAIN_1_3;
+    config.gain = GPADC_GAIN_1_3_INTERNAL_REF;
     config.sum_num = GPADC_SUM_NUM_256;
     config.sampling_cycles = GPADC_SAMPLING_CYCLES_128;
 
@@ -155,12 +153,12 @@ void example_gpadc_read_int(void)
  */
 void example_gpadc_read_dma(void)
 {
-#if (RTE_DMA)
+#if (RTE_GPDMA)
     drv_gpadc_config_t config;
     config.channel_p = GPADC_CH_P_GPIO2;
     config.channel_n = GPADC_CH_N_AVSS;
     config.mode = GPADC_MODE_SINGLE;
-    config.gain = GPADC_GAIN_1_3;
+    config.gain = GPADC_GAIN_1_3_INTERNAL_REF;
     config.sum_num = GPADC_SUM_NUM_256;
     config.sampling_cycles = GPADC_SAMPLING_CYCLES_128;
 
@@ -168,13 +166,13 @@ void example_gpadc_read_dma(void)
     drv_gpadc_init(&config);
     drv_gpadc_register_isr_callback(gpadc_read_cb);
 
-    drv_gpadc_dma_channel_allocate();
+    drv_gpadc_gpdma_channel_allocate();
     drv_gpadc_read_dma(config.channel_p, &out[0], TEST_SIZE);
 
     while(!gpadc_done);
     gpadc_done = 0;
 
-    drv_gpadc_dma_channel_release();
+    drv_gpadc_gpdma_channel_release();
     drv_gpadc_control(GPADC_CONTROL_DISABLE_CLOCK, NULL);
 #endif
 }
@@ -191,28 +189,13 @@ void example_gpadc_read_temperature(void)
     config.channel_p = GPADC_CH_P_TEMPERATURE;
     config.channel_n = GPADC_CH_N_AVSS;
     config.mode = GPADC_MODE_SINGLE;
-    config.gain = GPADC_GAIN_1_3;
+    config.gain = GPADC_GAIN_1_3_INTERNAL_REF;
     config.sum_num = GPADC_SUM_NUM_256;
     config.sampling_cycles = GPADC_SAMPLING_CYCLES_128;
 
-    drv_pin_init(pin_config, sizeof(pin_config) / sizeof(pin_config[0]));
     drv_gpadc_init(&config);
 
     drv_gpadc_read(config.channel_p, &out[0], TEST_SIZE);
-
-#ifdef TEMPERATURRE_COMPEN_EN
-    config.channel_p = GPADC_CH_P_VBAT;
-    drv_gpadc_init(&config);
-
-    drv_gpadc_read(config.channel_p, &out_ex[0], TEST_SIZE);
-
-    drv_gpadc_temperature_compen_t compen;
-    for (int i = 0; i < TEST_SIZE; i++) {
-        compen.temp_data = out[i];
-        compen.vbat_data = out_ex[i];
-        out[i] = (int)drv_gpadc_control(GPADC_CONTROL_TEMPERATURE_COMPEN, &compen);
-    }
-#endif
 
     drv_gpadc_control(GPADC_CONTROL_DISABLE_CLOCK, NULL);
 }
@@ -229,11 +212,10 @@ void example_gpadc_read_battery(void)
     config.channel_p = GPADC_CH_P_VBAT;
     config.channel_n = GPADC_CH_N_AVSS;
     config.mode = GPADC_MODE_SINGLE;
-    config.gain = GPADC_GAIN_1_3;
+    config.gain = GPADC_GAIN_1_3_INTERNAL_REF;
     config.sum_num = GPADC_SUM_NUM_256;
     config.sampling_cycles = GPADC_SAMPLING_CYCLES_128;
 
-    drv_pin_init(pin_config, sizeof(pin_config) / sizeof(pin_config[0]));
     drv_gpadc_init(&config);
 
     drv_gpadc_read(config.channel_p, &out[0], TEST_SIZE);
@@ -244,7 +226,7 @@ void example_gpadc_read_battery(void)
 /**
  *******************************************************************************
 * @brief example of read multi channels in blocking mode
-         NOTE: do not support GPADC_CH_TEMPERATURE | GPADC_CH_VBAT or GPADC_CH_TEMPERATURE | GPADC_CH_GPIOx
+         NOTE: do not support (GPADC_CH_TEMPERATURE | GPADC_CH_VBAT) or (GPADC_CH_TEMPERATURE | GPADC_CH_GPIOx)
  *
  *******************************************************************************
  */
@@ -254,7 +236,7 @@ void example_gpadc_read_multi(void)
     config.channel_p = GPADC_CH_P_VBAT | GPADC_CH_P_GPIO2 | GPADC_CH_P_GPIO3;
     config.channel_n = GPADC_CH_N_AVSS;
     config.mode = GPADC_MODE_SINGLE;
-    config.gain = GPADC_GAIN_1_3;
+    config.gain = GPADC_GAIN_1_3_INTERNAL_REF;
     config.sum_num = GPADC_SUM_NUM_256;
     config.sampling_cycles = GPADC_SAMPLING_CYCLES_128;
 
@@ -269,7 +251,7 @@ void example_gpadc_read_multi(void)
 /**
  *******************************************************************************
 * @brief example of read multi channels in interrupt mode
-         NOTE: do not support GPADC_CH_TEMPERATURE | GPADC_CH_VBAT or GPADC_CH_TEMPERATURE | GPADC_CH_GPIOx
+         NOTE: do not support (GPADC_CH_TEMPERATURE | GPADC_CH_VBAT) or (GPADC_CH_TEMPERATURE | GPADC_CH_GPIOx)
  *
  *******************************************************************************
  */
@@ -279,7 +261,7 @@ void example_gpadc_read_int_multi(void)
     config.channel_p = GPADC_CH_P_VBAT | GPADC_CH_P_GPIO2 | GPADC_CH_P_GPIO3;
     config.channel_n = GPADC_CH_N_AVSS;
     config.mode = GPADC_MODE_SINGLE;
-    config.gain = GPADC_GAIN_1_3;
+    config.gain = GPADC_GAIN_1_3_INTERNAL_REF;
     config.sum_num = GPADC_SUM_NUM_256;
     config.sampling_cycles = GPADC_SAMPLING_CYCLES_128;
 
@@ -298,18 +280,18 @@ void example_gpadc_read_int_multi(void)
  /**
  *******************************************************************************
 * @brief example of read multi channels in dma mode
-         NOTE: do not support GPADC_CH_TEMPERATURE | GPADC_CH_VBAT or GPADC_CH_TEMPERATURE | GPADC_CH_GPIOx
+         NOTE: do not support (GPADC_CH_TEMPERATURE | GPADC_CH_VBAT) or (GPADC_CH_TEMPERATURE | GPADC_CH_GPIOx)
  *
  *******************************************************************************
  */
 void example_gpadc_read_dma_multi(void)
 {
-#if (RTE_DMA)
+#if (RTE_GPDMA)
     drv_gpadc_config_t config;
     config.channel_p = GPADC_CH_P_VBAT | GPADC_CH_P_GPIO2 | GPADC_CH_P_GPIO3;
     config.channel_n = GPADC_CH_N_AVSS;
     config.mode = GPADC_MODE_SINGLE;
-    config.gain = GPADC_GAIN_1_3;
+    config.gain = GPADC_GAIN_1_3_INTERNAL_REF;
     config.sum_num = GPADC_SUM_NUM_256;
     config.sampling_cycles = GPADC_SAMPLING_CYCLES_128;
 
@@ -317,13 +299,13 @@ void example_gpadc_read_dma_multi(void)
     drv_gpadc_init(&config);
     drv_gpadc_register_isr_callback(gpadc_read_cb);
 
-    drv_gpadc_dma_channel_allocate();
+    drv_gpadc_gpdma_channel_allocate();
     drv_gpadc_read_dma(config.channel_p, &out_multi[0], 3*TEST_SIZE);
 
     while(!gpadc_done);
     gpadc_done = 0;
 
-    drv_gpadc_dma_channel_release();
+    drv_gpadc_gpdma_channel_release();
     drv_gpadc_control(GPADC_CONTROL_DISABLE_CLOCK, NULL);
 #endif
 }
@@ -339,7 +321,7 @@ void example_gpadc_read_diff(void)
     config.channel_p = GPADC_CH_P_GPIO2;
     config.channel_n = GPADC_CH_N_GPIO8;
     config.mode = GPADC_MODE_DIFF;
-    config.gain = GPADC_GAIN_1;
+    config.gain = GPADC_GAIN_1_3_INTERNAL_REF;
     config.sum_num = GPADC_SUM_NUM_256;
     config.sampling_cycles = GPADC_SAMPLING_CYCLES_128;
 

@@ -432,12 +432,12 @@ typedef struct {
 typedef struct {
     uint8_t type; ///< @ref ob_bond_info_type
     union {
-        /// Identical Address和IRK
+        /// Identical Address and IRK
         struct {
             ob_gap_addr_t id_addr;
             uint8_t irk[OB_GAP_KEY_LEN];
         } id_info;
-        /// EDIV, Random和LTK
+        /// EDIV, Random and LTK
         struct {
             uint16_t ediv;
             uint8_t random[OB_GAP_RANDOM_LEN];

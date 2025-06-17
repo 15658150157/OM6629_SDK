@@ -29,7 +29,6 @@
 #include "om_device.h"
 #include "om_driver.h"
 #include "om_log.h"
-#include "pm.h"
 
 /*********************************************************************
  * MACROS
@@ -490,9 +489,10 @@ void drv_om24g_detection_mode(uint8_t detc_mode)
 
 int8_t drv_om24g_get_rssi(void)
 {
-    int8_t rssi;
-
-    rssi = OM_PHY->SIG_DBM_EST_O - 10;
+    int rssi = (int8_t)OM_PHY->SIG_DBM_EST_O;
+    rssi = (rssi*100 - 1100) / 105;
+    if(rssi > -25)
+        rssi -= 1;
 
     return rssi;
 }

@@ -39,24 +39,15 @@ __WEAK void fault_context_store(fault_id_t fault_id, uint8_t *context, uint32_t 
 {
     #if (CONFIG_OM_LOG)
     const char *fault_str[] = {
-        "Assert",
-        "Low voltage detect",
-        "WDT interrupt",
-        "Hard fault",
-        "User check fault",
+        "LVD",          /* low voltage detect */
+        "WDT",          /* WDT timeout */
+        "HARD",         /* Hardfault, OM_ASSERT */
+        "USER ",        /* User Check */
     };
     uint32_t *reg = (uint32_t *)context;
 
-    if (fault_id <= FAULT_ID_USER) {
-        OM_LOG(OM_LOG_ERROR, "FAULT type: %s\r\n", fault_str[fault_id]);
-    }
-
-    if (fault_id == FAULT_ID_ASSERT) {
-        OM_LOG(OM_LOG_ASSERT, "FAULT should be caused by OM_ASSERT at %s:%d\r\n", (char *)(&reg[0]), param);
-    } else {
-        OM_LOG(OM_LOG_ERROR, "FAULT should be caused when PC run 0x%08x\r\ncontext:\r\n", reg[6]);
-        OM_LOG_HEXDUMP(OM_LOG_ERROR, (uint8_t*)context, context_len, sizeof(uint32_t));
-    }
+    OM_LOG(OM_LOG_ERROR, "FAULT by %s, PC at 0x%08x\r\n", fault_str[fault_id], reg[6]);
+    OM_LOG_HEXDUMP(OM_LOG_ERROR, (uint8_t*)context, context_len, sizeof(uint32_t));
     OM_LOG_FLUSH();
     #endif
 

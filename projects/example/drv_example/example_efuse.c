@@ -64,6 +64,8 @@ void example_efuse(void)
     tx_data[0] = 0xaa;
     tx_data[1] = 0xbb;
 
+    drv_efuse_control(EFUSE_CONTROL_PROGRAM_EN, (void *)1);
+
     drv_efuse_write(0x0, tx_data, 2);
 
     drv_efuse_read(0x0, rx_data, 2);

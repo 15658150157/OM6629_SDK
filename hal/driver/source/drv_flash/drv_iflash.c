@@ -84,6 +84,7 @@
 #define FLASH_WRITE_STATUS_REGS_CFG     CMD_CFG(0x01U, CMD_WRITE, 0 , 0)
 #define FLASH_READ_CONFIG_REG_CFG       CMD_CFG(0x15U, CMD_READ , 0 , 0)
 #define FLASH_WRITE_CONFIG_REG_CFG      CMD_CFG(0x11U, CMD_WRITE, 0 , 0)
+#define FLASH_WRITE_ENABLE_VSR_CFG      CMD_CFG(0x50U, CMD_READ , 0 , 0)
 #define FLASH_WRITE_ENABLE_CFG          CMD_CFG(0x06U, CMD_READ , 0 , 0)
 #define FLASH_WRITE_DISABLE_CFG         CMD_CFG(0x04U, CMD_READ , 0 , 0)
 #define FLASH_RESET_ENABLE_CFG          CMD_CFG(0x66U, CMD_READ , 0 , 0)
@@ -261,11 +262,29 @@ __IF_RAM_CODE static void iflash_poll_wip(cmd_frame_t *frame)
     } while (status & FLASH_STATUS_1_WIP_MASK);
 }
 
+__IF_RAM_CODE static void iflash_write_enable(void)
+{
+    cmd_frame_t frame;
+
+    CMD_FRAME_SET(&frame, FLASH_WRITE_ENABLE_CFG, 0);
+    iflash_read_reg(&frame, NULL, 0);
+}
+
+// VSR: volatile status register
+__IF_RAM_CODE static void iflash_write_enable_for_vsr(void)
+{
+    cmd_frame_t frame;
+
+    CMD_FRAME_SET(&frame, FLASH_WRITE_ENABLE_VSR_CFG, 0);
+    iflash_read_reg(&frame, NULL, 0);
+}
+
 /* data length must be less than or equal to 8 */
 __IF_RAM_CODE static void iflash_write_reg(cmd_frame_t *write_reg_frame,
                                            cmd_frame_t *wip_frame,
                                            uint8_t *data,
-                                           uint32_t data_len)
+                                           uint32_t data_len,
+                                           flash_reg_write_en_t wr_en_type)
 {
     OM_SF_Type *sf = OM_SF0;
     uint32_t cmd_bits = register_get(&(write_reg_frame->cmd_cfg), MASK_POS(SF_COMMAND_CMD_BITS));
@@ -291,6 +310,12 @@ __IF_RAM_CODE static void iflash_write_reg(cmd_frame_t *write_reg_frame,
     OM_CRITICAL_BEGIN();
     #endif
 
+    if (wr_en_type == SR_WRITE_EN_VOLATILE) {
+        iflash_write_enable_for_vsr();
+    } else if (wr_en_type == SR_WRITE_EN_PERMANENT) {
+        iflash_write_enable();
+    }
+
     // send
     sf->ADDR = 0;
     sf->CMD_DATA0 = write_reg_frame->cmd_data[0];
@@ -303,14 +328,6 @@ __IF_RAM_CODE static void iflash_write_reg(cmd_frame_t *write_reg_frame,
     #if (RTE_FLASH0_XIP)
     OM_CRITICAL_END();
     #endif
-}
-
-static void iflash_write_enable(void)
-{
-    cmd_frame_t frame;
-
-    CMD_FRAME_SET(&frame, FLASH_WRITE_ENABLE_CFG, 0);
-    iflash_read_reg(&frame, NULL, 0);
 }
 
 static om_error_t iflash_read_frame_get(uint32_t addr, cmd_frame_t *frame)
@@ -587,6 +604,95 @@ EXIT:
 }
 
 
+static om_error_t iflash_write_status(OM_SF_Type *om_flash, uint8_t *status, uint8_t status_len, uint8_t is_volatile)
+{
+    cmd_frame_t write_reg_frame;
+    cmd_frame_t wip_frame;
+    uint8_t rd_status[2];
+
+    CMD_FRAME_SET(&write_reg_frame, FLASH_WRITE_STATUS_REGS_CFG, 0);
+    CMD_FRAME_SET(&wip_frame, FLASH_READ_STATUS_REG_1_CFG, 0);
+
+    #if (RTE_FLASH0_XIP)
+    OM_CRITICAL_BEGIN();
+    #endif
+    iflash_write_reg(&write_reg_frame, &wip_frame, status, status_len, is_volatile ? SR_WRITE_EN_VOLATILE : SR_WRITE_EN_PERMANENT);
+    #if (RTE_FLASH0_XIP)
+    OM_CRITICAL_END();
+    #endif
+    // read back to verify
+    drv_iflash_read_status_reg1(om_flash, &rd_status[0]);
+    if ((rd_status[0] & (~(FLASH_STATUS_1_WIP_MASK | FLASH_STATUS_1_WEL_MASK))) !=
+        (status[0] & (~(FLASH_STATUS_1_WIP_MASK | FLASH_STATUS_1_WEL_MASK)))) {
+            return OM_ERROR_VERIFY;
+    }
+    if (status_len > 1) {
+        drv_iflash_read_status_reg2(om_flash, &rd_status[1]);
+        if (rd_status[1] != status[1]) {
+            return OM_ERROR_VERIFY;
+        }
+    }
+    return OM_ERROR_OK;
+}
+
+static om_error_t iflash_write_config_reg(OM_SF_Type *om_flash, uint8_t *config, uint8_t is_volatile)
+{
+    cmd_frame_t write_reg_frame;
+    cmd_frame_t wip_frame;
+
+    CMD_FRAME_SET(&write_reg_frame, FLASH_WRITE_CONFIG_REG_CFG, 0);
+    CMD_FRAME_SET(&wip_frame, FLASH_READ_STATUS_REG_1_CFG, 0);
+    #if (RTE_FLASH0_XIP)
+    OM_CRITICAL_BEGIN();
+    #endif
+    iflash_write_reg(&write_reg_frame, &wip_frame, config, 1, is_volatile ? SR_WRITE_EN_VOLATILE : SR_WRITE_EN_PERMANENT);
+    #if (RTE_FLASH0_XIP)
+    OM_CRITICAL_END();
+    #endif
+    return OM_ERROR_OK;
+}
+
+
+static om_error_t iflash_modifiy_status_bits(OM_SF_Type *om_flash,
+                        uint8_t status[2], uint8_t mask[2], uint8_t is_volatile)
+{
+    uint8_t s1[2] = {0, 0};
+    uint8_t s2[2] = {0, 0};
+    om_error_t error;
+
+    // Read status reg
+    if ((error = drv_iflash_read_status_reg1(om_flash, &s1[0])) != OM_ERROR_OK) {
+        goto ERR;
+    }
+    if ((error = drv_iflash_read_status_reg2(om_flash, &s1[1])) != OM_ERROR_OK) {
+        goto ERR;
+    }
+    // Read status reg again
+    if ((error = drv_iflash_read_status_reg1(om_flash, &s2[0])) != OM_ERROR_OK) {
+        goto ERR;
+    }
+    if ((error = drv_iflash_read_status_reg2(om_flash, &s2[1])) != OM_ERROR_OK) {
+        goto ERR;
+    }
+    // check status reg
+    if (s1[0] != s2[0] || s1[1] != s2[1]) {
+        return OM_ERROR_VERIFY;
+    }
+    if (((s1[0] & mask[0]) != (status[0] & mask[0])) || ((s1[1] & mask[1]) != (status[1] & mask[1]))) {
+        s1[0] &= ~mask[0];
+        s1[0] |= (status[0] & mask[0]);
+        s1[1] &= ~mask[1];
+        s1[1] |= (status[1] & mask[1]);
+    } else {
+        return OM_ERROR_OK;
+    }
+    return iflash_write_status(om_flash, s1, 2, is_volatile);
+
+ERR:
+    return error;
+}
+
+
 /*******************************************************************************
  * PUBLIC FUNCTIONS
  */
@@ -645,17 +751,58 @@ om_error_t drv_iflash_init(OM_SF_Type *om_flash, const flash_config_t *config)
     if ((error = iflash_detect(&read_id_frame, &dp_exit_frame)) != OM_ERROR_OK) {
         goto INIT_EXIT;
     }
-    // check DC bit for GD flash
-    if (env->id.man_id == FLASH_MID_GIGADEVICE) {
-        mask[1] |= GD_FLASH_STATUS_2_DC_MASK;
+    // check important bits in registers
+    switch (env->id.man_id) {
+        case FLASH_MID_GIGADEVICE:
+            {
+                // GD: clear DC bit in status register 2
+                uint8_t dc_mask[2] = {0, GD_FLASH_STATUS_2_DC_MASK};
+                uint8_t dc_status[2] = {0, 0};
+                if ((error = drv_iflash_modifiy_status_bits(om_flash, dc_status, dc_mask))!= OM_ERROR_OK) {
+                    goto INIT_EXIT;
+                }
+            }
+            break;
+        case FLASH_MID_PUYA:
+            {
+                // Puya: clear DC/WPS/HOLD_RST bit in config register
+                uint8_t cfg_val;
+                if ((error = drv_iflash_read_config_reg(om_flash, &cfg_val)) != OM_ERROR_OK) {
+                    goto INIT_EXIT;
+                }
+                if (cfg_val & (PUYA_FLASH_CONFIG_DC_MASK | PUYA_FLASH_CONFIG_WPS_MASK | PUYA_FLASH_CONFIG_HD_RST_MASK)) {
+                    cfg_val &= ~(PUYA_FLASH_CONFIG_DC_MASK | PUYA_FLASH_CONFIG_WPS_MASK | PUYA_FLASH_CONFIG_HD_RST_MASK);
+                    if ((error = drv_iflash_write_config_reg(om_flash, &cfg_val)) != OM_ERROR_OK) {
+                        goto INIT_EXIT;
+                    }
+                }
+            }
+            break;
+        case FLASH_MID_GT:
+            {
+                // GT: clear DRV0/DRV1 bit in config register
+                uint8_t cfg_val;
+                if ((error = drv_iflash_read_config_reg(om_flash, &cfg_val)) != OM_ERROR_OK) {
+                    goto INIT_EXIT;
+                }
+                if (cfg_val & (GT_FLASH_CONFIG_DRV0_MASK | GT_FLASH_CONFIG_DRV1_MASK)) {
+                    cfg_val &= ~(GT_FLASH_CONFIG_DRV0_MASK | GT_FLASH_CONFIG_DRV1_MASK);
+                    if ((error = drv_iflash_write_config_reg(om_flash, &cfg_val)) != OM_ERROR_OK) {
+                        goto INIT_EXIT;
+                    }
+                }
+            }
+            break;
+        default:
+            break;
     }
     // check quad mode
     if (sfcfg.read_cmd == FLASH_FAST_READ_QO || sfcfg.read_cmd == FLASH_FAST_READ_QIO) {
         mask[1] |= FLASH_STATUS_2_QE_MASK;
         status[1] |= FLASH_STATUS_2_QE_MASK;
     }
-    // update status(WP, QE and DC of GD)
-    if ((error = drv_iflash_modifiy_status_bits(om_flash, status, mask))!= OM_ERROR_OK) {
+    // update status(WP, QE)
+    if ((error = drv_iflash_modifiy_status_bits_volatile(om_flash, status, mask))!= OM_ERROR_OK) {
         goto INIT_EXIT;
     }
     // Set read/write command and frame
@@ -1043,91 +1190,32 @@ om_error_t drv_iflash_read_config_reg(OM_SF_Type *om_flash, uint8_t *config)
 
 om_error_t drv_iflash_write_status(OM_SF_Type *om_flash, uint8_t *status, uint8_t status_len)
 {
-    cmd_frame_t write_reg_frame;
-    cmd_frame_t wip_frame;
-    uint8_t rd_status[2];
+    return iflash_write_status(om_flash, status, status_len, 0);
+}
 
-    CMD_FRAME_SET(&write_reg_frame, FLASH_WRITE_STATUS_REGS_CFG, 0);
-    CMD_FRAME_SET(&wip_frame, FLASH_READ_STATUS_REG_1_CFG, 0);
-
-    #if (RTE_FLASH0_XIP)
-    OM_CRITICAL_BEGIN();
-    #endif
-    iflash_write_enable();
-    iflash_write_reg(&write_reg_frame, &wip_frame, status, status_len);
-    #if (RTE_FLASH0_XIP)
-    OM_CRITICAL_END();
-    #endif
-    // read back to verify
-    drv_iflash_read_status_reg1(om_flash, &rd_status[0]);
-    if ((rd_status[0] & (~(FLASH_STATUS_1_WIP_MASK | FLASH_STATUS_1_WEL_MASK))) !=
-        (status[0] & (~(FLASH_STATUS_1_WIP_MASK | FLASH_STATUS_1_WEL_MASK)))) {
-            return OM_ERROR_VERIFY;
-    }
-    if (status_len > 1) {
-        drv_iflash_read_status_reg2(om_flash, &rd_status[1]);
-        if (rd_status[1] != status[1]) {
-            return OM_ERROR_VERIFY;
-        }
-    }
-    return OM_ERROR_OK;
+om_error_t drv_iflash_write_status_volatile(OM_SF_Type *om_flash, uint8_t *status, uint8_t status_len)
+{
+    return iflash_write_status(om_flash, status, status_len, 1);
 }
 
 om_error_t drv_iflash_write_config_reg(OM_SF_Type *om_flash, uint8_t *config)
 {
-    cmd_frame_t write_reg_frame;
-    cmd_frame_t wip_frame;
+    return iflash_write_config_reg(om_flash, config, 0);
+}
 
-    CMD_FRAME_SET(&write_reg_frame, FLASH_WRITE_CONFIG_REG_CFG, 0);
-    CMD_FRAME_SET(&wip_frame, FLASH_READ_STATUS_REG_1_CFG, 0);
-    #if (RTE_FLASH0_XIP)
-    OM_CRITICAL_BEGIN();
-    #endif
-    iflash_write_enable();
-    iflash_write_reg(&write_reg_frame, &wip_frame, config, 1);
-    #if (RTE_FLASH0_XIP)
-    OM_CRITICAL_END();
-    #endif
-    return OM_ERROR_OK;
+om_error_t drv_iflash_write_config_reg_volatile(OM_SF_Type *om_flash, uint8_t *config)
+{
+    return iflash_write_config_reg(om_flash, config, 1);
 }
 
 om_error_t drv_iflash_modifiy_status_bits(OM_SF_Type *om_flash, uint8_t status[2], uint8_t mask[2])
 {
-    uint8_t s1[2] = {0, 0};
-    uint8_t s2[2] = {0, 0};
-    om_error_t error;
+    return iflash_modifiy_status_bits(om_flash, status, mask, 0);
+}
 
-    // Read status reg
-    if ((error = drv_iflash_read_status_reg1(om_flash, &s1[0])) != OM_ERROR_OK) {
-        goto ERR;
-    }
-    if ((error = drv_iflash_read_status_reg2(om_flash, &s1[1])) != OM_ERROR_OK) {
-        goto ERR;
-    }
-    // Read status reg again
-    if ((error = drv_iflash_read_status_reg1(om_flash, &s2[0])) != OM_ERROR_OK) {
-        goto ERR;
-    }
-    if ((error = drv_iflash_read_status_reg2(om_flash, &s2[1])) != OM_ERROR_OK) {
-        goto ERR;
-    }
-    // check status reg
-    if (s1[0] != s2[0] || s1[1] != s2[1]) {
-        return OM_ERROR_VERIFY;
-    }
-    if ((s1[0] & mask[0]) != (status[0] & mask[0]) ||
-            (s1[1] & mask[1]) != (status[1] & mask[1])) {
-        s1[0] &= ~mask[0];
-        s1[0] |= (status[0] & mask[0]);
-        s1[1] &= ~mask[1];
-        s1[1] |= (status[1] & mask[1]);
-    } else {
-        return OM_ERROR_OK;
-    }
-    return drv_iflash_write_status(om_flash, s1, 2);
-
-ERR:
-    return error;
+om_error_t drv_iflash_modifiy_status_bits_volatile(OM_SF_Type *om_flash, uint8_t status[2], uint8_t mask[2])
+{
+    return iflash_modifiy_status_bits(om_flash, status, mask, 1);
 }
 
 om_error_t drv_iflash_write_protect_set(OM_SF_Type *om_flash, flash_protect_t protect)
@@ -1143,7 +1231,23 @@ om_error_t drv_iflash_write_protect_set(OM_SF_Type *om_flash, flash_protect_t pr
     uint8_t mask[2] = {FLASH_STATUS_1_BP_MASK, FLASH_STATUS_2_CMP_MASK};
     uint8_t status[2] = {protect, FLASH_STATUS_2_CMP_MASK};
 
-    return drv_iflash_modifiy_status_bits(om_flash, status, mask);
+    return iflash_modifiy_status_bits(om_flash, status, mask, 0);
+}
+
+om_error_t drv_iflash_write_protect_set_volatile(OM_SF_Type *om_flash, flash_protect_t protect)
+{
+    // Attention:
+    // This function support the following flash:
+    // GD25WQ16E, GD25WQ80E, GD25WQ40E,
+    // P25Q40SU, P25Q80SU, P25Q16SU,
+    // GT25Q40D, GT25Q80A
+    // Other flash without testing,
+    // if not supported, please use drv_oflash_modifiy_status_bits to set the status register
+
+    uint8_t mask[2] = {FLASH_STATUS_1_BP_MASK, FLASH_STATUS_2_CMP_MASK};
+    uint8_t status[2] = {protect, FLASH_STATUS_2_CMP_MASK};
+
+    return iflash_modifiy_status_bits(om_flash, status, mask, 1);
 }
 
 om_error_t drv_iflash_quad_enable(OM_SF_Type *om_flash, bool enable)
@@ -1155,7 +1259,19 @@ om_error_t drv_iflash_quad_enable(OM_SF_Type *om_flash, bool enable)
         status[1] = FLASH_STATUS_2_QE_MASK;
     }
 
-    return drv_iflash_modifiy_status_bits(om_flash, status, mask);
+    return iflash_modifiy_status_bits(om_flash, status, mask, 0);
+}
+
+om_error_t drv_iflash_quad_enable_volatile(OM_SF_Type *om_flash, bool enable)
+{
+    uint8_t mask[2] = {0, FLASH_STATUS_2_QE_MASK};
+    uint8_t status[2] = {0, 0};
+
+    if (enable) {
+        status[1] = FLASH_STATUS_2_QE_MASK;
+    }
+
+    return iflash_modifiy_status_bits(om_flash, status, mask, 1);
 }
 
 om_error_t drv_iflash_reset(OM_SF_Type *om_flash)

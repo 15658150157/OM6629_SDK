@@ -289,6 +289,19 @@ extern om_error_t drv_oflash_write_status(OM_OSPI_Type *om_flash, uint8_t status
 
 /**
  *******************************************************************************
+ * @brief external FLASH write status 1&2 register
+ *        note: this is a volatile function, it will lost after power down
+ *
+ * @param om_flash  The external FLASH controller device address
+ * @param status    Status register read buffer pointer
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_oflash_write_status_volatile(OM_OSPI_Type *om_flash, uint8_t status[2]);
+
+/**
+ *******************************************************************************
  * @brief external FLASH modify status 1&2 register bits
  *
  * @param om_flash  The external FLASH controller device address
@@ -299,6 +312,20 @@ extern om_error_t drv_oflash_write_status(OM_OSPI_Type *om_flash, uint8_t status
  *******************************************************************************
  */
 extern om_error_t drv_oflash_modifiy_status_bits(OM_OSPI_Type *om_flash, uint8_t status[2], uint8_t mask[2]);
+
+/**
+ *******************************************************************************
+ * @brief external FLASH modify status 1&2 register bits
+ *        note: this is a volatile function, it will lost after power down
+ *
+ * @param om_flash  The external FLASH controller device address
+ * @param status    Status register read buffer pointer
+ * @param mask      Status register mask
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_oflash_modifiy_status_bits_volatile(OM_OSPI_Type *om_flash, uint8_t status[2], uint8_t mask[2]);
 
 /**
  *******************************************************************************
@@ -314,6 +341,19 @@ extern om_error_t drv_oflash_write_status_reg1(OM_OSPI_Type *om_flash, uint8_t *
 
 /**
  *******************************************************************************
+ * @brief external FLASH write status 1 register
+ *        note: this is a volatile function, it will lost after power down
+ *
+ * @param om_flash  The external FLASH controller device address
+ * @param status    Status register read buffer pointer
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_oflash_write_status_reg1_volatile(OM_OSPI_Type *om_flash, uint8_t *status);
+
+/**
+ *******************************************************************************
  * @brief external FLASH write status 2 register
  *
  * @param om_flash  The external FLASH controller device address
@@ -326,6 +366,19 @@ extern om_error_t drv_oflash_write_status_reg2(OM_OSPI_Type *om_flash, uint8_t *
 
 /**
  *******************************************************************************
+ * @brief external FLASH write status 2 register
+ *        note: this is a volatile function, it will lost after power down
+ *
+ * @param om_flash  The external FLASH controller device address
+ * @param status    Status register read buffer pointer
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_oflash_write_status_reg2_volatile(OM_OSPI_Type *om_flash, uint8_t *status);
+
+/**
+ *******************************************************************************
  * @brief external FLASH write config register
  *
  * @param om_flash  The external FLASH controller device address
@@ -335,6 +388,19 @@ extern om_error_t drv_oflash_write_status_reg2(OM_OSPI_Type *om_flash, uint8_t *
  *******************************************************************************
  */
 extern om_error_t drv_oflash_write_config_reg(OM_OSPI_Type *om_flash, uint8_t *config);
+
+/**
+ *******************************************************************************
+ * @brief external FLASH write config register
+ *        note: this is a volatile function, it will lost after power down
+ *
+ * @param om_flash  The external FLASH controller device address
+ * @param config    Config register read buffer pointer
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_oflash_write_config_reg_volatile(OM_OSPI_Type *om_flash, uint8_t *config);
 
 /**
  *******************************************************************************
@@ -358,6 +424,27 @@ extern om_error_t drv_oflash_write_protect_set(OM_OSPI_Type *om_flash, flash_pro
 
 /**
  *******************************************************************************
+ * @brief external FLASH set write protect region, the protected region cannot be erased or written
+ *        note: this is a volatile function, it will lost after power down
+ *
+ *      Attention:
+ *      This function support the following flash:
+ *      GD25WQ16E, GD25WQ80E, GD25WQ40E,
+ *      P25Q40SU, P25Q80SU, P25Q16SU,
+ *      GT25Q40D, GT25Q80A
+ *      Other flash without testing,
+ *      if not supported, please use drv_oflash_modifiy_status_bits to set the status register
+ *
+ * @param om_flash  The external FLASH controller device address
+ * @param protect   Write protect region, see@ref flash_protect_t
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+*/
+extern om_error_t drv_oflash_write_protect_set_volatile(OM_OSPI_Type *om_flash, flash_protect_t protect);
+
+/**
+ *******************************************************************************
  * @brief external FLASH enable WP and HOLD pin as data pin for quad read and write
  *
  * @param om_flash  The external FLASH controller device address
@@ -367,6 +454,19 @@ extern om_error_t drv_oflash_write_protect_set(OM_OSPI_Type *om_flash, flash_pro
  *******************************************************************************
  */
 extern om_error_t drv_oflash_quad_enable(OM_OSPI_Type *om_flash, bool enable);
+
+/**
+ *******************************************************************************
+ * @brief external FLASH enable WP and HOLD pin as data pin for quad read and write
+ *        note: this is a volatile function, it will lost after power down
+ *
+ * @param om_flash  The external FLASH controller device address
+ * @param enable    Enable or disable
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_oflash_quad_enable_volatile(OM_OSPI_Type *om_flash, bool enable);
 
 /**
  *******************************************************************************

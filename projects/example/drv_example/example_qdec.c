@@ -108,6 +108,7 @@ void example_qdec(void)
     drv_pin_init(pin_config, sizeof(pin_config) / sizeof(pin_config[0]));
     drv_pmu_pin_pullup_set(PAD_QDEC_XA, PMU_PIN_PULLUP_4M);
     drv_pmu_pin_pullup_set(PAD_QDEC_XB, PMU_PIN_PULLUP_4M);
+
     qdec_stop = 0;
     const qdec_config_t qdec_cfg = {
         .dbf_en          = true,

@@ -109,10 +109,14 @@ void example_lptim_oneshot_count(void)
 
     mode_cfg.presclar       = LPTIM_PRESC_DIV1;
     mode_cfg.rep0_val       = 2;//8bits reg,max 0xFF(255).the value 0 and 255 represents a loop count of 1 and 256 rounds.so the final number needs to be subtracted by one.
-    mode_cfg.top_en         = LPTIM_TOP_ENABLE;
-    mode_cfg.top_val        = 32*1000-1;//32*1000-1;//16bits reg,max 0xFFFF(65535).the value 32 represents one millisecond.the final number needs to be subtracted by one.
+    mode_cfg.rep2_val       = 0;
+    mode_cfg.top_en         = LPTIM_TOP_ENABLE,
+    mode_cfg.top_val        = 32*1000-1;//16bits reg,max 0xFFFF(65535).the value 32 represents one millisecond.the final number needs to be subtracted by one.,
     mode_cfg.compare_val0   = 0;
     mode_cfg.compare_val1   = 0;
+    mode_cfg.compare_val2   = 0;
+    mode_cfg.compare_val3   = 0;
+    mode_cfg.stop_mode      = LPTIM_STOP_MODE_STOPBOTH;
     drv_lptim_one_shot_init(OM_LPTIM, &mode_cfg);
     drv_lptim_register_isr_callback(OM_LPTIM, lptim_count_callback);
 
@@ -149,9 +153,12 @@ void example_lptim_free_running_count(void)
 
     mode_cfg.presclar       = LPTIM_PRESC_DIV1;
     mode_cfg.top_en         = LPTIM_TOP_ENABLE;
-    mode_cfg.top_val        = 31;//32*2000-1;//16bits reg,max 0xFFFF(65535).the value 32 represents one millisecond.the final number needs to be subtracted by one.
+    mode_cfg.top_val        = 32*2000-1;//16bits reg,max 0xFFFF(65535).the value 32 represents one millisecond.the final number needs to be subtracted by one.
     mode_cfg.compare_val0   = 0;
     mode_cfg.compare_val1   = 0;
+    mode_cfg.compare_val2   = 0;
+    mode_cfg.compare_val3   = 0;
+    mode_cfg.stop_mode      = LPTIM_STOP_MODE_FREE;
     drv_lptim_free_running_init(OM_LPTIM, &mode_cfg);
     drv_lptim_register_isr_callback(OM_LPTIM, lptim_count_callback);
 
@@ -179,8 +186,11 @@ void example_lptim_free_running_pwm(void)
     mode_cfg.presclar       = LPTIM_PRESC_DIV1;
     mode_cfg.top_en         = LPTIM_TOP_ENABLE;
     mode_cfg.top_val        = 500;
-    mode_cfg.compare_val0   = 0;
+    mode_cfg.compare_val0   = 250;
     mode_cfg.compare_val1   = 0;
+    mode_cfg.compare_val2   = 0;
+    mode_cfg.compare_val3   = 0;
+    mode_cfg.stop_mode      = LPTIM_STOP_MODE_FREE;
     drv_lptim_free_running_init(OM_LPTIM, &mode_cfg);
 
     pin_config_t pin_cfg_cnt [] = {
@@ -188,7 +198,7 @@ void example_lptim_free_running_pwm(void)
     };
     drv_pin_init(pin_cfg_cnt, sizeof(pin_cfg_cnt) / sizeof(pin_cfg_cnt[0]));
     out_cfg.pol         = LPTIM_POL_IDLE_LOW;
-    out_cfg.action      = LPTIM_UFOA_PULSE;
+    out_cfg.action      = LPTIM_UFOA_PWM;
     drv_lptim_outx_config(OM_LPTIM, LPTIM_CHAN_OUT0, &out_cfg);
 
     drv_lptim_control(OM_LPTIM, LPTIM_CONTROL_POWER_IN_SLEEP, &i);
@@ -211,10 +221,14 @@ void example_lptim_oneshot_pwm(void)
 
     mode_cfg.presclar       = LPTIM_PRESC_DIV1;
     mode_cfg.rep0_val       = 3;
-    mode_cfg.top_en         = LPTIM_TOP_ENABLE;
+    mode_cfg.rep2_val       = 0;
+    mode_cfg.top_en         = LPTIM_TOP_ENABLE,
     mode_cfg.top_val        = 500;
-    mode_cfg.compare_val0   = 0;
+    mode_cfg.compare_val0   = 250;
     mode_cfg.compare_val1   = 0;
+    mode_cfg.compare_val2   = 0;
+    mode_cfg.compare_val3   = 0;
+    mode_cfg.stop_mode      = LPTIM_STOP_MODE_STOPBOTH;
     drv_lptim_one_shot_init(OM_LPTIM, &mode_cfg);
 
     pin_config_t pin_cfg_cnt [] = {
@@ -222,7 +236,7 @@ void example_lptim_oneshot_pwm(void)
     };
     drv_pin_init(pin_cfg_cnt, sizeof(pin_cfg_cnt) / sizeof(pin_cfg_cnt[0]));
     out_cfg.pol         = LPTIM_POL_IDLE_LOW;
-    out_cfg.action      = LPTIM_UFOA_PULSE;
+    out_cfg.action      = LPTIM_UFOA_PWM;
     drv_lptim_outx_config(OM_LPTIM, LPTIM_CHAN_OUT0, &out_cfg);
 
     drv_lptim_control(OM_LPTIM, LPTIM_CONTROL_POWER_IN_SLEEP, &i);
@@ -246,13 +260,18 @@ void example_lptim_buffered_pwm(void)
 
     mode_cfg.presclar       = LPTIM_PRESC_DIV1;
     mode_cfg.rep0_val       = 3;
-    mode_cfg.rep1_val       = 6;
+    mode_cfg.rep1_val       = 0;
+    mode_cfg.rep2_val       = 0;
+    mode_cfg.rep3_val       = 0;
     mode_cfg.top_en         = LPTIM_TOP_ENABLE;
     mode_cfg.top_val        = 500;
     mode_cfg.buftop_en      = LPTIM_BUFTOP_ENABLE;
-    mode_cfg.buftop_val     = 1000;
-    mode_cfg.compare_val0   = 0;
+    mode_cfg.buftop_val     = 500;
+    mode_cfg.compare_val0   = 250;
     mode_cfg.compare_val1   = 0;
+    mode_cfg.compare_val2   = 0;
+    mode_cfg.compare_val3   = 0;
+    mode_cfg.stop_mode      = LPTIM_STOP_MODE_STOPBOTH;
     drv_lptim_buffered_init(OM_LPTIM, &mode_cfg);
 
     pin_config_t pin_cfg_cnt [] = {
@@ -260,7 +279,7 @@ void example_lptim_buffered_pwm(void)
     };
     drv_pin_init(pin_cfg_cnt, sizeof(pin_cfg_cnt) / sizeof(pin_cfg_cnt[0]));
     out_cfg.pol         = LPTIM_POL_IDLE_LOW;
-    out_cfg.action      = LPTIM_UFOA_PULSE;
+    out_cfg.action      = LPTIM_UFOA_PWM;
     drv_lptim_outx_config(OM_LPTIM, LPTIM_CHAN_OUT0, &out_cfg);
 
     drv_lptim_control(OM_LPTIM, LPTIM_CONTROL_POWER_IN_SLEEP, &i);
@@ -284,10 +303,15 @@ void example_lptim_double_pwm(void)
     mode_cfg.presclar       = LPTIM_PRESC_DIV1;
     mode_cfg.rep0_val       = 3;
     mode_cfg.rep1_val       = 5;
+    mode_cfg.rep2_val       = 0;
+    mode_cfg.rep3_val       = 0;
     mode_cfg.top_en         = LPTIM_TOP_ENABLE;
     mode_cfg.top_val        = 500;
-    mode_cfg.compare_val0   = 0;
-    mode_cfg.compare_val1   = 0;
+    mode_cfg.compare_val0   = 50;
+    mode_cfg.compare_val1   = 250;
+    mode_cfg.compare_val2   = 0;
+    mode_cfg.compare_val3   = 0;
+    mode_cfg.stop_mode      = LPTIM_STOP_MODE_STOPBOTH;
     drv_lptim_double_init(OM_LPTIM, &mode_cfg);
 
     pin_config_t pin_cfg_cnt [] = {
@@ -296,7 +320,7 @@ void example_lptim_double_pwm(void)
     };
     drv_pin_init(pin_cfg_cnt, sizeof(pin_cfg_cnt) / sizeof(pin_cfg_cnt[0]));
     out_cfg.pol         = LPTIM_POL_IDLE_LOW;
-    out_cfg.action      = LPTIM_UFOA_PULSE;
+    out_cfg.action      = LPTIM_UFOA_PWM;
     drv_lptim_outx_config(OM_LPTIM, LPTIM_CHAN_OUT0, &out_cfg);
     drv_lptim_outx_config(OM_LPTIM, LPTIM_CHAN_OUT1, &out_cfg);
 

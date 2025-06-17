@@ -175,7 +175,7 @@ void example_uart_int(void)
     while (!(wait_flag.st & SEND_INT_IS_DONE));
     wait_flag.st &= ~SEND_INT_IS_DONE;
 
-    drv_uart_write_int(TEST_UART, NULL, 0);
+    drv_uart_read_int(TEST_UART, NULL, 0);
 }
 
 /**
@@ -243,7 +243,7 @@ void example_uart_flow_control(void)
     while (!(wait_flag.st & SEND_INT_IS_DONE));
     wait_flag.st &= ~SEND_INT_IS_DONE;
 
-    drv_uart_write_int(TEST_UART, NULL, 0);
+    drv_uart_read_int(TEST_UART, NULL, 0);
 }
 
 /** @} */

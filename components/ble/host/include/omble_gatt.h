@@ -138,6 +138,7 @@ typedef struct {
 /// Event structure for @ref OB_GATTS_EVT_WRITE_REQ.
 typedef struct {
     uint16_t att_hdl;       ///< att handle
+    uint8_t type;           ///< att write type, @ref ob_gattc_write_type
     const uint8_t *data;    ///< data
     uint16_t len;           ///< data length
 } ob_gatts_evt_write_req_t;
@@ -179,7 +180,7 @@ typedef struct {
     uint8_t char_num;                         ///< gatt char number
 } ob_gattc_evt_find_char_rsp_t;
 
-/// Gatt Descriptor结构体
+/// Gatt Descriptor Structure
 typedef struct {
     uint16_t att_hdl;       ///< att handle
     const uint8_t *uuid;    ///< char UUID
@@ -224,7 +225,7 @@ typedef struct {
     uint16_t len;           ///< data length
 } ob_gattc_evt_hvx_ind_t;
 
-/// GATT 消息结构体
+/// GATT Event structure
 typedef struct {
     uint8_t conn_idx; ///< Connection index
     union {

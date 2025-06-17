@@ -19,7 +19,7 @@
 #ifndef __OMBLE_ERR_H__
 #define __OMBLE_ERR_H__
 
-/// 错误定义
+/// Error Definition
 typedef enum ob_error {
     OB_ERROR_NO_ERR                  = 0x00, ///< Execution Success
     OB_ERROR_NO_CONNECTION,                  ///< No connection errors
@@ -29,7 +29,7 @@ typedef enum ob_error {
     OB_ERROR_INVALID_PARAM,                  ///< Parameter error
 } ob_error_t;
 
-/// GATT 错误定义
+/// GATT Error Definition
 typedef enum ob_gatt_error {
     OB_GATT_ERR_NO_ERROR                       = 0x0000,
     OB_GATT_ERR_INVALID_HANDLE                 = 0x0401,
@@ -53,7 +53,7 @@ typedef enum ob_gatt_error {
     OB_GATT_ERR_VALUE_NOT_ALLOWED              = 0x0413,
 } ob_gatt_error_t;
 
-/// SMP 错误定义
+/// SMP Error Definition
 typedef enum ob_smp_error {
     OB_SMP_ERR_NO_ERR                                 = 0x0000,
     OB_SMP_LOCAL_ERR_PASSKEY_ENTRY_FAILED             = 0x0601,
