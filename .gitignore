@@ -1,0 +1,17 @@
+.build/
+out/
+*.bin
+*.dis
+*.elf
+*.hex
+*.map
+*.d
+*.o
+*.obj
+*.zip
+*.uvguix.*
+JLinkLog.txt
+JLinkSettings.ini
+EventRecorderStub.scvd
+UIConfig.ini
+uv4.log
