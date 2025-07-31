@@ -95,6 +95,8 @@ typedef struct {
     uint32_t  gpadc_cfg1;
     uint32_t  gpadc_cfg2;
     uint32_t  cali_cfg;
+    uint32_t  gpadc_seln;
+    uint32_t  pd_cfg1;
     drv_isr_callback_t              isr_cb;
     drv_gpadc_calib_t               cp_calib_value;
     drv_gpadc_flash_calib_t         ft_calib_value;
@@ -740,6 +742,13 @@ static void drv_gpadc_register_store(void)
 
     /* store AUTO_COMPEN config */
     gpadc_env.cali_cfg = OM_GPADC->CALI_CFG;
+
+    /* store ADC_SELN config */
+    gpadc_env.gpadc_seln = OM_GPADC->ADC_SELN;
+
+    /* store PD_CFG1 config */
+    gpadc_env.pd_cfg1 = OM_DAIF->PD_CFG1;
+    
 }
 
 /**
@@ -762,6 +771,12 @@ static void drv_gpadc_register_restore(void)
 
     /* restore AUTO_COMPEN config */
     OM_GPADC->CALI_CFG = gpadc_env.cali_cfg;
+
+    /* restore ADC_SELN config */
+    OM_GPADC->ADC_SELN = gpadc_env.gpadc_seln;
+
+    /* restore PD_CFG1 config */
+    OM_DAIF->PD_CFG1 = gpadc_env.pd_cfg1;
 }
 
 /**
@@ -929,12 +944,14 @@ om_error_t drv_gpadc_read(uint16_t channel_p, int16_t *data, uint16_t num)
 
     drv_gpadc_get_channel_data(channel_p, data, num);
 
-    int i = 0;
-    while (i < num) {
-        for (uint8_t j = 0; j < GPADC_CH_MAX; j++) {
-            if ((channel_p >> j) & 0x1) {
-                data[i%num] = drv_gpadc_convert_channel_data((drv_gpadc_channel_p_t)(0x1 << j), data[i%num]);
-                i++;
+    if (REGR(&OM_GPADC->CALI_CFG, MASK_POS(GPADC_AUTO_COMPEN)) == 1) {
+        int i = 0;
+        while (i < num) {
+            for (uint8_t j = 0; j < GPADC_CH_MAX; j++) {
+                if ((channel_p >> j) & 0x1) {
+                    data[i%num] = drv_gpadc_convert_channel_data((drv_gpadc_channel_p_t)(0x1 << j), data[i%num]);
+                    i++;
+                }
             }
         }
     }
@@ -1141,6 +1158,15 @@ void *drv_gpadc_control(drv_gpadc_control_t control, void *argu)
                 REGW(&OM_GPADC->ADC_CFG0, MASK_1REG(GPADC_PD_VBAT_DET, 0));
             }
             REGW(&OM_GPADC->ADC_CFG2, MASK_1REG(GPADC_SEQ_VECT, (uint32_t)argu));
+            break;
+        case GPADC_CONTROL_GET_GAIN_ERROR:
+            ret = REGR(&OM_GPADC->CALI_CFG, MASK_POS(GPADC_GAIN_ERR));
+            break;
+        case GPADC_CONTROL_GET_VOS:
+            ret = REGR(&OM_GPADC->CALI_CFG, MASK_POS(GPADC_VOS));
+            break;
+        case GPADC_CONTROL_SET_AUTO_COMPEN:
+            REGW(&OM_GPADC->CALI_CFG, MASK_1REG(GPADC_AUTO_COMPEN, (uint32_t)argu));
             break;
         default:
             break;

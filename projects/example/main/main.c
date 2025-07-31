@@ -34,7 +34,7 @@
 int main(void)
 {
     static const pin_config_t pin_config[] = {
-        {5,  {PINMUX_PAD5_UART1_TRX_CFG}, PMU_PIN_MODE_PP, PMU_PIN_DRIVER_CURRENT_NORMAL},
+        {5,  {PINMUX_PAD5_UART1_TRX_CFG}, PMU_PIN_MODE_PU, PMU_PIN_DRIVER_CURRENT_NORMAL},
         {6,  {PINMUX_PAD6_UART1_RX_CFG},  PMU_PIN_MODE_PU, PMU_PIN_DRIVER_CURRENT_NORMAL},
     };
 

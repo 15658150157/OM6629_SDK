@@ -24,7 +24,7 @@ var searchData=
   ['channel_5fp_21',['channel_p',['../structdrv__gpadc__config__t.html#a6538d093c224d902b9540a7b20dcd5b1',1,'drv_gpadc_config_t']]],
   ['char_5fnum_22',['char_num',['../structob__gattc__evt__find__char__rsp__t.html#a3fd36d1f02eb610285e79adb0811d210',1,'ob_gattc_evt_find_char_rsp_t']]],
   ['characteristic_23',['characteristic',['../structob__gattc__evt__find__char__rsp__t.html#a9c4422a27901c8ebe662c72776d1a0e6',1,'ob_gattc_evt_find_char_rsp_t']]],
-  ['cherryusb_24',['CherryUSB',['../md__mnt_data_yaoyufeng_work_svnrepo_om6627_trunk_SDK_components_CherryUSB_README.html',1,'']]],
+  ['cherryusb_24',['CherryUSB',['../md__mnt_data_yaoyufeng_work_svnrepo_om6627x_om6627_trunk_SDK_components_CherryUSB_README.html',1,'']]],
   ['clk_5fdiv_25',['clk_div',['../structlcd__config__t.html#a87719bfb46d3d0640ef53da537966233',1,'lcd_config_t::clk_div()'],['../unionospi__clk__param__t.html#ac9868167788d3b1ae6a03afda04648b1',1,'ospi_clk_param_t::clk_div()'],['../structospi__config__t.html#a99903573c42d34d52356ce9bf8883112',1,'ospi_config_t::clk_div()'],['../structpsram__config__t.html#a11c2fbbe9c959c2af264ed652c9460df',1,'psram_config_t::clk_div()']]],
   ['cmd_26',['cmd',['../structospi__frame__t.html#af734011c9af283b95ef7574ce8183b83',1,'ospi_frame_t']]],
   ['cmd_5ftype_27',['cmd_type',['../structospi__list__node__cfg__t.html#ae84f92907e1a8f7f617ad72129f9b3a8',1,'ospi_list_node_cfg_t']]],

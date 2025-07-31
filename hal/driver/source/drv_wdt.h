@@ -76,7 +76,7 @@ __STATIC_FORCEINLINE void drv_wdt_init(uint32_t timeout_ms)
  *
  * @param[in] isr_cb         callback
  *******************************************************************************
- **/
+ */
 extern void drv_wdt_register_isr_callback(drv_isr_callback_t isr_cb);
 #endif
 

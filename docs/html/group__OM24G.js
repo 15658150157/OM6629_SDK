@@ -109,7 +109,8 @@ var group__OM24G =
       [ "OM24G_RX_ADDR_CHECK", "group__OM24G.html#ggafcbe9df471b2c3d5c425efe37b2a42c1a96ed01ba169345e7ea6c3336f3565568", null ],
       [ "OM24G_STATIC_LENTH", "group__OM24G.html#ggafcbe9df471b2c3d5c425efe37b2a42c1ae9ad6c9a1e6dba3172a8c8b233575d77", null ],
       [ "OM24G_BLE_MODE", "group__OM24G.html#ggafcbe9df471b2c3d5c425efe37b2a42c1a1e5f8026ece0b6ce0a0c30c8c7b05e3b", null ],
-      [ "OM24G_HARDWARE_TIMER_TX", "group__OM24G.html#ggafcbe9df471b2c3d5c425efe37b2a42c1a26a49d5dc0bc92ed85c9c6264a9bb447", null ]
+      [ "OM24G_HARDWARE_TIMER_TX", "group__OM24G.html#ggafcbe9df471b2c3d5c425efe37b2a42c1a26a49d5dc0bc92ed85c9c6264a9bb447", null ],
+      [ "OM24G_TIMESTAMP", "group__OM24G.html#ggafcbe9df471b2c3d5c425efe37b2a42c1ab21a31c046b59a6967c5bf4f9f28d918", null ]
     ] ],
     [ "drv_om24g_control", "group__OM24G.html#gaec4bd4171e5e9867c18d6d1b893136fc", null ],
     [ "drv_om24g_detection_mode", "group__OM24G.html#ga67263fe48b00aab69e9ff78e7c3eaee1", null ],

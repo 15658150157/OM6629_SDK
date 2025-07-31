@@ -151,7 +151,7 @@ Multiple slave</div></div>
 <dl class="section note"><dt>Note</dt><dd>Always ensure that none of the data pipes have the same address.</dd></dl>
 <p>The PRX, using multiple slave and Protocol engine, receives packets from more than one PTX. To ensure that the ACK packet from the PRX is transmitted to the correct PTX, the PRX takes the data pipe address where it received the packet and uses it as the TX address when transmitting the ACK packet. Figure is an example of an address configuration for the PRX and PTX. On the PRX the RX_ADDR_Px, defined as the pipe address, must be unique. On the PTX the TX_ADDR must be the same as the RX_ADDR_P0 and as the pipe address for the designated pipe.</p>
 <p>Only when a data pipe receives a complete packet can other data pipes begin to receive data. When multiple PTXs are transmitting to a PRX, the ARD can be used to skew the auto retransmission so that they only block each other once.</p>
-<h1><a class="anchor" id="autotoc_md209"></a>
+<h1><a class="anchor" id="autotoc_md210"></a>
 ACK Mode</h1>
 <p>In some application scenarios, when the MCU of PRX cannot write ACK data content to RAM in a certain time (set by SETUP_VALUE.TX_SETUP_VALUE) after receiving an interrupt, the user can select two different processing methods by setting ACK_CODE. Which mode to use depends on the designer's specific application, increasing the value of SETUP_VALUE.TX_SETUP_VALUE gives the MCU more time to fill in the ACK packet.</p>
 <p><b>ACK Mode 0</b></p>
@@ -159,7 +159,7 @@ ACK Mode</h1>
 <p><b>ACK Mode 1</b></p>
 <p>If PRX is set to ACK mode_1, when PRX replies to ACK packet, if the MCU is too late to fill in the ACK package to system RAM, PRX will automatically reply to empty packet.</p>
 <dl class="section note"><dt>Note</dt><dd>The hardware determines whether the MCU fills in the ACK package by judging whether the MCU has written the DMA_TX_LEN register. Therefore, when the MCU writes the ACK package, it should first write data to the RAM and finally write the DMA_TX_LEN register.</dd></dl>
-<h1><a class="anchor" id="autotoc_md210"></a>
+<h1><a class="anchor" id="autotoc_md211"></a>
 ACK  Frame  A</h1>
 <p>This section describes several scenarios for the protocol engine automatic transaction handling for frame A. The call outs in this section’s figures indicate the IRQs and other events. For MCU activity the event may be placed at a different timeframe.</p>
 <dl class="section note"><dt>Note</dt><dd>The figures in this section indicate the earliest possible download (DL) of the packet to the MCU and the latest possible upload (UL) of payload to the transmitter.</dd></dl>
@@ -194,7 +194,7 @@ ack payload packet A</div></div>
 <img src="ack_pkt_lost_pkt_A.png" alt=""/>
 <div class="caption">
 ack pkt lost pkt A</div></div>
-    <h1><a class="anchor" id="autotoc_md211"></a>
+    <h1><a class="anchor" id="autotoc_md212"></a>
 ACK  Frame  B</h1>
 <p>This section describes several scenarios for the Protocol engine automatic transaction handling for frame B. The call outs in this section’s figures indicate the IRQs and other events. For MCU activity the event may be placed at a different timeframe.</p>
 <p><b>The biggest difference is that frame B has an automatic ack mechanism but no retransmission mechanism, because frame B has no PID field.</b></p>
@@ -213,7 +213,7 @@ ack packet B</div></div>
 <img src="ack_lost_packet_B.png" alt=""/>
 <div class="caption">
 ack lost packet B</div></div>
-    <h1><a class="anchor" id="autotoc_md212"></a>
+    <h1><a class="anchor" id="autotoc_md213"></a>
 Auto Retry</h1>
 <p>Only frame A support auto retransmission (ART) is a function.</p>
 <p>The auto retransmission is a function that retransmits a packet if an ACK packet is not received. It is used in an auto acknowledgement system on the PTX. When a packet is not acknowledged, you can set the number of times it is allowed to retransmit by setting the FA_SETUP_RETR.ARC register. PTX enters RX mode and waits a time period for an ACK packet each time a packet is transmitted. The amount of time the PTX is in RX mode is based on the following conditions:</p>
@@ -227,7 +227,7 @@ Auto Retry</h1>
 <p>There is a restriction on the length of FA_SETUP_RETR.ARD when using ACK packets with payload. The FA_SETUP_RETR.ARD time must never be shorter than the sum of the startup time and the time on-air for the ACK packet.</p>
 <p>• For 2 Mbps data rate; 15 bytes is maximum ACK packet payload length for ARD = 256μs (reset value).</p>
 <p>• For 1 Mbps data rate; 5 bytes is maximum ACK packet payload length for ARD = 256μs (reset value).</p>
-<h2><a class="anchor" id="autotoc_md213"></a>
+<h2><a class="anchor" id="autotoc_md214"></a>
 Standby Mode</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -246,7 +246,7 @@ Standby Mode</h2>
 <p><b>Standby-II Mode</b></p>
 <p>In standby-II mode MAC clock are active and more current is used compared to Standby-I mode. The chip enters standby-II mode if register MAC_CE is held high on a PTX device with an empty TX FIFO, If a new packet is uploaded to the TX FIFO.</p>
 <dl class="section note"><dt>Note</dt><dd>From Standby-I mode to standby-II mode register MAC_CE more than 10us.</dd></dl>
-<h1><a class="anchor" id="autotoc_md214"></a>
+<h1><a class="anchor" id="autotoc_md215"></a>
 PTX Mode</h1>
 <p>The TX mode is an active mode for transmitting packets. To enter this mode, the MCU must set PKTCTRL0.PRIM_RX bit set low or by drv_om24g_switch_role(OM24G_ROLE_PTX) API, several payload data move to TX FIFO by DMA and a high pulse on the register MAC_CE for more than 10µs.</p>
 <p>This operating mode pulses the register MAC_CE high for at least 10µs. This allows one packet to be transmitted. This is the normal operating mode. After the packet is transmitted, the chip enters STANDBY-I mode.</p>
@@ -260,7 +260,7 @@ ptx_mode</div></div>
 <p>If the ACK packet is not received before timeout occurs, the RF transceiver returns to standby-II mode. For frame A, it stays in standby-II mode until the FA_SETUP_RETR.ARD has elapsed. If the number of retransmits has not reached the FA_SETUP_RETR.ARC, the RF transceiver enters TX mode and transmits the last packet once more.</p>
 <p>While executing the auto retransmit feature, the number of retransmits can reach the maximum number defined in FA_SETUP_RETR.ARC. If this happens, the RF transceiver asserts the MAX_RT IRQ and returns to Standby-I mode.</p>
 <p>If the register MAC_CE register is high and the TX FIFO is empty, the RF transceiver enters Standby-II mode.</p>
-<h1><a class="anchor" id="autotoc_md215"></a>
+<h1><a class="anchor" id="autotoc_md216"></a>
 PRX Mode</h1>
 <p>The RX mode is an active mode where the OM6XXX radio is used as a receiver. To enter this mode, the chip must have the PKTCTRL0.PRIM_RX bit and the register MAC_CE set high or by drv_om24g_switch_role(OM24G_ROLE_PRX) API.</p>
 <p>In RX mode the receiver demodulates the signals from the RF channel, constantly presenting the demodulated data to the baseband protocol engine. The baseband protocol engine constantly searches for a valid packet. If a valid packet is found (by a matching address and a valid CRC) the payload of the packet is presented in a vacant slot in the RX FIFO, meanwhile DMA will move RX FIFO data to system RAM until a complete packet is received.</p>

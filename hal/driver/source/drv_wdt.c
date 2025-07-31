@@ -80,7 +80,7 @@ void drv_wdt_register_isr_callback(drv_isr_callback_t isr_cb)
 __WEAK void drv_wdt_isr_callback(void)
 {
     #if (RTE_WDT_REGISTER_CALLBACK)
-    if(wdt_env.isr_cb) {
+    if (wdt_env.isr_cb) {
         wdt_env.isr_cb(NULL, DRV_EVENT_COMMON_GENERAL, NULL, NULL);
     }
     #endif

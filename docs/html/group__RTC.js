@@ -32,5 +32,6 @@ var group__RTC =
     [ "drv_rtc_second_isr", "group__RTC.html#ga0dd843fe084cb9602af02f1196811539", null ],
     [ "drv_rtc_second_isr_callback", "group__RTC.html#ga567b3bd31b92addf8bfacdede35a4779", null ],
     [ "drv_rtc_timer_get", "group__RTC.html#gaa9f6133bbc1d7491f3afc9098f2b535e", null ],
-    [ "drv_rtc_timer_set", "group__RTC.html#ga05b63016eef7c4259f65b7a6d623e527", null ]
+    [ "drv_rtc_timer_set", "group__RTC.html#ga05b63016eef7c4259f65b7a6d623e527", null ],
+    [ "drv_rtc_uninit", "group__RTC.html#ga1bcb0f2713289523480f20945a336f82", null ]
 ];

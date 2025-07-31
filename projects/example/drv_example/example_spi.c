@@ -161,8 +161,6 @@ void example_spi_wire4_trans_dma(void)
     spi_cfg.first_bit   = SPI_MSB_FIRST;
     spi_cfg.cs_valid    = SPI_CS_LOW;
 
-	drv_spi_gpdma_channel_allocate(OM_SPI0, DRV_GPDMA_CHAN_ALL);
-
     drv_pin_init(pin_cfg_cnt, sizeof(pin_cfg_cnt) / sizeof(pin_cfg_cnt[0]));
     drv_spi_init(OM_SPI0, &spi_cfg);
     drv_spi_register_isr_callback(OM_SPI0, spi_transfer_dma_cb);
@@ -172,6 +170,7 @@ void example_spi_wire4_trans_dma(void)
     }
     memset(spi_rx_buf, 0xFF, sizeof(spi_rx_buf));
 
+    drv_spi_gpdma_channel_allocate(OM_SPI0, DRV_GPDMA_CHAN_ALL);
     drv_spi_transfer_dma(OM_SPI0, spi_tx_buf, TEST_TRANS_SIZE, spi_rx_buf, TEST_TRANS_SIZE);
     while (!dma_transfer_is_done);
     dma_transfer_is_done = 0;
@@ -191,7 +190,7 @@ void example_spi_wire3_trans_int(void)
     spi_config_t    spi_cfg;
     spi_cfg.freq        = 8*1000*1000;
     spi_cfg.role        = SPI_ROLE_MASTER;
-	//spi_cfg.role        = SPI_ROLE_SLAVE;
+    //spi_cfg.role        = SPI_ROLE_SLAVE;
     spi_cfg.mode        = SPI_MODE_0;
     spi_cfg.wire        = SPI_WIRE_3;
     spi_cfg.first_bit   = SPI_MSB_FIRST;
@@ -206,25 +205,25 @@ void example_spi_wire3_trans_int(void)
     }
     memset(spi_rx_buf, 0xFF, sizeof(spi_rx_buf));
 
-	if(spi_cfg.role == SPI_ROLE_MASTER){
+    if(spi_cfg.role == SPI_ROLE_MASTER){
         drv_spi_transfer_int(OM_SPI0, spi_tx_buf, TEST_TRANS_SIZE, spi_rx_buf, 0U);
-	}
-	else if(spi_cfg.role == SPI_ROLE_SLAVE){
-		drv_spi_transfer_int(OM_SPI0, spi_tx_buf, 0U, spi_rx_buf, TEST_TRANS_SIZE);
-	}
+    }
+    else if(spi_cfg.role == SPI_ROLE_SLAVE){
+        drv_spi_transfer_int(OM_SPI0, spi_tx_buf, 0U, spi_rx_buf, TEST_TRANS_SIZE);
+    }
     while (!int_transfer_is_done);
     int_transfer_is_done = 0;
 
-	if(spi_cfg.role == SPI_ROLE_MASTER){
+    if(spi_cfg.role == SPI_ROLE_MASTER){
         drv_dwt_delay_ms(5);   // leave the time for slave switch to transmit only
-	}
+    }
 
-	if(spi_cfg.role == SPI_ROLE_MASTER){
+    if(spi_cfg.role == SPI_ROLE_MASTER){
         drv_spi_transfer_int(OM_SPI0, spi_tx_buf, 0U, spi_rx_buf, TEST_TRANS_SIZE);
-	}
-	else if(spi_cfg.role == SPI_ROLE_SLAVE){
-		drv_spi_transfer_int(OM_SPI0, spi_tx_buf, TEST_TRANS_SIZE, spi_rx_buf, 0U);
-	}
+    }
+    else if(spi_cfg.role == SPI_ROLE_SLAVE){
+        drv_spi_transfer_int(OM_SPI0, spi_tx_buf, TEST_TRANS_SIZE, spi_rx_buf, 0U);
+    }
 
     while (!int_transfer_is_done);
     int_transfer_is_done = 0;
@@ -248,8 +247,6 @@ void example_spi_wire3_trans_dma(void)
     spi_cfg.first_bit   = SPI_MSB_FIRST;
     spi_cfg.cs_valid    = SPI_CS_LOW;
 
-	drv_spi_gpdma_channel_allocate(OM_SPI0, DRV_GPDMA_CHAN_ALL);
-
     drv_pin_init(pin_cfg_cnt, sizeof(pin_cfg_cnt) / sizeof(pin_cfg_cnt[0]));
     drv_spi_init(OM_SPI0, &spi_cfg);
     drv_spi_register_isr_callback(OM_SPI0, spi_transfer_dma_cb);
@@ -259,25 +256,26 @@ void example_spi_wire3_trans_dma(void)
     }
     memset(spi_rx_buf, 0xFF, sizeof(spi_rx_buf));
 
-	if(spi_cfg.role == SPI_ROLE_MASTER){
+    drv_spi_gpdma_channel_allocate(OM_SPI0, DRV_GPDMA_CHAN_ALL);
+    if(spi_cfg.role == SPI_ROLE_MASTER){
         drv_spi_transfer_dma(OM_SPI0, spi_tx_buf, TEST_TRANS_SIZE, spi_rx_buf, 0U);
-	}
-	else if(spi_cfg.role == SPI_ROLE_SLAVE){
-		drv_spi_transfer_dma(OM_SPI0, spi_tx_buf, 0U, spi_rx_buf, TEST_TRANS_SIZE);
-	}
+    }
+    else if(spi_cfg.role == SPI_ROLE_SLAVE){
+        drv_spi_transfer_dma(OM_SPI0, spi_tx_buf, 0U, spi_rx_buf, TEST_TRANS_SIZE);
+    }
     while (!dma_transfer_is_done);
     dma_transfer_is_done = 0;
 
-	if(spi_cfg.role == SPI_ROLE_MASTER){
-		drv_dwt_delay_ms(5);   // leave the time for slave switch to transmit only
-	}
+    if(spi_cfg.role == SPI_ROLE_MASTER){
+        drv_dwt_delay_ms(5);   // leave the time for slave switch to transmit only
+    }
 
-	if(spi_cfg.role == SPI_ROLE_MASTER){
-		drv_spi_transfer_dma(OM_SPI0, spi_tx_buf, 0U, spi_rx_buf, TEST_TRANS_SIZE);
-	}
-	else if(spi_cfg.role == SPI_ROLE_SLAVE){
-		drv_spi_transfer_dma(OM_SPI0, spi_tx_buf, TEST_TRANS_SIZE, spi_rx_buf, 0U);
-	}
+    if(spi_cfg.role == SPI_ROLE_MASTER){
+        drv_spi_transfer_dma(OM_SPI0, spi_tx_buf, 0U, spi_rx_buf, TEST_TRANS_SIZE);
+    }
+    else if(spi_cfg.role == SPI_ROLE_SLAVE){
+        drv_spi_transfer_dma(OM_SPI0, spi_tx_buf, TEST_TRANS_SIZE, spi_rx_buf, 0U);
+    }
 
     while (!dma_transfer_is_done);
     dma_transfer_is_done = 0;

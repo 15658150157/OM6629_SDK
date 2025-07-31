@@ -109,7 +109,6 @@ var group__PMU =
     [ "drv_pmu_shelf_mode_enable", "group__PMU.html#ga6773d61cd13711cf69d9935ae487af0f", null ],
     [ "drv_pmu_sleep_enter", "group__PMU.html#ga65f4aa578e2aedda48441560a92ef11f", null ],
     [ "drv_pmu_sleep_leave", "group__PMU.html#gafd5a40d80add5697a41555194a357b2d", null ],
-    [ "drv_pmu_syspll96m_startup", "group__PMU.html#ga6d82e78c9023a8fd90ed5cd98ec500c2", null ],
     [ "drv_pmu_syspll_power_enable", "group__PMU.html#ga257a89ba18dd986de66f83b5a08e1cc6", null ],
     [ "drv_pmu_wakeup_pin_set", "group__PMU.html#gad84c9f7ce29d9c818d952c07a99c0d31", null ],
     [ "drv_pmu_xtal32k_change_param", "group__PMU.html#ga1858e5123ac1c31f7cc5454fee7508e0", null ],

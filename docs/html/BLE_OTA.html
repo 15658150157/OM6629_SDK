@@ -130,19 +130,19 @@ $(document).ready(function(){initNavTree('BLE_OTA.html',''); initResizable(); })
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p>This article introduces the principle and usage of the OTA function.</p>
-<h1><a class="anchor" id="autotoc_md144"></a>
+<h1><a class="anchor" id="autotoc_md145"></a>
 Principle of OTA</h1>
 <p>The program flashing the new firmware to the program backup area of the flash through Bluetooth, restarts the device after completing the transmission and verification, and the bootloader copies the new firmware in the backup area to the designated area and runs the new firmware In addition, the OTA also supports overwriting data in any position of the configuration file or flash</p>
 <div class="plantumlgraph">
 <img src="inline_umlgraph_2.png" />
 </div>
-<h1><a class="anchor" id="autotoc_md145"></a>
+<h1><a class="anchor" id="autotoc_md146"></a>
 Generation of OTA upgrade package</h1>
 <p>After the program is compiled to generate a bin file, use the CreateFwTool.exe tool to generate an upgrade package for the upgrade tool to upgrade </p>
-<h2><a class="anchor" id="autotoc_md146"></a>
+<h2><a class="anchor" id="autotoc_md147"></a>
 DFU function configuration in project code</h2>
 <p>To use the OTA function, you need to add the Bluetooth profile onmicro_dfu to the source code If necessary, you can manually configure onmicro_dfu_config.h to specify the address range of the program backup area </p>
-<h2><a class="anchor" id="autotoc_md147"></a>
+<h2><a class="anchor" id="autotoc_md148"></a>
 CreateFwTool tool introduction</h2>
 <p>The CreateFwTool tool is used to convert the bin file into an upgrade package, and all functions can be viewed with the CreateFwTool.exe &ndash;help command </p><div class="fragment"><div class="line">Usage: CreateFwTool [OPTION...] [keygen|pack|stick] ...</div>
 <div class="line">Pack image or generate <span class="keyword">private</span>/<span class="keyword">public</span> key.</div>
@@ -171,7 +171,7 @@ CreateFwTool tool introduction</h2>
 <div class="line"> </div>
 <div class="line">Report bugs to &lt;feng.shang@onmicro.com.cn&gt;</div>
 <div class="line">Onmicro DFU Package Creater v1.4.220424</div>
-</div><!-- fragment --> <h2><a class="anchor" id="autotoc_md148"></a>
+</div><!-- fragment --> <h2><a class="anchor" id="autotoc_md149"></a>
 OTA packet generation</h2>
 <p>If the name of the bin file is firmware.bin, you can use the following command to convert the bin file into an upgrade package </p><div class="fragment"><div class="line">CreateFwTool.exe  pack  firmware.bin  APP  0x6621E100  -o  OmFw6621E.zip</div>
 </div><!-- fragment --><p> Among them, 'pack' means to generate an upgrade package, 'firmware.bin' is the firmware bin file, 'APP' specifies that the object of the upgrade is the main program of the device, '0x6621E100' means the version number of the APP, which is customized by the user, the '-o' parameter is used to specify the output file name, and finally Generate the upgrade package file "OmFw6621E.zip"</p>
@@ -189,31 +189,31 @@ OTA packet generation</h2>
 <div class="line">Total Cmd Size: 24</div>
 <div class="line">Total Image Size: 23456</div>
 <div class="line">Firmware OmFw6621E.zip created.</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md149"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md150"></a>
 Introduction to Mobile Phone Upgrade Tool</h1>
 <p>DfuUpload.apk is an Android application that cooperates with the Bluetooth DFU profile on the device side to realize the upgrade function.</p>
 <p>The operation process is as follows: select the file, select the device, start the upgrade, and complete the upgrade. </p>
-<h1><a class="anchor" id="autotoc_md150"></a>
+<h1><a class="anchor" id="autotoc_md151"></a>
 Mobile terminal upgrade operation process</h1>
-<h2><a class="anchor" id="autotoc_md151"></a>
+<h2><a class="anchor" id="autotoc_md152"></a>
 Click "Select File" to select the upgrade package file</h2>
 <div class="image">
 <img src="DFU_1_select_file.jpg" alt=""/>
 <div class="caption">
 Select Firmwire packet file</div></div>
- <h2><a class="anchor" id="autotoc_md152"></a>
+ <h2><a class="anchor" id="autotoc_md153"></a>
 Click "Select Device" to select the device to be upgraded</h2>
 <div class="image">
 <img src="DFU_2_select_device.jpg" alt=""/>
 <div class="caption">
 Select Device</div></div>
- <h2><a class="anchor" id="autotoc_md153"></a>
+ <h2><a class="anchor" id="autotoc_md154"></a>
 Click "StartUpgrading" to start upgrading</h2>
 <div class="image">
 <img src="DFU_3_uploading.jpg" alt=""/>
 <div class="caption">
 Uploading files</div></div>
- <h2><a class="anchor" id="autotoc_md154"></a>
+ <h2><a class="anchor" id="autotoc_md155"></a>
 Wait for the prompt after the upgrade is complete</h2>
 <div class="image">
 <img src="DFU_4_finished.jpg" alt=""/>

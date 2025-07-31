@@ -66,7 +66,11 @@ LR_ROM __RO_BASE __RO_SIZE  {                       ; load region size_region
   ER_RAM_POST +0 ALIGN 32 EMPTY 0 {    ; Reserve 0 bytes region for ER_RAM
   }
 
-  RW_RAM __RW_BASE + ImageLimit(ER_RAM_POST) - ImageBase(ER_RAM) {   ; RW data
+  RW_EM_RAM __RW_BASE + ImageLimit(ER_RAM_POST) - ImageBase(ER_RAM) {   ; EM data
+   *.o (RAM_BLE_EM)
+  }
+
+  RW_RAM +0 ALIGN 4 {   ; RW data
    .ANY (+RW +ZI)
   }
 

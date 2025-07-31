@@ -155,17 +155,17 @@ void log_out_flush(void)
     drv_flash_init(flash, &config);
     // erase flash area
     for (uint32_t i = 0; i < CONFIG_OM_LOG_SAVE_SIZE; i += 0x1000) {
-        drv_flash_erase(flash, CONFIG_OM_LOG_FLASH_ADDR + i, FLASH_ERASE_4K);
+        drv_flash_erase(flash, CONFIG_OM_LOG_FLASH_ADDR + i, FLASH_ERASE_4K, 1000);
     }
     // write log to flash
     if (om_ringbuff_read_overflow(&log_rb)) {
         drv_flash_write(flash, CONFIG_OM_LOG_FLASH_ADDR,  log_rb.buf + log_rb.wptr,
-                log_rb.size - log_rb.wptr - 1);
+                log_rb.size - log_rb.wptr - 1, 1000 );
         drv_flash_write(flash, CONFIG_OM_LOG_FLASH_ADDR + log_rb.size - log_rb.wptr - 1,
-                log_rb.buf, log_rb.wptr + 1);
+                log_rb.buf, log_rb.wptr + 1, 1000);
         om_ringbuff_clear_overflow(&log_rb);
     } else {
-        drv_flash_write(flash, CONFIG_OM_LOG_FLASH_ADDR,  log_rb.buf, log_rb.wptr + 1);
+        drv_flash_write(flash, CONFIG_OM_LOG_FLASH_ADDR,  log_rb.buf, log_rb.wptr + 1, 1000);
     }
     // reset ring buffer pointer
     log_rb.wptr = 0;

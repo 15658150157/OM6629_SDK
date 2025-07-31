@@ -80,16 +80,16 @@ typedef struct {
 
 typedef struct {
     gpdma_chain_trans_t chain[3];
-    uint16_t buf0[CAP_SAMPLE_NUM];
-    uint16_t buf1[CAP_SAMPLE_NUM];
-    uint16_t buf2[CAP_SAMPLE_NUM];
+    uint32_t buf0[CAP_SAMPLE_NUM];
+    uint32_t buf1[CAP_SAMPLE_NUM];
+    uint32_t buf2[CAP_SAMPLE_NUM];
 } cap_dma_env_t;
 
 typedef struct {
     gpdma_chain_trans_t chain[3];
-    uint16_t buf0[PWM_DMA_OC_VAL_NUM];
-    uint16_t buf1[PWM_DMA_OC_VAL_NUM];
-    uint16_t buf2[PWM_DMA_OC_VAL_NUM];
+    uint32_t buf0[PWM_DMA_OC_VAL_NUM];
+    uint32_t buf1[PWM_DMA_OC_VAL_NUM];
+    uint32_t buf2[PWM_DMA_OC_VAL_NUM];
 } pwm_dma_env_t;
 
 typedef struct {
@@ -317,15 +317,15 @@ void example_tim_pwm_dma(void)
     drv_pin_init(pin_cfg, sizeof(pin_cfg) / sizeof(pin_cfg[0]));
 
     pwm_dma_env.chain[0].src_addr   = (uint32_t)pwm_dma_env.buf0;
-    pwm_dma_env.chain[0].size_byte  = PWM_DMA_OC_VAL_NUM * sizeof(uint16_t);
+    pwm_dma_env.chain[0].size_byte  = PWM_DMA_OC_VAL_NUM * sizeof(uint32_t);
     pwm_dma_env.chain[0].ll_ptr     = &pwm_dma_env.chain[1];
 
     pwm_dma_env.chain[1].src_addr   = (uint32_t)pwm_dma_env.buf1;
-    pwm_dma_env.chain[1].size_byte  = PWM_DMA_OC_VAL_NUM * sizeof(uint16_t);
+    pwm_dma_env.chain[1].size_byte  = PWM_DMA_OC_VAL_NUM * sizeof(uint32_t);
     pwm_dma_env.chain[1].ll_ptr     = &pwm_dma_env.chain[2];
 
     pwm_dma_env.chain[2].src_addr   = (uint32_t)pwm_dma_env.buf2;
-    pwm_dma_env.chain[2].size_byte  = PWM_DMA_OC_VAL_NUM * sizeof(uint16_t);
+    pwm_dma_env.chain[2].size_byte  = PWM_DMA_OC_VAL_NUM * sizeof(uint32_t);
     pwm_dma_env.chain[2].ll_ptr     = &pwm_dma_env.chain[0];
 
     for (uint16_t i = 0; i < PWM_DMA_OC_VAL_NUM; i++) {
@@ -411,15 +411,15 @@ void example_tim_dma_capture(void)
     drv_pin_init(pin_config, sizeof(pin_config) / sizeof(pin_config[0]));
 
     cap_dma_env.chain[0].dst_addr   = (uint32_t)cap_dma_env.buf0;
-    cap_dma_env.chain[0].size_byte  = CAP_SAMPLE_NUM * sizeof(uint16_t);
+    cap_dma_env.chain[0].size_byte  = CAP_SAMPLE_NUM * sizeof(uint32_t);
     cap_dma_env.chain[0].ll_ptr     = &cap_dma_env.chain[1];
 
     cap_dma_env.chain[1].dst_addr   = (uint32_t)cap_dma_env.buf1;
-    cap_dma_env.chain[1].size_byte  = CAP_SAMPLE_NUM * sizeof(uint16_t);
+    cap_dma_env.chain[1].size_byte  = CAP_SAMPLE_NUM * sizeof(uint32_t);
     cap_dma_env.chain[1].ll_ptr     = &cap_dma_env.chain[2];
 
     cap_dma_env.chain[2].dst_addr   = (uint32_t)cap_dma_env.buf2;
-    cap_dma_env.chain[2].size_byte  = CAP_SAMPLE_NUM * sizeof(uint16_t);
+    cap_dma_env.chain[2].size_byte  = CAP_SAMPLE_NUM * sizeof(uint32_t);
     cap_dma_env.chain[2].ll_ptr     = &cap_dma_env.chain[0];
 
     tim_capture_config_t capture_config = {

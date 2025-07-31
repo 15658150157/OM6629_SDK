@@ -132,7 +132,7 @@ $(document).ready(function(){initNavTree('structob__gap__padv__sync__t.html','')
 </div><!--header-->
 <div class="contents">
 
-<p>周期广播同步参数  
+<p>Periodic advertising synchronization parameters.  
  <a href="structob__gap__padv__sync__t.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="omble__gap_8h_source.html">omble_gap.h</a>&gt;</code></p>
@@ -140,18 +140,23 @@ $(document).ready(function(){initNavTree('structob__gap__padv__sync__t.html','')
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
 <tr class="memitem:aafcdfa302012183a58d1a10e8fa3edd9"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="group__OMBLE__GAP.html#ga2654129db4f52a994e2c1e5a1bbfa055">ob_gap_addr_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__padv__sync__t.html#aafcdfa302012183a58d1a10e8fa3edd9">addr</a></td></tr>
+<tr class="memdesc:aafcdfa302012183a58d1a10e8fa3edd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">If NULL, use the Periodic Advertiser List, <a class="el" href="group__OMBLE__GAP.html#gaaa8059b477b0173c3b7e5b1bb5380f94">ob_gap_period_adv_list_set</a>.  <br /></td></tr>
 <tr class="separator:aafcdfa302012183a58d1a10e8fa3edd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a96a9d976764e2cd616b040a93448a043"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__padv__sync__t.html#a96a9d976764e2cd616b040a93448a043">adv_sid</a></td></tr>
+<tr class="memdesc:a96a9d976764e2cd616b040a93448a043"><td class="mdescLeft">&#160;</td><td class="mdescRight">advertising sid  <br /></td></tr>
 <tr class="separator:a96a9d976764e2cd616b040a93448a043"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9147640b11b7df780078d970a28548c5"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__padv__sync__t.html#a9147640b11b7df780078d970a28548c5">report_enable</a></td></tr>
+<tr class="memdesc:a9147640b11b7df780078d970a28548c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether to report periodic advertising events after successful synchronization.  <br /></td></tr>
 <tr class="separator:a9147640b11b7df780078d970a28548c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a08b55883a2523618a6affa079eeabab2"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__padv__sync__t.html#a08b55883a2523618a6affa079eeabab2">timeout</a></td></tr>
+<tr class="memdesc:a08b55883a2523618a6affa079eeabab2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Synchronization timeout, unit 10ms.  <br /></td></tr>
 <tr class="separator:a08b55883a2523618a6affa079eeabab2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abbd7ea64e8db87f650538dee703ca373"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__padv__sync__t.html#abbd7ea64e8db87f650538dee703ca373">skip</a></td></tr>
+<tr class="memdesc:abbd7ea64e8db87f650538dee703ca373"><td class="mdescLeft">&#160;</td><td class="mdescRight">The maximum number of periodic advertising events that can be skipped.  <br /></td></tr>
 <tr class="separator:abbd7ea64e8db87f650538dee703ca373"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>周期广播同步参数 </p>
+<div class="textblock"><p>Periodic advertising synchronization parameters. </p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="aafcdfa302012183a58d1a10e8fa3edd9" name="aafcdfa302012183a58d1a10e8fa3edd9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aafcdfa302012183a58d1a10e8fa3edd9">&#9670;&#160;</a></span>addr</h2>
@@ -164,6 +169,8 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>If NULL, use the Periodic Advertiser List, <a class="el" href="group__OMBLE__GAP.html#gaaa8059b477b0173c3b7e5b1bb5380f94">ob_gap_period_adv_list_set</a>. </p>
 
 </div>
 </div>
@@ -179,6 +186,8 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>advertising sid </p>
+
 </div>
 </div>
 <a id="a9147640b11b7df780078d970a28548c5" name="a9147640b11b7df780078d970a28548c5"></a>
@@ -192,6 +201,8 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Whether to report periodic advertising events after successful synchronization. </p>
 
 </div>
 </div>
@@ -207,6 +218,8 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>The maximum number of periodic advertising events that can be skipped. </p>
+
 </div>
 </div>
 <a id="a08b55883a2523618a6affa079eeabab2" name="a08b55883a2523618a6affa079eeabab2"></a>
@@ -221,10 +234,12 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Synchronization timeout, unit 10ms. </p>
+
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>/mnt/data/yaoyufeng/work.svnrepo/om6627/trunk/SDK/components/ble/host/include/<a class="el" href="omble__gap_8h_source.html">omble_gap.h</a></li>
+<li>/mnt/data/yaoyufeng/work.svnrepo/om6627x/om6627/trunk/SDK/components/ble/host/include/<a class="el" href="omble__gap_8h_source.html">omble_gap.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

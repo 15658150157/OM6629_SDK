@@ -21,8 +21,14 @@ var group__GPADC =
       [ "temperature_vbat_3p3v", "struct____PACKED.html#adf5c902885684284f7fb30cfdee7133d", null ],
       [ "vbg_code_trim_1_vbat_2p3v", "struct____PACKED.html#acdb2575f207924c6aa17f83d2f7ac6f1", null ],
       [ "vbg_code_trim_1_vbat_3p3v", "struct____PACKED.html#af9242f099c22e096e03f2470abfbd828", null ],
+      [ "vbg_code_trim_1_vbat_3p3v_diff", "struct____PACKED.html#afb241e8dc0834baffa45cfa64e84b942", null ],
+      [ "vbg_code_trim_1_vbat_3p3v_gain_1", "struct____PACKED.html#a5c58d1be2a3db3557bb39558b39f0fec", null ],
+      [ "vbg_code_trim_1_vbat_3p3v_gain_1_diff", "struct____PACKED.html#a6ed62993ffa9c9ca2b5e63c09927e2b8", null ],
       [ "vbg_code_trim_3_vbat_2p3v", "struct____PACKED.html#a264a5dfde6cc7d76f7f96eb0fac5c9c1", null ],
       [ "vbg_code_trim_3_vbat_3p3v", "struct____PACKED.html#a22068a823c7bac1954dc592f48c3da28", null ],
+      [ "vbg_code_trim_3_vbat_3p3v_diff", "struct____PACKED.html#a88aa931118018b1e794d9158bbb1e36d", null ],
+      [ "vbg_code_trim_3_vbat_3p3v_gain_1", "struct____PACKED.html#a9658619da25365460bfbc866f69c36fa", null ],
+      [ "vbg_code_trim_3_vbat_3p3v_gain_1_diff", "struct____PACKED.html#abda64e11e942cc26632a787c7df70a78", null ],
       [ "vos", "struct____PACKED.html#aad35bef4b6539896b884012401ada883", null ],
       [ "vos_temp", "struct____PACKED.html#a2abe7d1b9788c5dd4b6fdf6956f9243f", null ]
     ] ],
@@ -34,7 +40,10 @@ var group__GPADC =
       [ "flash_ex_2", "structdrv__gpadc__cpft__calib__t.html#af403f6301237c579a88c5384238b7888", null ],
       [ "flash_ex_3", "structdrv__gpadc__cpft__calib__t.html#a647619b39397b38ea3735bf6f5d3be16", null ],
       [ "flash_ex_4", "structdrv__gpadc__cpft__calib__t.html#aa29e70c0a02588e9579c6ceafecaba6a", null ],
-      [ "reserved", "structdrv__gpadc__cpft__calib__t.html#a5cbf7fb453c94126e9e2eda6b3db8f9a", null ]
+      [ "flash_ex_5", "structdrv__gpadc__cpft__calib__t.html#ae715f7b695cf771dd9b069232ab5e050", null ],
+      [ "flash_ex_6", "structdrv__gpadc__cpft__calib__t.html#a64416442412cdea72d92b149695d136f", null ],
+      [ "flash_ex_7", "structdrv__gpadc__cpft__calib__t.html#af292f7259dfd69903173c85c2cc0b555", null ],
+      [ "reserved", "structdrv__gpadc__cpft__calib__t.html#a667bc305f55ddf4e2013edf16608e865", null ]
     ] ],
     [ "drv_gpadc_calib_sel_t", "group__GPADC.html#ga7df54425c201d51f8ac8a76a855ca08c", [
       [ "GPADC_CALIB_FT_SINGLE", "group__GPADC.html#gga7df54425c201d51f8ac8a76a855ca08cae678d8e9ee3144d0696d774178bacc14", null ],
@@ -74,12 +83,16 @@ var group__GPADC =
       [ "GPADC_CONTROL_READ_TEMPERATURE", "group__GPADC.html#gga8d2eb1e9b42ec38eda6e11a96c84c79ea1b4dfb7c0c5a4912d39a62400c178cf5", null ],
       [ "GPADC_CONTROL_SET_CALIB_TEMPER", "group__GPADC.html#gga8d2eb1e9b42ec38eda6e11a96c84c79ea36566375a01fc8228364e83a73ef5109", null ],
       [ "GPADC_CONTROL_TEMPERATURE_COMPEN", "group__GPADC.html#gga8d2eb1e9b42ec38eda6e11a96c84c79eae866b05756d3952577c35d8b49195e79", null ],
-      [ "GPADC_CONTROL_SET_PARAM_WITHOUT_POWER_ON_PARAM", "group__GPADC.html#gga8d2eb1e9b42ec38eda6e11a96c84c79ead80f53a17e4ac48e5a59caf5cff7839b", null ]
+      [ "GPADC_CONTROL_SET_PARAM_WITHOUT_POWER_ON_PARAM", "group__GPADC.html#gga8d2eb1e9b42ec38eda6e11a96c84c79ead80f53a17e4ac48e5a59caf5cff7839b", null ],
+      [ "GPADC_CONTROL_CHANNEL_CFG", "group__GPADC.html#gga8d2eb1e9b42ec38eda6e11a96c84c79ea42d43468d8c43ea138f48276be9c81c4", null ],
+      [ "GPADC_CONTROL_GET_GAIN_ERROR", "group__GPADC.html#gga8d2eb1e9b42ec38eda6e11a96c84c79eac177d0ab76beff923590f2678cc08ba7", null ],
+      [ "GPADC_CONTROL_GET_VOS", "group__GPADC.html#gga8d2eb1e9b42ec38eda6e11a96c84c79eaa09a6780d59edc7c8509bd8eb4d33244", null ],
+      [ "GPADC_CONTROL_SET_AUTO_COMPEN", "group__GPADC.html#gga8d2eb1e9b42ec38eda6e11a96c84c79eab6251b8fe18aebcdf7d8500bd481bb5c", null ]
     ] ],
     [ "drv_gpadc_gain_t", "group__GPADC.html#gad0bb37bcadb0bf5685d19698fa53d67e", [
-      [ "GPADC_GAIN_1", "group__GPADC.html#ggad0bb37bcadb0bf5685d19698fa53d67eaea17e99090dab48a416dff9b44ea5a04", null ],
-      [ "GPADC_GAIN_1_3", "group__GPADC.html#ggad0bb37bcadb0bf5685d19698fa53d67eaf23b33d28bacd1a71d08737f453b71c4", null ],
-      [ "GPADC_GAIN_1_SEL_VREF_0", "group__GPADC.html#ggad0bb37bcadb0bf5685d19698fa53d67ea1fff6061d9ffeb2c268a03b738772541", null ],
+      [ "GPADC_GAIN_1_EXTERNAL_REF", "group__GPADC.html#ggad0bb37bcadb0bf5685d19698fa53d67eaa30166f166c0b861fe9efb82db4b17da", null ],
+      [ "GPADC_GAIN_1_3_INTERNAL_REF", "group__GPADC.html#ggad0bb37bcadb0bf5685d19698fa53d67eaf41afedaa42671ed0c7aa2b0c7257608", null ],
+      [ "GPADC_GAIN_1_INTERNAL_REF", "group__GPADC.html#ggad0bb37bcadb0bf5685d19698fa53d67eadce2138237af865aca042e79b8b47f69", null ],
       [ "GPADC_GAIN_MAX", "group__GPADC.html#ggad0bb37bcadb0bf5685d19698fa53d67ea881468d6b5a2f231826d1f99d4866c5e", null ]
     ] ],
     [ "drv_gpadc_mode_t", "group__GPADC.html#ga80cac61d49b40284ec89cae08974252e", [
@@ -114,8 +127,8 @@ var group__GPADC =
       [ "GPADC_SUM_NUM_MAX", "group__GPADC.html#gga143bd51e260f0e5c960dab0f22317517ab845c7214e403fb5ead5b286ad6d90a1", null ]
     ] ],
     [ "drv_gpadc_control", "group__GPADC.html#ga32d93afaafd7a2faa06fd9121c0ac8a8", null ],
-    [ "drv_gpadc_dma_channel_allocate", "group__GPADC.html#ga978fd1bc27db1fc659914b24077af5e8", null ],
-    [ "drv_gpadc_dma_channel_release", "group__GPADC.html#gab2d28fc7b66a3d240a988589de765720", null ],
+    [ "drv_gpadc_gpdma_channel_allocate", "group__GPADC.html#ga027e97ecd6f96c0bfa9917d9bcb845f4", null ],
+    [ "drv_gpadc_gpdma_channel_release", "group__GPADC.html#gaa1356f585753bbab9cfe856720a28c5e", null ],
     [ "drv_gpadc_init", "group__GPADC.html#gadf1bd102646023a65618bd61346de169", null ],
     [ "drv_gpadc_isr", "group__GPADC.html#ga44bfe8eaccd99c76666dd51bebcba994", null ],
     [ "drv_gpadc_read", "group__GPADC.html#ga1d3128c6e7e452d00fcec457c0a56bdc", null ],

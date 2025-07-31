@@ -130,7 +130,7 @@ $(document).ready(function(){initNavTree('POWER_MANAGE.html',''); initResizable(
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_doxygen_source_user_guides_power_manage"></a></p>
-<h1><a class="anchor" id="autotoc_md69"></a>
+<h1><a class="anchor" id="autotoc_md70"></a>
 Power Mode</h1>
 <p>The chip has 5 power modes: active mode, idle mode, sleep mode, deep sleep mode, ultra deep sleep mode</p>
 <ul>
@@ -240,7 +240,7 @@ Power Mode</h1>
 </table>
 <p><em> (**) HW restore its regisers automatically after wakeup.<br  />
  (***) The GPIO module consists of two parts, one part located in the PMU module, the other part does not belong to PMU and it does not working in sleep mode. </em></p>
-<h1><a class="anchor" id="autotoc_md70"></a>
+<h1><a class="anchor" id="autotoc_md71"></a>
 Power Control</h1>
 <p>Power mode control depends on user setting, peripherals’ status and BLE’s status.</p>
 <ul>
@@ -251,7 +251,7 @@ Power Control</h1>
 <li>The status of BLE is managed by BLE stack.</li>
 </ul>
 <dl class="section note"><dt>Note</dt><dd>When the system is waked up from sleep mode, all register setting of some peripherals are lost and the peripherals need to be reconfigured. Those reconfigured peripherals include: <b>GPIO, Timer, UART, SPI, DMA, ADC, I2C, ...</b>.</dd></dl>
-<h1><a class="anchor" id="autotoc_md71"></a>
+<h1><a class="anchor" id="autotoc_md72"></a>
 System Scheduler and Power Manager Flow</h1>
 <p>The system scheduler and power manager are included in <a class="el" href="group__EVT.html#ga5e9d76dd6b10db3022d38f057193fe36" title="Event scheduler entry point.">evt_schedule()</a> which reference <a class="el" href="OPERATING_SYSTEM.html">Operating System</a>. The flow is shown as follow:</p>
 <div class="plantumlgraph">
@@ -260,7 +260,7 @@ System Scheduler and Power Manager Flow</h1>
 System Scheduler and Power Manager Flow</div>
 </div>
 <dl class="section note"><dt>Note</dt><dd>When system come into SLEEP mode, the CPU is powered down. So the debug interface (SWD) will be disconnected and KEIL losts connection. The function <a class="el" href="group__PM.html#ga9de92c7182c5638b6fcc51ac520d004c">pm_sleep_enable()</a> can disable SLEEP mode for better debugging.</dd></dl>
-<h2><a class="anchor" id="autotoc_md72"></a>
+<h2><a class="anchor" id="autotoc_md73"></a>
 Reference Code</h2>
 <div class="fragment"><div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> pm_sleep_notify_handler(<a class="code hl_enumeration" href="group__PM.html#ga04e99c9c373636bd60b59f3f98d330ee">pm_sleep_state_t</a> sleep_state, <a class="code hl_enumeration" href="group__PM.html#gac4d27cf0310d8173f6f5d1e71ddb0abc">pm_status_t</a> power_status)</div>
 <div class="line">{</div>

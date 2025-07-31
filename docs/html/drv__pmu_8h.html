@@ -16,7 +16,7 @@
 <meta name="twitter:title" content="Doxygen Awesome" />
 <meta name="twitter:description" content="Custom CSS theme for doxygen html-documentation with lots of customization parameters." />
 <!-- END twitter metadata -->
-<title>User Guide: /mnt/data/yaoyufeng/work.svnrepo/om6627/trunk/SDK/hal/driver/source/drv_pmu.h File Reference</title>
+<title>User Guide: /mnt/data/yaoyufeng/work.svnrepo/om6627x/om6627/trunk/SDK/hal/driver/source/drv_pmu.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link rel="icon" type="image/svg+xml" href="logo.drawio.svg"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -246,9 +246,6 @@ Functions</h2></td></tr>
 <tr class="memitem:ga49c66f0d06bb67806927c4b436335331"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga49c66f0d06bb67806927c4b436335331">drv_pmu_xtal32m_startup</a> (void)</td></tr>
 <tr class="memdesc:ga49c66f0d06bb67806927c4b436335331"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu select xtal32m as top clock, call by system  <br /></td></tr>
 <tr class="separator:ga49c66f0d06bb67806927c4b436335331"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga6d82e78c9023a8fd90ed5cd98ec500c2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga6d82e78c9023a8fd90ed5cd98ec500c2">drv_pmu_syspll96m_startup</a> (void)</td></tr>
-<tr class="memdesc:ga6d82e78c9023a8fd90ed5cd98ec500c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">syspll 96M startup, NOTE: this function must be called after xtal32m_startup()  <br /></td></tr>
-<tr class="separator:ga6d82e78c9023a8fd90ed5cd98ec500c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga246f3f61bc55562987771d3b52e2a970"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga246f3f61bc55562987771d3b52e2a970">drv_pmu_select_32k</a> (<a class="el" href="group__PMU.html#ga8be2a2f24d33272140f5eb425d4f329f">pmu_32k_sel_t</a> clk32k)</td></tr>
 <tr class="memdesc:ga246f3f61bc55562987771d3b52e2a970"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu select 32k  <br /></td></tr>
 <tr class="separator:ga246f3f61bc55562987771d3b52e2a970"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -256,10 +253,10 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga9f555dd6ab69b2af291799f62561a201"><td class="mdescLeft">&#160;</td><td class="mdescRight">pmu get 32k select  <br /></td></tr>
 <tr class="separator:ga9f555dd6ab69b2af291799f62561a201"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3caeae1845bf621a7dc5e7a3b1a25692"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga3caeae1845bf621a7dc5e7a3b1a25692">drv_pmu_ram_power_down</a> (pmu_ram_block_t blocks)</td></tr>
-<tr class="memdesc:ga3caeae1845bf621a7dc5e7a3b1a25692"><td class="mdescLeft">&#160;</td><td class="mdescRight">control ram power state, It will take effect immediately. all ram (defined by pmu_ram_block_t) is power on from startup (ROM <a class="el" href="group__SYSTEM.html#ga93f514700ccf00d08dbdcff7f1224eb2" title="Setup the microcontroller system.">SystemInit()</a> and SDK <a class="el" href="group__SYSTEM.html#ga93f514700ccf00d08dbdcff7f1224eb2" title="Setup the microcontroller system.">SystemInit()</a>). If the corresponding struct member setting as 1 indicate the blocks power down else power up immediately. sram0 is always on; sram1 and sram2 share a common power switch.  <br /></td></tr>
+<tr class="memdesc:ga3caeae1845bf621a7dc5e7a3b1a25692"><td class="mdescLeft">&#160;</td><td class="mdescRight">control ram power state, It will take effect immediately. all ram (defined by pmu_ram_block_t) is power on from startup (ROM SystemInit() and SDK SystemInit()). If the corresponding struct member setting as 1 indicate the blocks power down else power up immediately. sram0 is always on; sram1 and sram2 share a common power switch.  <br /></td></tr>
 <tr class="separator:ga3caeae1845bf621a7dc5e7a3b1a25692"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5d7fa2112758c07e35dbc9a543582021"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga5d7fa2112758c07e35dbc9a543582021">drv_pmu_ram_power_down_in_sleep</a> (pmu_ram_block_t blocks)</td></tr>
-<tr class="memdesc:ga5d7fa2112758c07e35dbc9a543582021"><td class="mdescLeft">&#160;</td><td class="mdescRight">control ram power state in sleep, It will work when the system enter sleep/deep sleep state. all ram (defined by pmu_ram_block_t) is power on from startup (ROM <a class="el" href="group__SYSTEM.html#ga93f514700ccf00d08dbdcff7f1224eb2" title="Setup the microcontroller system.">SystemInit()</a> and SDK <a class="el" href="group__SYSTEM.html#ga93f514700ccf00d08dbdcff7f1224eb2" title="Setup the microcontroller system.">SystemInit()</a>). the corresponding struct member setting as 1 indicate the blocks power down.  <br /></td></tr>
+<tr class="memdesc:ga5d7fa2112758c07e35dbc9a543582021"><td class="mdescLeft">&#160;</td><td class="mdescRight">control ram power state in sleep, It will work when the system enter sleep/deep sleep state. all ram (defined by pmu_ram_block_t) is power on from startup (ROM SystemInit() and SDK SystemInit()). the corresponding struct member setting as 1 indicate the blocks power down.  <br /></td></tr>
 <tr class="separator:ga5d7fa2112758c07e35dbc9a543582021"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2eebd20623e5458dedc0a8ad2bd2021b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga2eebd20623e5458dedc0a8ad2bd2021b">drv_pmu_register_step_set</a> (volatile uint32_t *reg, uint32_t mask, uint32_t pos, uint32_t value, bool should_update, uint32_t delay_us)</td></tr>
 <tr class="memdesc:ga2eebd20623e5458dedc0a8ad2bd2021b"><td class="mdescLeft">&#160;</td><td class="mdescRight">register step set, use: drv_pmu_register_step_set(...)  <br /></td></tr>
@@ -367,7 +364,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga6e790e01f89b37ccc6447abb9a3e24ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">drv pmu pof isr  <br /></td></tr>
 <tr class="separator:ga6e790e01f89b37ccc6447abb9a3e24ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga257a89ba18dd986de66f83b5a08e1cc6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga257a89ba18dd986de66f83b5a08e1cc6">drv_pmu_syspll_power_enable</a> (uint8_t enable)</td></tr>
-<tr class="memdesc:ga257a89ba18dd986de66f83b5a08e1cc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">syspll power enable (pll96M and 48M)  <br /></td></tr>
+<tr class="memdesc:ga257a89ba18dd986de66f83b5a08e1cc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">syspll power enable (pll96M/48M)  <br /></td></tr>
 <tr class="separator:ga257a89ba18dd986de66f83b5a08e1cc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga188f41a2e4419ecd16f70dbe6629ee6e"><td class="memItemLeft" align="right" valign="top">__STATIC_FORCEINLINE bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PMU.html#ga188f41a2e4419ecd16f70dbe6629ee6e">drv_pmu_iflash_ready_state_get</a> (void)</td></tr>
 <tr class="memdesc:ga188f41a2e4419ecd16f70dbe6629ee6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">iflash get iflash ready state  <br /></td></tr>

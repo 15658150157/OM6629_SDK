@@ -130,7 +130,7 @@ $(document).ready(function(){initNavTree('OM24G_APP_SIMPLE.html',''); initResiza
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_doxygen_source_24g_om24g_app_simple"></a> </p>
-<h1><a class="anchor" id="autotoc_md216"></a>
+<h1><a class="anchor" id="autotoc_md217"></a>
 Building</h1>
 <p>The Device example is under <code>SDK\projects\om24g_app_simple</code> in the SDK folder structure. Perform the following steps to set up an application to send packets:</p>
 <p>1、Initialize 2.4GHz Proprietary protocol using <a class="el" href="group__OM24G.html#ga446564d9dced67dbc1d1a03c95c83299" title="init the 2.4g transerive when the event begin. If the deviation is dynamically switched,...">drv_om24g_init(const om24g_config_t *cfg)</a>. You can use the default parameters in om24g_config as starting point for the cfg parameter and reconfigure them if needed.</p>
@@ -161,9 +161,9 @@ Building</h1>
 </ul>
 </li>
 </ul>
-<h1><a class="anchor" id="autotoc_md217"></a>
+<h1><a class="anchor" id="autotoc_md218"></a>
 Example</h1>
-<h2><a class="anchor" id="autotoc_md218"></a>
+<h2><a class="anchor" id="autotoc_md219"></a>
 TX Device</h2>
 <p>This example demonstrates a basic 2.4G private protocol receiving packets. It enters continuous reception mode to listen for airborne packets. This demo has a speed of 1M and a frequency of 2478Mhz The package structure consists of a four byte preamble, a four byte synchronization word, a one byte header, a 0-64 byte payload (which can be configured with static_len to allow maximum length), and a two byte CRC.</p>
 <p>The following are specific configurations for TX devices:</p>
@@ -201,7 +201,7 @@ AND DRV_EVENT_COMMON_RECEIVE_COMPLETED    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyLeft">om24g_tx_test(OM24G_HARDWARE_TIMER_TX)   </td><td class="markdownTableBodyLeft">Interrupt   </td><td class="markdownTableBodyLeft">No ACK   </td><td class="markdownTableBodyCenter">B   </td><td class="markdownTableBodyLeft">DRV_EVENT_COMMON_TRANSMIT_COMPLETED   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md219"></a>
+<h2><a class="anchor" id="autotoc_md220"></a>
 RX Device</h2>
 <p>This example demonstrates a basic 2.4G private protocol transmission packet. It sends a 32 byte payload in packet structure B every 500ms, for a total of 100 packets. The payload content ranges from 0 to 31. This demo has a speed of 1M and a frequency of 2478Mhz The package structure consists of a four byte preamble, a four byte synchronization word, a one byte header, a 0-64 byte payload (which can be configured with static_len to allow maximum length), and a two byte CRC.</p>
 <p>The following are specific configurations for RX devices:</p>
@@ -237,7 +237,7 @@ AND DRV_EVENT_COMMON_RECEIVE_COMPLETED    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyLeft">om24g_rx_test(OM24G_HARDWARE_TIMER_TX)   </td><td class="markdownTableBodyLeft">Interrupt   </td><td class="markdownTableBodyLeft">No ACK   </td><td class="markdownTableBodyCenter">B   </td><td class="markdownTableBodyLeft">DRV_EVENT_COMMON_RECEIVE_COMPLETED   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md220"></a>
+<h1><a class="anchor" id="autotoc_md221"></a>
 Running and Testing</h1>
 <p>After programming the TX Device example(TX_ROLE = 1) on one of the development kits and the RX device example(TX_ROLE = 0) on the other kit, test them by performing the following steps:</p>
 <ul>

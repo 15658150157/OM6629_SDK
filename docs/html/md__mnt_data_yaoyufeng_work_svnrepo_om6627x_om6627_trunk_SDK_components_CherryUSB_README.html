@@ -100,7 +100,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('md__mnt_data_yaoyufeng_work_svnrepo_om6627_trunk_SDK_components_CherryUSB_README.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('md__mnt_data_yaoyufeng_work_svnrepo_om6627x_om6627_trunk_SDK_components_CherryUSB_README.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -134,9 +134,9 @@ $(document).ready(function(){initNavTree('md__mnt_data_yaoyufeng_work_svnrepo_om
 <object type="image/svg+xml" data="CherryUSB.svg" style="pointer-events: none;"></object>
 <div class="caption">
 CherryUSB</div></div>
-    <h1><a class="anchor" id="autotoc_md227"></a>
+    <h1><a class="anchor" id="autotoc_md228"></a>
 Why choose</h1>
-<h2><a class="anchor" id="autotoc_md228"></a>
+<h2><a class="anchor" id="autotoc_md229"></a>
 Easy to study USB</h2>
 <p>In order to make it easier for users to learn USB basics, enumeration, driver loading and IP drivers, the code has been written with the following advantages:</p>
 <ul>
@@ -145,14 +145,14 @@ Easy to study USB</h2>
 <li>Class-drivers and porting-drivers are templating and simplification</li>
 <li>Clear API classification (slave: initialisation, registration api, command callback api, data sending and receiving api; host: initialisation, lookup api, data sending and receiving api)</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md229"></a>
+<h2><a class="anchor" id="autotoc_md230"></a>
 Easy to use USB</h2>
 <p>In order to facilitate the use of the USB interface and to take into account the fact that users have learned about uart and dma, the following advantages have been designed for the data sending and receiving class of interface:</p>
 <ul>
 <li>Equivalent to using uart tx dma/uart rx dma</li>
 <li>There is no limit to the length of send and receive, the user does not need to care about the USB packetization process (the porting driver does the packetization process)</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md230"></a>
+<h2><a class="anchor" id="autotoc_md231"></a>
 Easy to bring out USB performance</h2>
 <p>Taking into account USB performance issues and trying to achieve the theoretical bandwidth of the USB hardware, the design of the data transceiver class interface has the following advantages:</p>
 <ul>
@@ -162,7 +162,7 @@ Easy to bring out USB performance</h2>
 <li>Unlimited length make it easier to interface with hardware DMA and take advantage of DMA</li>
 <li>Subcontracting function is handled in interrupt</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md231"></a>
+<h1><a class="anchor" id="autotoc_md232"></a>
 Directory Structure</h1>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -186,7 +186,7 @@ Directory Structure</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyCenter">tools   </td><td class="markdownTableBodyCenter">tool url   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md232"></a>
+<h1><a class="anchor" id="autotoc_md233"></a>
 Device Stack Overview</h1>
 <p>CherryUSB Device Stack provides a unified framework of functions for standard device requests, CLASS requests, VENDOR requests and custom special requests. The object-oriented and chained approach allows the user to quickly get started with composite devices without having to worry about the underlying logic. At the same time, a standard dcd porting interface has been standardised for adapting different USB IPs to achieve ip-oriented programming.</p>
 <p>CherryUSB Device Stack has the following functions：</p>
@@ -227,7 +227,7 @@ Device Stack Overview</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyCenter">usbd_rndis.c   </td><td class="markdownTableBodyCenter">2109   </td><td class="markdownTableBodyCenter">3340   </td><td class="markdownTableBodyCenter">76   </td><td class="markdownTableBodyCenter">0   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md233"></a>
+<h1><a class="anchor" id="autotoc_md234"></a>
 Host Stack Overview</h1>
 <p>The CherryUSB Host Stack has a standard enumeration implementation for devices mounted on roothubs and external hubs, and a standard interface for different Classes to indicate what the Class driver needs to do after enumeration and after disconnection. A standard hcd porting interface has also been standardised for adapting different USB IPs for IP-oriented programming. Finally, the host stack is managed using os, and provides osal to make a adaptation for different os.</p>
 <p>CherryUSB Host Stack has the following functions：</p>
@@ -286,7 +286,7 @@ Host Stack Overview</h1>
 <div class="line">#define CONFIG_USBHOST_MAX_MSC_CLASS     2</div>
 <div class="line">#define CONFIG_USBHOST_MAX_AUDIO_CLASS   1</div>
 <div class="line">#define CONFIG_USBHOST_MAX_VIDEO_CLASS   1</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md234"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md235"></a>
 USB IP Support</h1>
 <p>Only standard and commercial USB IP are listed.</p>
 <table class="markdownTable">
@@ -315,13 +315,13 @@ USB IP Support</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyCenter">DWC3(synopsys)   </td><td class="markdownTableBodyCenter">DWC3   </td><td class="markdownTableBodyCenter">XHCI   </td><td class="markdownTableBodyCenter">×   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md235"></a>
+<h1><a class="anchor" id="autotoc_md236"></a>
 Documentation Tutorial</h1>
 <p>Quickly start, USB basic concepts, API manual, Class basic concepts and examples, see <a href="https://cherryusb.readthedocs.io/">CherryUSB Documentation Tutorial</a></p>
-<h1><a class="anchor" id="autotoc_md236"></a>
+<h1><a class="anchor" id="autotoc_md237"></a>
 Video Tutorial</h1>
 <p>USB basic concepts and how the CherryUSB Device stack is implemented, see <a href="https://www.bilibili.com/video/BV1Ef4y1t73d">CherryUSB Device Stack Tutorial</a>.</p>
-<h1><a class="anchor" id="autotoc_md237"></a>
+<h1><a class="anchor" id="autotoc_md238"></a>
 Graphical Config Tool</h1>
 <p><a href="https://github.com/Egahp/chryusb_configurator">chryusb_configurator</a> is written in <b>electron + vite2 + ts</b> framework，currently used to automate the generation of descriptor arrays, with additional functionality to be added later. </p>
 </div></div><!-- contents -->

@@ -141,7 +141,7 @@ $(document).ready(function(){initNavTree('group__BLE__APP__MULTILINK.html',''); 
 <li><code>disc</code>: Disconnect</li>
 </ul>
 <p>The specific parameters of each command are as follows </p>
-<h2><a class="anchor" id="autotoc_md165"></a>
+<h2><a class="anchor" id="autotoc_md166"></a>
 adv</h2>
 <p>Usage: <code>adv start/stop [adv_index=0]</code></p><ul>
 <li><code>adv start</code>: Used to turn on the advertise</li>
@@ -150,7 +150,7 @@ adv</h2>
 </ul>
 <p>Example: </p><div class="fragment"><div class="line">adv start  : Turn on advertise index=0</div>
 <div class="line">adv stop 1 : Turn off advertise index=1</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md166"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md167"></a>
 scan</h2>
 <p>Usage: <code>scan [timeout=3s]</code></p>
 <p>After the scan is complete (timeout), the terminal will print out the scanned devices, and the output format is </p><div class="fragment"><div class="line">index  addr_type  addr  RSSI  [ advertise name ]</div>
@@ -159,7 +159,7 @@ scan</h2>
 <div class="line">  Scan Finished:</div>
 <div class="line">  1.  1  C1:BF:66:26:A1:01    0  OM6626_BLE</div>
 <div class="line">  2.  1  C1:BF:66:81:A1:01    0  OM6681_BLE</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md167"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md168"></a>
 conn</h2>
 <p>Usage: <code>conn index [timeout=5s]</code></p>
 <p><code>index</code> is the index value of the scanned device</p>
@@ -167,18 +167,18 @@ conn</h2>
 <p>Example: Connect to the device with index=0 in the scan result, and the timeout period is 5s </p><div class="fragment"><div class="line">conn 0 5</div>
 </div><!-- fragment --><p>Output: </p><div class="fragment"><div class="line">Starting connect to (1) C1:BF:66:26:A1:01  OM6626_BLE, timeout 5 s</div>
 <div class="line">&gt; <a class="code hl_enumvalue" href="group__OMBLE__GAP.html#gga60af4dcbeabe629965292ac1287a1b0cad4e099d93328262d7508e521baad652b">OB_GAP_EVT_CONNECTED</a>(0): 255</div>
-<div class="ttc" id="agroup__OMBLE__GAP_html_gga60af4dcbeabe629965292ac1287a1b0cad4e099d93328262d7508e521baad652b"><div class="ttname"><a href="group__OMBLE__GAP.html#gga60af4dcbeabe629965292ac1287a1b0cad4e099d93328262d7508e521baad652b">OB_GAP_EVT_CONNECTED</a></div><div class="ttdeci">@ OB_GAP_EVT_CONNECTED</div><div class="ttdoc">连接成功事件，参考 ob_gap_evt_connected_t</div><div class="ttdef"><b>Definition:</b> omble_gap.h:29</div></div>
+<div class="ttc" id="agroup__OMBLE__GAP_html_gga60af4dcbeabe629965292ac1287a1b0cad4e099d93328262d7508e521baad652b"><div class="ttname"><a href="group__OMBLE__GAP.html#gga60af4dcbeabe629965292ac1287a1b0cad4e099d93328262d7508e521baad652b">OB_GAP_EVT_CONNECTED</a></div><div class="ttdeci">@ OB_GAP_EVT_CONNECTED</div><div class="ttdoc">Connection established event, refer to ob_gap_evt_connected_t.</div><div class="ttdef"><b>Definition:</b> omble_gap.h:29</div></div>
 </div><!-- fragment --><p> Where "OB_GAP_EVT_CONNECTED(0): 255" indicates that the link index is 0 and the broadcast index is 255 (unavailable)</p>
 <p>If the connection fails, output: </p><div class="fragment"><div class="line">Starting connect to (1) C1:BF:66:26:A1:01  OM6626_BLE, timeout 5 s</div>
 <div class="line">&gt; Connection timeout</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md168"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md169"></a>
 disc</h2>
 <p>Usage: <code>disc index</code></p>
 <p><code>index</code> is the link index value</p>
 <p>Example: disconnect from device with link index 0 </p><div class="fragment"><div class="line">disc 0</div>
 </div><!-- fragment --><p>Output: </p><div class="fragment"><div class="line">Disconnecting to idx=0 (1) C1:BF:66:26:A1:01  OM6626_BLE</div>
 <div class="line">&gt; <a class="code hl_enumvalue" href="group__OMBLE__GAP.html#gga60af4dcbeabe629965292ac1287a1b0caf3a95feb5dfd78128a4258f808a1778b">OB_GAP_EVT_DISCONNECTED</a>(0): 0x16</div>
-<div class="ttc" id="agroup__OMBLE__GAP_html_gga60af4dcbeabe629965292ac1287a1b0caf3a95feb5dfd78128a4258f808a1778b"><div class="ttname"><a href="group__OMBLE__GAP.html#gga60af4dcbeabe629965292ac1287a1b0caf3a95feb5dfd78128a4258f808a1778b">OB_GAP_EVT_DISCONNECTED</a></div><div class="ttdeci">@ OB_GAP_EVT_DISCONNECTED</div><div class="ttdoc">连接断开事件，参考 ob_gap_evt_disconnected_t</div><div class="ttdef"><b>Definition:</b> omble_gap.h:31</div></div>
+<div class="ttc" id="agroup__OMBLE__GAP_html_gga60af4dcbeabe629965292ac1287a1b0caf3a95feb5dfd78128a4258f808a1778b"><div class="ttname"><a href="group__OMBLE__GAP.html#gga60af4dcbeabe629965292ac1287a1b0caf3a95feb5dfd78128a4258f808a1778b">OB_GAP_EVT_DISCONNECTED</a></div><div class="ttdeci">@ OB_GAP_EVT_DISCONNECTED</div><div class="ttdoc">Connection disconnected event, refer to ob_gap_evt_disconnected_t.</div><div class="ttdef"><b>Definition:</b> omble_gap.h:31</div></div>
 </div><!-- fragment --> </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- HTML footer for doxygen 1.9.1-->

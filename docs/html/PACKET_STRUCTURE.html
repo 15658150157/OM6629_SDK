@@ -131,7 +131,7 @@ $(document).ready(function(){initNavTree('PACKET_STRUCTURE.html',''); initResiza
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_doxygen_source_24g_packet_structure"></a> The structure of the Protocol engine packet is described in this section. There are two optional packet formats, structure A and structure B, this is configured through <a class="el" href="structom24g__config__t.html#a9c054c410f78c79f59ae1d9338d5eaee">om24g_config_t::packet_struct_sel</a>.</p>
 <p>The Protocol engine packet contains a preamble field, sync word field, header field, payload field, payload field, timestamp field and a CRC field.</p>
-<h1><a class="anchor" id="autotoc_md181"></a>
+<h1><a class="anchor" id="autotoc_md182"></a>
 Packet   Structure   A</h1>
 <p>In packet structure A, All field dashed block in Figure is optional, the payload field is only optional in an empty ACK packet. All subfields in header is also optional field. If PCF field is existing, all subfields in PCF is also optional field.</p>
 <p>The structure A can communicate with the ESB protocol of Nordic chips and the onmicro 66xx private protocol.</p>
@@ -143,7 +143,7 @@ Packet structure A</div></div>
 <ul>
 <li>Auto acknowledge and retransition function.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md182"></a>
+<h2><a class="anchor" id="autotoc_md183"></a>
 Preamble Field</h2>
 <ul>
 <li>The preamble is a bit sequence used to synchronize the receiver’s demodulator to the incoming bit stream. The preamble length is configurable from 0 to 31 bytes. Preamble value is configurable.</li>
@@ -153,7 +153,7 @@ Preamble Field</h2>
 </ul>
 </li>
 </ul>
-<h2><a class="anchor" id="autotoc_md183"></a>
+<h2><a class="anchor" id="autotoc_md184"></a>
 Sync Word Field</h2>
 <ul>
 <li>Byte synchronization is achieved by a continuous sync word search. The sync word is inserted at the start of the packet by the modulator in transmit mode. The demodulator uses this field to find the byte boundaries in the stream of bits. The content of the sync word can be set, and length of sync word is 4 bytes.</li>
@@ -163,7 +163,7 @@ Sync Word Field</h2>
 <dl class="section note"><dt>Note</dt><dd>If the sync word needs to be modified, the receiver needs to call OM24G_CE_LOW() to turn off the RF.</dd></dl>
 </li>
 </ul>
-<h2><a class="anchor" id="autotoc_md184"></a>
+<h2><a class="anchor" id="autotoc_md185"></a>
 Packet Control Field</h2>
 <ul>
 <li>If packet structure A is selected(<a class="el" href="structom24g__config__t.html#a9c054c410f78c79f59ae1d9338d5eaee">om24g_config_t::packet_struct_sel</a> = OM24G_STRUCTURE_A), the PCF field may be existing in packet. Figure shows the structure of the packet control field, MSB to the left. The size of PCF is 9 bits or 13bits. <br  />
@@ -194,7 +194,7 @@ Packet Control Field</div></div>
 <li>On the PTX you can set the NO_ACK flag bit in the Packet Control Field with writing FA_PKTCTRL.NO_ACK = 1.</li>
 <li>However, the function must first be enabled in the FEATURE register by setting the FA_PKTCTRL.EN_DYN_ACK bit. When you use this option, the PTX goes directly to Standby-I mode after transmitting the packet. when FA_PKTCTRL.NO_ACK is 1, the PRX does not transmit an ACK packet when it receives the packet.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md185"></a>
+<h2><a class="anchor" id="autotoc_md186"></a>
 Payload Field</h2>
 <ul>
 <li>Protocol engine provides two alternatives for handling payload lengths: static and dynamic.</li>
@@ -204,11 +204,11 @@ Payload Field</h2>
 <li>With the DPL feature the OM6XXX can decode the payload length of the received packet automatically instead of using the PACKET_LEN registers.</li>
 <li>In order to enable DPL, The FEATURE.EN_DPL register must be enabled. In RX mode the DYNPD.DPL_Px(x: 0~5) register must be set. A PTX that transmits to a PRX(pipe0) with DPL enabled must have the DYNPD.DPL_P0 register set.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md186"></a>
+<h2><a class="anchor" id="autotoc_md187"></a>
 CRC Field</h2>
 <p>The CRC is the error detection mechanism in the packet. In frame A, the scope of CRC is individual optional: includes sync word, 1bytes address field, 2 bytes guard field (if guard field exist), header field, payload and timestamp field.</p>
 <dl class="section note"><dt>Note</dt><dd>Structure A only support CRC-8 and CRC-16.</dd></dl>
-<h1><a class="anchor" id="autotoc_md187"></a>
+<h1><a class="anchor" id="autotoc_md188"></a>
 Packet  Structure  B</h1>
 <p>If configure packet structure to be structure B, the chip has the following characteristics:</p>
 <ul>
@@ -221,13 +221,13 @@ Packet  Structure  B</h1>
 <img src="Pkt_structure_B.png" alt=""/>
 <div class="caption">
 Packet structure B</div></div>
-    <h2><a class="anchor" id="autotoc_md188"></a>
+    <h2><a class="anchor" id="autotoc_md189"></a>
 Preamble Field</h2>
 <p>Same as Pkt_structure_A.</p>
-<h2><a class="anchor" id="autotoc_md189"></a>
+<h2><a class="anchor" id="autotoc_md190"></a>
 Sync  Word Field</h2>
 <p>Same as Pkt_structure_A.</p>
-<h2><a class="anchor" id="autotoc_md190"></a>
+<h2><a class="anchor" id="autotoc_md191"></a>
 Header Field</h2>
 <p>In frame B, there is a configurable header field with follow feature:</p>
 <ul>
@@ -260,17 +260,17 @@ header_example1</div></div>
 <img src="header_example2.png" alt=""/>
 <div class="caption">
 header_example2</div></div>
-    <h2><a class="anchor" id="autotoc_md191"></a>
+    <h2><a class="anchor" id="autotoc_md192"></a>
 Address1 Field</h2>
 <p>In frame structure B, adress1 subfield in head field (or before/after head field) will be used for address filter.</p>
 <p>This is the address for the receiver. An address ensures that the packet is detected and received by the correct receiver, preventing accidental cross talk between multiple OM6XXX systems. If adress1 subfield is in head field, the size of address1 field is configurable and range from 0 to 8 bits. Or the size of address1 field is fixed 8 bits.</p>
-<h2><a class="anchor" id="autotoc_md192"></a>
+<h2><a class="anchor" id="autotoc_md193"></a>
 Payload Field</h2>
 <p>Different with frame A, the payload length in Frame B can be 0 to 65535 bytes.</p>
-<h3><a class="anchor" id="autotoc_md193"></a>
+<h3><a class="anchor" id="autotoc_md194"></a>
 Timestamp Field</h3>
 <p>In a network of multiple device, it is often required that all participants operate on a common time base. In the chip, a radio timer provides 32-bit timestamps at 8 MHz (8 ticks per us).</p>
-<h2><a class="anchor" id="autotoc_md194"></a>
+<h2><a class="anchor" id="autotoc_md195"></a>
 CRC Field</h2>
 <p>The CRC is the error detection mechanism in the packet. It may calculate over the sync word, header, payload and timestamp field. The scope of CRC for these field is individual optional. </p>
 </div></div><!-- contents -->

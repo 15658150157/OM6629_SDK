@@ -46,7 +46,6 @@ var group__GPDMA =
       [ "GPDMA_TRANS_WIDTH_2B", "group__GPDMA.html#ggaac7e5dbaab60c392057d42398073bd5ca6375ac06ddac9c6e02d13c95ac5d604f", null ],
       [ "GPDMA_TRANS_WIDTH_4B", "group__GPDMA.html#ggaac7e5dbaab60c392057d42398073bd5ca99862ca4296a8c8eab737149bd43f3c3", null ]
     ] ],
-    [ "drv_gpdam_channel_set_ptr", "group__GPDMA.html#ga3ca5992652eb74490b20029c9ee6df97", null ],
     [ "drv_gpdma_channel_allocate", "group__GPDMA.html#ga1638871120eadffd74fda243429cfd64", null ],
     [ "drv_gpdma_channel_config", "group__GPDMA.html#ga1b8d8c42c01da9ea8f9a4ed0a468d04e", null ],
     [ "drv_gpdma_channel_disable", "group__GPDMA.html#gae189903bb15fc56333654348e9d9b737", null ],
@@ -54,6 +53,7 @@ var group__GPDMA =
     [ "drv_gpdma_channel_get_left_count", "group__GPDMA.html#gac7a060c3c895da4bb44d40b3133a0690", null ],
     [ "drv_gpdma_channel_is_busy", "group__GPDMA.html#ga31c2b315b9e87b7e41db097cb5834b41", null ],
     [ "drv_gpdma_channel_release", "group__GPDMA.html#ga7ea71cd6488cca56850fc22134e83a9d", null ],
+    [ "drv_gpdma_channel_set_ptr", "group__GPDMA.html#ga9f9a203b3bcef5008362538f1d7f31d1", null ],
     [ "drv_gpdma_handshake_signal_allocate", "group__GPDMA.html#gae8f85a21a0bcb7d698f0e1749cfc7104", null ],
     [ "drv_gpdma_isr", "group__GPDMA.html#ga777c83b91c3c6f28a88e32bac21802b6", null ]
 ];

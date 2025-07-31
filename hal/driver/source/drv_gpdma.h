@@ -255,7 +255,7 @@ extern uint32_t drv_gpdma_channel_get_left_count(uint8_t chan_idx);
  * @param[in] ptr        the link list ptr
  *******************************************************************************
  */
-__STATIC_FORCEINLINE void drv_gpdam_channel_set_ptr(uint8_t chan_idx, void *ptr)
+__STATIC_FORCEINLINE void drv_gpdma_channel_set_ptr(uint8_t chan_idx, void *ptr)
 {
     OM_GPDMA_CHAN_Type *gpdma_chan;
 

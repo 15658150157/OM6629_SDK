@@ -102,9 +102,9 @@
 /// Set page start address mask bit
 #define NVDS_SET_PAGE_START_ADDRESS_MASK(mask, offset) (mask | (0x01 << offset))
 
-#define NVDS_READ(address, buf, length)       drv_flash_read(OM_FLASH0, address, buf, length)
+#define NVDS_READ(address, buf, length)       drv_flash_read(OM_FLASH0, address, buf, length, 1000)
 
-#define NVDS_WRITE(address, buf, length)      drv_flash_write(OM_FLASH0, address, buf, length)
+#define NVDS_WRITE(address, buf, length)      drv_flash_write(OM_FLASH0, address, buf, length, 1000)
 
 #define NVDS_ERASE(address, length)           nvds_erase_wrap(address, length)
 
@@ -248,7 +248,7 @@ static const uint8_t crc7_syndrome_table[256] = {
 static void nvds_erase_wrap(uint32_t address, uint32_t length)
 {
     for (uint32_t i = 0; i < length; i += FLASH_SECTOR_SIZE) {
-        drv_flash_erase(OM_FLASH0, address + i, FLASH_ERASE_4K);
+        drv_flash_erase(OM_FLASH0, address + i, FLASH_ERASE_4K, 1000);
     }
 }
 

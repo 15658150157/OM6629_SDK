@@ -130,10 +130,10 @@ $(document).ready(function(){initNavTree('BLE_MESH.html',''); initResizable(); }
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p>This article introduces the principle and usage of MESH module.</p>
-<h1><a class="anchor" id="autotoc_md155"></a>
+<h1><a class="anchor" id="autotoc_md156"></a>
 What Is Mesh</h1>
 <p>BLE MESH is a network protocol based on BLE technology.Devices communicate in a mesh structure,mesh network allows messages to be transmitted between multiple devices int the form of messages.</p>
-<h1><a class="anchor" id="autotoc_md156"></a>
+<h1><a class="anchor" id="autotoc_md157"></a>
 Main Feature</h1>
 <ol type="1">
 <li>Network Structure: Each node can not only communicate directly with other nodes, but also forward data through relay nodes,thus extending the network coverage.</li>
@@ -142,7 +142,7 @@ Main Feature</h1>
 <li>Reliability: Because of the multipath transmit feature, even if one node fail, message can be transmitted through other paths, thus improve the reliability of the network.</li>
 <li>Massive network support: Support large number of nodes(thousands in theory),this make very suitable for IOT.</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md157"></a>
+<h1><a class="anchor" id="autotoc_md158"></a>
 Directory Structure</h1>
 <div class="fragment"><div class="line">├── onmicro.mk                                  <span class="comment">// Use for GCC compiler</span></div>
 <div class="line">└── src</div>
@@ -165,10 +165,10 @@ Directory Structure</h1>
 <div class="line">    └── <a class="code hl_function" href="group__BLE__APP__SIMPLE.html#ga840291bc02cba5474a4cb46a9b9566fe">main</a></div>
 <div class="line">        └── <a class="code hl_function" href="group__BLE__APP__SIMPLE.html#ga840291bc02cba5474a4cb46a9b9566fe">main</a>.c                              <span class="comment">// Entry point of mesh project</span></div>
 <div class="ttc" id="agroup__BLE__APP__SIMPLE_html_ga840291bc02cba5474a4cb46a9b9566fe"><div class="ttname"><a href="group__BLE__APP__SIMPLE.html#ga840291bc02cba5474a4cb46a9b9566fe">main</a></div><div class="ttdeci">int main(void)</div><div class="ttdoc">main entry of program</div><div class="ttdef"><b>Definition:</b> ble_app_simple.c:142</div></div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md158"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md159"></a>
 User Guide of FIRMS APP</h1>
 <p>FIRMS app is used in most application environments,the app provides onoff model demo same as SIG mode opcode,which is convenient for developers to continue to develop on this basis.</p>
-<h2><a class="anchor" id="autotoc_md159"></a>
+<h2><a class="anchor" id="autotoc_md160"></a>
 FIRMS APP Model Demo</h2>
 <p>Developers can refer the demo to implement a custom model.The following is related API information:</p>
 <div class="fragment"><div class="line"><span class="comment">// Initialization of Mesh Firms Model Demo Programming Interface</span></div>
@@ -196,7 +196,7 @@ FIRMS APP Model Demo</h2>
 </div><!-- fragment --><dl class="section note"><dt>Note</dt><dd>At the same time,you need add newly model initialization information to omsh_app_firms_mdl.c. </dd>
 <dd>
 The information to be processed is marked with TODO in the demo file.Modify the information as required.</dd></dl>
-<h2><a class="anchor" id="autotoc_md160"></a>
+<h2><a class="anchor" id="autotoc_md161"></a>
 FIRMS APP Test</h2>
 <p>Firms need to develop their own distribution side or gateway devices, this SDK only supports the node test function, of course,you can also use the thrid-party open source standard SIG MESH APP for test.</p>
 <p>Android: <a href="https://play.google.com/store/apps/details?id=no.nordicsemi.android.nrfmeshprovisioner&hl=en&gl=US">https://play.google.com/store/apps/details?id=no.nordicsemi.android.nrfmeshprovisioner&amp;hl=en&amp;gl=US</a></p>
@@ -213,14 +213,14 @@ Provisioned node network information</div></div>
 <img src="nrf_mesh_onoff.png" alt=""/>
 <div class="caption">
 Node onoff server model information</div></div>
-<h1><a class="anchor" id="autotoc_md161"></a>
+<h1><a class="anchor" id="autotoc_md162"></a>
 User Guide of SIG APP</h1>
 <p>SIG app equipped with PTS software to test and verify mesh stack, and SIG app also equipped with shell commands for interacting with mesh stack. </p><dl class="section note"><dt>Note</dt><dd>For SIG APP, Profile Tuning Suite(PTS) and PTS dongle are required.</dd></dl>
 <div class="image">
 <img src="mesh_pts.jpg" alt=""/>
 <div class="caption">
 Mesh PTS Software UI</div></div>
-<h1><a class="anchor" id="autotoc_md162"></a>
+<h1><a class="anchor" id="autotoc_md163"></a>
 User Guide of TMALL APP</h1>
 <p>TMALL app is borrowed third party platforms are used to test chip's support for mesh, such as GATT bearer and ADV bearer.</p>
 <p>First you need a Tmall-genie device. Which needs to be connected to the Internet for relevant operations.Please refer to the device manual for other configurations. </p><div class="image">
@@ -248,7 +248,7 @@ Mesh Topology Diagram</div></div>
 <li>Users can customize development application functions according to product conditions.</li>
 </ul>
 <dl class="section note"><dt>Note</dt><dd>SDK does not provide specific operations on light control, but indicates data transmission in log mode, and you can add it yourself if you are interested.</dd></dl>
-<h1><a class="anchor" id="autotoc_md163"></a>
+<h1><a class="anchor" id="autotoc_md164"></a>
 Default Configuration</h1>
 <p>The following is default configuration, changes need to be synchronized with library, please contact us.</p><ul>
 <li>Firms app present as default.</li>
@@ -257,7 +257,7 @@ Default Configuration</h1>
 <li>Maximum number of subnets supported: 2.</li>
 <li>Maximum number of models supported: 16.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md164"></a>
+<h1><a class="anchor" id="autotoc_md165"></a>
 Second development</h1>
 <p>Please refer to the apis provided by stack for secondary development <a class="el" href="group__MESH__API.html">Mesh APIs</a> </p>
 </div></div><!-- contents -->

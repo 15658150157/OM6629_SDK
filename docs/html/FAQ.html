@@ -144,7 +144,8 @@ $(document).ready(function(){initNavTree('FAQ.html',''); initResizable(); });
 <p>Yes, This chip support 32768Hz crystal. Use function <a class="el" href="group__PMU.html#ga246f3f61bc55562987771d3b52e2a970">drv_pmu_select_32k()</a> to enable it.</p>
 <h2><a class="anchor" id="autotoc_md43"></a>
 5. How to speed up the execution of my code ?</h2>
-<p>You can try following ways:</p><ul>
+<p>You can try following ways:</p>
+<ul>
 <li>Use faster system and CPU clock, but this leads higher power consumption. (Refrence <a class="el" href="group__PMU.html#ga6aa87ec5b6d3ba5ba5674f142f1be70a">drv_pmu_clk64m_enable</a> and <a class="el" href="group__RCC.html#ga0a69a21da775ad8f903bd290a385c3ba">drv_rcc_clock_set</a> (RCC_CLK_CPU, 1))</li>
 <li>Do not use MicroLIB of KEIL.</li>
 <li>Put critical code into SRAM. (Use <code>__RAM_CODE</code> or <code>__RAM_RODATA</code> macro to critical function, or put the critical file(.o) into <code>ER_RAM</code> section in KEIL scatter file).</li>
@@ -152,13 +153,16 @@ $(document).ready(function(){initNavTree('FAQ.html',''); initResizable(); });
 </ul>
 <h2><a class="anchor" id="autotoc_md44"></a>
 6. How can I reduce system power consumption ?</h2>
-<p>You can try following ways:</p><ul>
+<p>You can try following ways:</p>
+<ul>
 <li>Try putting some frequently executed code into RAM (Use <code>__RAM_CODE</code> or <code>__RAM_RODATA</code> macro).</li>
-<li>Try putting some of the system presets RAM_CODE into RAM. Modify <code>cm4f_flash.sct</code> file (in KEIL): <div class="fragment"><div class="line">        ER_RAM __RAM_RO_BASE ALIGN 4 {          ER_RAM __RAM_RO_BASE ALIGN 4 {</div>
+<li>Try putting some of the system presets RAM_CODE into RAM. Modify <code>cm4f_flash.sct</code> file (in KEIL):</li>
+</ul>
+<div class="fragment"><div class="line">        ER_RAM __RAM_RO_BASE ALIGN 4 {          ER_RAM __RAM_RO_BASE ALIGN 4 {</div>
 <div class="line">from      *.o(.ram_code)                 to       *.o(.ram_code*)</div>
 <div class="line">          *.o(.ram_rodata)                        *.o(.ram_rodata*)</div>
 <div class="line">        }                                       }</div>
-</div><!-- fragment --></li>
+</div><!-- fragment --><ul>
 <li>The drv_icache_powerdown_in_sleep_enable() function can power down the ICACHE during sleep (default is not power down), but this will cause all the contents of the ICACHE to be lost during sleep, so that it needs to be reloaded when waking up.</li>
 <li>The drv_pmu_ram_power_on() function can power down unused RAM block.</li>
 </ul>
@@ -172,13 +176,13 @@ $(document).ready(function(){initNavTree('FAQ.html',''); initResizable(); });
 <div class="line">    status = pm_sleep_state_check(); <span class="comment">// Check Point 1</span></div>
 <div class="line"> </div>
 <div class="line">    <span class="keywordflow">if</span> (status &gt; <a class="code hl_enumvalue" href="group__PM.html#ggac4d27cf0310d8173f6f5d1e71ddb0abcae599a3260cfbf6df7d4873e1c0c21900">PM_STATUS_IDLE</a>) {</div>
-<div class="line">        status = pm_sleep_checker_check();</div>
+<div class="line">        status = <a class="code hl_function" href="group__PM.html#gac28984d434d1e36259c5f15310d7a7ef">pm_sleep_checker_check</a>();</div>
 <div class="line">    }</div>
 <div class="line"> </div>
 <div class="line">    <span class="keywordflow">return</span> status;</div>
 <div class="line">}</div>
 <div class="line"> </div>
-<div class="line"><span class="keyword">static</span> <a class="code hl_enumeration" href="group__PM.html#gac4d27cf0310d8173f6f5d1e71ddb0abc">pm_status_t</a> pm_sleep_checker_check(<span class="keywordtype">void</span>)</div>
+<div class="line"><span class="keyword">static</span> <a class="code hl_enumeration" href="group__PM.html#gac4d27cf0310d8173f6f5d1e71ddb0abc">pm_status_t</a> <a class="code hl_function" href="group__PM.html#gac28984d434d1e36259c5f15310d7a7ef">pm_sleep_checker_check</a>(<span class="keywordtype">void</span>)</div>
 <div class="line">{</div>
 <div class="line">    <span class="keywordtype">int</span> i;</div>
 <div class="line">    <a class="code hl_enumeration" href="group__PM.html#gac4d27cf0310d8173f6f5d1e71ddb0abc">pm_status_t</a> status = drv_pmu_sleep_status();  <span class="comment">// Check Point 2</span></div>
@@ -209,10 +213,12 @@ $(document).ready(function(){initNavTree('FAQ.html',''); initResizable(); });
 <div class="line">        status = OM_MIN(<a class="code hl_enumvalue" href="group__PM.html#ggac4d27cf0310d8173f6f5d1e71ddb0abcae599a3260cfbf6df7d4873e1c0c21900">PM_STATUS_IDLE</a>, status); <span class="comment">// Check Point 4</span></div>
 <div class="line">    }</div>
 <div class="line"> </div>
-<div class="line">    pm_sleep(status);</div>
+<div class="line">    <a class="code hl_function" href="group__PM.html#gafcf762ea13dde196e7918b394a4c6e41">pm_sleep</a>(status);</div>
 <div class="line">}</div>
+<div class="ttc" id="agroup__PM_html_gac28984d434d1e36259c5f15310d7a7ef"><div class="ttname"><a href="group__PM.html#gac28984d434d1e36259c5f15310d7a7ef">pm_sleep_checker_check</a></div><div class="ttdeci">pm_status_t pm_sleep_checker_check(void)</div><div class="ttdoc">pm sleep checker check</div></div>
 <div class="ttc" id="agroup__PM_html_gac4d27cf0310d8173f6f5d1e71ddb0abc"><div class="ttname"><a href="group__PM.html#gac4d27cf0310d8173f6f5d1e71ddb0abc">pm_status_t</a></div><div class="ttdeci">pm_status_t</div><div class="ttdoc">PM status.</div><div class="ttdef"><b>Definition:</b> pm.h:64</div></div>
 <div class="ttc" id="agroup__PM_html_gaca065483cfe789215a4d194eda3fc931"><div class="ttname"><a href="group__PM.html#gaca065483cfe789215a4d194eda3fc931">pm_power_manage</a></div><div class="ttdeci">void pm_power_manage(void)</div><div class="ttdoc">pm power manage, it shall be called in critical section(disable global interrupt)</div></div>
+<div class="ttc" id="agroup__PM_html_gafcf762ea13dde196e7918b394a4c6e41"><div class="ttname"><a href="group__PM.html#gafcf762ea13dde196e7918b394a4c6e41">pm_sleep</a></div><div class="ttdeci">void pm_sleep(pm_status_t status)</div><div class="ttdoc">system sleep</div></div>
 <div class="ttc" id="agroup__PM_html_ggac4d27cf0310d8173f6f5d1e71ddb0abcae599a3260cfbf6df7d4873e1c0c21900"><div class="ttname"><a href="group__PM.html#ggac4d27cf0310d8173f6f5d1e71ddb0abcae599a3260cfbf6df7d4873e1c0c21900">PM_STATUS_IDLE</a></div><div class="ttdeci">@ PM_STATUS_IDLE</div><div class="ttdoc">All modules are alive, but CPU clock is gating.</div><div class="ttdef"><b>Definition:</b> pm.h:68</div></div>
 </div><!-- fragment --><p>There are 4 important checking points:</p>
 <ul>
@@ -224,8 +230,15 @@ $(document).ready(function(){initNavTree('FAQ.html',''); initResizable(); });
 <h2><a class="anchor" id="autotoc_md46"></a>
 8. Note for driver using</h2>
 <ol type="1">
-<li>WDT: Suggestion <b>not keepalive in WDT ISR(Interrupt Service Routine)</b>. The interrupt flag need software clear using <code>drv_wdt_control(WDT_CONTROL_CLEAR_INT_FLAG, NULL)</code>. If not clear the flag, the WDT would reset after WDT count to 0. </li>
+<li>WDT: Suggestion <b>not keepalive in WDT ISR(Interrupt Service Routine)</b>. The interrupt flag need software clear using <code>drv_wdt_control(WDT_CONTROL_CLEAR_INT_FLAG, NULL)</code>. If not clear the flag, the WDT would reset after WDT count to 0.</li>
 </ol>
+<h2><a class="anchor" id="autotoc_md47"></a>
+9. Note for CPU clock settings</h2>
+<p>The default CPU clock source is XTAL32M. You can choose XTAL64M, PLL48M or PLL96M according to your needs.</p>
+<p>If the CPU clock source is XTAL32M or XTAL64M before sleep, the system will automatically restore the clock after waking up from sleep. However, before sleep, the CPU clock source is PLL48M or PLL96M. After waking up from sleep, it will revert to XTAL32M, as the PLL clock does not automatically resume.</p>
+<p>In the pm store/notify callback functions, it is recommended that users do not add any code that runs for more than 100 microseconds. Otherwise, it may affect the BLE timing and cause communication errors.</p>
+<p><b>The startup time of PLL is much longer than 100us, so it is not possible to startup and switch PLL48M or PLL96M in the pm store/notify callback functions.</b></p>
+<p>When BLE maintains a connection, switching CPU clock to PLL96M on each wakeup will significantly increase the power consumption . Therefore it is recommended to perform the clock switching before carrying out tasks with high performance requirements based on the actual needs of the application. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->

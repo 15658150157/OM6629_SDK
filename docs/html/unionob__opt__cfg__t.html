@@ -132,7 +132,7 @@ $(document).ready(function(){initNavTree('unionob__opt__cfg__t.html',''); initRe
 </div><!--header-->
 <div class="contents">
 
-<p>omble 参数结构体  
+<p>omble optional parameter structure  
  <a href="unionob__opt__cfg__t.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="omble__misc_8h_source.html">omble_misc.h</a>&gt;</code></p>
@@ -140,34 +140,37 @@ $(document).ready(function(){initNavTree('unionob__opt__cfg__t.html',''); initRe
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
 <tr class="memitem:ab534b46404bd5de0be58b69c1f373cbd"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionob__opt__cfg__t.html#ab534b46404bd5de0be58b69c1f373cbd">gap_max_ext_adv_event</a></td></tr>
-<tr class="memdesc:ab534b46404bd5de0be58b69c1f373cbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">扩展广播最大广播事件发送数  <br /></td></tr>
+<tr class="memdesc:ab534b46404bd5de0be58b69c1f373cbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value of advertise parameter Max_Extended_Advertising_Events.  <br /></td></tr>
 <tr class="separator:ab534b46404bd5de0be58b69c1f373cbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb3890228d941a55a81ff25290a50266"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionob__opt__cfg__t.html#abb3890228d941a55a81ff25290a50266">gap_max_adv_secd_max_skip</a></td></tr>
-<tr class="memdesc:abb3890228d941a55a81ff25290a50266"><td class="mdescLeft">&#160;</td><td class="mdescRight">扩展广播最大广播skip数  <br /></td></tr>
+<tr class="memdesc:abb3890228d941a55a81ff25290a50266"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value of advertise parameter Secondary_Advertising_Max_Skip.  <br /></td></tr>
 <tr class="separator:abb3890228d941a55a81ff25290a50266"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a16c79725e853b75dfbdd36e3c791db0c"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionob__opt__cfg__t.html#a16c79725e853b75dfbdd36e3c791db0c">gap_adv_scan_req_ntf_en</a></td></tr>
-<tr class="memdesc:a16c79725e853b75dfbdd36e3c791db0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">是否开启扩展广播中的scan notify事件  <br /></td></tr>
+<tr class="memdesc:a16c79725e853b75dfbdd36e3c791db0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value of advertise parameter Scan_Request_Notification_Enable.  <br /></td></tr>
 <tr class="separator:a16c79725e853b75dfbdd36e3c791db0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a454f2b38b0f10db4699ba27c40b2d3ad"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structgap__ce__length.html">gap_ce_length</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionob__opt__cfg__t.html#a454f2b38b0f10db4699ba27c40b2d3ad">gap_ce_length</a></td></tr>
-<tr class="memdesc:a454f2b38b0f10db4699ba27c40b2d3ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">配置ce length 参数  <br /></td></tr>
+<tr class="memdesc:a454f2b38b0f10db4699ba27c40b2d3ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">GAP connection parametar Min_CE_Length/Max_CE_Length.  <br /></td></tr>
 <tr class="separator:a454f2b38b0f10db4699ba27c40b2d3ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a208e23eea6472110a6eddbc69eb372d5"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionob__opt__cfg__t.html#a208e23eea6472110a6eddbc69eb372d5">gap_pin_none_req_enable</a></td></tr>
-<tr class="memdesc:a208e23eea6472110a6eddbc69eb372d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">是否在NO_INPUT_NO_OUTPUT模式配对时上报OB_GAP_EVT_PIN_REQUEST消息  <br /></td></tr>
+<tr class="memdesc:a208e23eea6472110a6eddbc69eb372d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether to report OB_GAP_EVT_PIN_REQUEST message when pairing in NO_INPUT_NO_OUTPUT mode.  <br /></td></tr>
 <tr class="separator:a208e23eea6472110a6eddbc69eb372d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afae1c906434eda83ad926471df613e32"><td class="memItemLeft" >struct {</td></tr>
 <tr class="memitem:a3459e44e0a0de5cfad531cdd3aa45f57"><td class="memItemLeft" >&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="unionob__opt__cfg__t.html#a72f8cdef835ff1bc0c109780533e5603">conn_idx</a></td></tr>
-<tr class="memdesc:a3459e44e0a0de5cfad531cdd3aa45f57"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; 配对时的pin code, 只写  <a href="unionob__opt__cfg__t.html#a72f8cdef835ff1bc0c109780533e5603">More...</a><br /></td></tr>
+<tr class="memdesc:a3459e44e0a0de5cfad531cdd3aa45f57"><td class="mdescLeft">&#160;</td><td class="mdescRight">&lt; Pin code display for pairing, Write Only  <a href="unionob__opt__cfg__t.html#a72f8cdef835ff1bc0c109780533e5603">More...</a><br /></td></tr>
 <tr class="separator:a3459e44e0a0de5cfad531cdd3aa45f57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a895939b1cca3c26b36c80a74736452f2"><td class="memItemLeft" >&#160;&#160;&#160;int&#160;&#160;&#160;<a class="el" href="unionob__opt__cfg__t.html#aeeccb401245f1bb10da41de2a824d735">pin_code</a></td></tr>
 <tr class="separator:a895939b1cca3c26b36c80a74736452f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afae1c906434eda83ad926471df613e32"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionob__opt__cfg__t.html#afae1c906434eda83ad926471df613e32">smp_pin_code</a></td></tr>
 <tr class="separator:afae1c906434eda83ad926471df613e32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e729fdbd1d80e7734d82ddd70b2754c"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionob__opt__cfg__t.html#a4e729fdbd1d80e7734d82ddd70b2754c">smp_private_key</a> [32]</td></tr>
-<tr class="memdesc:a4e729fdbd1d80e7734d82ddd70b2754c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Private key, 只写  <br /></td></tr>
+<tr class="memdesc:a4e729fdbd1d80e7734d82ddd70b2754c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Private key, Write Only.  <br /></td></tr>
 <tr class="separator:a4e729fdbd1d80e7734d82ddd70b2754c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52b8ab8e0f1155596a3530c5c07ab45c"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="unionob__opt__cfg__t.html#a52b8ab8e0f1155596a3530c5c07ab45c">smp_min_key_size</a></td></tr>
+<tr class="memdesc:a52b8ab8e0f1155596a3530c5c07ab45c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Min key size for Pairing（default:16）  <br /></td></tr>
+<tr class="separator:a52b8ab8e0f1155596a3530c5c07ab45c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>omble 参数结构体 </p>
+<div class="textblock"><p>omble optional parameter structure </p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="a72f8cdef835ff1bc0c109780533e5603" name="a72f8cdef835ff1bc0c109780533e5603"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a72f8cdef835ff1bc0c109780533e5603">&#9670;&#160;</a></span>conn_idx</h2>
@@ -181,7 +184,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>&lt; 配对时的pin code, 只写 </p>
+<p>&lt; Pin code display for pairing, Write Only </p>
 
 </div>
 </div>
@@ -197,7 +200,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>是否开启扩展广播中的scan notify事件 </p>
+<p>Value of advertise parameter Scan_Request_Notification_Enable. </p>
 
 </div>
 </div>
@@ -213,7 +216,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>配置ce length 参数 </p>
+<p>GAP connection parametar Min_CE_Length/Max_CE_Length. </p>
 
 </div>
 </div>
@@ -229,7 +232,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>扩展广播最大广播skip数 </p>
+<p>Value of advertise parameter Secondary_Advertising_Max_Skip. </p>
 
 </div>
 </div>
@@ -245,7 +248,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>扩展广播最大广播事件发送数 </p>
+<p>Value of advertise parameter Max_Extended_Advertising_Events. </p>
 
 </div>
 </div>
@@ -261,7 +264,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>是否在NO_INPUT_NO_OUTPUT模式配对时上报OB_GAP_EVT_PIN_REQUEST消息 </p>
+<p>Whether to report OB_GAP_EVT_PIN_REQUEST message when pairing in NO_INPUT_NO_OUTPUT mode. </p>
 
 </div>
 </div>
@@ -276,6 +279,22 @@ Data Fields</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="a52b8ab8e0f1155596a3530c5c07ab45c" name="a52b8ab8e0f1155596a3530c5c07ab45c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52b8ab8e0f1155596a3530c5c07ab45c">&#9670;&#160;</a></span>smp_min_key_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t ob_opt_cfg_t::smp_min_key_size</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Min key size for Pairing（default:16） </p>
 
 </div>
 </div>
@@ -305,12 +324,12 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Private key, 只写 </p>
+<p>Private key, Write Only. </p>
 
 </div>
 </div>
 <hr/>The documentation for this union was generated from the following file:<ul>
-<li>/mnt/data/yaoyufeng/work.svnrepo/om6627/trunk/SDK/components/ble/host/include/<a class="el" href="omble__misc_8h_source.html">omble_misc.h</a></li>
+<li>/mnt/data/yaoyufeng/work.svnrepo/om6627x/om6627/trunk/SDK/components/ble/host/include/<a class="el" href="omble__misc_8h_source.html">omble_misc.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

@@ -715,7 +715,7 @@ extern void drv_pmu_pof_isr(void);
 
 /**
  *******************************************************************************
- * @brief  syspll power enable (pll96M and 48M)
+ * @brief  syspll power enable (pll96M/48M)
  *
  * @param[in] enable  enable
  *******************************************************************************

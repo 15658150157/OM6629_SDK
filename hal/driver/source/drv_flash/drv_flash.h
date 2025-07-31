@@ -140,24 +140,29 @@ extern om_error_t drv_flash_write_cmd_set(OM_FLASH_Type om_flash, flash_write_t 
  *******************************************************************************
  * @brief FLASH read, wait for operation done
  *
- * @param om_flash  The FLASH controller device address
- * @param addr      The address of FLASH
- * @param data      The reading data buffer pointer in RAM
- * @param data_len  The reading data length
+ * @param om_flash    The FLASH controller device address
+ * @param addr        The address of FLASH
+ * @param data        The reading data buffer pointer in RAM
+ * @param data_len    The reading data length
+ * @param timeout_ms  The timeout value in ms
  *
  * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
-extern om_error_t drv_flash_read(OM_FLASH_Type om_flash, uint32_t addr, uint8_t *data, uint32_t data_len);
+extern om_error_t drv_flash_read(OM_FLASH_Type om_flash,
+                                 uint32_t addr,
+                                 uint8_t *data,
+                                 uint32_t data_len,
+                                 uint32_t timeout_ms);
 
 /**
  *******************************************************************************
  * @brief FLASH read with interrupt enabled
  *
- * @param om_flash  The FLASH controller device address
- * @param addr      The address of FLASH
- * @param data      The reading data buffer pointer in RAM
- * @param data_len  The reading data length
+ * @param om_flash    The FLASH controller device address
+ * @param addr        The address of FLASH
+ * @param data        The reading data buffer pointer in RAM
+ * @param data_len    The reading data length
  *
  * @return          Error code, see@ref om_error_t
  *******************************************************************************
@@ -168,14 +173,15 @@ extern om_error_t drv_flash_read_int(OM_FLASH_Type om_flash, uint32_t addr, uint
  *******************************************************************************
  * @brief FLASH write, wait for operation done
  *
- * @param om_flash  The FLASH controller device address
- * @param addr      The address of FLASH
- * @param data      The writing data buffer pointer in RAM
- *                  Attention: the type must be volatile to avoid compiler optimization
- *                              when Link Time Optimization is enabled,
- *                              if the data is from heap, it should be sure to be volatile,
- *                              for example: volatile uint8_t *data = om_mem_malloc(X, X);
- * @param data_len  The writing data length
+ * @param om_flash    The FLASH controller device address
+ * @param addr        The address of FLASH
+ * @param data        The writing data buffer pointer in RAM
+ *                    Attention: the type must be volatile to avoid compiler optimization
+ *                               when Link Time Optimization is enabled,
+ *                               if the data is from heap, it should be sure to be volatile,
+ *                               for example: volatile uint8_t *data = om_mem_malloc(X, X);
+ * @param data_len    The writing data length
+ * @param timeout_ms  The timeout value in ms
  *
  * @return          Error code, see@ref om_error_t
  *******************************************************************************
@@ -183,7 +189,8 @@ extern om_error_t drv_flash_read_int(OM_FLASH_Type om_flash, uint32_t addr, uint
 extern om_error_t drv_flash_write(OM_FLASH_Type om_flash,
                                   uint32_t addr,
                                   volatile uint8_t *data,
-                                  uint32_t data_len);
+                                  uint32_t data_len,
+                                  uint32_t timeout_ms);
 
 /**
  *******************************************************************************
@@ -196,14 +203,14 @@ extern om_error_t drv_flash_write(OM_FLASH_Type om_flash,
  *          6. loop step 2 - 5,
  *             until the return value of step 4 is OM_ERROR_STATUS
  *
- * @param om_flash  The FLASH controller device address
- * @param addr      The address of FLASH
- * @param data      The writing data buffer pointer in RAM
- *                  Attention: the type must be volatile to avoid compiler optimization
- *                              when Link Time Optimization is enabled,
- *                              if the data is from heap, it should be sure to be volatile,
- *                              for example: volatile uint8_t *data = om_mem_malloc(X, X);
- * @param data_len  The writing data length
+ * @param om_flash    The FLASH controller device address
+ * @param addr        The address of FLASH
+ * @param data        The writing data buffer pointer in RAM
+ *                    Attention: the type must be volatile to avoid compiler optimization
+ *                               when Link Time Optimization is enabled,
+ *                               if the data is from heap, it should be sure to be volatile,
+ *                               for example: volatile uint8_t *data = om_mem_malloc(X, X);
+ * @param data_len    The writing data length
  *
  * @return          Error code, see@ref om_error_t
  *******************************************************************************
@@ -245,11 +252,15 @@ extern om_error_t drv_flash_write_int_continue(OM_FLASH_Type om_flash);
  * @param om_flash      The FLASH controller device address
  * @param addr          The address of FLASH
  * @param erase_type    The erase size
+ * @param timeout_ms    The timeout value in ms
  *
  * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
-extern om_error_t drv_flash_erase(OM_FLASH_Type om_flash, uint32_t addr, flash_erase_t erase_type);
+extern om_error_t drv_flash_erase(OM_FLASH_Type om_flash,
+                                  uint32_t addr,
+                                  flash_erase_t erase_type,
+                                  uint32_t timeout_ms);
 
 /**
  *******************************************************************************
@@ -540,15 +551,16 @@ extern om_error_t drv_flash_node_setup(OM_FLASH_Type om_flash, flash_list_node_t
 
 /**
  *******************************************************************************
- * @brief FLASH start list transfer
+ * @brief FLASH list start, the list node only support read operation
  *
  * @param om_flash  The FLASH controller device address
  * @param list_head The node of list header
+ * @param node_timeout_ms One node timeout value in ms
  *
  * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
-extern om_error_t drv_flash_list_start(OM_FLASH_Type om_flash, flash_list_node_t *list_head);
+extern om_error_t drv_flash_list_start(OM_FLASH_Type om_flash, flash_list_node_t *list_head, uint32_t node_timeout_ms);
 
 #endif /* RTE_FALSH1 */
 

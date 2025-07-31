@@ -225,9 +225,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gac7a060c3c895da4bb44d40b3133a0690"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPDMA.html#gac7a060c3c895da4bb44d40b3133a0690">drv_gpdma_channel_get_left_count</a> (uint8_t chan_idx)</td></tr>
 <tr class="memdesc:gac7a060c3c895da4bb44d40b3133a0690"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of left data.  <br /></td></tr>
 <tr class="separator:gac7a060c3c895da4bb44d40b3133a0690"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3ca5992652eb74490b20029c9ee6df97"><td class="memItemLeft" align="right" valign="top">__STATIC_FORCEINLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPDMA.html#ga3ca5992652eb74490b20029c9ee6df97">drv_gpdam_channel_set_ptr</a> (uint8_t chan_idx, void *ptr)</td></tr>
-<tr class="memdesc:ga3ca5992652eb74490b20029c9ee6df97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set GPDMA link list ptr.  <br /></td></tr>
-<tr class="separator:ga3ca5992652eb74490b20029c9ee6df97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9f9a203b3bcef5008362538f1d7f31d1"><td class="memItemLeft" align="right" valign="top">__STATIC_FORCEINLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPDMA.html#ga9f9a203b3bcef5008362538f1d7f31d1">drv_gpdma_channel_set_ptr</a> (uint8_t chan_idx, void *ptr)</td></tr>
+<tr class="memdesc:ga9f9a203b3bcef5008362538f1d7f31d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set GPDMA link list ptr.  <br /></td></tr>
+<tr class="separator:ga9f9a203b3bcef5008362538f1d7f31d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae8f85a21a0bcb7d698f0e1749cfc7104"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPDMA.html#gae8f85a21a0bcb7d698f0e1749cfc7104">drv_gpdma_handshake_signal_allocate</a> (gpdma_id_t id)</td></tr>
 <tr class="memdesc:gae8f85a21a0bcb7d698f0e1749cfc7104"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate handshake signal by gpdma id, see, This function is WEAK symbol, users can re-write this function. The default implementation allocate handshake signal from the first avaliable handshake signal.  <br /></td></tr>
 <tr class="separator:gae8f85a21a0bcb7d698f0e1749cfc7104"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -482,43 +482,6 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ga3ca5992652eb74490b20029c9ee6df97" name="ga3ca5992652eb74490b20029c9ee6df97"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga3ca5992652eb74490b20029c9ee6df97">&#9670;&#160;</a></span>drv_gpdam_channel_set_ptr()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">__STATIC_FORCEINLINE void drv_gpdam_channel_set_ptr </td>
-          <td>(</td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>chan_idx</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>ptr</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set GPDMA link list ptr. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">chan_idx</td><td>the channel index </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">ptr</td><td>the link list ptr </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a id="ga1638871120eadffd74fda243429cfd64" name="ga1638871120eadffd74fda243429cfd64"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga1638871120eadffd74fda243429cfd64">&#9670;&#160;</a></span>drv_gpdma_channel_allocate()</h2>
 
@@ -731,6 +694,43 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">chan_idx</td><td>Channel index [0, GPDMA_NUMBER_OF_CHANNELS-1] </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga9f9a203b3bcef5008362538f1d7f31d1" name="ga9f9a203b3bcef5008362538f1d7f31d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9f9a203b3bcef5008362538f1d7f31d1">&#9670;&#160;</a></span>drv_gpdma_channel_set_ptr()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">__STATIC_FORCEINLINE void drv_gpdma_channel_set_ptr </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>chan_idx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ptr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set GPDMA link list ptr. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">chan_idx</td><td>the channel index </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ptr</td><td>the link list ptr </td></tr>
   </table>
   </dd>
 </dl>

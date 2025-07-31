@@ -130,7 +130,7 @@ $(document).ready(function(){initNavTree('BLE_OM24G_APP_SIMPLE.html',''); initRe
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_doxygen_source_24g_ble_om24g_app_simple"></a> </p>
-<h1><a class="anchor" id="autotoc_md221"></a>
+<h1><a class="anchor" id="autotoc_md222"></a>
 Building</h1>
 <p>The ble and 24g coexist example is under <code>SDK\projects\ble_om24g_app_simple</code> in the SDK folder structure. In order to achieve the coexistence scheme of BLE and 24g, Perform the following steps to set up an application:</p>
 <p>1、Initialize 2.4GHz Proprietary protocol using <a class="el" href="group__OM24G.html#ga446564d9dced67dbc1d1a03c95c83299" title="init the 2.4g transerive when the event begin. If the deviation is dynamically switched,...">drv_om24g_init(const om24g_config_t *cfg)</a> You can use the default parameters in om24g_config as starting point for the cfg parameter and reconfigure them if needed.</p>
@@ -165,7 +165,7 @@ Building</h1>
 </li>
 </ul>
 <p>7、Register callback function obc_bb_frame_ongoing_callback_register(app_24g_ble_bb_frame_ongoing_handler) and global variable is_ongoing, coordinate BLE and 24G time-sharing work.</p>
-<h1><a class="anchor" id="autotoc_md222"></a>
+<h1><a class="anchor" id="autotoc_md223"></a>
 Example</h1>
 <p>This example describes the periodic broadcasting of BLE, which can be tested by scanning the connection through mobile app nRF Connect. During BLE's idle time, the RF switches to 24G to monitor airborne packets. You can use the om24g_app_simple example to perform packet testing on another chip.</p>
 <p>The following are specific configurations for devices:</p>
@@ -176,7 +176,7 @@ Example</h1>
 <li>Call omble_init(&amp;param) Initialize the ble module.</li>
 <li>When Bluetooth is working, the variable is_ongoing is set to 1, and the 24G RF reception is turned off in the callback function app_24g_ble_bb_frame_ongoing_handler(). After the ble work is completed, set the variable is_ongoing to 0, turn on the 24g clock, and start receiving in the callback function.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md223"></a>
+<h1><a class="anchor" id="autotoc_md224"></a>
 Running And Testing</h1>
 <p>After programming the ble_om24g_app_simple on one of the development kits and the om24g_app_simple on the other kit, test them by performing the following steps:</p>
 <ul>

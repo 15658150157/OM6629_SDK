@@ -13,7 +13,6 @@ var group__PMU__TIMER =
     [ "PMU_TIMER_US2TICK", "group__PMU__TIMER.html#gac078d48912369084e9e29ae5edd48ca8", null ],
     [ "pmu_timer_control_t", "group__PMU__TIMER.html#ga370dc1f4410ec29d533bf9f503cdbf0a", [
       [ "PMU_TIMER_CONTROL_ENABLE", "group__PMU__TIMER.html#gga370dc1f4410ec29d533bf9f503cdbf0aa68cbada1cdcd55256454afccf7e05bfa", null ],
-      [ "PMU_TIMER_CONTROL_DISABLE", "group__PMU__TIMER.html#gga370dc1f4410ec29d533bf9f503cdbf0aa03189f0a2b9d3c32b98f9d69d49af0f7", null ],
       [ "PMU_TIMER_CONTROL_GET_TIMER_VAL", "group__PMU__TIMER.html#gga370dc1f4410ec29d533bf9f503cdbf0aa2219cad9bde22445279878461e88d826", null ],
       [ "PMU_TIMER_CONTROL_SET_TIMER_VAL", "group__PMU__TIMER.html#gga370dc1f4410ec29d533bf9f503cdbf0aae097e476a2333265ef4ced712bc3eede", null ],
       [ "PMU_TIMER_CONTROL_GET_OVERFLOW", "group__PMU__TIMER.html#gga370dc1f4410ec29d533bf9f503cdbf0aa37301faf1310102fe34013ad24049797", null ],

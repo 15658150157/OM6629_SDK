@@ -196,6 +196,12 @@ Functions</h2></td></tr>
 <tr class="memitem:ga2f05280c58e66ae51481d75ed4f7c97c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PM.html#ga2f05280c58e66ae51481d75ed4f7c97c">pm_init</a> (void)</td></tr>
 <tr class="memdesc:ga2f05280c58e66ae51481d75ed4f7c97c"><td class="mdescLeft">&#160;</td><td class="mdescRight">pm init  <br /></td></tr>
 <tr class="separator:ga2f05280c58e66ae51481d75ed4f7c97c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafcf762ea13dde196e7918b394a4c6e41"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PM.html#gafcf762ea13dde196e7918b394a4c6e41">pm_sleep</a> (<a class="el" href="group__PM.html#gac4d27cf0310d8173f6f5d1e71ddb0abc">pm_status_t</a> status)</td></tr>
+<tr class="memdesc:gafcf762ea13dde196e7918b394a4c6e41"><td class="mdescLeft">&#160;</td><td class="mdescRight">system sleep  <br /></td></tr>
+<tr class="separator:gafcf762ea13dde196e7918b394a4c6e41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac28984d434d1e36259c5f15310d7a7ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__PM.html#gac4d27cf0310d8173f6f5d1e71ddb0abc">pm_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PM.html#gac28984d434d1e36259c5f15310d7a7ef">pm_sleep_checker_check</a> (void)</td></tr>
+<tr class="memdesc:gac28984d434d1e36259c5f15310d7a7ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">pm sleep checker check  <br /></td></tr>
+<tr class="separator:gac28984d434d1e36259c5f15310d7a7ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafdee3015b3e6a0c9ebd7cad51c81e531"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__PM.html#gafdee3015b3e6a0c9ebd7cad51c81e531">pm_sleep_min_time_set</a> (uint16_t tick_32k)</td></tr>
 <tr class="memdesc:gafdee3015b3e6a0c9ebd7cad51c81e531"><td class="mdescLeft">&#160;</td><td class="mdescRight">system sleep min time set  <br /></td></tr>
 <tr class="separator:gafdee3015b3e6a0c9ebd7cad51c81e531"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -434,6 +440,32 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="gafcf762ea13dde196e7918b394a4c6e41" name="gafcf762ea13dde196e7918b394a4c6e41"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafcf762ea13dde196e7918b394a4c6e41">&#9670;&#160;</a></span>pm_sleep()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void pm_sleep </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__PM.html#gac4d27cf0310d8173f6f5d1e71ddb0abc">pm_status_t</a>&#160;</td>
+          <td class="paramname"><em>status</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>system sleep </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">status</td><td>status </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ga3de7dba19bee189c19e82e5cc0dcc603" name="ga3de7dba19bee189c19e82e5cc0dcc603"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga3de7dba19bee189c19e82e5cc0dcc603">&#9670;&#160;</a></span>pm_sleep_allow()</h2>
 
@@ -495,6 +527,27 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>register status -OM_ERROR_OK register success -OM_ERROR_OUT_OF_RANGE register failed </dd></dl>
+
+</div>
+</div>
+<a id="gac28984d434d1e36259c5f15310d7a7ef" name="gac28984d434d1e36259c5f15310d7a7ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac28984d434d1e36259c5f15310d7a7ef">&#9670;&#160;</a></span>pm_sleep_checker_check()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__PM.html#gac4d27cf0310d8173f6f5d1e71ddb0abc">pm_status_t</a> pm_sleep_checker_check </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>pm sleep checker check </p>
+<dl class="section return"><dt>Returns</dt><dd>status </dd></dl>
 
 </div>
 </div>

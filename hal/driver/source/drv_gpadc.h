@@ -178,6 +178,9 @@ typedef enum {
     GPADC_CONTROL_TEMPERATURE_COMPEN                = 6U,    /**< check GPADC is busy */
     GPADC_CONTROL_SET_PARAM_WITHOUT_POWER_ON_PARAM  = 7U,    /**< set calibration paramters without power on paramters */
     GPADC_CONTROL_CHANNEL_CFG                       = 8U,    /**< config GPADC channels */
+    GPADC_CONTROL_GET_GAIN_ERROR                    = 9U,    /**< get gain error */
+    GPADC_CONTROL_GET_VOS                           = 10U,   /**< get vos */
+    GPADC_CONTROL_SET_AUTO_COMPEN                   = 11U,   /**< set AUTO COMPEN */
 } drv_gpadc_control_t;
 
 /// GPADC temperature compensation

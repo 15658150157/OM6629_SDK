@@ -124,6 +124,26 @@ extern om_error_t drv_ecdsa_verify(const void *public_key, const void *msg, uint
  */
 extern om_error_t drv_uecc_shared_secret(const void *peer_public_key, const void *private_key, void *shared_secret);
 
+/**
+ *******************************************************************************
+ * @brief ECDSA compress public key
+ *
+ * @param[in] public_key    Pointer to public key, 4-byte alignment is required
+ * @param[out] compressed    Pointer to compressed public key
+ *******************************************************************************
+ */
+extern void drv_uecc_compress(const void *public_key, void *compressed);
+
+/**
+ *******************************************************************************
+ * @brief ECDSA decompress public key
+ *
+ * @param[in] compressed     Pointer to compressed public key
+ * @param[out] public_key    Pointer to decompressed public key
+ *******************************************************************************
+ */
+extern void drv_uecc_decompress(const void *compressed, void *public_key);
+
 #ifdef __cplusplus
 }
 #endif

@@ -31,16 +31,12 @@
 #if defined ( __ICCARM__ )
 #pragma diag_suppress=Pe188
 #endif
-/*********************************************************************
- * DEFINES
- */
-#define EVENT_BLUETOOTH_MASK            0x0001
 
 
 /*********************************************************************
  * LOCAL VARIABLES
  */
-static osEventFlagsId_t xEvtEvent = NULL;
+static osSemaphoreId_t xSemBluetooth = NULL;
 
 
 /*******************************************************************************
@@ -48,8 +44,8 @@ static osEventFlagsId_t xEvtEvent = NULL;
  */
 static void vEvtEventHandler(void)
 {
-    if (xEvtEvent) {
-        osEventFlagsSet(xEvtEvent, EVENT_BLUETOOTH_MASK);
+    if (xSemBluetooth) {
+        osSemaphoreRelease(xSemBluetooth);
     }
 }
 
@@ -109,8 +105,8 @@ static void mesh_thread(void *arguments)
     // Mesh stack start
     msh_api_stack_enable();
 
-    // Create event
-    xEvtEvent = osEventFlagsNew(NULL);
+    // Create semaphore
+    xSemBluetooth = osSemaphoreNew(1, 0, NULL);
 
     // Set evt callback
     evt_schedule_trigger_callback_set(vEvtEventHandler);
@@ -120,8 +116,8 @@ static void mesh_thread(void *arguments)
         // schedule for handle evt
         evt_schedule();
 
-        // wait os event flag
-        (void)osEventFlagsWait(xEvtEvent, 0xFFFF, osFlagsWaitAny, osWaitForever);
+        // wait os semaphore
+        (void)osSemaphoreAcquire(xSemBluetooth, osWaitForever);
     }
 }
 

@@ -4,9 +4,11 @@ var group__GPIO =
       [ "dir", "structgpio__config__t.html#a5347ba5b3c2a73ae093fb6e377611fd6", null ],
       [ "gpio_idx", "structgpio__config__t.html#a2d3a02e22451d8e8605912308867da9e", null ],
       [ "om_gpio", "structgpio__config__t.html#adc91344c9cfb5612d95f84646e71202c", null ],
-      [ "out_val", "structgpio__config__t.html#a3be5fdd3b045b8638684837320ee6a42", null ],
+      [ "out_val", "structgpio__config__t.html#adb51b979ccc1919f3ab0c71fc88f195d", null ],
       [ "trig_type", "structgpio__config__t.html#a27098a0ccf8caa003c6d916b37a63603", null ]
     ] ],
+    [ "GPIO_LEVEL_HIGH", "group__GPIO.html#ga0f280cd46b0ae2398346f23e65a38767", null ],
+    [ "GPIO_LEVEL_LOW", "group__GPIO.html#ga367ca307f0ad639bd73d2ae6a85af4c3", null ],
     [ "GPIO_MASK", "group__GPIO.html#ga1bce2de4d2a9eb3cdb79daea1d3fdd40", null ],
     [ "gpio_mask_t", "group__GPIO.html#ga045442ee42eafe3a10641e9caa914eb3", null ],
     [ "gpio_control_t", "group__GPIO.html#gaa90f3692b665170c5042055e788ed406", [
@@ -15,10 +17,6 @@ var group__GPIO =
     [ "gpio_dir_t", "group__GPIO.html#gafcfd0cb57b9f605239767c4d18ed7304", [
       [ "GPIO_DIR_OUTPUT", "group__GPIO.html#ggafcfd0cb57b9f605239767c4d18ed7304a2faef38751d4761242d11663f4cf75e5", null ],
       [ "GPIO_DIR_INPUT", "group__GPIO.html#ggafcfd0cb57b9f605239767c4d18ed7304a3f9cca83af864e65a125bb363f5cc1a6", null ]
-    ] ],
-    [ "gpio_level_t", "group__GPIO.html#gac36e21ae6c134bf7d2aaa72933f1d7dd", [
-      [ "GPIO_LEVEL_LOW", "group__GPIO.html#ggac36e21ae6c134bf7d2aaa72933f1d7dda0227e43a6201c3330b2e6e9f71b74d6f", null ],
-      [ "GPIO_LEVEL_HIGH", "group__GPIO.html#ggac36e21ae6c134bf7d2aaa72933f1d7dda5a87f4701da8987969657f9ffb2563e0", null ]
     ] ],
     [ "gpio_trig_type_t", "group__GPIO.html#gacb840e4e0c59780df42ed0797e3d58b3", [
       [ "GPIO_TRIG_FALLING_EDGE", "group__GPIO.html#ggacb840e4e0c59780df42ed0797e3d58b3aeb13f0a49b9d8a3ce390785459f666a4", null ],
@@ -41,5 +39,5 @@ var group__GPIO =
     [ "drv_gpio_set_trig", "group__GPIO.html#gaab126e660e5024a5f0992c66cf4b1c4b", null ],
     [ "drv_gpio_toggle", "group__GPIO.html#ga153dd81ccb6ce5c6b3df5fb21f9f918d", null ],
     [ "drv_gpio_uninit", "group__GPIO.html#ga4a9850e6f9264990ce33b56f31551c40", null ],
-    [ "drv_gpio_write", "group__GPIO.html#ga33faf5e72270d035fba9d74e757033de", null ]
+    [ "drv_gpio_write", "group__GPIO.html#ga7fed3d50aacf44fe23d1587cf52014fc", null ]
 ];

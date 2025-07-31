@@ -46,7 +46,6 @@
 #define XBUS(xpi)       ((xpi == M_QPI) ? BUS_4BIT : BUS_1BIT)
 #define FCFG            OSPI_FRAME_CONFIG
 
-#define WIP_TIMEOUT_MS  100
 
 #define CMD_FRAME_SET(pframe, cfg)                                  \
     do {                                                            \
@@ -145,6 +144,11 @@ typedef struct {
 /*******************************************************************************
  * CONST & VARIABLES
  */
+// flash models that not supported modify status register 1 and 2 by one command(0x01)
+static const flash_id_t no_dual_reg_modify_flash[] = {
+    {{0xC8, 0x40, 0x17}},     /* GD25Q64 */
+};
+
 static oflash_env_t flash1_env = {
     .isr_cb = NULL,
     .addr = 0,
@@ -244,7 +248,7 @@ __OF_RAM_CODE static om_error_t oflash_read_reg(flash_frame_t *frame, uint8_t *d
     drv_ospi_sec_cfg_set(OM_OSPI1, 0);
     drv_ospi_read_cfg_set(OM_OSPI1, frame->frame_cfg);
     // Start read
-    error = drv_ospi_read(OM_OSPI1, cmd, data, data_len);
+    error = drv_ospi_read(OM_OSPI1, cmd, data, data_len, FLASH_TIMEOUT_MS_DEFAULT);
     // Restore frame config
     drv_ospi_sec_cfg_set(OM_OSPI1, sec_cfg);
     drv_ospi_read_cfg_set(OM_OSPI1, read_cfg);
@@ -269,17 +273,16 @@ __OF_RAM_CODE static om_error_t oflash_write_enable_vsr(OM_OSPI_Type *om_flash)
     return oflash_read_reg(&frame, NULL, 0);
 }
 
-__OF_RAM_CODE static om_error_t oflash_poll_wip(flash_frame_t *wip_frame)
+__OF_RAM_CODE static om_error_t oflash_poll_wip(flash_frame_t *wip_frame, uint32_t timeout_ms)
 {
     uint8_t status = 0xFF;
     om_error_t error;
-    uint32_t begin_cycle, end_cycle;
+    uint32_t start_cycle;
 
-    begin_cycle = drv_dwt_get_cycle();
+    start_cycle = drv_dwt_get_cycle();
     do {
         error = oflash_read_reg(wip_frame, &status, 1);
-        end_cycle = drv_dwt_get_cycle();
-        if (end_cycle - begin_cycle > DRV_DWT_MS_2_CYCLES_CEIL(WIP_TIMEOUT_MS)) {
+        if (drv_dwt_get_cycle() - start_cycle > DRV_DWT_MS_2_CYCLES_CEIL(timeout_ms)) {
             return OM_ERROR_TIMEOUT;
         }
     } while ((error != OM_ERROR_OK) || (status & FLASH_STATUS_1_WIP_MASK));
@@ -323,13 +326,13 @@ __OF_RAM_CODE static om_error_t oflash_write_reg(flash_frame_t *write_reg_frame,
         oflash_write_enable_vsr(OM_OSPI1);
     }
     // Start Read
-    error = drv_ospi_read(OM_OSPI1, cmd, NULL, 0);
+    error = drv_ospi_read(OM_OSPI1, cmd, NULL, 0, FLASH_TIMEOUT_MS_DEFAULT);
     // Restore frame config
     drv_ospi_sec_cfg_set(OM_OSPI1, sec_cfg);
     drv_ospi_read_cfg_set(OM_OSPI1, read_cfg);
     OM_CRITICAL_END();
     // wait done
-    return error == OM_ERROR_OK ? oflash_poll_wip(wip_frame) : error;
+    return error == OM_ERROR_OK ? oflash_poll_wip(wip_frame, FLASH_TIMEOUT_MS_DEFAULT) : error;
 }
 
 __OF_RAM_CODE static om_error_t oflash_read_frame_set(OM_OSPI_Type *om_flash,
@@ -395,11 +398,14 @@ __OF_RAM_CODE static om_error_t oflash_resume(flash_frame_t *resume_frame)
 __OF_RAM_CODE static om_error_t oflash_poll_wip_with_suspend(flash_frame_t *wip_frame,
                                                              flash_frame_t *suspend_frame,
                                                              flash_frame_t *resume_frame,
-                                                             uint32_t irq_save)
+                                                             uint32_t irq_save,
+                                                             uint32_t timeout_ms)
 {
     om_error_t error, ret;
     uint8_t status = 0;
+    uint32_t start_cycle;
 
+    start_cycle = drv_dwt_get_cycle();
     while ((error = oflash_read_reg(wip_frame, &status, 1)) == OM_ERROR_OK &&
            status & FLASH_STATUS_1_WIP_MASK) {
         // Delay 100us
@@ -418,6 +424,10 @@ __OF_RAM_CODE static om_error_t oflash_poll_wip_with_suspend(flash_frame_t *wip_
             // resume
             oflash_resume(resume_frame);
         }
+        if (drv_dwt_get_cycle() - start_cycle > DRV_DWT_MS_2_CYCLES_CEIL(timeout_ms)) {
+            error = OM_ERROR_TIMEOUT;
+            break;
+        }
     }
     return error;
 }
@@ -429,22 +439,26 @@ __OF_RAM_CODE static om_error_t oflash_write_with_suspend(OM_OSPI_Type *om_flash
                                                           flash_frame_t *write_frame,
                                                           flash_frame_t *wip_frame,
                                                           flash_frame_t *suspend_frame,
-                                                          flash_frame_t *resume_frame)
+                                                          flash_frame_t *resume_frame,
+                                                          uint32_t timeout_ms)
 {
     uint32_t cmd[2];
     om_error_t error;
-    uint32_t irq_save = 0;
+    uint32_t irq_save;
 
     cmd[0] = write_frame->cmd << 24U;
     cmd[1] = addr;
 
     OM_CRITICAL_BEGIN_EX(irq_save);
     // Start Write
-    error = drv_ospi_write(om_flash, cmd, data, data_len);
+    error = drv_ospi_write(om_flash, cmd, data, data_len,
+                timeout_ms < FLASH_TIMEOUT_MS_DEFAULT ? timeout_ms : FLASH_TIMEOUT_MS_DEFAULT);
     if (error != OM_ERROR_OK) {
+        OM_CRITICAL_END_EX(irq_save);
         return error;
     }
-    error = oflash_poll_wip_with_suspend(wip_frame, suspend_frame, resume_frame, irq_save);
+    error = oflash_poll_wip_with_suspend(wip_frame, suspend_frame, resume_frame, irq_save,
+                timeout_ms < FLASH_TIMEOUT_MS_DEFAULT ? timeout_ms : FLASH_TIMEOUT_MS_DEFAULT);
     OM_CRITICAL_END_EX(irq_save);
     return error;
 }
@@ -454,13 +468,14 @@ __OF_RAM_CODE static om_error_t oflash_erase_with_suspend(OM_OSPI_Type *om_flash
                                                           flash_frame_t *erase_frame,
                                                           flash_frame_t *wip_frame,
                                                           flash_frame_t *suspend_frame,
-                                                          flash_frame_t *resume_frame)
+                                                          flash_frame_t *resume_frame,
+                                                          uint32_t timeout_ms)
 {
     om_error_t error;
     uint32_t cmd[2];
     uint32_t read_cfg[2];
     uint32_t sec_cfg;
-    uint32_t irq_save = 0;
+    uint32_t irq_save;
 
     cmd[0] = erase_frame->cmd << 24U;
     cmd[1] = addr;
@@ -473,12 +488,14 @@ __OF_RAM_CODE static om_error_t oflash_erase_with_suspend(OM_OSPI_Type *om_flash
     drv_ospi_sec_cfg_set(om_flash, 0);
     drv_ospi_read_cfg_set(om_flash, erase_frame->frame_cfg);
     // Start read
-    error = drv_ospi_read(om_flash, cmd, NULL, 0);
+    error = drv_ospi_read(om_flash, cmd, NULL, 0,
+                timeout_ms < FLASH_TIMEOUT_MS_DEFAULT ? timeout_ms : FLASH_TIMEOUT_MS_DEFAULT);
     // Restore frame config
     drv_ospi_sec_cfg_set(om_flash, sec_cfg);
     drv_ospi_read_cfg_set(om_flash, read_cfg);
 
-    error = oflash_poll_wip_with_suspend(wip_frame, suspend_frame, resume_frame, irq_save);
+    error = oflash_poll_wip_with_suspend(wip_frame, suspend_frame, resume_frame, irq_save,
+                timeout_ms < FLASH_TIMEOUT_MS_DEFAULT ? timeout_ms : FLASH_TIMEOUT_MS_DEFAULT);
     OM_CRITICAL_END_EX(irq_save);
     return error;
 }
@@ -490,7 +507,8 @@ __OF_RAM_CODE static om_error_t oflash_write(OM_OSPI_Type *om_flash,
                                              uint8_t *data,
                                              uint32_t data_len,
                                              flash_frame_t *write_frame,
-                                             flash_frame_t *wip_frame)
+                                             flash_frame_t *wip_frame,
+                                             uint32_t timeout_ms)
 {
     uint32_t cmd[2];
     om_error_t error;
@@ -498,17 +516,19 @@ __OF_RAM_CODE static om_error_t oflash_write(OM_OSPI_Type *om_flash,
     cmd[0] = write_frame->cmd << 24U;
     cmd[1] = addr;
     // Start Write
-    error = drv_ospi_write(om_flash, cmd, data, data_len);
+    error = drv_ospi_write(om_flash, cmd, data, data_len,
+                timeout_ms < FLASH_TIMEOUT_MS_DEFAULT ? timeout_ms : FLASH_TIMEOUT_MS_DEFAULT);
     if (error != OM_ERROR_OK) {
         return error;
     }
-    return oflash_poll_wip(wip_frame);
+    return oflash_poll_wip(wip_frame, timeout_ms);
 }
 
 __OF_RAM_CODE static om_error_t oflash_erase(OM_OSPI_Type *om_flash,
                                              uint32_t addr,
                                              flash_frame_t *erase_frame,
-                                             flash_frame_t *wip_frame)
+                                             flash_frame_t *wip_frame,
+                                             uint32_t timeout_ms)
 {
     om_error_t error;
     uint32_t cmd[2];
@@ -525,7 +545,8 @@ __OF_RAM_CODE static om_error_t oflash_erase(OM_OSPI_Type *om_flash,
     drv_ospi_sec_cfg_set(om_flash, 0);
     drv_ospi_read_cfg_set(om_flash, erase_frame->frame_cfg);
     // Start read
-    error = drv_ospi_read(om_flash, cmd, NULL, 0);
+    error = drv_ospi_read(om_flash, cmd, NULL, 0,
+                timeout_ms < FLASH_TIMEOUT_MS_DEFAULT ? timeout_ms : FLASH_TIMEOUT_MS_DEFAULT);
     // Restore frame config
     drv_ospi_sec_cfg_set(om_flash, sec_cfg);
     drv_ospi_read_cfg_set(om_flash, read_cfg);
@@ -533,7 +554,7 @@ __OF_RAM_CODE static om_error_t oflash_erase(OM_OSPI_Type *om_flash,
     if (error != OM_ERROR_OK) {
         return error;
     }
-    return oflash_poll_wip(wip_frame);
+    return oflash_poll_wip(wip_frame, timeout_ms);
 }
 #endif /* RTE_FLASH1_XIP */
 
@@ -707,38 +728,63 @@ static om_error_t oflash_modifiy_status_bits(OM_OSPI_Type *om_flash, uint8_t sta
 {
     uint8_t s1[2];
     uint8_t s2[2];
-    om_error_t error;
+    uint8_t need_write[2] = {0, 0};
+    uint8_t modify_by_one_cmd = 1;
+    om_error_t error = OM_ERROR_OK;
 
-    // Read status reg
+    // Read status reg1 and modify
     if ((error = drv_oflash_read_status_reg1(om_flash, &s1[0]) ) != OM_ERROR_OK) {
-        goto ERR;
+        goto EXIT;
     }
-    if ((error = drv_oflash_read_status_reg2(om_flash, &s1[1])) != OM_ERROR_OK) {
-        goto ERR;
-    }
-    // Read status reg again
     if ((error = drv_oflash_read_status_reg1(om_flash, &s2[0])) != OM_ERROR_OK) {
-        goto ERR;
+        goto EXIT;
     }
-    if ((error = drv_oflash_read_status_reg2(om_flash, &s2[1]) ) != OM_ERROR_OK) {
-        goto ERR;
-    }
-    // check status reg
-    if (s1[0] != s2[0] || s1[1] != s2[1]) {
+    if (s1[0] != s2[0]) {
         return OM_ERROR_VERIFY;
     }
-    if ((s1[0] & mask[0]) != (status[0] & mask[0]) ||
-            (s1[1] & mask[1]) != (status[1] & mask[1])) {
+    if ((s1[0] & mask[0]) != (status[0] & mask[0])) {
         s1[0] &= ~mask[0];
         s1[0] |= (status[0] & mask[0]);
+        need_write[0] = 1;
+    }
+    // Read status reg2 and modify
+    if ((error = drv_oflash_read_status_reg2(om_flash, &s1[1])) != OM_ERROR_OK) {
+        goto EXIT;
+    }
+    if ((error = drv_oflash_read_status_reg2(om_flash, &s2[1])) != OM_ERROR_OK) {
+        goto EXIT;
+    }
+    if (s1[1] != s2[1]) {
+        return OM_ERROR_VERIFY;
+    }
+    if ((s1[1] & mask[1]) != (status[1] & mask[1])) {
         s1[1] &= ~mask[1];
         s1[1] |= (status[1] & mask[1]);
-    } else {
-        return OM_ERROR_OK;
+        need_write[1] = 1;
     }
-    return oflash_write_status(om_flash, s1, is_volatile);
+    // check if the current flash support dual register modify by one command
+    for (uint16_t i = 0; i < sizeof(no_dual_reg_modify_flash) / sizeof(no_dual_reg_modify_flash[0]); i++) {
+        if (flash1_env.id.id == no_dual_reg_modify_flash[i].id) {
+            modify_by_one_cmd = 0;
+            break;
+        }
+    }
+    if (modify_by_one_cmd) {
+        // write status reg 1 and reg 2 by one command
+        if (need_write[0] || need_write[1]) {
+            error = oflash_write_status(om_flash, s1, is_volatile);
+        }
+    } else {
+        // write status reg 1, then write status reg 2
+        if (need_write[0] && ((error = oflash_write_status_reg1(om_flash, &s1[0], is_volatile)) != OM_ERROR_OK)) {
+            goto EXIT;
+        }
+        if (need_write[1] && ((error = oflash_write_status_reg2(om_flash, &s1[1], is_volatile)) != OM_ERROR_OK)) {
+            goto EXIT;
+        }
+    }
 
-ERR:
+EXIT:
     return error;
 }
 
@@ -854,7 +900,7 @@ om_error_t drv_oflash_read_uid(OM_OSPI_Type *om_flash, uint8_t *uid, uint32_t le
     #if (RTE_FLASH1_XIP)
     OM_CRITICAL_BEGIN();
     #endif
-    error = drv_ospi_read(om_flash, cmd, uid, len);
+    error = drv_ospi_read(om_flash, cmd, uid, len, FLASH_TIMEOUT_MS_DEFAULT);
     #if (RTE_FLASH1_XIP)
     OM_CRITICAL_END();
     #endif
@@ -927,7 +973,7 @@ om_error_t drv_oflash_write_cmd_set(OM_OSPI_Type *om_flash, flash_write_t write_
     return error;
 }
 
-om_error_t drv_oflash_read(OM_OSPI_Type *om_flash, uint32_t addr, uint8_t *data, uint32_t data_len)
+om_error_t drv_oflash_read(OM_OSPI_Type *om_flash, uint32_t addr, uint8_t *data, uint32_t data_len, uint32_t timeout_ms)
 {
     oflash_env_t *env = &flash1_env;
     uint32_t cmd[2];
@@ -945,7 +991,8 @@ om_error_t drv_oflash_read(OM_OSPI_Type *om_flash, uint32_t addr, uint8_t *data,
     #if (RTE_FLASH1_XIP)
     OM_CRITICAL_BEGIN();
     #endif
-    error = drv_ospi_read(om_flash, cmd, data, data_len);
+    error = drv_ospi_read(om_flash, cmd, data, data_len,
+                timeout_ms < FLASH_TIMEOUT_MS_DEFAULT ? timeout_ms : FLASH_TIMEOUT_MS_DEFAULT);
     #if (RTE_FLASH1_XIP)
     OM_CRITICAL_END();
     #endif
@@ -984,7 +1031,8 @@ om_error_t drv_oflash_read_int(OM_OSPI_Type *om_flash,
 om_error_t drv_oflash_write(OM_OSPI_Type *om_flash,
                             uint32_t addr,
                             volatile uint8_t *data,
-                            uint32_t data_len)
+                            uint32_t data_len,
+                            uint32_t timeout_ms)
 {
     oflash_env_t *env = &flash1_env;
     uint32_t data_remain = data_len;
@@ -993,12 +1041,14 @@ om_error_t drv_oflash_write(OM_OSPI_Type *om_flash,
     om_error_t error = OM_ERROR_OK;
     flash_frame_t write_frame = flash_write_frame_get(flash1_env.write_cmd);
     flash_frame_t wip_frame;
+    uint32_t start_cycle;
 
     CMD_FRAME_SET(&wip_frame, FLASH_READ_STA_REG1_CFG(env->xpi_mode));
     if (env->state != FLASH_STATE_INIT) {
         return OM_ERROR_BUSY;
     }
     env->state = FLASH_STATE_WRITING;
+    start_cycle = drv_dwt_get_cycle();
     while (data_remain) {
         error = oflash_write_enable(om_flash);
         if (error == OM_ERROR_OK) {
@@ -1010,13 +1060,20 @@ om_error_t drv_oflash_write(OM_OSPI_Type *om_flash,
             CMD_FRAME_SET(&suspend_frame, FLASH_SUSPEND_CFG(env->xpi_mode));
             CMD_FRAME_SET(&resume_frame, FLASH_RESUME_CFG(env->xpi_mode));
             error = oflash_write_with_suspend(om_flash, addr_write, data_write, write_len,
-                            &write_frame, &wip_frame, &suspend_frame, &resume_frame);
+                            &write_frame, &wip_frame, &suspend_frame, &resume_frame,
+                            timeout_ms < FLASH_TIMEOUT_MS_DEFAULT ? timeout_ms : FLASH_TIMEOUT_MS_DEFAULT);
             #else
-            error = oflash_write(om_flash, addr_write, data_write, write_len, &write_frame, &wip_frame);
+            error = oflash_write(om_flash, addr_write, data_write,
+                        write_len, &write_frame, &wip_frame,
+                        timeout_ms < FLASH_TIMEOUT_MS_DEFAULT ? timeout_ms : FLASH_TIMEOUT_MS_DEFAULT);
             #endif
             data_remain -= write_len;
             addr_write += write_len;
             data_write += write_len;
+            if (drv_dwt_get_cycle() - start_cycle > DRV_DWT_MS_2_CYCLES_CEIL(timeout_ms)) {
+                error = OM_ERROR_TIMEOUT;
+                break;
+            }
         } else {
             break;
         }
@@ -1113,8 +1170,9 @@ om_error_t drv_oflash_write_int_continue(OM_OSPI_Type *om_flash)
 }
 
 om_error_t drv_oflash_erase(OM_OSPI_Type *om_flash,
-                                          uint32_t addr,
-                                          flash_erase_t erase_type)
+                            uint32_t addr,
+                            flash_erase_t erase_type,
+                            uint32_t timeout_ms)
 {
     oflash_env_t *env = &flash1_env;
     om_error_t error = OM_ERROR_OK;
@@ -1154,9 +1212,9 @@ om_error_t drv_oflash_erase(OM_OSPI_Type *om_flash,
             CMD_FRAME_SET(&suspend_frame, FLASH_SUSPEND_CFG(env->xpi_mode));
             CMD_FRAME_SET(&resume_frame, FLASH_RESUME_CFG(env->xpi_mode));
             error = oflash_erase_with_suspend(om_flash, addr,
-                            &erase_frame, &wip_frame, &suspend_frame, &resume_frame);
+                            &erase_frame, &wip_frame, &suspend_frame, &resume_frame, timeout_ms);
             #else
-            error = oflash_erase(om_flash, addr, &erase_frame, &wip_frame);
+            error = oflash_erase(om_flash, addr, &erase_frame, &wip_frame, timeout_ms);
             #endif
     }
     env->state = FLASH_STATE_INIT;
@@ -1379,7 +1437,7 @@ __OF_RAM_CODE om_error_t drv_oflash_encrypt_enable(OM_OSPI_Type *om_flash, uint8
     return OM_ERROR_OK;
 }
 
-om_error_t drv_oflash_list_start(OM_OSPI_Type *om_flash, flash_list_node_t *list_head)
+om_error_t drv_oflash_list_start(OM_OSPI_Type *om_flash, flash_list_node_t *list_head, uint32_t node_timeout_ms)
 {
     om_error_t error;
     oflash_env_t *env = &flash1_env;
@@ -1390,7 +1448,7 @@ om_error_t drv_oflash_list_start(OM_OSPI_Type *om_flash, flash_list_node_t *list
     }
     drv_ospi_list_start(om_flash, list_head);
     // dummy read to trigger list start
-    return drv_oflash_read(om_flash, 0, &dummy, 1);
+    return drv_oflash_read(om_flash, 0, &dummy, 1, node_timeout_ms);
 }
 
 #if (RTE_FLASH1_REGISTER_CALLBACK)

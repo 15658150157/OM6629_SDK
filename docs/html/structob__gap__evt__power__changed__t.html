@@ -140,19 +140,19 @@ $(document).ready(function(){initNavTree('structob__gap__evt__power__changed__t.
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
 <tr class="memitem:ac6bf0cbd88109127f1f28da8782e8f2a"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__evt__power__changed__t.html#ac6bf0cbd88109127f1f28da8782e8f2a">side</a></td></tr>
-<tr class="memdesc:ac6bf0cbd88109127f1f28da8782e8f2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">本方或对方发射功率更新，0x00 本地发射功率更新，0x01 对方发射功率更新  <br /></td></tr>
+<tr class="memdesc:ac6bf0cbd88109127f1f28da8782e8f2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the transmit power of this party or the other party, 0x00 local transmit power update, 0x01 other party transmit power update.  <br /></td></tr>
 <tr class="separator:ac6bf0cbd88109127f1f28da8782e8f2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a632070f0ee33830b0d5d011ed7520a24"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__evt__power__changed__t.html#a632070f0ee33830b0d5d011ed7520a24">phy</a></td></tr>
-<tr class="memdesc:a632070f0ee33830b0d5d011ed7520a24"><td class="mdescLeft">&#160;</td><td class="mdescRight">更新功率对应的PHY，0x01 1M Phy, 0x02 2M Phy, 0x03 coded Phy(S=8), 0x04 coded Phy(S=2)  <br /></td></tr>
+<tr class="memdesc:a632070f0ee33830b0d5d011ed7520a24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the PHY corresponding to the power, 0x01 1M Phy, 0x02 2M Phy, 0x03 coded Phy(S=8), 0x04 coded Phy(S=2)  <br /></td></tr>
 <tr class="separator:a632070f0ee33830b0d5d011ed7520a24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ef241b35fcf8f802c9b5f10a2bf78ea"><td class="memItemLeft" align="right" valign="top">int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__evt__power__changed__t.html#a3ef241b35fcf8f802c9b5f10a2bf78ea">tx_pwr</a></td></tr>
-<tr class="memdesc:a3ef241b35fcf8f802c9b5f10a2bf78ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">更新后的功率，若值为<a class="el" href="group__OMBLE__GAP.html#ga399d31d13841403d85a8b52799feb5be">OB_GAP_ADV_TX_POWER_NO_AVA(0x7F)</a> 则表示不可用  <br /></td></tr>
+<tr class="memdesc:a3ef241b35fcf8f802c9b5f10a2bf78ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updated power, if the value is <a class="el" href="group__OMBLE__GAP.html#ga399d31d13841403d85a8b52799feb5be">OB_GAP_ADV_TX_POWER_NO_AVA(0x7F)</a>, it means unavailable.  <br /></td></tr>
 <tr class="separator:a3ef241b35fcf8f802c9b5f10a2bf78ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad73ca5f942a4c842c9bca48ccb14e87a"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__evt__power__changed__t.html#ad73ca5f942a4c842c9bca48ccb14e87a">tx_pwr_level_flag</a></td></tr>
-<tr class="memdesc:ad73ca5f942a4c842c9bca48ccb14e87a"><td class="mdescLeft">&#160;</td><td class="mdescRight">是否达到最大或最小功率，参考 <a class="el" href="group__OMBLE__GAP.html#ga6929edcf32f87c8cccffe7ef15aaf90e">ob_gap_tx_pwr_level_flag</a>  <br /></td></tr>
+<tr class="memdesc:ad73ca5f942a4c842c9bca48ccb14e87a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the maximum or minimum power is reached, refer to <a class="el" href="group__OMBLE__GAP.html#ga6929edcf32f87c8cccffe7ef15aaf90e">ob_gap_tx_pwr_level_flag</a>.  <br /></td></tr>
 <tr class="separator:ad73ca5f942a4c842c9bca48ccb14e87a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c3775e1556f3fc36af5d611c4cd5d4b"><td class="memItemLeft" align="right" valign="top">int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__evt__power__changed__t.html#a1c3775e1556f3fc36af5d611c4cd5d4b">tx_pwr_delta</a></td></tr>
-<tr class="memdesc:a1c3775e1556f3fc36af5d611c4cd5d4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">功率变化，若值为<a class="el" href="group__OMBLE__GAP.html#ga399d31d13841403d85a8b52799feb5be">OB_GAP_ADV_TX_POWER_NO_AVA(0x7F)</a> 则表示不可用  <br /></td></tr>
+<tr class="memdesc:a1c3775e1556f3fc36af5d611c4cd5d4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Power change, if the value is <a class="el" href="group__OMBLE__GAP.html#ga399d31d13841403d85a8b52799feb5be">OB_GAP_ADV_TX_POWER_NO_AVA(0x7F)</a> means unavailable.  <br /></td></tr>
 <tr class="separator:a1c3775e1556f3fc36af5d611c4cd5d4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -170,7 +170,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>更新功率对应的PHY，0x01 1M Phy, 0x02 2M Phy, 0x03 coded Phy(S=8), 0x04 coded Phy(S=2) </p>
+<p>Update the PHY corresponding to the power, 0x01 1M Phy, 0x02 2M Phy, 0x03 coded Phy(S=8), 0x04 coded Phy(S=2) </p>
 
 </div>
 </div>
@@ -186,7 +186,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>本方或对方发射功率更新，0x00 本地发射功率更新，0x01 对方发射功率更新 </p>
+<p>Update the transmit power of this party or the other party, 0x00 local transmit power update, 0x01 other party transmit power update. </p>
 
 </div>
 </div>
@@ -202,7 +202,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>更新后的功率，若值为<a class="el" href="group__OMBLE__GAP.html#ga399d31d13841403d85a8b52799feb5be">OB_GAP_ADV_TX_POWER_NO_AVA(0x7F)</a> 则表示不可用 </p>
+<p>Updated power, if the value is <a class="el" href="group__OMBLE__GAP.html#ga399d31d13841403d85a8b52799feb5be">OB_GAP_ADV_TX_POWER_NO_AVA(0x7F)</a>, it means unavailable. </p>
 
 </div>
 </div>
@@ -218,7 +218,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>功率变化，若值为<a class="el" href="group__OMBLE__GAP.html#ga399d31d13841403d85a8b52799feb5be">OB_GAP_ADV_TX_POWER_NO_AVA(0x7F)</a> 则表示不可用 </p>
+<p>Power change, if the value is <a class="el" href="group__OMBLE__GAP.html#ga399d31d13841403d85a8b52799feb5be">OB_GAP_ADV_TX_POWER_NO_AVA(0x7F)</a> means unavailable. </p>
 
 </div>
 </div>
@@ -234,12 +234,12 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>是否达到最大或最小功率，参考 <a class="el" href="group__OMBLE__GAP.html#ga6929edcf32f87c8cccffe7ef15aaf90e">ob_gap_tx_pwr_level_flag</a> </p>
+<p>Whether the maximum or minimum power is reached, refer to <a class="el" href="group__OMBLE__GAP.html#ga6929edcf32f87c8cccffe7ef15aaf90e">ob_gap_tx_pwr_level_flag</a>. </p>
 
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>/mnt/data/yaoyufeng/work.svnrepo/om6627/trunk/SDK/components/ble/host/include/<a class="el" href="omble__gap_8h_source.html">omble_gap.h</a></li>
+<li>/mnt/data/yaoyufeng/work.svnrepo/om6627x/om6627/trunk/SDK/components/ble/host/include/<a class="el" href="omble__gap_8h_source.html">omble_gap.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

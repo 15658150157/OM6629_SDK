@@ -140,19 +140,19 @@ $(document).ready(function(){initNavTree('structob__gap__evt__connected__t.html'
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
 <tr class="memitem:ac3da5e853033393c479b69d490220626"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__evt__connected__t.html#ac3da5e853033393c479b69d490220626">role</a></td></tr>
-<tr class="memdesc:ac3da5e853033393c479b69d490220626"><td class="mdescLeft">&#160;</td><td class="mdescRight">连接角色，参考<a class="el" href="group__OMBLE__GAP.html#gab42e08a3658cb8cecb9c22ea2b34f736">ob_gap_conn_role</a>  <br /></td></tr>
+<tr class="memdesc:ac3da5e853033393c479b69d490220626"><td class="mdescLeft">&#160;</td><td class="mdescRight">Connection role, refer to <a class="el" href="group__OMBLE__GAP.html#gab42e08a3658cb8cecb9c22ea2b34f736">ob_gap_conn_role</a>.  <br /></td></tr>
 <tr class="separator:ac3da5e853033393c479b69d490220626"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2d78abc310c6d27446c568c581de079"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__evt__connected__t.html#aa2d78abc310c6d27446c568c581de079">adv_idx</a></td></tr>
-<tr class="memdesc:aa2d78abc310c6d27446c568c581de079"><td class="mdescLeft">&#160;</td><td class="mdescRight">当前连接对应的广播index，若role为Central则该参数无效  <br /></td></tr>
+<tr class="memdesc:aa2d78abc310c6d27446c568c581de079"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advertising index corresponding to the current connection, if role is Central, this parameter is unused.  <br /></td></tr>
 <tr class="separator:aa2d78abc310c6d27446c568c581de079"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5585b206013c28465d6b161664597be"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__OMBLE__GAP.html#ga2654129db4f52a994e2c1e5a1bbfa055">ob_gap_addr_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__evt__connected__t.html#af5585b206013c28465d6b161664597be">peer_addr</a></td></tr>
-<tr class="memdesc:af5585b206013c28465d6b161664597be"><td class="mdescLeft">&#160;</td><td class="mdescRight">对方地址，参考<a class="el" href="group__OMBLE__GAP.html#ga2654129db4f52a994e2c1e5a1bbfa055">ob_gap_addr_t</a>  <br /></td></tr>
+<tr class="memdesc:af5585b206013c28465d6b161664597be"><td class="mdescLeft">&#160;</td><td class="mdescRight">The peer address, refer to <a class="el" href="group__OMBLE__GAP.html#ga2654129db4f52a994e2c1e5a1bbfa055">ob_gap_addr_t</a>.  <br /></td></tr>
 <tr class="separator:af5585b206013c28465d6b161664597be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24b813f96eb732e0ceba6504c184357f"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__evt__connected__t.html#a24b813f96eb732e0ceba6504c184357f">pawr_idx</a></td></tr>
-<tr class="memdesc:a24b813f96eb732e0ceba6504c184357f"><td class="mdescLeft">&#160;</td><td class="mdescRight">基于PAwR连接时所对应的周期广播index或周期广播同步index  <br /></td></tr>
+<tr class="memdesc:a24b813f96eb732e0ceba6504c184357f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Periodic Advertising index or periodic Advertising synchronization index corresponding to PAwR connection.  <br /></td></tr>
 <tr class="separator:a24b813f96eb732e0ceba6504c184357f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4238b6c44ffb92f4c7862d24092ebb4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structob__gap__conn__params__t.html">ob_gap_conn_params_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structob__gap__evt__connected__t.html#aa4238b6c44ffb92f4c7862d24092ebb4">conn_params</a></td></tr>
-<tr class="memdesc:aa4238b6c44ffb92f4c7862d24092ebb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">连接参数，参考<a class="el" href="structob__gap__conn__params__t.html">ob_gap_conn_params_t</a>  <br /></td></tr>
+<tr class="memdesc:aa4238b6c44ffb92f4c7862d24092ebb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Connection parameters, refer to <a class="el" href="structob__gap__conn__params__t.html">ob_gap_conn_params_t</a>.  <br /></td></tr>
 <tr class="separator:aa4238b6c44ffb92f4c7862d24092ebb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -170,7 +170,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>当前连接对应的广播index，若role为Central则该参数无效 </p>
+<p>Advertising index corresponding to the current connection, if role is Central, this parameter is unused. </p>
 
 </div>
 </div>
@@ -186,7 +186,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>连接参数，参考<a class="el" href="structob__gap__conn__params__t.html">ob_gap_conn_params_t</a> </p>
+<p>Connection parameters, refer to <a class="el" href="structob__gap__conn__params__t.html">ob_gap_conn_params_t</a>. </p>
 
 </div>
 </div>
@@ -202,7 +202,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>基于PAwR连接时所对应的周期广播index或周期广播同步index </p>
+<p>Periodic Advertising index or periodic Advertising synchronization index corresponding to PAwR connection. </p>
 
 </div>
 </div>
@@ -218,7 +218,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>对方地址，参考<a class="el" href="group__OMBLE__GAP.html#ga2654129db4f52a994e2c1e5a1bbfa055">ob_gap_addr_t</a> </p>
+<p>The peer address, refer to <a class="el" href="group__OMBLE__GAP.html#ga2654129db4f52a994e2c1e5a1bbfa055">ob_gap_addr_t</a>. </p>
 
 </div>
 </div>
@@ -234,12 +234,12 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>连接角色，参考<a class="el" href="group__OMBLE__GAP.html#gab42e08a3658cb8cecb9c22ea2b34f736">ob_gap_conn_role</a> </p>
+<p>Connection role, refer to <a class="el" href="group__OMBLE__GAP.html#gab42e08a3658cb8cecb9c22ea2b34f736">ob_gap_conn_role</a>. </p>
 
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>/mnt/data/yaoyufeng/work.svnrepo/om6627/trunk/SDK/components/ble/host/include/<a class="el" href="omble__gap_8h_source.html">omble_gap.h</a></li>
+<li>/mnt/data/yaoyufeng/work.svnrepo/om6627x/om6627/trunk/SDK/components/ble/host/include/<a class="el" href="omble__gap_8h_source.html">omble_gap.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

@@ -48,13 +48,9 @@ void USBD_DMA_IRQHandler(void);
 static void usbd_clock_enable(bool enable)
 {
     // Enable USB 48MHz clock source
-    if (enable)
+    if (enable) {
         drv_pmu_syspll_power_enable(true);
-
-    // 48MHz source
-    DRV_RCC_ANA_CLK_ENABLE_NOIRQ();
-    REGW(&OM_DAIF->SYSPLL_CNS0, MASK_1REG(DAIF_SYSPLL_GT_USBCLK48M, (enable)?0:1));
-    DRV_RCC_ANA_CLK_RESTORE_NOIRQ();
+    }
 
     // CLock
     DRV_RCC_CLOCK_ENABLE(RCC_CLK_USB, enable);

@@ -37,7 +37,7 @@
  */
 #define TX_ROLE 0
 #define OM24G_ACK_MODE 0
-#define ENABLE_SLEEP_MODE 1
+#define ENABLE_SLEEP_MODE 0
 
 #define EVENT_OM24G_MASK            0x0001
 
@@ -601,8 +601,8 @@ om24g_config_t om24g_config_b = {
     .data_rate           = OM24G_RATE_1M,
     .ack_en              = 0,
     .dpl_en              = 1,
-    .white_en            = 0,
-    .white_skip_hdr      = 1,
+    .white_en            = 1,
+    .white_skip_hdr      = 0,
     .white_skip_addr     = 1,
     .white_skip_crc      = 0,
     .white_sel           = 0x00,
@@ -685,7 +685,6 @@ static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void
                     error_flag = true;
                 }
             }
-            REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
             if (error_flag) {
                 error_count++;
                 error_flag = false;
@@ -736,7 +735,6 @@ static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void
             }
             break;
         default:
-            OM_ASSERT(0);
             break;
     }
 }
@@ -749,7 +747,6 @@ static void om24g_callback_ack_mode(void *om_reg, drv_event_t drv_event, void *b
     switch (drv_event) {
         case DRV_EVENT_COMMON_RECEIVE_COMPLETED:
             om24g_rx_flag = true;
-            REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
             //drv_gpio_toggle(OM_GPIO, GPIO_MASK(8));
             if(TX_ROLE) {
                 // pm_sleep_allow(PM_ID_24G);
@@ -809,7 +806,6 @@ static void om24g_callback_ack_mode(void *om_reg, drv_event_t drv_event, void *b
             #endif
             break;
         default:
-            OM_ASSERT(0);
             break;
     }
 }
@@ -819,7 +815,6 @@ static void om24g_callback_rx_to_tx(void *om_reg, drv_event_t drv_event, void *b
     switch (drv_event) {
         case DRV_EVENT_COMMON_RECEIVE_COMPLETED:
             om24g_rx_flag = true;
-            REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
             right_count++;
             OM_LOG_DEBUG_ARRAY_EX("Pkt", buff, (uint32_t)num);
             OM_LOG(OM_LOG_DEBUG, "R:%d \r\n", right_count);
@@ -844,7 +839,6 @@ static void om24g_callback_rx_to_tx(void *om_reg, drv_event_t drv_event, void *b
             //OM_LOG(OM_LOG_DEBUG, "tx_cnt: %d\r\n", tx_count);
             break;
         default:
-            OM_ASSERT(0);
             break;
     }
 }
@@ -862,7 +856,6 @@ static void om24g_callback_timestamp(void *om_reg, drv_event_t drv_event, void *
                     error_flag = true;
                 }
             }
-            REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
             if (error_flag) {
                 error_count++;
                 error_flag = false;
@@ -901,7 +894,6 @@ static void om24g_callback_timestamp(void *om_reg, drv_event_t drv_event, void *
             }
             break;
         default:
-            OM_ASSERT(0);
             break;
     }
 }
@@ -1168,7 +1160,6 @@ static void om24g_hardware_timer_callback(void *om_reg, drv_event_t drv_event, v
                     error_flag = true;
                 }
             }
-            REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
             if (error_flag) {
                 error_count++;
                 error_flag = false;
@@ -1239,7 +1230,6 @@ static void om24g_hardware_timer_callback(void *om_reg, drv_event_t drv_event, v
             pm_sleep_allow(PM_ID_24G);
             break;
         default:
-            OM_ASSERT(0);
             break;
     }
 }

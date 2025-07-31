@@ -138,12 +138,6 @@ $(document).ready(function(){initNavTree('group__UTILS.html',''); initResizable(
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:ga1677e3fc57fabf39be2339ff4bffbdef"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__UTILS.html#ga1677e3fc57fabf39be2339ff4bffbdef">OM_OFFSET</a>(type_t,  type_member)</td></tr>
-<tr class="memdesc:ga1677e3fc57fabf39be2339ff4bffbdef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get member offset from struct or union data type.  <br /></td></tr>
-<tr class="separator:ga1677e3fc57fabf39be2339ff4bffbdef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gafbe200a4b021f74916973d2e702d027d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__UTILS.html#gafbe200a4b021f74916973d2e702d027d">OM_ARRAY_SIZE</a>(array)&#160;&#160;&#160;((unsigned)(sizeof(array)/sizeof((array)[0])))</td></tr>
-<tr class="memdesc:gafbe200a4b021f74916973d2e702d027d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get array size, array shall be a array type.  <br /></td></tr>
-<tr class="separator:gafbe200a4b021f74916973d2e702d027d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga85d7f601ced158f6eb95d2eb11273416"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__UTILS.html#ga85d7f601ced158f6eb95d2eb11273416">OM_ASSERT</a>(expr)&#160;&#160;&#160;((void)0U)</td></tr>
 <tr class="memdesc:ga85d7f601ced158f6eb95d2eb11273416"><td class="mdescLeft">&#160;</td><td class="mdescRight">The OM_ASSERT macro is used for function's parameters check.  <br /></td></tr>
 <tr class="separator:ga85d7f601ced158f6eb95d2eb11273416"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2712,33 +2706,6 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="gafbe200a4b021f74916973d2e702d027d" name="gafbe200a4b021f74916973d2e702d027d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gafbe200a4b021f74916973d2e702d027d">&#9670;&#160;</a></span>OM_ARRAY_SIZE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define OM_ARRAY_SIZE</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">array</td><td>)</td>
-          <td>&#160;&#160;&#160;((unsigned)(sizeof(array)/sizeof((array)[0])))</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Get array size, array shall be a array type. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">array</td><td>Array type</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>array size </dd></dl>
-
-</div>
-</div>
 <a id="ga85d7f601ced158f6eb95d2eb11273416" name="ga85d7f601ced158f6eb95d2eb11273416"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga85d7f601ced158f6eb95d2eb11273416">&#9670;&#160;</a></span>OM_ASSERT</h2>
 
@@ -2865,47 +2832,6 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>is aligned. </dd></dl>
-
-</div>
-</div>
-<a id="ga1677e3fc57fabf39be2339ff4bffbdef" name="ga1677e3fc57fabf39be2339ff4bffbdef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga1677e3fc57fabf39be2339ff4bffbdef">&#9670;&#160;</a></span>OM_OFFSET</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define OM_OFFSET</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">type_t, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">type_member&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">    <span class="comment">/*lint -save -e413 */</span>                                \</div>
-<div class="line">    ((uint32_t)(&amp;(((type_t *)0)-&gt;type_member)))          \</div>
-<div class="line">    <span class="comment">/*lint –restore */</span></div>
-</div><!-- fragment -->
-<p>Get member offset from struct or union data type. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">type_t</td><td>Struct or union data type </td></tr>
-    <tr><td class="paramname">type_member</td><td>Member of struct or union data type</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>Offset from struct or union data type </dd></dl>
 
 </div>
 </div>

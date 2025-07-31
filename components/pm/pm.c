@@ -78,7 +78,8 @@ __RAM_CODE static void pm_system_enter_sleep(void)
         __IO uint32_t VTOR;
         __IO uint32_t NVIC_IPR[(EXTERNAL_IRQn_Num + 3U) >> 2U];    /* Interrupt Priority Register */
         __IO uint32_t NVIC_ISER[(EXTERNAL_IRQn_Num + 31U) >> 5U];  /* Interrupt Set Enable Register */
-        __IO uint32_t SCB_CPACR;                        /* Coprocessor Access Control Register */
+        __IO uint8_t SCB_SHPR[12];                                 /* System Handler Priority Register */
+        __IO uint32_t SCB_CPACR;                                   /* Coprocessor Access Control Register */
     } context_regs;
 
     // store
@@ -89,13 +90,24 @@ __RAM_CODE static void pm_system_enter_sleep(void)
     for (uint32_t i=0; i<sizeof(context_regs.NVIC_ISER)/sizeof(context_regs.NVIC_ISER[0]); i++) {
         context_regs.NVIC_ISER[i] = NVIC->ISER[i];
     }
+    for (uint32_t i=0; i<sizeof(context_regs.SCB_SHPR)/sizeof(context_regs.SCB_SHPR[0]); i++) {
+        context_regs.SCB_SHPR[i] = SCB->SHPR[i];
+    }
     context_regs.SCB_CPACR = SCB->CPACR;
     do {
         extern void pm_cpu_context_store(void);
         pm_cpu_context_store();
     } while(0);
     __disable_irq();  // disable global interrupt before NVIC restore
+    // Enable DWT Cycle counter
+    do {
+        CoreDebug->DEMCR |= (1U << CoreDebug_DEMCR_TRCENA_Pos);
+        DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+    } while(0);
     // restore
+    #if (RTE_FLASH0)
+    drv_iflash_restore();
+    #endif
     SCB->VTOR = context_regs.VTOR;
     for (uint32_t i=0; i<sizeof(context_regs.NVIC_IPR)/sizeof(context_regs.NVIC_IPR[0]); i++) {
         ((__IO uint32_t *)(NVIC->IPR))[i] = context_regs.NVIC_IPR[i];
@@ -103,80 +115,13 @@ __RAM_CODE static void pm_system_enter_sleep(void)
     for (uint32_t i=0; i<sizeof(context_regs.NVIC_ISER)/sizeof(context_regs.NVIC_ISER[0]); i++) {
         NVIC->ISER[i] = context_regs.NVIC_ISER[i];
     }
+    for (uint32_t i=0; i<sizeof(context_regs.SCB_SHPR)/sizeof(context_regs.SCB_SHPR[0]); i++) {
+        SCB->SHPR[i] = context_regs.SCB_SHPR[i];
+    }
     SCB->CPACR = context_regs.SCB_CPACR;
-
-    // Enable DWT Cycle counter
-    do {
-        CoreDebug->DEMCR |= (1U << CoreDebug_DEMCR_TRCENA_Pos);
-        DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-    } while(0);
 
     // if icache power off in sleep, cache should be re-enable
     drv_icache_enable();
-}
-
-/**
- * @brief  pm sleep checker check
- *
- * @return status
- **/
-__RAM_CODES("PM")
-static pm_status_t pm_sleep_checker_check(void)
-{
-    pm_status_t status;
-
-    // check pm self sleep state
-    if (pm_env.sleep_state) {
-        return PM_STATUS_IDLE;
-    }
-
-    // check pmu pin-wakeup
-    if (drv_pmu_deep_sleep_is_allow()) {
-        status = PM_STATUS_DEEP_SLEEP;
-    } else {
-        return PM_STATUS_IDLE;
-    }
-
-    // check PMU_TIMER
-    #if (RTE_PMU_TIMER)
-    do {
-        uint32_t min_left_time = PMU_TIMER_MAX_TICK;
-        for (pmu_timer_trig_t i=PMU_TIMER_TRIG_VAL0; i<=PMU_TIMER_TRIG_VAL1; i++) {
-            uint32_t left_time = drv_pmu_timer_left_time_get(i);
-            if (min_left_time > left_time) {
-                min_left_time = left_time;
-            }
-        }
-
-        if (min_left_time < pm_env.min_sleep_time) {
-            return PM_STATUS_IDLE;
-        } else if (min_left_time == PMU_TIMER_MAX_TICK) {
-            status = PM_STATUS_DEEP_SLEEP;
-        } else {
-            status = PM_STATUS_SLEEP;
-        }
-    } while(0);
-    #endif
-
-    for (int i = 0; i < sizeof(pm_env.checker_callback)/sizeof(pm_env.checker_callback[0]); ++i) {
-        if (pm_env.checker_callback[i] != NULL) {
-            pm_status_t checker_status = pm_env.checker_callback[i]();
-            if (status > checker_status) {
-                status = checker_status;
-            }
-            if (status <= PM_STATUS_IDLE) {
-                goto _exit;
-            }
-        }
-    }
-
-_exit:
-    #if (RTE_CALIB)
-    drv_calib_repair_rc_rf_temperature_check();
-    drv_calib_repair_rc32k_temperature_check();
-    #endif
-
-    return status;
 }
 
 /**
@@ -256,13 +201,18 @@ static void pm_sleep_enter_common_sleep(pm_status_t power_status)
     pm_sleep_notify(PM_SLEEP_LEAVE_BOTTOM_HALF, power_status);
 }
 
+
+/*******************************************************************************
+ * PUBLIC FUNCTIONS
+ */
+
 /**
  * @brief  system sleep
  *
  * @param[in] status  status
  **/
 __RAM_CODES("PM")
-static void pm_sleep(pm_status_t status)
+void pm_sleep(pm_status_t status)
 {
     /* IRQ has been disabled */
     switch(status) {
@@ -289,10 +239,70 @@ static void pm_sleep(pm_status_t status)
     }
 }
 
+/**
+ * @brief  pm sleep checker check
+ *
+ * @return status
+ **/
+__RAM_CODES("PM")
+pm_status_t pm_sleep_checker_check(void)
+{
+    pm_status_t status;
 
-/*******************************************************************************
- * PUBLIC FUNCTIONS
- */
+    // check pm self sleep state
+    if (pm_env.sleep_state) {
+        return PM_STATUS_IDLE;
+    }
+
+    // check pmu pin-wakeup
+    if (drv_pmu_deep_sleep_is_allow()) {
+        status = PM_STATUS_DEEP_SLEEP;
+    } else {
+        return PM_STATUS_IDLE;
+    }
+
+    // check PMU_TIMER
+    #if (RTE_PMU_TIMER)
+    do {
+        uint32_t min_left_time = PMU_TIMER_MAX_TICK;
+        for (pmu_timer_trig_t i=PMU_TIMER_TRIG_VAL0; i<=PMU_TIMER_TRIG_VAL1; i++) {
+            uint32_t left_time = drv_pmu_timer_left_time_get(i);
+            if (min_left_time > left_time) {
+                min_left_time = left_time;
+            }
+        }
+
+        if (min_left_time < pm_env.min_sleep_time) {
+            return PM_STATUS_IDLE;
+        } else if (min_left_time == PMU_TIMER_MAX_TICK) {
+            status = PM_STATUS_DEEP_SLEEP;
+        } else {
+            status = PM_STATUS_SLEEP;
+        }
+    } while(0);
+    #endif
+
+    for (int i = 0; i < sizeof(pm_env.checker_callback)/sizeof(pm_env.checker_callback[0]); ++i) {
+        if (pm_env.checker_callback[i] != NULL) {
+            pm_status_t checker_status = pm_env.checker_callback[i]();
+            if (status > checker_status) {
+                status = checker_status;
+            }
+            if (status <= PM_STATUS_IDLE) {
+                goto _exit;
+            }
+        }
+    }
+
+_exit:
+    #if (RTE_CALIB)
+    drv_calib_repair_rc_rf_temperature_check();
+    drv_calib_repair_rc32k_temperature_check();
+    #endif
+
+    return status;
+}
+
 /**
  * @brief  system sleep min time set
  *
@@ -486,9 +496,6 @@ void pm_power_manage(void)
 
 void pm_init(void)
 {
-    memset(&pm_env, 0U, sizeof(pm_env));
-    pm_env.min_sleep_time = PMU_TIMER_MS2TICK(3);
-
     #if (!RTE_FLASH1_XIP)  // disable OSPI1 clock if not execute OFLASH
     DRV_RCC_CLOCK_ENABLE(RCC_CLK_OSPI1, 0);
     #endif

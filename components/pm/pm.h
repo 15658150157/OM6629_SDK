@@ -129,6 +129,22 @@ typedef void (*pm_sleep_callback_t)(pm_sleep_state_t sleep_state, pm_status_t po
 extern void pm_init(void);
 
 /**
+ * @brief  system sleep
+ *
+ * @param[in] status  status
+ **/
+extern void pm_sleep(pm_status_t status);
+
+/**
+ *******************************************************************************
+ * @brief  pm sleep checker check
+ *
+ * @return status
+ *******************************************************************************
+ **/
+extern pm_status_t pm_sleep_checker_check(void);
+
+/**
  *******************************************************************************
  * @brief  system sleep min time set
  *

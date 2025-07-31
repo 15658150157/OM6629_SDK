@@ -189,6 +189,8 @@ static uint32_t rtc_mktime(const rtc_tm_t *tm)
  * @brief RTC initialize and set time
  *
  * @param[in] tm    Pointer to time configuration
+ *
+ * @return errno
  *******************************************************************************
  */
 om_error_t drv_rtc_init(const rtc_tm_t *tm)
@@ -222,6 +224,22 @@ om_error_t drv_rtc_init(const rtc_tm_t *tm)
             drv_rtc_timer_set(tm);
         }
     }
+
+    return OM_ERROR_OK;
+}
+
+/**
+ *******************************************************************************
+ * @brief RTC deinitialization
+ *
+ * @return errno
+ *******************************************************************************
+ */
+om_error_t drv_rtc_uninit(void)
+{
+    DRV_RCC_CLOCK_ENABLE(RCC_CLK_RTC, 0U);
+
+    NVIC_DisableIRQ(RTC_SECOND_IRQn);
 
     return OM_ERROR_OK;
 }

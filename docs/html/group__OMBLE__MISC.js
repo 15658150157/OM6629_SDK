@@ -12,6 +12,7 @@ var group__OMBLE__MISC =
       [ "gap_max_ext_adv_event", "unionob__opt__cfg__t.html#ab534b46404bd5de0be58b69c1f373cbd", null ],
       [ "gap_pin_none_req_enable", "unionob__opt__cfg__t.html#a208e23eea6472110a6eddbc69eb372d5", null ],
       [ "pin_code", "unionob__opt__cfg__t.html#aeeccb401245f1bb10da41de2a824d735", null ],
+      [ "smp_min_key_size", "unionob__opt__cfg__t.html#a52b8ab8e0f1155596a3530c5c07ab45c", null ],
       [ "smp_pin_code", "unionob__opt__cfg__t.html#afae1c906434eda83ad926471df613e32", null ],
       [ "smp_private_key", "unionob__opt__cfg__t.html#a4e729fdbd1d80e7734d82ddd70b2754c", null ]
     ] ],
@@ -22,6 +23,7 @@ var group__OMBLE__MISC =
       [ "OB_OPT_CFG_TYPE_GAP_CE_LENGTH", "group__OMBLE__MISC.html#gga71cd5d7239a310cf12ab27d5b0586a1aa91e3aaff59fd904cb1705b1c0482ab73", null ],
       [ "OB_OPT_CFG_TYPE_GAP_PIN_NONE_REQ_ENABLE", "group__OMBLE__MISC.html#gga71cd5d7239a310cf12ab27d5b0586a1aa437f976f2f6f35d369cb7fa91ed8c620", null ],
       [ "OB_OPT_CFG_TYPE_SMP_PIN_CODE", "group__OMBLE__MISC.html#gga71cd5d7239a310cf12ab27d5b0586a1aaf593dd789dcc64fd91b171bba2444c3a", null ],
-      [ "OB_OPT_CFG_TYPE_SMP_PRIVATE_KEY", "group__OMBLE__MISC.html#gga71cd5d7239a310cf12ab27d5b0586a1aa531842b9f7e461c81b3abcee4bef5b20", null ]
+      [ "OB_OPT_CFG_TYPE_SMP_PRIVATE_KEY", "group__OMBLE__MISC.html#gga71cd5d7239a310cf12ab27d5b0586a1aa531842b9f7e461c81b3abcee4bef5b20", null ],
+      [ "OB_OPT_CFG_TYPE_SMP_MIN_KEY_SIZE", "group__OMBLE__MISC.html#gga71cd5d7239a310cf12ab27d5b0586a1aabc2708387040f78c01d897ee96509ced", null ]
     ] ]
 ];

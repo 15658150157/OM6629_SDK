@@ -539,78 +539,80 @@ void xPortSysTickHandler( void )
 
 #define OM_PMU_TIMER    PMU_TIMER_TRIG_VAL1
 
-static uint32_t volatile ulSleepTimerTick = 0;
+static uint32_t ulTimerUpdateCnt;
 
 #if 0
-static bool vSleepTimerGetOverflow(void)
+static bool vTickTimerGetOverflow(void)
 {
     return drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_OVERFLOW, NULL) ? true : false;
 }
 #else
-#define vSleepTimerGetOverflow()   (drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_OVERFLOW, NULL) ? true : false)
+#define vTickTimerGetOverflow()     (drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_OVERFLOW, NULL) ? true : false)
 #endif
 
 #if 0
-static uint32_t vSleepTimerGetReloadVal(void)
+static uint32_t vTickTimerGetReloadVal(void)
 {
     return (uint32_t)drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_TIMER_VAL, NULL);
 }
 #else
-#define vSleepTimerGetReloadVal()   ((uint32_t)drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_TIMER_VAL, NULL))
+#define vTickTimerGetReloadVal()    ((uint32_t)drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_GET_TIMER_VAL, NULL))
 #endif
 
-#define vSleepTimerEnable(en)       drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_ENABLE, (void *)en)
+#define vTickTimerEnable(en)        drv_pmu_timer_control(OM_PMU_TIMER, PMU_TIMER_CONTROL_ENABLE, (void *)en)
 
 #if 0
-static uint32_t vSleepTimerGetTick(void)
+static uint32_t vTickTimerGetCnt(void)
 {
     return drv_pmu_timer_cnt_get();
 }
 #else
-#define vSleepTimerGetTick()   drv_pmu_timer_cnt_get()
+#define vTickTimerGetCnt()          drv_pmu_timer_cnt_get()
 #endif
 
 __RAM_CODES("PM")
-static void vSleepTimerSetTick(uint32_t xTick)
+static void vTickTimerSetReloadVal(uint32_t val)
 {
-    uint32_t xCurTick;
+    uint32_t xCurVal;
 
     OM_CRITICAL_BEGIN();
 
-    xCurTick = vSleepTimerGetTick() + 5 + 1; // 5 for redundance; 1 for resolution;
-    if (xCurTick - xTick < PMU_TIMER_MAX_TICK/2)
-        xTick = xCurTick + 1;
-    drv_pmu_timer_trig_set(OM_PMU_TIMER, xTick);
+    // 5 for redundance; 1 for resolution
+    xCurVal = vTickTimerGetCnt() + 5 + 1;
+    if (xCurVal - val < PMU_TIMER_MAX_TICK / 2) {
+        val = xCurVal + 1;
+    }
+    drv_pmu_timer_trig_set(OM_PMU_TIMER, val);
 
     OM_CRITICAL_END();
-
-//    if(wait_setuped) {
-//        uint32_t tick = vSleepTimerGetTick();
-//        while(tick == vSleepTimerGetTick());
-//    }
 }
 
-static void vSleepTimerOverflowHandler(void *om_reg, drv_event_t event, void *buff, void *num)
+static void vTickTimerOverflowHandler(void *om_reg, drv_event_t event, void *buff, void *num)
 {
-    if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
-        /* Call tick handler */
-        xPortSysTickHandler();
+    uint32_t ulCurrentCnt, ulExpireCnt, ulExpireTime;
 
-        // restart tick
-        ulSleepTimerTick += configTICK_PERIOD;
-        vSleepTimerSetTick(ulSleepTimerTick);
+    if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED) {
+        ulCurrentCnt = vTickTimerGetCnt();
+        ulExpireCnt = ulCurrentCnt - ulTimerUpdateCnt;
+        ulExpireTime = ulExpireCnt / configTICK_PERIOD;
+        if (ulExpireTime > 0) {
+            /* Call tick handler */
+            xPortSysTickHandler();
+            ulTimerUpdateCnt = ulCurrentCnt - (ulExpireCnt % configTICK_PERIOD);
+        }
+        // restart tick timer
+        vTickTimerSetReloadVal(ulTimerUpdateCnt + configTICK_PERIOD);
     }
 }
 
-static void vSleepTimerInit(void)
+static void vTickTimerInit(void)
 {
     // Init sleep tick
     drv_pmu_timer_init();
-    drv_pmu_timer_register_isr_callback(OM_PMU_TIMER, vSleepTimerOverflowHandler);
-
+    drv_pmu_timer_register_isr_callback(OM_PMU_TIMER, vTickTimerOverflowHandler);
+    ulTimerUpdateCnt = vTickTimerGetCnt();
     // setup new tick
-    ulSleepTimerTick = vSleepTimerGetTick() + configTICK_PERIOD;
-    vSleepTimerSetTick(ulSleepTimerTick);
+    vTickTimerSetReloadVal(ulTimerUpdateCnt + configTICK_PERIOD);
 }
 #endif
 
@@ -781,8 +783,7 @@ __RAM_CODES("PM")
             __asm volatile ( "cpsie i" ::: "memory" );
         }
 #else
-        uint32_t ulCompletedTime, ulCompletedTick, ulCurrentTick;
-        uint32_t ulSleepTimerReloadTick1, ulSleepTimerReloadTick2;
+        uint32_t ulCurrentCnt, ulCompletedCnt, ulCompletedTime;
         eSleepModeStatus eSleepMode;
 
         __disable_irq();
@@ -797,19 +798,14 @@ __RAM_CODES("PM")
 
             case eStandardSleep:
                 /* Make sure the Tick reload value does not overflow the counter. */
-                if(xExpectedIdleTime > configTICK_TIMER_DELAY_MAX/configTICK_PERIOD)
-                    xExpectedIdleTime = configTICK_TIMER_DELAY_MAX/configTICK_PERIOD;
-
-                // break TICK and setup new sleep timer
-                ulSleepTimerTick -= configTICK_PERIOD;
-                // save the last reload value, when reload value is equal to tick, timer is overflow
-                ulSleepTimerReloadTick1 = vSleepTimerGetReloadVal();
-                vSleepTimerSetTick(ulSleepTimerTick + xExpectedIdleTime * configTICK_PERIOD);
-
+                if(xExpectedIdleTime > configTICK_TIMER_DELAY_MAX / configTICK_PERIOD) {
+                    xExpectedIdleTime = configTICK_TIMER_DELAY_MAX / configTICK_PERIOD;
+                }
+                // The last tick is triggered by the tick timer
+                vTickTimerSetReloadVal(ulTimerUpdateCnt + (xExpectedIdleTime - 1) * configTICK_PERIOD);
             case eNoTasksWaitingTimeout:
                 if (eSleepMode == eNoTasksWaitingTimeout) {
-                    ulSleepTimerReloadTick1 = vSleepTimerGetReloadVal();
-                    vSleepTimerEnable(0);
+                    vTickTimerEnable(0);
                 }
                 // sleep
                 #if (CONFIG_PM)
@@ -824,21 +820,16 @@ __RAM_CODES("PM")
                 portNVIC_SHPR3_REG |= portNVIC_PENDSV_PRI;
 
                 // calculate lost TICK
-                ulCurrentTick = vSleepTimerGetTick();
-                ulCompletedTick = ulCurrentTick - ulSleepTimerTick;
-                ulCompletedTime = ulCompletedTick / configTICK_PERIOD;
-                // restore lost TICK
-                vTaskStepTick(ulCompletedTime>xExpectedIdleTime ? xExpectedIdleTime : ulCompletedTime); // maybe debug break
-                // restore TICK
-                ulSleepTimerTick += (ulCompletedTime + 1) * configTICK_PERIOD;
-                ulSleepTimerReloadTick2 = vSleepTimerGetReloadVal();
-                vSleepTimerSetTick(ulSleepTimerTick);
-                // Check overflow
-                ulCurrentTick = vSleepTimerGetTick();
-                if (vSleepTimerGetOverflow() ||
-                        ulCurrentTick == ulSleepTimerReloadTick1 || ulCurrentTick == ulSleepTimerReloadTick2)  // if equal, the timer is overflow
-                    ulSleepTimerTick -= configTICK_PERIOD;
+                ulCurrentCnt = vTickTimerGetCnt();
+                ulCompletedCnt = ulCurrentCnt - ulTimerUpdateCnt;
+                ulCompletedTime = ulCompletedCnt / configTICK_PERIOD;
+                ulTimerUpdateCnt = ulCurrentCnt - (ulCompletedCnt % configTICK_PERIOD);
 
+                // restore lost tick
+                vTaskStepTick(xExpectedIdleTime > ulCompletedTime ? ulCompletedTime : xExpectedIdleTime);
+
+                // restart tick timer
+                vTickTimerSetReloadVal(ulTimerUpdateCnt + configTICK_PERIOD);
                 break;
         }
 
@@ -873,7 +864,7 @@ __attribute__( ( weak ) ) void vPortSetupTimerInterrupt( void )
     portNVIC_SYSTICK_LOAD_REG = ( configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;
     portNVIC_SYSTICK_CTRL_REG = ( portNVIC_SYSTICK_CLK_BIT | portNVIC_SYSTICK_INT_BIT | portNVIC_SYSTICK_ENABLE_BIT );
 #else
-    vSleepTimerInit();
+    vTickTimerInit();
 #endif
 }
 /*-----------------------------------------------------------*/

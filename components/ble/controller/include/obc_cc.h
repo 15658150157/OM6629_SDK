@@ -71,6 +71,10 @@ typedef struct
     bool        ext_scan;
     /// Default Scan event duration (in 31.25us)
     uint16_t    scan_evt_dur_dft;
+    /// Company ID
+    uint16_t    company_id;
+    /// BT version
+    uint8_t     version;
     /// Coded phy is 500k or 125k
     bool        coded_phy_500k;
 }obc_cc_t;
@@ -83,6 +87,10 @@ extern obc_cc_t obcc;
 /*********************************************************************
  * EXTERN FUNCTIONS
  */
+__STATIC_INLINE void obc_company_id_set(uint16_t company_id)
+{
+    obcc.company_id = company_id;
+}
 
 
 #ifdef __cplusplus

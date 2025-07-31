@@ -104,6 +104,8 @@ extern "C"
 #define FLASH_DELAY_AUTO                        0xFF
 // flash auto delay retry times
 #define FLASH_AUTO_DLY_RETYR_CNT                3U
+// flash default timeout, the value is depends on the page programming time
+#define FLASH_TIMEOUT_MS_DEFAULT                2000
 
 
 /*******************************************************************************

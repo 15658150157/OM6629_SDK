@@ -16,7 +16,7 @@
 <meta name="twitter:title" content="Doxygen Awesome" />
 <meta name="twitter:description" content="Custom CSS theme for doxygen html-documentation with lots of customization parameters." />
 <!-- END twitter metadata -->
-<title>User Guide: /mnt/data/yaoyufeng/work.svnrepo/om6627/trunk/SDK/hal/driver/source/drv_gpio.h File Reference</title>
+<title>User Guide: /mnt/data/yaoyufeng/work.svnrepo/om6627x/om6627/trunk/SDK/hal/driver/source/drv_gpio.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link rel="icon" type="image/svg+xml" href="logo.drawio.svg"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -151,6 +151,10 @@ Data Structures</h2></td></tr>
 Macros</h2></td></tr>
 <tr class="memitem:ga1bce2de4d2a9eb3cdb79daea1d3fdd40"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPIO.html#ga1bce2de4d2a9eb3cdb79daea1d3fdd40">GPIO_MASK</a>(gpio_idx)&#160;&#160;&#160;(1U &lt;&lt; (gpio_idx))</td></tr>
 <tr class="separator:ga1bce2de4d2a9eb3cdb79daea1d3fdd40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga367ca307f0ad639bd73d2ae6a85af4c3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPIO.html#ga367ca307f0ad639bd73d2ae6a85af4c3">GPIO_LEVEL_LOW</a>&#160;&#160;&#160;(0)</td></tr>
+<tr class="separator:ga367ca307f0ad639bd73d2ae6a85af4c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0f280cd46b0ae2398346f23e65a38767"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPIO.html#ga0f280cd46b0ae2398346f23e65a38767">GPIO_LEVEL_HIGH</a>&#160;&#160;&#160;(1)</td></tr>
+<tr class="separator:ga0f280cd46b0ae2398346f23e65a38767"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -160,11 +164,6 @@ Typedefs</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:gac36e21ae6c134bf7d2aaa72933f1d7dd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPIO.html#gac36e21ae6c134bf7d2aaa72933f1d7dd">gpio_level_t</a> { <a class="el" href="group__GPIO.html#ggac36e21ae6c134bf7d2aaa72933f1d7dda0227e43a6201c3330b2e6e9f71b74d6f">GPIO_LEVEL_LOW</a> = 0
-, <a class="el" href="group__GPIO.html#ggac36e21ae6c134bf7d2aaa72933f1d7dda5a87f4701da8987969657f9ffb2563e0">GPIO_LEVEL_HIGH</a> = 1
- }</td></tr>
-<tr class="memdesc:gac36e21ae6c134bf7d2aaa72933f1d7dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">GPIO Level.  <a href="group__GPIO.html#gac36e21ae6c134bf7d2aaa72933f1d7dd">More...</a><br /></td></tr>
-<tr class="separator:gac36e21ae6c134bf7d2aaa72933f1d7dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafcfd0cb57b9f605239767c4d18ed7304"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPIO.html#gafcfd0cb57b9f605239767c4d18ed7304">gpio_dir_t</a> { <a class="el" href="group__GPIO.html#ggafcfd0cb57b9f605239767c4d18ed7304a2faef38751d4761242d11663f4cf75e5">GPIO_DIR_OUTPUT</a> = 0U
 , <a class="el" href="group__GPIO.html#ggafcfd0cb57b9f605239767c4d18ed7304a3f9cca83af864e65a125bb363f5cc1a6">GPIO_DIR_INPUT</a> = 1U
  }</td></tr>
@@ -198,9 +197,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga5579b75ebffee163cbb4567e704147af"><td class="memItemLeft" align="right" valign="top">__STATIC_FORCEINLINE uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPIO.html#ga5579b75ebffee163cbb4567e704147af">drv_gpio_read</a> (OM_GPIO_Type *om_gpio, <a class="el" href="group__GPIO.html#ga045442ee42eafe3a10641e9caa914eb3">gpio_mask_t</a> gpio_mask)</td></tr>
 <tr class="memdesc:ga5579b75ebffee163cbb4567e704147af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read GPIO pin input.  <br /></td></tr>
 <tr class="separator:ga5579b75ebffee163cbb4567e704147af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga33faf5e72270d035fba9d74e757033de"><td class="memItemLeft" align="right" valign="top">__STATIC_FORCEINLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPIO.html#ga33faf5e72270d035fba9d74e757033de">drv_gpio_write</a> (OM_GPIO_Type *om_gpio, <a class="el" href="group__GPIO.html#ga045442ee42eafe3a10641e9caa914eb3">gpio_mask_t</a> gpio_mask, <a class="el" href="group__GPIO.html#gac36e21ae6c134bf7d2aaa72933f1d7dd">gpio_level_t</a> val)</td></tr>
-<tr class="memdesc:ga33faf5e72270d035fba9d74e757033de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write GPIO pin output.  <br /></td></tr>
-<tr class="separator:ga33faf5e72270d035fba9d74e757033de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7fed3d50aacf44fe23d1587cf52014fc"><td class="memItemLeft" align="right" valign="top">__STATIC_FORCEINLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPIO.html#ga7fed3d50aacf44fe23d1587cf52014fc">drv_gpio_write</a> (OM_GPIO_Type *om_gpio, <a class="el" href="group__GPIO.html#ga045442ee42eafe3a10641e9caa914eb3">gpio_mask_t</a> gpio_mask, uint8_t val)</td></tr>
+<tr class="memdesc:ga7fed3d50aacf44fe23d1587cf52014fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write GPIO pin output.  <br /></td></tr>
+<tr class="separator:ga7fed3d50aacf44fe23d1587cf52014fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga153dd81ccb6ce5c6b3df5fb21f9f918d"><td class="memItemLeft" align="right" valign="top">__STATIC_FORCEINLINE void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__GPIO.html#ga153dd81ccb6ce5c6b3df5fb21f9f918d">drv_gpio_toggle</a> (OM_GPIO_Type *om_gpio, <a class="el" href="group__GPIO.html#ga045442ee42eafe3a10641e9caa914eb3">gpio_mask_t</a> gpio_mask)</td></tr>
 <tr class="memdesc:ga153dd81ccb6ce5c6b3df5fb21f9f918d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Toggle GPIO pin output.  <br /></td></tr>
 <tr class="separator:ga153dd81ccb6ce5c6b3df5fb21f9f918d"><td class="memSeparator" colspan="2">&#160;</td></tr>

@@ -78,6 +78,12 @@ static const pin_config_t pin_cfg [] = {
  *******************************************************************************
  * @brief example of using i2c: read ,write eeprom
  *
+ * @note When the I2C operates in master polling mode and there is no slave device connected,
+ * @note to prevent getting stuck in the read/write function interface,
+ * @note an external pull-up resistor needs to be connected,
+ * @note or the pin mode of the clock and data lines should be changed from
+ * @note PMU_PIN_MODE_OD (open-drain mode) to PMU_PIN_MODE_OD_PU (open-drain mode with internal pull-up).
+ * @note In this way, an internal pull-up resistor will be included.
  *******************************************************************************
  */
 void example_i2c(void)

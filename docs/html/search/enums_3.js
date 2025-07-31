@@ -7,6 +7,5 @@ var searchData=
   ['gpdma_5ftrans_5fwidth_5ft_4',['gpdma_trans_width_t',['../group__GPDMA.html#gaac7e5dbaab60c392057d42398073bd5c',1,'drv_gpdma.h']]],
   ['gpio_5fcontrol_5ft_5',['gpio_control_t',['../group__GPIO.html#gaa90f3692b665170c5042055e788ed406',1,'drv_gpio.h']]],
   ['gpio_5fdir_5ft_6',['gpio_dir_t',['../group__GPIO.html#gafcfd0cb57b9f605239767c4d18ed7304',1,'drv_gpio.h']]],
-  ['gpio_5flevel_5ft_7',['gpio_level_t',['../group__GPIO.html#gac36e21ae6c134bf7d2aaa72933f1d7dd',1,'drv_gpio.h']]],
-  ['gpio_5ftrig_5ftype_5ft_8',['gpio_trig_type_t',['../group__GPIO.html#gacb840e4e0c59780df42ed0797e3d58b3',1,'drv_gpio.h']]]
+  ['gpio_5ftrig_5ftype_5ft_7',['gpio_trig_type_t',['../group__GPIO.html#gacb840e4e0c59780df42ed0797e3d58b3',1,'drv_gpio.h']]]
 ];

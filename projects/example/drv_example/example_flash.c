@@ -95,14 +95,18 @@ void example_flash(void)
         .spi_mode = FLASH_SPI_MODE_0,
     };
     drv_flash_init(OM_FLASH0, &iflash_config);
+    // Disable write protect for flash0, it is enabled by default during the flash initialization process.
+    drv_flash_write_protect_set_volatile(OM_FLASH0, FLASH_PROTECT_NONE);
     // Erase 4k in 128k
-    drv_flash_erase(OM_FLASH0, 128 * 1024, FLASH_ERASE_4K);
+    drv_flash_erase(OM_FLASH0, 128 * 1024, FLASH_ERASE_4K, 1000);
     // Read 100 bytes in 128k, it should be all 0xFF
-    drv_flash_read(OM_FLASH0, 128 * 1024, read_buf, 100);
+    drv_flash_read(OM_FLASH0, 128 * 1024, read_buf, 100, 1000);
     // Write 100 bytes to 128k
-    drv_flash_write(OM_FLASH0, 128 * 1024, write_buf, 100);
+    drv_flash_write(OM_FLASH0, 128 * 1024, write_buf, 100, 1000);
     // Read 100 bytes in 128k, it should be same as write_buf
-    drv_flash_read(OM_FLASH0, 128 * 1024, read_buf, 100);
+    drv_flash_read(OM_FLASH0, 128 * 1024, read_buf, 100, 1000);
+    // Enable write protect, it should not be erased and write.
+    drv_flash_write_protect_set_volatile(OM_FLASH0, FLASH_PROTECT_ALL);
 
     /* external flash */
     drv_pin_init(pin_config, sizeof(pin_config) / sizeof(pin_config[0]));
@@ -116,13 +120,13 @@ void example_flash(void)
     };
     drv_flash_init(OM_FLASH1, &oflash_config);
     // Erase 4k in 128k
-    drv_flash_erase(OM_FLASH1, 128 * 1024, FLASH_ERASE_4K);
+    drv_flash_erase(OM_FLASH1, 128 * 1024, FLASH_ERASE_4K, 1000);
     // Read 100 bytes in 128k, it should be all 0xFF
-    drv_flash_read(OM_FLASH1, 128 * 1024, read_buf, 100);
+    drv_flash_read(OM_FLASH1, 128 * 1024, read_buf, 100, 1000);
     // Write 100 bytes to 128k
-    drv_flash_write(OM_FLASH1, 128 * 1024, write_buf, 100);
+    drv_flash_write(OM_FLASH1, 128 * 1024, write_buf, 100, 1000);
     // Read 100 bytes in 128k, it should be same as write_buf
-    drv_flash_read(OM_FLASH1, 128 * 1024, read_buf, 100);
+    drv_flash_read(OM_FLASH1, 128 * 1024, read_buf, 100, 1000);
 }
 
 /**
@@ -145,12 +149,12 @@ void example_flash_quad(void)
     };
     drv_flash_init(OM_FLASH1, &oflash_config);
     // Erase 4k in 128k
-    drv_flash_erase(OM_FLASH1, 128 * 1024, FLASH_ERASE_4K);
+    drv_flash_erase(OM_FLASH1, 128 * 1024, FLASH_ERASE_4K, 1000);
     // Read 100 bytes in 128k, it should be all 0xFF
-    drv_flash_read(OM_FLASH1, 128 * 1024, read_buf, 100);
+    drv_flash_read(OM_FLASH1, 128 * 1024, read_buf, 100, 1000);
     // Write 100 bytes to 128k
-    drv_flash_write(OM_FLASH1, 128 * 1024, write_buf, 100);
+    drv_flash_write(OM_FLASH1, 128 * 1024, write_buf, 100, 1000);
     // Read 100 bytes in 128k, it should be same as write_buf
-    drv_flash_read(OM_FLASH1, 128 * 1024, read_buf, 100);
+    drv_flash_read(OM_FLASH1, 128 * 1024, read_buf, 100, 1000);
 }
 /** @} */

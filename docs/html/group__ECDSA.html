@@ -162,6 +162,12 @@ Functions</h2></td></tr>
 <tr class="memitem:ga29aa90c108ee6f31c3fe8b0d50d23360"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__ERROR.html#gade1010dbf6169f89f4025b1187fea6cd">om_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__ECDSA.html#ga29aa90c108ee6f31c3fe8b0d50d23360">drv_uecc_shared_secret</a> (const void *peer_public_key, const void *private_key, void *shared_secret)</td></tr>
 <tr class="memdesc:ga29aa90c108ee6f31c3fe8b0d50d23360"><td class="mdescLeft">&#160;</td><td class="mdescRight">ECDH shared secret.  <br /></td></tr>
 <tr class="separator:ga29aa90c108ee6f31c3fe8b0d50d23360"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5315630411097831a4002926686287d5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__ECDSA.html#ga5315630411097831a4002926686287d5">drv_uecc_compress</a> (const void *public_key, void *compressed)</td></tr>
+<tr class="memdesc:ga5315630411097831a4002926686287d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">ECDSA compress public key.  <br /></td></tr>
+<tr class="separator:ga5315630411097831a4002926686287d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga988bc3a799b8d5eb7a2ff589b42b4c29"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__ECDSA.html#ga988bc3a799b8d5eb7a2ff589b42b4c29">drv_uecc_decompress</a> (const void *compressed, void *public_key)</td></tr>
+<tr class="memdesc:ga988bc3a799b8d5eb7a2ff589b42b4c29"><td class="mdescLeft">&#160;</td><td class="mdescRight">ECDSA decompress public key.  <br /></td></tr>
+<tr class="separator:ga988bc3a799b8d5eb7a2ff589b42b4c29"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>virtual ECDSA driver </p>
@@ -374,6 +380,80 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>om_error </dd></dl>
+
+</div>
+</div>
+<a id="ga5315630411097831a4002926686287d5" name="ga5315630411097831a4002926686287d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5315630411097831a4002926686287d5">&#9670;&#160;</a></span>drv_uecc_compress()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void drv_uecc_compress </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>public_key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>compressed</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>ECDSA compress public key. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">public_key</td><td>Pointer to public key, 4-byte alignment is required </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">compressed</td><td>Pointer to compressed public key </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga988bc3a799b8d5eb7a2ff589b42b4c29" name="ga988bc3a799b8d5eb7a2ff589b42b4c29"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga988bc3a799b8d5eb7a2ff589b42b4c29">&#9670;&#160;</a></span>drv_uecc_decompress()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void drv_uecc_decompress </td>
+          <td>(</td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>public_key</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>ECDSA decompress public key. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">compressed</td><td>Pointer to compressed public key </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">public_key</td><td>Pointer to decompressed public key </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

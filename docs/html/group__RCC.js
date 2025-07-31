@@ -9,6 +9,7 @@ var group__RCC =
     [ "rcc_clk_t", "group__RCC.html#gaaee8f2af0dbce5e75b4fc45a2b97e9bb", [
       [ "RCC_CLK_MAIN", "group__RCC.html#ggaaee8f2af0dbce5e75b4fc45a2b97e9bba0cd06cc9cd5b2bb7a4852df0fb70182e", null ],
       [ "RCC_CLK_CPU", "group__RCC.html#ggaaee8f2af0dbce5e75b4fc45a2b97e9bbaa6ff3692a086bf802065c8e9f85eb489", null ],
+      [ "RCC_CLK_PERI", "group__RCC.html#ggaaee8f2af0dbce5e75b4fc45a2b97e9bba2abf238e9582632b181baf2e379784b4", null ],
       [ "RCC_CLK_SF0", "group__RCC.html#ggaaee8f2af0dbce5e75b4fc45a2b97e9bba021a2e8a1bac8dde260b00ed8ac8cc96", null ],
       [ "RCC_CLK_OSPI1", "group__RCC.html#ggaaee8f2af0dbce5e75b4fc45a2b97e9bba85e98bd6a2105c0e2c076677dcd32fc3", null ],
       [ "RCC_CLK_TIM0", "group__RCC.html#ggaaee8f2af0dbce5e75b4fc45a2b97e9bba9c5db1a73b30c3453b158e3e9af35e49", null ],
@@ -63,6 +64,5 @@ var group__RCC =
     [ "drv_rcc_cpu_clk_source_set", "group__RCC.html#ga1034a9b6baf24e11266e733425d59d13", null ],
     [ "drv_rcc_init", "group__RCC.html#ga054bbab6dabfa2e30c004dbb9e835378", null ],
     [ "drv_rcc_periph_clk_source_set", "group__RCC.html#ga9b040c9b1bed8451c12844a91ae1325e", null ],
-    [ "drv_rcc_rc32k_upd_rdy", "group__RCC.html#gaacfe02d85864f1c461a5a9d294cc226b", null ],
     [ "SystemCoreClock", "group__RCC.html#gaa3cd3e43291e81e795d642b79b6088e6", null ]
 ];

@@ -15,10 +15,13 @@ var searchData=
   ['flash_5fex_5f2_12',['flash_ex_2',['../structdrv__gpadc__cpft__calib__t.html#af403f6301237c579a88c5384238b7888',1,'drv_gpadc_cpft_calib_t']]],
   ['flash_5fex_5f3_13',['flash_ex_3',['../structdrv__gpadc__cpft__calib__t.html#a647619b39397b38ea3735bf6f5d3be16',1,'drv_gpadc_cpft_calib_t']]],
   ['flash_5fex_5f4_14',['flash_ex_4',['../structdrv__gpadc__cpft__calib__t.html#aa29e70c0a02588e9579c6ceafecaba6a',1,'drv_gpadc_cpft_calib_t']]],
-  ['flow_5fcontrol_15',['flow_control',['../structuart__config__t.html#adbc3d38f7ad45b8ec700878cbe1b19a1',1,'uart_config_t']]],
-  ['frame_5fcfg_16',['frame_cfg',['../structospi__frame__t.html#a1f53b69cf9fefdd7ccc47c0d0d7aaf6e',1,'ospi_frame_t']]],
-  ['free_5fformat_5fbits_17',['free_format_bits',['../structrgb__config__t.html#aab2f0f17bb9b14af52e2ed04154bd470',1,'rgb_config_t']]],
-  ['free_5fformat_5fen_18',['free_format_en',['../structrgb__config__t.html#aa043bc323b16ee07c7500243a2055f6a',1,'rgb_config_t']]],
-  ['freq_19',['freq',['../structom24g__config__t.html#a4d5bed59fd82a1820cf633b88bfa9f05',1,'om24g_config_t::freq()'],['../structspi__config__t.html#af8b4b9033931adeaf0aec27eb38ce393',1,'spi_config_t::freq()']]],
-  ['func_20',['func',['../structpin__config__t.html#a61e858ba1a01b4caa9449bc5a5d0a35a',1,'pin_config_t']]]
+  ['flash_5fex_5f5_15',['flash_ex_5',['../structdrv__gpadc__cpft__calib__t.html#ae715f7b695cf771dd9b069232ab5e050',1,'drv_gpadc_cpft_calib_t']]],
+  ['flash_5fex_5f6_16',['flash_ex_6',['../structdrv__gpadc__cpft__calib__t.html#a64416442412cdea72d92b149695d136f',1,'drv_gpadc_cpft_calib_t']]],
+  ['flash_5fex_5f7_17',['flash_ex_7',['../structdrv__gpadc__cpft__calib__t.html#af292f7259dfd69903173c85c2cc0b555',1,'drv_gpadc_cpft_calib_t']]],
+  ['flow_5fcontrol_18',['flow_control',['../structuart__config__t.html#adbc3d38f7ad45b8ec700878cbe1b19a1',1,'uart_config_t']]],
+  ['frame_5fcfg_19',['frame_cfg',['../structospi__frame__t.html#a1f53b69cf9fefdd7ccc47c0d0d7aaf6e',1,'ospi_frame_t']]],
+  ['free_5fformat_5fbits_20',['free_format_bits',['../structrgb__config__t.html#aab2f0f17bb9b14af52e2ed04154bd470',1,'rgb_config_t']]],
+  ['free_5fformat_5fen_21',['free_format_en',['../structrgb__config__t.html#aa043bc323b16ee07c7500243a2055f6a',1,'rgb_config_t']]],
+  ['freq_22',['freq',['../structom24g__config__t.html#a4d5bed59fd82a1820cf633b88bfa9f05',1,'om24g_config_t::freq()'],['../structspi__config__t.html#af8b4b9033931adeaf0aec27eb38ce393',1,'spi_config_t::freq()']]],
+  ['func_23',['func',['../structpin__config__t.html#a61e858ba1a01b4caa9449bc5a5d0a35a',1,'pin_config_t']]]
 ];

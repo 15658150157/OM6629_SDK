@@ -33,8 +33,8 @@
 /*********************************************************************
  * MACROS
  */
-#define EVENT_BLUETOOTH_MASK        0x0001
 #define EVENT_SYSTEM_RESERVE_MASK   0x00FF
+
 
 /*********************************************************************
  * TYPEDEFS
@@ -49,7 +49,7 @@
 /*********************************************************************
  * LOCAL VARIABLES
  */
-static osEventFlagsId_t xEvtEvent = NULL;
+static osSemaphoreId_t xSemBluetooth = NULL;
 
 /*********************************************************************
  * GLOBAL VARIABLES
@@ -91,8 +91,8 @@ static void hardware_init(void)
  **/
 static void vEvtEventHandler(void)
 {
-    if (xEvtEvent) {
-        osEventFlagsSet(xEvtEvent, EVENT_BLUETOOTH_MASK);
+    if (xSemBluetooth) {
+        osSemaphoreRelease(xSemBluetooth);
     }
 }
 
@@ -103,7 +103,6 @@ static void vEvtEventHandler(void)
  **/
 static void vEvtScheduleTask(void *argument)
 {
-    uint32_t uxBits;
     hardware_init();
     drv_rf_init();
     evt_init();
@@ -127,8 +126,8 @@ static void vEvtScheduleTask(void *argument)
     app_tspp_init();
     app_wechat_lite_init();
 
-    // Create event
-    xEvtEvent = osEventFlagsNew(NULL);
+    // Create semaphore
+    xSemBluetooth = osSemaphoreNew(1, 0, NULL);
 
     // set ke event callback
     evt_schedule_trigger_callback_set(vEvtEventHandler);
@@ -137,9 +136,8 @@ static void vEvtScheduleTask(void *argument)
         // schedule
         evt_schedule();
 
-        // Wait for event
-        uxBits = osEventFlagsWait(xEvtEvent, 0xFFFF, osFlagsWaitAny, osWaitForever);
-        (void)uxBits;
+        // Wait for semaphore
+        osSemaphoreAcquire(xSemBluetooth, osWaitForever);
     }
 }
 

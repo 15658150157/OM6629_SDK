@@ -104,17 +104,17 @@ om_error_t drv_flash_id_get(OM_FLASH_Type om_flash, flash_id_t *id)
     return OM_ERROR_UNSUPPORTED;
 }
 
-om_error_t drv_flash_read(OM_FLASH_Type om_flash, uint32_t addr, uint8_t *data, uint32_t data_len)
+om_error_t drv_flash_read(OM_FLASH_Type om_flash, uint32_t addr, uint8_t *data, uint32_t data_len, uint32_t timeout_ms)
 {
     CHECK_DATA_ADDR(data);
     #if (RTE_FLASH0)
     if (om_flash == OM_FLASH0) {
-        return drv_iflash_read((OM_SF_Type *)om_flash, addr, data, data_len);
+        return drv_iflash_read((OM_SF_Type *)om_flash, addr, data, data_len, timeout_ms);
     } else
     #endif
     #if (RTE_FLASH1)
     if (om_flash == OM_FLASH1) {
-        return drv_oflash_read((OM_OSPI_Type *)om_flash, addr, data, data_len);
+        return drv_oflash_read((OM_OSPI_Type *)om_flash, addr, data, data_len, timeout_ms);
     } else
     #endif
     return OM_ERROR_UNSUPPORTED;
@@ -139,17 +139,18 @@ om_error_t drv_flash_read_int(OM_FLASH_Type om_flash, uint32_t addr, uint8_t *da
 om_error_t drv_flash_write(OM_FLASH_Type om_flash,
                            uint32_t addr,
                            volatile uint8_t *data,
-                           uint32_t data_len)
+                           uint32_t data_len,
+                           uint32_t timeout_ms)
 {
     CHECK_DATA_ADDR(data);
     #if (RTE_FLASH0)
     if (om_flash == OM_FLASH0) {
-        return drv_iflash_write((OM_SF_Type *)om_flash, addr, data, data_len);
+        return drv_iflash_write((OM_SF_Type *)om_flash, addr, data, data_len, timeout_ms);
     } else
     #endif
     #if (RTE_FLASH1)
     if (om_flash == OM_FLASH1) {
-        return drv_oflash_write((OM_OSPI_Type *)om_flash, addr, data, data_len);
+        return drv_oflash_write((OM_OSPI_Type *)om_flash, addr, data, data_len, timeout_ms);
     } else
     #endif
     return OM_ERROR_UNSUPPORTED;
@@ -204,16 +205,16 @@ om_error_t drv_flash_write_int_continue(OM_FLASH_Type om_flash)
     return OM_ERROR_UNSUPPORTED;
 }
 
-om_error_t drv_flash_erase(OM_FLASH_Type om_flash, uint32_t addr, flash_erase_t erase_type)
+om_error_t drv_flash_erase(OM_FLASH_Type om_flash, uint32_t addr, flash_erase_t erase_type, uint32_t timeout_ms)
 {
     #if (RTE_FLASH0)
     if (om_flash == OM_FLASH0) {
-        return drv_iflash_erase((OM_SF_Type *)om_flash, addr, erase_type);
+        return drv_iflash_erase((OM_SF_Type *)om_flash, addr, erase_type, timeout_ms);
     } else
     #endif
     #if (RTE_FLASH1)
     if (om_flash == OM_FLASH1) {
-        return drv_oflash_erase((OM_OSPI_Type *)om_flash, addr, erase_type);
+        return drv_oflash_erase((OM_OSPI_Type *)om_flash, addr, erase_type, timeout_ms);
     } else
     #endif
     return OM_ERROR_UNSUPPORTED;
@@ -550,10 +551,10 @@ om_error_t drv_flash_node_setup(OM_FLASH_Type om_flash, flash_list_node_t *node,
     return OM_ERROR_UNSUPPORTED;
 }
 
-om_error_t drv_flash_list_start(OM_FLASH_Type om_flash, flash_list_node_t *list_head)
+om_error_t drv_flash_list_start(OM_FLASH_Type om_flash, flash_list_node_t *list_head, uint32_t node_timeout_ms)
 {
     if (om_flash == OM_FLASH1) {
-        return drv_oflash_list_start((OM_OSPI_Type *)om_flash, list_head);
+        return drv_oflash_list_start((OM_OSPI_Type *)om_flash, list_head, node_timeout_ms);
     }
     return OM_ERROR_UNSUPPORTED;
 }

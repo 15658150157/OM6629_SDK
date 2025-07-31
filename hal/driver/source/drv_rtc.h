@@ -89,9 +89,20 @@ typedef void (*rtc_isr_callback_t)(drv_event_t event);
  * @brief RTC initialize
  *
  * @param[in] tm    Pointer to time configuration
+ *
+ * @return errno
  *******************************************************************************
  */
 extern om_error_t drv_rtc_init(const rtc_tm_t *tm);
+
+/**
+ *******************************************************************************
+ * @brief RTC deinitialization
+ *
+ * @return errno
+ *******************************************************************************
+ */
+extern om_error_t drv_rtc_uninit(void);
 
 #if (RTE_RTC_REGISTER_CALLBACK)
 /**

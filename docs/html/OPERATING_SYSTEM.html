@@ -130,7 +130,7 @@ $(document).ready(function(){initNavTree('OPERATING_SYSTEM.html',''); initResiza
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_doxygen_source_user_guides_operating_system"></a></p>
-<h1><a class="anchor" id="autotoc_md73"></a>
+<h1><a class="anchor" id="autotoc_md74"></a>
 Overview</h1>
 <p>Most of the demo projects of this SDK are built on <a href="https://www.freertos.org">FreeRTOS</a>. The Bluetooth part is run in a FreeRTOS thread, and in the thread, there is an efficient event-driven scheduling system.</p>
 <p>Of course, the SDK can also remove FreeRTOS and only keep the event-driven scheduling system. This demo is located in <code>SDK/projects/ble_app_simple_nonrtos</code>.</p>
@@ -141,14 +141,14 @@ Overview</h1>
 <li>Simple power manage</li>
 <li>Helpful function and macro</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md74"></a>
+<h1><a class="anchor" id="autotoc_md75"></a>
 FreeRTOS™</h1>
 <p>FreeRTOS is real-time operating system for microcontrollers and small microprocessors.</p>
 <p>FreeRTOS is a market-leading embedded system RTOS supporting 40+ processor architectures with a small memory footprint, fast execution times, and cutting-edge RTOS features and libraries including Symmetric Multiprocessing (SMP), a thread-safe TCP stack with IPv6 support, and seamless integration with cloud services. It’s open-source and actively supported and maintained.</p>
 <p>This document doesn't cover it too much, please click <a href="https://www.freertos.org">here</a> for more information.</p>
-<h1><a class="anchor" id="autotoc_md75"></a>
+<h1><a class="anchor" id="autotoc_md76"></a>
 Inside Event-driven Scheduler</h1>
-<h2><a class="anchor" id="autotoc_md76"></a>
+<h2><a class="anchor" id="autotoc_md77"></a>
 Overview</h2>
 <p>The scheduler is called in the main loop of the background.</p>
 <p>In background loop, the Kernel checks if the event field is non-null, and executes the event handlers for which the corresponding event bit is set</p>
@@ -171,7 +171,7 @@ Overview</h2>
 <div class="ttc" id="agroup__EVT_html_ga5e9d76dd6b10db3022d38f057193fe36"><div class="ttname"><a href="group__EVT.html#ga5e9d76dd6b10db3022d38f057193fe36">evt_schedule</a></div><div class="ttdeci">void evt_schedule(void)</div><div class="ttdoc">Event scheduler entry point.</div></div>
 <div class="ttc" id="agroup__PM_html_gaca065483cfe789215a4d194eda3fc931"><div class="ttname"><a href="group__PM.html#gaca065483cfe789215a4d194eda3fc931">pm_power_manage</a></div><div class="ttdeci">void pm_power_manage(void)</div><div class="ttdoc">pm power manage, it shall be called in critical section(disable global interrupt)</div></div>
 </div><!-- fragment --><p> <em>(**) About <b><a class="el" href="group__PM.html#gaca065483cfe789215a4d194eda3fc931" title="pm power manage, it shall be called in critical section(disable global interrupt)">pm_power_manage()</a></b>, please reference <a class="el" href="POWER_MANAGE.html">Power Manage</a>.</em></p>
-<h2><a class="anchor" id="autotoc_md77"></a>
+<h2><a class="anchor" id="autotoc_md78"></a>
 File Structure</h2>
 <p>These files and functions placed in the <code>common</code>, <code>components/pm</code>, <code>components/evt</code> folder.</p>
 <table class="markdownTable">
@@ -192,12 +192,12 @@ File Structure</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">co_utils.h   </td><td class="markdownTableBodyNone">Some helpful function and macro.   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md78"></a>
+<h2><a class="anchor" id="autotoc_md79"></a>
 Priority Management</h2>
 <p>The scheduler checks the event field and gets the one with the highest priority. The function below is in charge of finding the event marked with the highest priority set:</p>
 <p>evt_ctz();</p>
 <p>The event priority depends on its position within the bit field (highest positions have highest priority). The position is defined outside of the kernel source code.</p>
-<h2><a class="anchor" id="autotoc_md79"></a>
+<h2><a class="anchor" id="autotoc_md80"></a>
 Useful Function</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">
@@ -209,7 +209,7 @@ Useful Function</h2>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><a class="el" href="group__EVT.html#ga91ed2ba8578e3d7d11603a482029b3c0">evt_callback_set</a>   </td><td class="markdownTableBodyNone">Register even callback which is called in main loop with a non-interrupting context   </td></tr>
 </table>
-<h2><a class="anchor" id="autotoc_md80"></a>
+<h2><a class="anchor" id="autotoc_md81"></a>
 Scheduler Source Code</h2>
 <div class="fragment"><div class="line"><span class="keywordtype">void</span> <a class="code hl_function" href="group__EVT.html#ga91ed2ba8578e3d7d11603a482029b3c0">evt_callback_set</a>(<a class="code hl_enumeration" href="group__EVT.html#ga40b0d01dd5339e4b8e1c32cb98f0caf3">evt_type_t</a> evt_type, <a class="code hl_typedef" href="group__EVT.html#ga37d1965205e6fc498f39ae4ec45dadb5">evt_callback_t</a> callback)</div>
 <div class="line">{</div>
@@ -276,8 +276,8 @@ Scheduler Source Code</h2>
 <div class="ttc" id="agroup__EVT_html_gga40b0d01dd5339e4b8e1c32cb98f0caf3ac3e6ccfc8dc55c46ed3f8322e95737c7"><div class="ttname"><a href="group__EVT.html#gga40b0d01dd5339e4b8e1c32cb98f0caf3ac3e6ccfc8dc55c46ed3f8322e95737c7">EVT_TYPE_NUM</a></div><div class="ttdeci">@ EVT_TYPE_NUM</div><div class="ttdoc">Event number.</div><div class="ttdef"><b>Definition:</b> evt.h:60</div></div>
 <div class="ttc" id="agroup__TRACE_html_gae995f177010dca0677dba2c8b7311b41"><div class="ttname"><a href="group__TRACE.html#gae995f177010dca0677dba2c8b7311b41">TRC_IO</a></div><div class="ttdeci">#define TRC_IO(event, is_high)</div><div class="ttdoc">The event is triged, so the IO bonding the event will output is_high state.</div><div class="ttdef"><b>Definition:</b> trc_io.h:71</div></div>
 <div class="ttc" id="agroup__TRACE_html_gga5722eee21509f3d7b78e92de7ae72647a0db6f6adc5f5b681344d0983cb312b1c"><div class="ttname"><a href="group__TRACE.html#gga5722eee21509f3d7b78e92de7ae72647a0db6f6adc5f5b681344d0983cb312b1c">TRC_IO_EVT_EXEC_CB</a></div><div class="ttdeci">@ TRC_IO_EVT_EXEC_CB</div><div class="ttdef"><b>Definition:</b> trc_io.h:44</div></div>
-<div class="ttc" id="agroup__UTILS_html_ga85d7f601ced158f6eb95d2eb11273416"><div class="ttname"><a href="group__UTILS.html#ga85d7f601ced158f6eb95d2eb11273416">OM_ASSERT</a></div><div class="ttdeci">#define OM_ASSERT(expr)</div><div class="ttdoc">The OM_ASSERT macro is used for function's parameters check.</div><div class="ttdef"><b>Definition:</b> om_utils.h:90</div></div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md81"></a>
+<div class="ttc" id="agroup__UTILS_html_ga85d7f601ced158f6eb95d2eb11273416"><div class="ttname"><a href="group__UTILS.html#ga85d7f601ced158f6eb95d2eb11273416">OM_ASSERT</a></div><div class="ttdeci">#define OM_ASSERT(expr)</div><div class="ttdoc">The OM_ASSERT macro is used for function's parameters check.</div><div class="ttdef"><b>Definition:</b> om_utils.h:73</div></div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md82"></a>
 Example Code</h2>
 <div class="fragment"><div class="line"><span class="preprocessor">#define MY_EVENT_ID     (EVT_TYPE_USR_FIRST+0)</span></div>
 <div class="line"> </div>
@@ -329,13 +329,13 @@ Example Code</h2>
 <div class="ttc" id="agroup__BLE__APP__SIMPLE_html_ga840291bc02cba5474a4cb46a9b9566fe"><div class="ttname"><a href="group__BLE__APP__SIMPLE.html#ga840291bc02cba5474a4cb46a9b9566fe">main</a></div><div class="ttdeci">int main(void)</div><div class="ttdoc">main entry of program</div><div class="ttdef"><b>Definition:</b> ble_app_simple.c:142</div></div>
 <div class="ttc" id="agroup__GPIO_html_gaab126e660e5024a5f0992c66cf4b1c4b"><div class="ttname"><a href="group__GPIO.html#gaab126e660e5024a5f0992c66cf4b1c4b">drv_gpio_set_trig</a></div><div class="ttdeci">void drv_gpio_set_trig(OM_GPIO_Type *om_gpio, gpio_mask_t gpio_mask, gpio_trig_type_t trig)</div><div class="ttdoc">Set GPIO pin trigger type.</div></div>
 <div class="ttc" id="agroup__GPIO_html_gaf8c939f31700c6e92bcd0ff728f8e7af"><div class="ttname"><a href="group__GPIO.html#gaf8c939f31700c6e92bcd0ff728f8e7af">drv_gpio_register_isr_callback</a></div><div class="ttdeci">void drv_gpio_register_isr_callback(OM_GPIO_Type *om_gpio, drv_isr_callback_t isr_cb)</div><div class="ttdoc">Register event callback for GPIO interrupt.</div></div>
-<div class="ttc" id="agroup__GPIO_html_ggacb840e4e0c59780df42ed0797e3d58b3a59bfac55a93a36f16c8c0bbced25c4d6"><div class="ttname"><a href="group__GPIO.html#ggacb840e4e0c59780df42ed0797e3d58b3a59bfac55a93a36f16c8c0bbced25c4d6">GPIO_TRIG_RISING_FAILING_EDGE</a></div><div class="ttdeci">@ GPIO_TRIG_RISING_FAILING_EDGE</div><div class="ttdoc">GPIO trigger type is both edge.</div><div class="ttdef"><b>Definition:</b> drv_gpio.h:75</div></div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md82"></a>
+<div class="ttc" id="agroup__GPIO_html_ggacb840e4e0c59780df42ed0797e3d58b3a59bfac55a93a36f16c8c0bbced25c4d6"><div class="ttname"><a href="group__GPIO.html#ggacb840e4e0c59780df42ed0797e3d58b3a59bfac55a93a36f16c8c0bbced25c4d6">GPIO_TRIG_RISING_FAILING_EDGE</a></div><div class="ttdeci">@ GPIO_TRIG_RISING_FAILING_EDGE</div><div class="ttdoc">GPIO trigger type is both edge.</div><div class="ttdef"><b>Definition:</b> drv_gpio.h:69</div></div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md83"></a>
 Soft Event Timer</h1>
-<h2><a class="anchor" id="autotoc_md83"></a>
+<h2><a class="anchor" id="autotoc_md84"></a>
 Overview</h2>
 <p>The implementation of the soft timer is similar to the soft timer in RTOS. It is based on hardware 32k timer, so it can run in sleep.</p>
-<h2><a class="anchor" id="autotoc_md84"></a>
+<h2><a class="anchor" id="autotoc_md85"></a>
 Useful Function</h2>
 <table class="markdownTable">
 <tr class="markdownTableHead">

@@ -36,8 +36,8 @@
 
 //#define CONFIG_DTM_USE_2WIRE_MODE
 
-#define EVENT_BLUETOOTH_MASK        0x0001
 #define EVENT_SYSTEM_RESERVE_MASK   0x00FF
+
 
 /*********************************************************************
  * TYPEDEFS
@@ -52,7 +52,7 @@
 /*********************************************************************
  * LOCAL VARIABLES
  */
-static osEventFlagsId_t xEvtEvent = NULL;
+static osSemaphoreId_t xSemBluetooth = NULL;
 
 static om_fifo_t hci_h4_rx_fifo;
 static uint8_t hci_h4_rx_pool[512];
@@ -190,8 +190,9 @@ void cmd_shell_pta(int argc, char *argv[])
  **/
 static void vEvtEventHandler(void)
 {
-    if(xEvtEvent)
-        osEventFlagsSet(xEvtEvent, EVENT_BLUETOOTH_MASK);
+    if(xSemBluetooth) {
+        osSemaphoreRelease(xSemBluetooth);
+    }
 }
 
 /**
@@ -201,15 +202,13 @@ static void vEvtEventHandler(void)
  **/
 static void vEvtScheduleTask(void *argument)
 {
-    uint32_t uxBits;
-
     hardware_init();
     drv_rf_init();
     evt_init();
     ble_controller_init();
 
-    // Create event
-    xEvtEvent = osEventFlagsNew(NULL);
+    // Create semaphore
+    xSemBluetooth = osSemaphoreNew(1, 0, NULL);
 
     // set ke event callback
     evt_schedule_trigger_callback_set(vEvtEventHandler);
@@ -219,9 +218,8 @@ static void vEvtScheduleTask(void *argument)
         // schedule
         evt_schedule();
 
-        // Wait for event
-        uxBits = osEventFlagsWait(xEvtEvent, 0xFFFF, osFlagsWaitAny, osWaitForever);
-        (void)uxBits;
+        // Wait for semaphore
+        osSemaphoreAcquire(xSemBluetooth, osWaitForever);
     }
 }
 

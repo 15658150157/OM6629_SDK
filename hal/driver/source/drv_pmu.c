@@ -377,8 +377,6 @@ void drv_pmu_xtal32m_startup(void)
     DRV_RCC_ANA_CLK_RESTORE();
 }
 
-
-
 /**
  *******************************************************************************
  * @brief  syspll power enable (pll96M and 48M)
@@ -392,17 +390,25 @@ void drv_pmu_syspll_power_enable(uint8_t enable)
     OM_CRITICAL_BEGIN();
 
     if (enable) {
-        OM_DAIF->CLK_CFG |= DAIF_XTAL32M_EN_CKO16M_SYSPLL_MASK;
-        OM_DAIF->SYSPLL_CNS0 &= ~DAIF_SYSPLL_PD_VBAT_MASK;
-        DRV_DELAY_US(10);
-        OM_DAIF->SYSPLL_CNS0 &= ~DAIF_SYSPLL_RSTN_DIG_MASK;
-        OM_DAIF->SYSPLL_CNS0 |= DAIF_SYSPLL_RSTN_DIG_MASK;
-        OM_DAIF->SYSPLL_CNS0 |= DAIF_SYSPLL_EN_AFC_MASK;
-        DRV_DELAY_US(2);
-        OM_DAIF->SYSPLL_CNS0 &= ~DAIF_SYSPLL_EN_AFC_MASK;
-        while (!(OM_DAIF->SYSPLL_CNS1 & DAIF_SYSPLL_LOCK_MASK));
+        if (OM_DAIF->SYSPLL_CNS0 & DAIF_SYSPLL_PD_VBAT_MASK) {
+            OM_DAIF->CLK_CFG |= DAIF_XTAL32M_EN_CKO16M_SYSPLL_MASK;
+            OM_DAIF->SYSPLL_CNS0 &= ~DAIF_SYSPLL_PD_VBAT_MASK;
+            DRV_DELAY_US(10);
+            OM_DAIF->SYSPLL_CNS0 &= ~DAIF_SYSPLL_RSTN_DIG_MASK;
+            OM_DAIF->SYSPLL_CNS0 |= DAIF_SYSPLL_RSTN_DIG_MASK;
+            OM_DAIF->SYSPLL_CNS0 |= DAIF_SYSPLL_EN_AFC_MASK;
+            DRV_DELAY_US(2);
+            OM_DAIF->SYSPLL_CNS0 &= ~(DAIF_SYSPLL_EN_AFC_MASK | DAIF_SYSPLL_GT_USBCLK48M_MASK);
+            while (!(OM_DAIF->SYSPLL_CNS1 & DAIF_SYSPLL_LOCK_MASK));
+        }
     } else {
-        OM_DAIF->SYSPLL_CNS0 |= DAIF_SYSPLL_PD_VBAT_MASK;
+        uint32_t syspll_cns;
+
+        syspll_cns = OM_DAIF->SYSPLL_CNS0 | DAIF_SYSPLL_GT_USBCLK48M_MASK;
+        if (!(syspll_cns & DAIF_SYSPLL_PD_VBAT_MASK)) {
+            syspll_cns |= DAIF_SYSPLL_PD_VBAT_MASK;
+        }
+        OM_DAIF->SYSPLL_CNS0 = syspll_cns;
     }
 
     OM_CRITICAL_END();

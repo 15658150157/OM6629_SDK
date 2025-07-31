@@ -98,7 +98,6 @@ static void drv_calib_patch(bool is_calib_start)
  * @brief  Auto frequency calibration
  *******************************************************************************
  */
-#if 1
 static void drv_calib_rf_afc(void)
 {
     // initial afc/vtrack table
@@ -221,7 +220,6 @@ static void drv_calib_rf_afc(void)
 }
 
 
-#endif
 /**
  *******************************************************************************
  * @brief  drv calib rf dcoc
@@ -594,7 +592,8 @@ void drv_calib_rf_restore(void)
 {
     REGW(&OM_DAIF->MIX_CFG1, MASK_2REG(DAIF_ICON_VCO_ME, 0, DAIF_ICON_VCO_MO, drv_calib_env.icon_vco));//睡眠唤醒后需要恢复校准值
     // fix scan sync signal issue
-    REGW(&OM_DAIF->MIX_CFG0, MASK_1REG(DAIF_PHY_ADC_WAIT, 1));
+    REGW(&OM_DAIF->MIX_CFG0, MASK_2REG(DAIF_PHY_ADC_WAIT, 1,
+                                       DAIF_SDM_DIV, 1));
     // 高中低灵敏度配置，睡眠唤醒后需要恢复
     REGW(&OM_DAIF->MIX_CFG0, MASK_1REG(DAIF_TIA_IBCT, drv_calib_env.tia_ibct));
     // 睡眠唤醒后需要和drv_radio.c里面的drv_rf_tx_power_set设置功率处一样

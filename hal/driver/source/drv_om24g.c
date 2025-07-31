@@ -154,6 +154,7 @@ void drv_om24g_dump_rf_register(void)
     OM_LOG(OM_LOG_DEBUG, "TESTCTRL: %02x\r\n", OM_24G->TESTCTRL);
     OM_LOG(OM_LOG_DEBUG, "STATE: %02x\r\n", OM_24G->STATE);
     OM_LOG(OM_LOG_DEBUG, "TAIL_DATA: %02x\r\n", OM_24G->TAIL_DATA);
+    OM_LOG(OM_LOG_DEBUG, "ACK_MODE: %02x\r\n", OM_24G->ACK_MODE);
     OM_LOG(OM_LOG_DEBUG, "FREQ: %02d\r\n", REGR(&OM_DAIF->FREQ_CFG0, DAIF_FREQ_REG_MO_MASK, DAIF_FREQ_REG_MO_POS));
     OM_LOG(OM_LOG_DEBUG, "FRACT_FREQ: %x\r\n", OM_DAIF->FREQ_CFG3);
     OM_LOG(OM_LOG_DEBUG, "OM_PHY->REG_PHY_RST_N: %02x\r\n", OM_PHY->REG_PHY_RST_N);
@@ -192,8 +193,6 @@ __RAM_CODE
 void drv_om24g_switch_role(om24g_role_t role)
 {
     OM24G_CE_LOW();
-    OM24G_FLUSH_TX_FIFO();
-    OM24G_FLUSH_RX_FIFO();
     om_error_t ret; // Max: 150us
     DRV_WAIT_US_UNTIL_TO(!((REGR(&OM_24G->STATE, MASK_POS(OM24G_MAIN_STATE)) == 0x02) || (REGR(&OM_24G->STATE, MASK_POS(OM24G_MAIN_STATE)) == 0x00)), 150, ret);(void) ret;
     DRV_DELAY_US(1);
@@ -421,9 +420,10 @@ void drv_om24g_set_rf_parameters(om24g_rate_t data_rate, uint16_t frequency, flo
             if (SYS_IS_FPGA()) {
                 OM_24G->FPGA_TX_INDEX = 0x03;
             } else {
-                drv_om24g_set_deviation(186);
+                drv_om24g_set_deviation(125);
             }
-            REGW(&OM_PHY->H_RX_CTRL, MASK_2REG(PHY_H_RX_CTRL_FXP, 0x60, PHY_H_RX_CTRL_RVS_FXP, 0x55)); //RX modulation index = 0.75
+            REGW(&OM_PHY->H_RX_CTRL, MASK_2REG(PHY_H_RX_CTRL_FXP, 0x40, PHY_H_RX_CTRL_RVS_FXP, 0x80)); // RX modulation index = 0.5
+            // REGW(&OM_PHY->H_RX_CTRL, MASK_2REG(PHY_H_RX_CTRL_FXP, 0x60, PHY_H_RX_CTRL_RVS_FXP, 0x55)); //RX modulation index = 0.75
             REGW(&OM_PHY->DET_MODE, MASK_1REG(PHY_DET_MODE_DET_MODE, 0x00)); // OM24G_HARD_DETECTION
             break;
         case OM24G_RATE_500K:
@@ -621,7 +621,7 @@ void drv_om24g_init(const om24g_config_t *cfg)
     }
     drv_om24g_detection_mode(cfg->detect_mode);
     //sync word: symble-bit-error criterion
-    //REGW0(&OM_PHY->RX_GFSK_SYNC_CTRL, PHY_RX_GFSK_SYNC_CTRL_SBE_MAX_TH_32_MASK);
+    // REGW0(&OM_PHY->RX_GFSK_SYNC_CTRL, PHY_RX_GFSK_SYNC_CTRL_SBE_MAX_TH_32_MASK);
     //REGW(&OM_PHY->RX_GFSK_SYNC_CTRL, MASK_1REG(PHY_RX_GFSK_SYNC_CTRL_SBE_MAX_TH_32, 1));
     // 1 - enable double address synchronization
     REGW(&OM_PHY->RX_GFSK_SYNC_CTRL, MASK_1REG(PHY_RX_GFSK_SYNC_CTRL_EN_2ND_ADDR, 0));
@@ -641,7 +641,7 @@ void drv_om24g_init(const om24g_config_t *cfg)
     NVIC_EnableIRQ(OM24G_TIM_WAKEUP_IRQn);
     REGW(&OM_24G->RF_PD_AHEAD, MASK_2REG(OM24G_RF_PD_AHEAD_EN, 1, OM24G_RF_PD_AHEAD, 1));
     //REGW(&OM_24G->ACK_MODE, MASK_1REG(OM24G_CONTINUOUS_MODE, 0));
-    // REGW(&OM_24G->ACK_MODE, MASK_1REG(OM24G_ACK_MODE, 0));
+    REGW(&OM_24G->ACK_MODE, MASK_1REG(OM24G_ACK_MODE, 0));
     drv_om24g_set_rf_parameters(cfg->data_rate, cfg->freq, 0);
     if (SYS_IS_FPGA()) {
         drv_om24g_rf_init_seq();
@@ -686,10 +686,10 @@ void drv_om24g_isr(void)
 
     status = OM_24G->INT_ST;
     // OM_LOG(OM_LOG_DEBUG, "INT_ST: %02x\r\n", OM_24G->INT_ST_RAW);
-    OM_24G->INT_ST = status;
-    if ((OM24G_INT_RX_DR_MASK & status) && (!(OM24G_INT_CRC_ERR_MASK & status))) {
+    OM_24G->INT_ST = OM_24G->INT_ST_RAW;
+    if((OM24G_INT_RX_DR_MASK & status) && (!(OM24G_INT_CRC_ERR_MASK & status)) && (!(OM24G_INT_RX_OVERLAY_MASK & status)) && (!(OM24G_INT_MAX_LEN_MASK & status)) && (!(OM24G_RX_ADDR_MISS_MASK & status))) {
         OM_CRITICAL_BEGIN();
-        if((!(OM_24G->STATE & OM24G_SYNC_DET_MASK)) && (!(OM24G_INT_CRC_ERR_MASK & OM_24G->INT_ST)) && (!(OM24G_INT_RX_OVERLAY_MASK & OM_24G->INT_ST_RAW)) && (!(OM24G_INT_MAX_LEN_MASK & OM_24G->INT_ST_RAW)) && (!(OM24G_RX_ADDR_MISS_MASK & OM_24G->INT_ST_RAW))) {
+        if((!(OM_24G->STATE & OM24G_SYNC_DET_MASK)) && (!(OM24G_INT_CRC_ERR_MASK & OM_24G->INT_ST)) && (!(OM24G_INT_RX_OVERLAY_MASK & OM_24G->INT_ST)) && (!(OM24G_INT_MAX_LEN_MASK & OM_24G->INT_ST)) && (!(OM24G_RX_ADDR_MISS_MASK & OM_24G->INT_ST))) {
             om24g_env.rx_count = (om24g_env.rx_count + 1) % 2;
             OM_24G->DMA_RX_ADDR = (uint32_t)(om24g_env.rx_buf + om24g_env.max_rx_num * om24g_env.rx_count);
             rx_cnt = drv_om24g_read_rx_payload_width();
@@ -705,7 +705,6 @@ void drv_om24g_isr(void)
             om24g_env.event_cb(OM_24G, DRV_EVENT_COMMON_RECEIVE_COMPLETED, (void *)(om24g_env.rx_buf + om24g_env.max_rx_num * (om24g_env.rx_count ? 0 : 1)), (void *)((uint32_t)rx_cnt));
         }
     } else {
-        OM_24G->INT_ST = OM_24G->INT_ST_RAW;
         REGW(&OM_24G->RX_DONE, MASK_1REG(OM24G_RX_DONE, 1));
     }
     if ((OM24G_INT_TX_DS_MASK & status)) {
@@ -800,7 +799,7 @@ void *drv_om24g_control(om24g_control_t control, void *argu)
                     REGW0(&OM_DAIF->PLL_CTRL1, DAIF_FREQ_DEVIA_BYPASS_3RD_MASK); //freq devia bypass=0d
                 }
                 // Block unnecessary interrupts
-                OM_24G->INT_MASK = 0xFFFCFF1E;
+                OM_24G->INT_MASK = 0xFFFCF81E;
                 #if PLL_CONTIMUE_OPEN
                 REGW(&OM_DAIF->PD_CFG1, MASK_2REG(DAIF_RFPLL_PD_ALL_ME, 1, DAIF_RFPLL_PD_ALL_MO, 0));
                 #endif

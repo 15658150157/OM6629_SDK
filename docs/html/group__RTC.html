@@ -177,6 +177,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga2393b5c750ec6660ff2e4fab125fa424"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__ERROR.html#gade1010dbf6169f89f4025b1187fea6cd">om_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__RTC.html#ga2393b5c750ec6660ff2e4fab125fa424">drv_rtc_init</a> (const <a class="el" href="structrtc__tm__t.html">rtc_tm_t</a> *tm)</td></tr>
 <tr class="memdesc:ga2393b5c750ec6660ff2e4fab125fa424"><td class="mdescLeft">&#160;</td><td class="mdescRight">RTC initialize.  <br /></td></tr>
 <tr class="separator:ga2393b5c750ec6660ff2e4fab125fa424"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1bcb0f2713289523480f20945a336f82"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__ERROR.html#gade1010dbf6169f89f4025b1187fea6cd">om_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__RTC.html#ga1bcb0f2713289523480f20945a336f82">drv_rtc_uninit</a> (void)</td></tr>
+<tr class="memdesc:ga1bcb0f2713289523480f20945a336f82"><td class="mdescLeft">&#160;</td><td class="mdescRight">RTC deinitialization.  <br /></td></tr>
+<tr class="separator:ga1bcb0f2713289523480f20945a336f82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga05b63016eef7c4259f65b7a6d623e527"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__RTC.html#ga05b63016eef7c4259f65b7a6d623e527">drv_rtc_timer_set</a> (const <a class="el" href="structrtc__tm__t.html">rtc_tm_t</a> *tm)</td></tr>
 <tr class="memdesc:ga05b63016eef7c4259f65b7a6d623e527"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set current time.  <br /></td></tr>
 <tr class="separator:ga05b63016eef7c4259f65b7a6d623e527"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -482,10 +485,11 @@ Functions</h2></td></tr>
 <p>RTC initialize. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">tm</td><td>Pointer to time configuration </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">tm</td><td>Pointer to time configuration</td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>errno </dd></dl>
 
 </div>
 </div>
@@ -591,6 +595,27 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="ga1bcb0f2713289523480f20945a336f82" name="ga1bcb0f2713289523480f20945a336f82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1bcb0f2713289523480f20945a336f82">&#9670;&#160;</a></span>drv_rtc_uninit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__ERROR.html#gade1010dbf6169f89f4025b1187fea6cd">om_error_t</a> drv_rtc_uninit </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>RTC deinitialization. </p>
+<dl class="section return"><dt>Returns</dt><dd>errno </dd></dl>
 
 </div>
 </div>

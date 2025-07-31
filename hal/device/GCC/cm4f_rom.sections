@@ -92,6 +92,9 @@ SECTIONS
         /* ram bss */
         LONG (__ram_bss_start__)
         LONG ((__ram_bss_end__ - __ram_bss_start__ + 3) >> 2)
+        /* ram ble em */
+        LONG (__ram_ble_em_start__)
+        LONG ((__ram_ble_em_end__ - __ram_ble_em_start__ + 3) >> 2)
         __zero_table_end__ = .;
     } > ROM
 
@@ -105,6 +108,15 @@ SECTIONS
     .ram_non_init (NOLOAD):
     {
         *(.ram_data_non_init)
+    } > RAM
+
+    .ram_ble_em (NOLOAD):
+    {
+        . = ALIGN(4);
+        __ram_ble_em_start__ = .;
+        *(.ram_ble_em)
+        . = ALIGN(4);
+        __ram_ble_em_end__ = .;
     } > RAM
 
     .ram_data : ALIGN(4)

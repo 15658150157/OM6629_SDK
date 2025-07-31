@@ -130,11 +130,11 @@ $(document).ready(function(){initNavTree('BLE_STACK_ARCHITECTURE.html',''); init
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_doxygen_source_ble_ble_stack_arch"></a></p>
-<h1><a class="anchor" id="autotoc_md90"></a>
+<h1><a class="anchor" id="autotoc_md91"></a>
 Overview</h1>
 <p>This page describes the software architecture of the SDK Bluetooth protocol stack.</p>
 <p>The SDK only supports Bluetooth Low Energy (BLE), the low-power version of the Bluetooth specification.</p>
-<h2><a class="anchor" id="autotoc_md91"></a>
+<h2><a class="anchor" id="autotoc_md92"></a>
 BLE Layers</h2>
 <p>There are 3 main layers that together constitute a full Bluetooth Low Energy protocol stack:</p>
 <ul>
@@ -142,10 +142,10 @@ BLE Layers</h2>
 <li><b>Controller</b>: The Controller implements the Link Layer (LE LL), the low-level, real-time protocol which provides, in conjunction with the Radio Hardware, standard-interoperable over-the-air communication. The LL schedules packet reception and transmission, guarantees the delivery of data, and handles all the LL control procedures.</li>
 <li><b>Radio Hardware</b>: Hardware implements the required analog and digital baseband functional blocks that permit the Link Layer firmware to send and receive in the 2.4GHz band of the spectrum.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md92"></a>
+<h2><a class="anchor" id="autotoc_md93"></a>
 Host Controller Interface</h2>
 <p>The <a href="https://www.bluetooth.com/specifications/bluetooth-core-specification">Bluetooth Specification</a> describes the format in which a Host must communicate with a Controller. This is called the Host Controller Interface (HCI) protocol. HCI can be implemented over a range of different physical transports like UART. This protocol defines the commands that a Host can send to a Controller and the events that it can expect in return, and also the format for user and protocol data that needs to go over the air. The HCI ensures that different Host and Controller implementations can communicate in a standard way making it possible to combine Hosts and Controllers from different vendors.</p>
-<h2><a class="anchor" id="autotoc_md93"></a>
+<h2><a class="anchor" id="autotoc_md94"></a>
 Work Mode</h2>
 <p>The three separate layers of the protocol and the standardized interface make it possible to implement the Host and Controller on different platforms. The two following configurations are commonly used:</p>
 <ul>
@@ -164,7 +164,7 @@ Please reference "SDK/projects/ble_hci" demo project</li>
 <img src="Workmode_controller.jpg" alt=""/>
 <div class="caption">
 Dual-chip Mode</div></div>
-    <h2><a class="anchor" id="autotoc_md94"></a>
+    <h2><a class="anchor" id="autotoc_md95"></a>
 Host</h2>
 <p>The Bluetooth Host implements all the higher-level protocols and profiles, and most importantly, provides a high-level API for applications.</p>
 <p>Perhaps the most important block is the Generic Access Profile (GAP). GAP simplifies Bluetooth LE access by defining four distinct roles of BLE usage:</p>

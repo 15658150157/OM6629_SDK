@@ -130,7 +130,7 @@ $(document).ready(function(){initNavTree('BLE_DTM.html',''); initResizable(); })
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_doxygen_source_ble_ble_dtm"></a></p>
-<h1><a class="anchor" id="autotoc_md169"></a>
+<h1><a class="anchor" id="autotoc_md170"></a>
 Overview</h1>
 <p>Direct Test Mode is used to control the DUT and provides a report back to the Tester. Direct Test Mode shall be set up by one of two alternative methods:</p><ul>
 <li>over HCI</li>
@@ -142,7 +142,7 @@ Overview</h1>
 <div class="caption">
 Test Framework through HCI UART Interface</div></div>
     <p>DUT runs DTM application, and test equipment of CMW500 sends DTM commands to DUT. DTM application analyzes those commands and invokes related API to send packets to CMW500 (transmitter test) or receive packets from CMW500 (receiver test). Afterwards DTM application collects test result and sends to CMW500 by DTM events. CMW500 judges and displays results according to the DTM events.</p>
-<h1><a class="anchor" id="autotoc_md170"></a>
+<h1><a class="anchor" id="autotoc_md171"></a>
 Source Code</h1>
 <p>Source code can be seen in <code>projects/ble_hci</code>. The important communication UART parametter is shown as follow:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#define PAD_UART0_TXD       16</span></div>
@@ -163,7 +163,7 @@ Source Code</h1>
 <div class="ttc" id="agroup__UART_html_gga8672e9d7de4cca336a56ae117f3eab22a890f4cd218f6a253d6a886c716249b4d"><div class="ttname"><a href="group__UART.html#gga8672e9d7de4cca336a56ae117f3eab22a890f4cd218f6a253d6a886c716249b4d">UART_STOP_BIT_1</a></div><div class="ttdeci">@ UART_STOP_BIT_1</div><div class="ttdoc">UART frame with 1 stop bit.</div><div class="ttdef"><b>Definition:</b> drv_uart.h:54</div></div>
 <div class="ttc" id="astructuart__config__t_html"><div class="ttname"><a href="structuart__config__t.html">uart_config_t</a></div><div class="ttdoc">UART config.</div><div class="ttdef"><b>Definition:</b> drv_uart.h:90</div></div>
 <div class="ttc" id="astructuart__config__t_html_a736260dfb0b24aa8bf3bee3ada0d4a4e"><div class="ttname"><a href="structuart__config__t.html#a736260dfb0b24aa8bf3bee3ada0d4a4e">uart_config_t::baudrate</a></div><div class="ttdeci">uint32_t baudrate</div><div class="ttdef"><b>Definition:</b> drv_uart.h:91</div></div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md171"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md172"></a>
 Message Sequence Charts</h1>
 <p>Lower tester and upper tester are on behalf of CMW500. Test message sequences are shown as follow:</p>
 <div class="image">
@@ -176,9 +176,9 @@ Transmitter Test MSC</div></div>
 <div class="caption">
 Receiver Test MSC</div></div>
     <p>Upper tester sends command to DUT to order DUT prepare to receive test packets from lower tester. Lower tester sends test packets to DUT, and DUT reports event to upper tester after receive procedure is terminated.</p>
-<h1><a class="anchor" id="autotoc_md172"></a>
+<h1><a class="anchor" id="autotoc_md173"></a>
 Test Procedure</h1>
-<h2><a class="anchor" id="autotoc_md173"></a>
+<h2><a class="anchor" id="autotoc_md174"></a>
 Transmitter test</h2>
 <ol type="1">
 <li>Output power <blockquote class="doxtable">
@@ -194,7 +194,7 @@ Transmitter test</h2>
 </blockquote>
 </li>
 </ol>
-<h2><a class="anchor" id="autotoc_md174"></a>
+<h2><a class="anchor" id="autotoc_md175"></a>
 Receiver test</h2>
 <ol type="1">
 <li>Sensitivity Test <blockquote class="doxtable">

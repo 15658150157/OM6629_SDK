@@ -178,6 +178,17 @@ om_error_t drv_ecdsa_verify(const void *public_key, const void *msg, uint32_t ms
     return OM_ERROR_VERIFY;
 }
 
+/**
+ *******************************************************************************
+ * @brief ECDSA shared secret
+ *
+ * @param[in] peer_public_key   Pointer to peer public key, 4-byte alignment is required
+ * @param[in] private_key       Pointer to private key, 4-byte alignment is required
+ * @param[out] shared_secret    Pointer to shared secret
+ *
+ * @return om_error
+ *******************************************************************************
+ */
 om_error_t drv_uecc_shared_secret(const void *peer_public_key, const void *private_key, void *shared_secret)
 {
     if (om_uecc_shared_secret((const uint8_t *)peer_public_key, (const uint8_t *)private_key, (uint8_t *)shared_secret, om_uecc_secp256r1())) {
@@ -185,6 +196,32 @@ om_error_t drv_uecc_shared_secret(const void *peer_public_key, const void *priva
     }
 
     return OM_ERROR_FAIL;
+}
+
+/**
+ *******************************************************************************
+ * @brief ECDSA compress public key
+ *
+ * @param[in] public_key    Pointer to public key, 4-byte alignment is required
+ * @param[out] compressed    Pointer to compressed public key
+ *******************************************************************************
+ */
+void drv_uecc_compress(const void *public_key, void *compressed)
+{
+    om_uecc_compress(public_key, compressed, om_uecc_secp256r1());
+}
+
+/**
+ *******************************************************************************
+ * @brief ECDSA decompress public key
+ *
+ * @param[in] compressed     Pointer to compressed public key
+ * @param[out] public_key    Pointer to decompressed public key
+ *******************************************************************************
+ */
+void drv_uecc_decompress(const void *compressed, void *public_key)
+{
+    om_uecc_decompress(compressed, public_key, om_uecc_secp256r1());
 }
 
 #endif  /* (RTE_ECDSA) */

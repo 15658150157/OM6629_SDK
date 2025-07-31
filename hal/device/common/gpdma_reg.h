@@ -91,7 +91,7 @@ typedef struct {
 #define GPDMA_CHAN_CTRL_SRCWIDTH_POS                            20
 #define GPDMA_CHAN_CTRL_SRCWIDTH_MASK                           (3U << 20)
 #define GPDMA_CHAN_CTRL_SRCBURSTSIZE_POS                        22
-#define GPDMA_CHAN_CTRL_SRCBURSTSIZE_MASK                       (3U << 22)
+#define GPDMA_CHAN_CTRL_SRCBURSTSIZE_MASK                       (7U << 22)
 #define GPDMA_CHAN_CTRL_PRIORITY_POS                            29
 #define GPDMA_CHAN_CTRL_PRIORITY_MASK                           (1U << 29)
 

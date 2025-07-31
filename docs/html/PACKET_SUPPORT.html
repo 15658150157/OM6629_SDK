@@ -130,7 +130,7 @@ $(document).ready(function(){initNavTree('PACKET_SUPPORT.html',''); initResizabl
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_doxygen_source_24g_packet_support"></a> </p>
-<h1><a class="anchor" id="autotoc_md195"></a>
+<h1><a class="anchor" id="autotoc_md196"></a>
 Air Data Rate</h1>
 <p>The air data rate is the modulated signaling rate the chip uses when transmitting and receiving data. It can be 25kbps to 2Mbps. Using lower air data rate gives better receiver sensitivity than higher air data rate. But, high air data rate gives lower average current consumption and reduced probability of on-air collisions. The air data rate is set by the RF_DR register. A transmitter and a receiver must be programmed with the same air data rate to communicate with each other.</p>
 <p>The following table shows all configurable configurations of tx/rx air data rates:</p>
@@ -156,17 +156,17 @@ Air Data Rate</h1>
 <td class="markdownTableBodyLeft">Data Rate   </td><td class="markdownTableBodyLeft">125k   </td><td class="markdownTableBodyLeft">100k   </td><td class="markdownTableBodyLeft">62.5k   </td><td class="markdownTableBodyLeft">50k   </td><td class="markdownTableBodyLeft">125k   </td><td class="markdownTableBodyLeft">62.5k   </td><td class="markdownTableBodyLeft">50k   </td><td class="markdownTableBodyLeft">31.25k   </td><td class="markdownTableBodyLeft">25k   </td></tr>
 </table>
 <p>example：Without enabling the TX low rate mode(EN_TX_ARB = 0), TX_RF_DR is 2, indicating a base rate of 1M. If EN_TX_ARB is 1, N_REP(2) is the frequency division value, The final data rate is equal to TX_RF_DR divided by N_REP (1M / 2 = 500k). The sending and receiving data rate can be independently configured with different values.</p>
-<h1><a class="anchor" id="autotoc_md196"></a>
+<h1><a class="anchor" id="autotoc_md197"></a>
 Frequency  Setting</h1>
 <p>Configure frequency points by <a class="el" href="group__OM24G.html#ga43dc04c9a58b35d31dbb21e3ae16a444" title="Set 2.4G frequency point.">drv_om24g_set_freq(uint16_t freq, float fract_freq)</a>; For example, if you want to configure 2412.378456MHZ frequency points, set freq to 2412 and fract_freq to 0.378456.</p>
-<h1><a class="anchor" id="autotoc_md197"></a>
+<h1><a class="anchor" id="autotoc_md198"></a>
 DMA</h1>
 <ul>
 <li>DMA realizes automatic data transfer from system RAM to TX FIFO and RX FIFO to system RAM without participation of MCU.</li>
 <li>As a PTX device, if DMA TX function is enabled, the data in system RAM will be read out by DMA and written into TX FIFO.</li>
 <li>As a PRX device, when PRX received a packet, the data in RX FIFO will be read out by DMA and written into system RAM automatic.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md198"></a>
+<h1><a class="anchor" id="autotoc_md199"></a>
 Address Match</h1>
 <ul>
 <li>Address match Setting <a class="el" href="structom24g__config__t.html#a9fcf8eaf553582afb28f250521af31da" title="If it is 1, check if rx pipe address matches, and if it is 0, do not check.">om24g_config_t::addr_chk</a> to 1 enables the packet address match.</li>
@@ -176,7 +176,7 @@ Address Match</h1>
 <li>If packet structure A is selected, adress0 subfield would be used for address match.</li>
 <li>If packet structure B is selected, adress1 subfield in head field (or before/after head field) would be used for address match.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md199"></a>
+<h1><a class="anchor" id="autotoc_md200"></a>
 RX Termination Timer</h1>
 <ul>
 <li>When chip is a PTX and acknowledgement function is enabled, it has a function for automatic termination of RX after a programmable time. The termination timer starts when in RX state. The timeout is programmable with register FA_SETUP_RETR.ARD. When the timer expires, there’s that different operation.</li>
@@ -184,7 +184,7 @@ RX Termination Timer</h1>
 <li>In packet structure B, the radio controller will go to TX MODE.</li>
 <li>A RX timeout interrupt will happen if the interrupt is enabled.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md200"></a>
+<h1><a class="anchor" id="autotoc_md201"></a>
 Bit Count Match</h1>
 <ul>
 <li>The radio implements a simple counter that can be configured to generate an event after a specific number of bits have been received.</li>
@@ -203,10 +203,10 @@ structure A bit counter example</div></div>
 <img src="Frame_B_bit_counter_example.png" alt=""/>
 <div class="caption">
 structure B bit counter example</div></div>
-    <h1><a class="anchor" id="autotoc_md201"></a>
+    <h1><a class="anchor" id="autotoc_md202"></a>
 Timestamp</h1>
 <p>The software uses the 32bit counter to realize the timestamp function and completes the synchronization process of different device time. If timestamp function is enabled, timestamp field will be transmitted after the payload field. The 4-bytes timestamp is included in payload field. The timestamp of the transmitting device is locked after sending the header. The four byte timestamp is included in the length.</p>
-<h1><a class="anchor" id="autotoc_md202"></a>
+<h1><a class="anchor" id="autotoc_md203"></a>
 CRC</h1>
 <p>The CRC polynomial is configurable as illustrated in Figure CRC generation of an n bit CRC where bit0 in the CRCPOLY register corresponds to X0 and bit1 corresponds to X1 etc. Polynomial is set by <a class="el" href="structom24g__config__t.html#a7c5559cef5f3c7c8724e041305c3adbd" title="CRC Polynomial.">om24g_config_t::crc_poly</a>. CRC initital value is set by <a class="el" href="structom24g__config__t.html#a290a8d80ab65e8eaa4eed683cf5f7dc3" title="CRC initital value.">om24g_config_t::crc_init</a>.</p>
 <div class="image">
@@ -224,7 +224,7 @@ CRC generation of mode_1</div></div>
 <p>In packet structure A, the scope of CRC is fixed: includes sync_word, 1-byte address field, 2 bytes guard field (if guard field exist), header field, and payload field.</p>
 <p>In packet structure B, the scope of CRC includes sync_word, header, payload and timestamp field. The scope of CRC for these field is individual optional.</p>
 <dl class="section note"><dt>Note</dt><dd>If you need to modify the CRC configuration again, for example, CRC_CFG, CRC_SKIP, you needs to call OM24G_CE_LOW() to turn off the RF, and then perform new data communication (for example, the CRC calculation of ADDR is calculated immediately after the last receive). The CRC_SKIP_ADDR modified later will not work in the current transfer).</dd></dl>
-<h1><a class="anchor" id="autotoc_md203"></a>
+<h1><a class="anchor" id="autotoc_md204"></a>
 Date  Whitening</h1>
 <p>From a radio perspective, the ideal over the air data are random and DC free. This results in the smoothest power distribution over the occupied bandwidth. This also gives the regulation loops in the receiver uniform operation conditions (no data dependencies). Real world data often contain long sequences of zeros and ones. Performance can then be improved by whitening the data before transmitting, and de-whitening the data in the receiver. Selected field data are then XOR-ed with pseudo-random sequence before being transmitted. At the receiver end, the data are XOR-ed with the same pseudo-random sequence. This way, the whitening is reversed, and the original data appear in the receiver. In OM6XXX, this can be done automatically by setting <a class="el" href="structom24g__config__t.html#ae427283a87e2fceb359536c85b8de8d4" title="Enable whitening.">om24g_config_t::white_en</a> = 1. <br  />
 </p>
@@ -266,31 +266,31 @@ PN8 = x8+x4+x+1 (Fibonacci) (WHITE_SEL = 6)</div></div>
 State grid iot table whitening (Galois) (WHITE_SEL = 7)</div></div>
     <p><b>Data Whitening Range:</b></p>
 <p>Data whitening ranges include header field, addr1 field, payload field, and crc field. You can set whitening Fields that are not whitened by setting <a class="el" href="structom24g__config__t.html#ac2589f4fb7ebd786211a0c1e8321b931" title="1: Do not whiten the pipe address.">om24g_config_t::white_skip_addr</a>, <a class="el" href="structom24g__config__t.html#a06d14f0fadcda54aafc360881355a82a" title="1: Do not whiten the header.">om24g_config_t::white_skip_hdr</a> and <a class="el" href="structom24g__config__t.html#a58f979584fe89fc795c58c4b19db105e" title="1: Do not whiten CRC.">om24g_config_t::white_skip_crc</a>. When the addr1 field is inside the header, white_skip_addr is invalid. In the case of header whitening, addr1 field is forcibly whitened(FB_PKTCTRL.ADDR1_LOC = 0x00). When the address is outside the header, white_skip_addr is valid.</p>
-<h1><a class="anchor" id="autotoc_md204"></a>
+<h1><a class="anchor" id="autotoc_md205"></a>
 Demodulation Mode</h1>
 <p>To prevent improper use by customers, modifying the demodulation mode in the config structure is invalid for 66xx. Forcefully set the demodulation mode for each rate in the <a class="el" href="group__OM24G.html#ga0622fa284faad1ea906cc5b0259de699" title="Set transmission rate, frequency point. The speed only allows the use of speeds listed in enumeration...">drv_om24g_set_rf_parameters()</a> function, which is suitable for most chips' reception, but can be switched in this function if the reception effect is poor. There are three demodulation modes:</p>
-<h3><a class="anchor" id="autotoc_md205"></a>
+<h3><a class="anchor" id="autotoc_md206"></a>
 SOFT DETECTION</h3>
 <ul>
 <li>The modulation index supports 0.5 and 0.32.</li>
 <li>The speed supports 1M, 2M, 500K, and 250K, but does not support low-speed mode. Enter low rate mode when EN_TX_ARB or EN_RX_ARB is set to 1.</li>
 <li>Highest accruacy, highest latency.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md206"></a>
+<h3><a class="anchor" id="autotoc_md207"></a>
 HARD DETECTION</h3>
 <ul>
 <li>Suport all modulation index(0~2).</li>
 <li>The speed supports 1M, 500K, 250K and low-speed mode(25k~250k), but does not support 2M.</li>
 <li>Middle accruacy, middle latency.</li>
 </ul>
-<h3><a class="anchor" id="autotoc_md207"></a>
+<h3><a class="anchor" id="autotoc_md208"></a>
 DPLL DETECTION</h3>
 <ul>
 <li>Suport all modulation index(0~2).</li>
 <li>Supports all rates.(25K~2M).</li>
 <li>Lowest accruacy, lowest latency.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md208"></a>
+<h1><a class="anchor" id="autotoc_md209"></a>
 MSB/LSB Endian</h1>
 <p>Byte endianness of sync word field、bit endianness of sync word field、byte endianness of CRC field、bit endianness of CRC field、 bit endianness of header field、bit endianness of address field and bit endianness of payload field can be configured through the ENDIAN register. </p>
 </div></div><!-- contents -->

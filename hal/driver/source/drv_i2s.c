@@ -145,6 +145,9 @@ static void i2s_enable_daif_16m(i2s_role_t role)
     /// Reset Audio module and Enable clock
     DRV_RCC_RESET(RCC_CLK_AUDIO);
 
+    /// Poweron Audio IREF use for Audio 16M clock
+    register_set(&OM_AUDIO->CODEC_ANA_CTRL_1, MASK_1REG(AU_ANA_PD_IREF, 0));
+
     // I2S_SDI and I2S_SDO connecnt to GPIO
     register_set(&OM_AUDIO->CODEC_CLK_CTRL_1, MASK_1REG(AU_CLK_I2S_CONN_CTRL, 0));
 
@@ -167,6 +170,9 @@ static void i2s_disable_daif_16m(void)
         // Close DAIF clock
         DRV_RCC_CLOCK_ENABLE(RCC_CLK_DAIF, 0U);
     }
+
+    /// Powerdown Audio IREF use for Audio 16M clock
+    register_set(&OM_AUDIO->CODEC_ANA_CTRL_1, MASK_1REG(AU_ANA_PD_IREF, 1));
 
     /// Power off LDO and BIAS
     register_set(&OM_AUDIO->CODEC_ANA_CTRL_1, MASK_1REG(AU_ANA_PD_CLK, 1));
@@ -326,7 +332,7 @@ static void i2s_gpdma_tx_isr_cb(void *p_resource, drv_event_t event, gpdma_chain
 
     /// Make list work up when node number smaller than 2
 #if RTE_I2S_GPDMA_LLP_CHAIN_NUM <= 2
-    drv_gpdam_channel_set_ptr(env->tx_gpdma_idx, &env->tx_chain_env[env->tx_chain_rpos]);
+    drv_gpdma_channel_set_ptr(env->tx_gpdma_idx, &env->tx_chain_env[env->tx_chain_rpos]);
 #endif
 
     /// Handle callback
@@ -357,7 +363,7 @@ static void i2s_gpdma_tx_isr_cb(void *p_resource, drv_event_t event, gpdma_chain
 
             if(check_addr) {
                 if(ll_ptr) {
-                    drv_gpdam_channel_set_ptr(env->tx_gpdma_idx, &env->tx_chain_env[(next + 1) % RTE_I2S_GPDMA_LLP_CHAIN_NUM]);
+                    drv_gpdma_channel_set_ptr(env->tx_gpdma_idx, &env->tx_chain_env[(next + 1) % RTE_I2S_GPDMA_LLP_CHAIN_NUM]);
                 }
 
                 if(drv_gpdma_channel_is_busy(env->tx_gpdma_idx) == 0) {
@@ -410,7 +416,7 @@ static void i2s_gpdma_rx_isr_cb(void *p_resource, drv_event_t event, gpdma_chain
 
     /// Make list work up when node number smaller than 2
 #if RTE_I2S_GPDMA_LLP_CHAIN_NUM <= 2
-    drv_gpdam_channel_set_ptr(env->rx_gpdma_idx, &env->rx_chain_env[env->rx_chain_rpos]);
+    drv_gpdma_channel_set_ptr(env->rx_gpdma_idx, &env->rx_chain_env[env->rx_chain_rpos]);
 #endif
 
     /// Handle callback
@@ -441,7 +447,7 @@ static void i2s_gpdma_rx_isr_cb(void *p_resource, drv_event_t event, gpdma_chain
 
             if(check_addr) {
                 if(ll_ptr) {
-                    drv_gpdam_channel_set_ptr(env->rx_gpdma_idx, &env->rx_chain_env[(next + 1) % RTE_I2S_GPDMA_LLP_CHAIN_NUM]);
+                    drv_gpdma_channel_set_ptr(env->rx_gpdma_idx, &env->rx_chain_env[(next + 1) % RTE_I2S_GPDMA_LLP_CHAIN_NUM]);
                 }
 
                 if(drv_gpdma_channel_is_busy(env->rx_gpdma_idx) == 0) {

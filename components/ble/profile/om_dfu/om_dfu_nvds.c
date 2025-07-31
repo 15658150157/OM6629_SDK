@@ -86,7 +86,7 @@ static uint8_t om_dfu_nvds_enable_flash(void)
 }
 static uint8_t om_dfu_nvds_get_flash(uint32_t id, uint32_t *lengthPtr, void *buf)
 {
-    om_error_t res = drv_flash_read(OM_FLASH0, id, buf, *lengthPtr);
+    om_error_t res = drv_flash_read(OM_FLASH0, id, buf, *lengthPtr, 1000);
     if (res == OM_ERROR_OK) {
         return OM_DFU_NVDS_ST_SUCCESS;
     } else {
@@ -95,7 +95,7 @@ static uint8_t om_dfu_nvds_get_flash(uint32_t id, uint32_t *lengthPtr, void *buf
 }
 static uint8_t om_dfu_nvds_put_flash(uint32_t id, uint32_t length, void *buf)
 {
-    om_error_t res = drv_flash_write(OM_FLASH0, id, buf, length);
+    om_error_t res = drv_flash_write(OM_FLASH0, id, buf, length, 1000);
     if (res == OM_ERROR_OK) {
         return OM_DFU_NVDS_ST_SUCCESS;
     } else {
@@ -106,7 +106,7 @@ static uint8_t om_dfu_nvds_del_flash(uint32_t id, uint32_t length)
 {
     uint32_t st = id & ~0x0FFFUL, en = (id + length + 0xFFF) & ~0x0FFFUL;
     for (int i = st; i < en; i += 0x1000) {
-        om_error_t res = drv_flash_erase(OM_FLASH0, i, FLASH_ERASE_4K);
+        om_error_t res = drv_flash_erase(OM_FLASH0, i, FLASH_ERASE_4K, 1000);
         if (res != OM_ERROR_OK) {
             return OM_DFU_NVDS_ST_FAILED;
         }
@@ -157,4 +157,3 @@ const dfu_nvds_itf_t dfu_nvds_itf[] = {
 };
 
 /** @} */
-

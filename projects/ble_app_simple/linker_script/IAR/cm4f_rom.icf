@@ -44,7 +44,7 @@ define region RAM_region    = mem:[from __ICFEDIT_region_RAM_start__  to  __ICFE
 
 define block VECTOR          with alignment = 128 { section .intvec };
 define block CODE            with alignment = 32  { section CODE, section .text, section .rodata };
-define block RW_RAM          with alignment = 32  { section .textrw, section .ram_rodata, section .data, section .bss };
+define block RW_RAM          with alignment = 32  { first section .ram_ble_em, section .textrw, section .ram_rodata, section .data, section .bss };
 define block CSTACK          with alignment = 8,  size = __ICFEDIT_size_cstack__        { };
 
 define block TEXTRW_COPY     with alignment = 32  { section .textrw_init };

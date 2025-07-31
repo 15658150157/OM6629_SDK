@@ -25,7 +25,7 @@ var searchData=
   ['req_5fsubevent_22',['req_subevent',['../structob__gap__padv__resp__data__t.html#adf86559c78a7a4feb9b0c55526f38d2a',1,'ob_gap_padv_resp_data_t']]],
   ['res_23',['res',['../structospi__config__t.html#a7a5b1981961152b4bc5390927169fe4e',1,'ospi_config_t']]],
   ['reserve_24',['reserve',['../structaudio__alc__config__t.html#acbeaade4182aabd35d0b2eb623f271ee',1,'audio_alc_config_t::reserve()'],['../unionospi__clk__param__t.html#a60faf90d276a6f415c6fbf2d61dfeabb',1,'ospi_clk_param_t::reserve()']]],
-  ['reserved_25',['reserved',['../structdrv__gpadc__cpft__calib__t.html#a5cbf7fb453c94126e9e2eda6b3db8f9a',1,'drv_gpadc_cpft_calib_t']]],
+  ['reserved_25',['reserved',['../structdrv__gpadc__cpft__calib__t.html#a667bc305f55ddf4e2013edf16608e865',1,'drv_gpadc_cpft_calib_t']]],
   ['reset_5fper_26',['reset_per',['../structrgb__config__t.html#ac35c7d591124954063b4af5497365205',1,'rgb_config_t']]],
   ['resp_5fslot_27',['resp_slot',['../structob__gap__padv__resp__data__t.html#a488187644451a1709cdd4dedf29ffb34',1,'ob_gap_padv_resp_data_t']]],
   ['resp_5fsubevent_28',['resp_subevent',['../structob__gap__padv__resp__data__t.html#a5d6a8738fa873f5dceda28858ffa8282',1,'ob_gap_padv_resp_data_t']]],

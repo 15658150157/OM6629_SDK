@@ -521,6 +521,7 @@ var group__OMBLE__GAP =
     [ "ob_gap_padv_connect", "group__OMBLE__GAP.html#ga5531e6f7089e040c3ef23679f2ea91b6", null ],
     [ "ob_gap_padv_set_sync_trans_param", "group__OMBLE__GAP.html#ga49e8df406bf7e68a46fe1c29a44f1d67", null ],
     [ "ob_gap_padv_sync_trans", "group__OMBLE__GAP.html#ga7c5ebd486f0f7daa8bd703ee8850c183", null ],
+    [ "ob_gap_pairing_abort", "group__OMBLE__GAP.html#gacbb7d16d1ab2ad006342184142de6051", null ],
     [ "ob_gap_pairing_request", "group__OMBLE__GAP.html#gacce9ca33468882750ec3442eae1834e9", null ],
     [ "ob_gap_pairing_response", "group__OMBLE__GAP.html#gaaaaffa4abc24522f9a0c5aa4c72a8a59", null ],
     [ "ob_gap_period_adv_list_set", "group__OMBLE__GAP.html#gaaa8059b477b0173c3b7e5b1bb5380f94", null ],

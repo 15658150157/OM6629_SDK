@@ -906,6 +906,7 @@ void drv_uart_isr(OM_UART_Type *om_uart)
     drv_env_t *env;
     const drv_resource_t  *resource;
     uint8_t int_status;
+    uint32_t int_status_clr;
 
     resource = uart_get_resource(om_uart);
     if (resource == NULL) {
@@ -966,7 +967,7 @@ void drv_uart_isr(OM_UART_Type *om_uart)
             }
             // clear timeout int if timeout come but data is not ready,
             int_status = (om_uart->IIR & UART_IIR_INT_ID_MASK);
-            if (UART_IIR_CTI == int_status) {
+            if ((UART_IIR_CTI == int_status) && (!(om_uart->LSR & UART_LSR_DR))) {
                 // data come
                 om_uart->LCR |= UART_LCR_TIMEOUT_SW_CLEAR;
             }
@@ -1006,6 +1007,11 @@ void drv_uart_isr(OM_UART_Type *om_uart)
             event = uart_rx_line_int_handler(om_uart);
             drv_uart_isr_callback(om_uart, event, env->rx_buf, 0U);
             break;
+        //Busy detect
+        case UART_IIR_BDI:
+             int_status_clr = om_uart->USR;
+             drv_uart_isr_callback(om_uart, DRV_EVENT_UART_BUSY_DETECT, env->rx_buf, env->rx_num);
+             break;
         default:
             if (int_status&UART_IIR_LBDI) {
                 om_uart->IER |= UART_IER_LBDCF;
@@ -1013,6 +1019,8 @@ void drv_uart_isr(OM_UART_Type *om_uart)
             }
             break;
     }
+
+    (void)int_status_clr;
 }
 
 

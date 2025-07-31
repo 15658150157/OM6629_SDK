@@ -87,6 +87,7 @@ typedef enum {
     DRV_EVENT_UART_DCD                          = (1U << 22),
     DRV_EVENT_UART_RI                           = (1U << 23),
     DRV_EVENT_UART_LIN_BREAK_DETECT             = (1U << 24),
+    DRV_EVENT_UART_BUSY_DETECT                  = (1U << 25),
     /*!< TIMER */
     DRV_EVENT_TIM_UPDATE                        = (1U << 16),
     DRV_EVENT_TIM_CC1                           = (1U << 17),
