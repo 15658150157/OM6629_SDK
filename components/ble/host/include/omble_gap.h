@@ -212,6 +212,13 @@ enum ob_gap_phy {
     OB_GAP_PHY_CODED    = 0x03,
 };
 
+/// PHY Options
+enum ob_gap_phy_ops {
+    OB_GAP_PHY_NO_PREFERRED = 0x00,
+    OB_GAP_PHY_PREFERS_S2   = 0x01,
+    OB_GAP_PHY_PREFERS_S8   = 0x02,
+};
+
 #define OB_GAP_ADDR_LEN 6               ///< Address length
 #define OB_GAP_RANDOM_LEN 8             ///< Random value length
 #define OB_GAP_KEY_LEN 16               ///< Key length

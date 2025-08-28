@@ -215,6 +215,7 @@ void drv_lcd_write(uint8_t *cmd, uint8_t cmd_bits, const uint8_t *data, uint16_t
     OM_LCD_Type *om_lcd = lcd_resource.reg;
     uint32_t cmd32[2] = {0, 0};
 
+    om_lcd->INTR_MASK &= ~LCD_INTR_MASK_SPI_CMD_DONE_MASK;
     cmd_format(cmd, cmd_bits, cmd32);
     drv_lcd_raw_write(cmd32, cmd_bits, data, data_len);
     while(!(om_lcd->RAW_INTR_STATUS & LCD_RAW_INTR_STATUS_SPI_CMD_DONE_MASK));

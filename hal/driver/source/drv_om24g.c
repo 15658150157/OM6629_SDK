@@ -746,6 +746,11 @@ void drv_om24g_isr(void)
     }
     if (OM24G_INT_CRC_ERR_MASK & status) {
     }
+    if (OM24G_INT_SYNC0_DET_MASK & status) {
+        if (om24g_env.event_cb) {
+            om24g_env.event_cb(OM_24G, DRV_EVENT_OM24G_SYNC, NULL, NULL);
+        }
+    }
 }
 
 void drv_om24g_tim_wakeup_isr(void)

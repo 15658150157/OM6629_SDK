@@ -116,6 +116,7 @@ typedef enum {
     DRV_EVENT_OM24G_MAX_RT                      = (1U << 18),
     DRV_EVENT_OM24G_INT_TIMER0                  = (1U << 19),
     DRV_EVENT_OM24G_INT_TIMER1                  = (1U << 20),
+    DRV_EVENT_OM24G_SYNC                        = (1U << 21),
     /*! IRTX */
     DRV_EVENT_IRTX_PWM_INT_PNUM_INT             = (1U << 0),
     DRV_EVENT_IRTX_PWM_INT_DMA_INT              = (1U << 1),

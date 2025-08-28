@@ -3,7 +3,7 @@
 # SDK makefile
 #
 ################################################################################
-# Inlucde all .mk
+# Include all .mk
 include $(SDK_DIR)/bsp/bsp.mk
 include $(SDK_DIR)/common/common.mk
 include $(SDK_DIR)/components/components.mk

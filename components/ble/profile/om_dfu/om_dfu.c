@@ -25,17 +25,33 @@
 #include "om_dfu.h"
 #include "om_dfu_config.h"
 #include "om_dfu_nvds.h"
+#if DFU_CTRL_SIGN_EN || DFU_FORCE_CHECK_SHA256_EN
+#include "om_driver.h"
+#if RTE_SHA256 == 0
+#error "RTE_SHA256 (RTE_om662x.h) MUST be set to 1"
+#endif
+#if RTE_SHA256_USING_BIG_ENDIAN != 0
+#error "RTE_SHA256_USING_BIG_ENDIAN (RTE_om662x.h) MUST be set to 0"
+#endif
+#define SHA256_BUF_SIZE 32
+#define SHA256_BLOCK_SIZE 64
+#endif
 #if (DFU_CTRL_SIGN_EN)
-#include "uECC.h"
-#include "sha256.h"
+#include "../source/drv_ecdsa/uECC/uECC.h"
+#if OM_UECC_VLI_NATIVE_LITTLE_ENDIAN == 0
+#error "OM_UECC_VLI_NATIVE_LITTLE_ENDIAN (uECC.h) MUST be set to 1"
+#endif
+#if OM_UECC_SUPPORTS_SECP192R1 == 0
+#error "OM_UECC_SUPPORTS_SECP192R1 (uECC.h) MUST be set to 1"
+#endif
 #define ECC_TYPE om_uecc_secp192r1()
 #define PRIV_KEY_SIZE 24
 extern uint8_t dfu_public_key[];
+#include "../tool/public_key.c"
 #elif  DFU_FORCE_CHECK_SHA256_EN
 #include "sha256.h"
 #define PRIV_KEY_SIZE 24
 #endif
-
 /*********************************************************************
  * MACROS
  */
@@ -332,7 +348,7 @@ static uint32_t cal_cmd_obj_size(uint8_t *cmd)
     // Check package length
     uint32_t res = sizeof(dfu_cmd_img_t) * img_cnt + DFU_CMDPKG_OFFSET_PKG;
 #if (DFU_CTRL_SIGN_EN)
-    res += PRIV_KEY_SIZE*2 + SHA256_BLOCK_SIZE;
+    res += PRIV_KEY_SIZE*2 + SHA256_BUF_SIZE;
 #endif
     return res;
 }
@@ -486,12 +502,14 @@ void dfu_write_cmd(const uint8_t *data, uint32_t len, dfu_response_t *response)
                         response->result = DFU_INVALID_PARAMETER;
                         break;
                     }
-                    uint8_t hash[SHA256_BLOCK_SIZE];
-                    SHA256_CTX ctx;
-                    sha256_init(&ctx);
-                    sha256_update(&ctx, cmd, p_env->obj_size - PRIV_KEY_SIZE*2);
-                    sha256_final(&ctx, hash);
-                    int res = om_uecc_verify(dfu_public_key, hash, SHA256_BLOCK_SIZE, cmd + p_env->obj_size - PRIV_KEY_SIZE*2, ECC_TYPE);
+                    uint8_t hash[SHA256_BUF_SIZE];
+                    drv_sha256_start();
+                    int sha256_size = p_env->obj_size - PRIV_KEY_SIZE*2;
+                    for(int i=0;i<sha256_size;i+=SHA256_BLOCK_SIZE){
+                        drv_sha256_update(&cmd[i], MIN(sha256_size - i, SHA256_BLOCK_SIZE));
+                    }
+                    drv_sha256_finish(hash);
+                    int res = om_uecc_verify(dfu_public_key, hash, SHA256_BUF_SIZE, cmd + p_env->obj_size - PRIV_KEY_SIZE*2, ECC_TYPE);
                     if(!res){
                         dfu_debug("Error signature\n");
                         response->result = DFU_OPERATION_NOT_PERMITTED;
@@ -552,9 +570,8 @@ void dfu_write_cmd(const uint8_t *data, uint32_t len, dfu_response_t *response)
                         dfu_assert(img_cnt <= DFU_MAX_IMG_NUM);
                         uint32_t cmd_img_new_addr[DFU_MAX_IMG_NUM], obj_crc32 = 0;
 #if (DFU_CTRL_SIGN_EN | DFU_FORCE_CHECK_SHA256_EN)
-                        uint8_t imgs_hash[SHA256_BLOCK_SIZE];
-                        SHA256_CTX imgs_ctx;
-                        sha256_init(&imgs_ctx);
+                        uint8_t imgs_hash[SHA256_BUF_SIZE];
+                        drv_sha256_start();
 #endif
 
                         const dfu_nvds_itf_t *info_ops_itf[DFU_MAX_IMG_NUM];// used for nvds info update
@@ -563,6 +580,10 @@ void dfu_write_cmd(const uint8_t *data, uint32_t len, dfu_response_t *response)
                         uint16_t sys_crc16[IMAGE_TYPE_MBR_MAX] = {0}; // used for mbr update
 
                         uint32_t i, j; // static uint32_t TEST_LEN = 0;
+#if (DFU_CTRL_SIGN_EN | DFU_FORCE_CHECK_SHA256_EN)
+                        uint8_t drv_sha256_cache[SHA256_BLOCK_SIZE];
+                        uint32_t drv_sha256_cache_len = 0;
+#endif
                         for(i=0;i<img_cnt;i++){ // Cal all CRC32
                             dfu_cmd_img_t *img = &imgs[i];
                             dfu_image_t raw_img_info = { IMAGE_TYPE_RAW };
@@ -599,7 +620,16 @@ void dfu_write_cmd(const uint8_t *data, uint32_t len, dfu_response_t *response)
                                 }
                                 obj_crc32 = dfu_crc32(m_cache, tmplen, &obj_crc32); //Cal all images'CRC
 #if (DFU_CTRL_SIGN_EN | DFU_FORCE_CHECK_SHA256_EN)
-                                sha256_update(&imgs_ctx, m_cache, tmplen);
+                                for(int idx=0;idx < tmplen;){
+                                    int copy_len = MIN(tmplen - idx, SHA256_BLOCK_SIZE - drv_sha256_cache_len);
+                                    memcpy(&drv_sha256_cache[drv_sha256_cache_len], &m_cache[idx], copy_len);
+                                    idx += copy_len;
+                                    drv_sha256_cache_len += copy_len;
+                                    if(drv_sha256_cache_len == SHA256_BLOCK_SIZE){
+                                        drv_sha256_update(drv_sha256_cache, SHA256_BLOCK_SIZE);
+                                        drv_sha256_cache_len = 0;
+                                    }
+                                }
 #endif
                                 // TEST_LEN += tmplen;
                                 if(img->type < IMAGE_TYPE_MBR_MAX){
@@ -617,14 +647,17 @@ void dfu_write_cmd(const uint8_t *data, uint32_t len, dfu_response_t *response)
                             break;
                         }
 #if (DFU_CTRL_SIGN_EN | DFU_FORCE_CHECK_SHA256_EN)
-                        sha256_final(&imgs_ctx, imgs_hash);
+                        if(drv_sha256_cache_len){
+                            drv_sha256_update(drv_sha256_cache, drv_sha256_cache_len);
+                        }
+                        drv_sha256_finish(imgs_hash);
                         //All hash cal done.
                         int sha256_result;
 #if (DFU_CTRL_SIGN_EN)
-                        uint8_t *p_hash = p_env->cmd_obj_buffer + cal_cmd_obj_size(p_env->cmd_obj_buffer) - PRIV_KEY_SIZE * 2 - SHA256_BLOCK_SIZE;
-                        sha256_result = memcmp(imgs_hash, p_hash, SHA256_BLOCK_SIZE);
+                        uint8_t *p_hash = p_env->cmd_obj_buffer + cal_cmd_obj_size(p_env->cmd_obj_buffer) - PRIV_KEY_SIZE * 2 - SHA256_BUF_SIZE;
+                        sha256_result = memcmp(imgs_hash, p_hash, SHA256_BUF_SIZE);
 #elif (DFU_FORCE_CHECK_SHA256_EN)
-                        sha256_result = dfu_sha256_cmp(imgs_hash, SHA256_BLOCK_SIZE);
+                        sha256_result = dfu_sha256_cmp(imgs_hash, SHA256_BUF_SIZE);
 #endif
                         if(sha256_result){
                             dfu_debug("Data object Hash NOT matched.\n");

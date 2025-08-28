@@ -1000,8 +1000,9 @@ static void handle_ep0(void)
                 musb_read_packet(0, g_musb_udc.out_ep[0].xfer_buf, read_count);
                 g_musb_udc.out_ep[0].xfer_buf += read_count;
                 g_musb_udc.out_ep[0].actual_xfer_len += read_count;
+                g_musb_udc.out_ep[0].xfer_len -= read_count;
 
-                if (read_count < g_musb_udc.out_ep[0].ep_mps) {
+                if (read_count < g_musb_udc.out_ep[0].ep_mps || g_musb_udc.out_ep[0].xfer_len == 0) {
                     usbd_event_ep_out_complete_handler(0, 0x00, g_musb_udc.out_ep[0].actual_xfer_len);
                     HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = (USB_CSRL0_RXRDYC | USB_CSRL0_DATAEND);
                     usb_ep0_state = USB_EP0_STATE_IN_STATUS;

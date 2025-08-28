@@ -138,6 +138,7 @@ static void drv_pmu_force_into_reboot_sleep_mode(void)
     __disable_irq();
     register_set(&OM_PMU->RSVD_SW_REG[0], PMU_RSVD_SW_REG_REBOOT_REASON_MASK, PMU_RSVD_SW_REG_REBOOT_FROM_ULTRA_DEEP_SLEEP);
     SCB->SCR |= 0x04;    // DEEPSLEEP flag
+    OM_PMU->SLEEP_WAKE_CTRL &= ~(PMU_SLEEP_WAKE_CTRL_RETENTION_RESTORE_EN_MASK + PMU_SLEEP_WAKE_CTRL_RETENTION_SAVE_EN_MASK);  // disable HW store/restore register
     // All RAM into power off mode in sleep
     OM_PMU->PSO_PM &= ~(PMU_PSO_RAM1_2_POWER_ON_MASK | PMU_PSO_RAM3_POWER_ON_MASK | PMU_PSO_RAM4_POWER_ON_MASK | PMU_PSO_RAM5_POWER_ON_MASK | PMU_PSO_ICACHE_POWER_ON_MASK);
     OM_PMU->RAM_CTRL_2 = (OM_PMU->RAM_CTRL_2 & (~(0xFFFU << 18)))

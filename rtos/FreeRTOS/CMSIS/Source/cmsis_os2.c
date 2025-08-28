@@ -501,7 +501,7 @@ uint32_t osKernelGetSysTimerCount (void) {
 */
 uint32_t osKernelGetSysTimerFreq (void) {
   /* Return frequency in hertz */
-  return (configCPU_CLOCK_HZ);
+  return (configTICK_RATE_HZ);
 }
 
 

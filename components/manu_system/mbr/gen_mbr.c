@@ -1,3 +1,24 @@
+/* ----------------------------------------------------------------------------
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ * -------------------------------------------------------------------------- */
+
+/**
+ * @defgroup DOC DOC
+ * @ingroup  DOCUMENT
+ * @brief    Generate MBR
+ * @details  Generate MBR
+ *
+ * @version
+ * Version 1.0
+ *  - Initial release
+ *
+ * @{
+ */
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -19,11 +40,11 @@ typedef struct __PACKED {
  *******************************************************************************
  * @brief Generate MBR
  *
- * @param[in] img_vma   程序执行的地址
- * @param[in] img_lma   程序在备份区中存放的地址
- * @param[in] img_len   固件长度
- * @param[in] img_hash  固件的hash
- * @param[out] mbr      填充完成的MBR，由使用者决定存放到MBR0(用于执行)还是MBR1(用于升级)
+ * @param[in] img_vma   Application execution address
+ * @param[in] img_lma   Application backup address
+ * @param[in] img_len   Application length
+ * @param[in] img_hash  Application hash
+ * @param[out] mbr      Generated MBR(512 bytes)
  *******************************************************************************
  */
 void gen_mbr(uint32_t img_vma, uint32_t img_lma, uint32_t img_len, uint8_t img_hash[32], uint8_t mbr[512])

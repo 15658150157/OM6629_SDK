@@ -83,19 +83,19 @@ end
 
 #DFSR
 set $dfsr_reg = *(unsigned int*)0xE000ED30
-if $dfsr_reg & (1<4)
+if $dfsr_reg & (1<<4)
     printf "Debug Fault: Indicate the debug event is caused by an external signal.\n"
 end
-if $dfsr_reg & (1<3)
+if $dfsr_reg & (1<<3)
     printf "Debug Fault: Indicate the debug event is caused by a vector catch.\n"
 end
-if $dfsr_reg & (1<2)
+if $dfsr_reg & (1<<2)
     printf "Debug Fault: Indicate the debug event is caused by a watchpoint.\n"
 end
-if $dfsr_reg & (1<1)
+if $dfsr_reg & (1<<1)
     printf "Debug Fault: Indicate the debug event is caused by a breakpoint.\n"
 end
-if $dfsr_reg & (1<0)
+if $dfsr_reg & (1<<0)
     printf "Debug Fault: Indicate the processor is halted by debugger request.\n"
 end
 
@@ -119,9 +119,3 @@ set $cpu_xpsr = *(unsigned int*)($sp_pos+28)
 
 printf "R0=0x%08x,  R1=0x%08x, R2=0x%08x,  R3=0x%08x\n", $cpu_r0, $cpu_r1, $cpu_r2, $cpu_r3
 printf "R12=0x%08x, LR=0x%08x, PC=0x%08x,  XPSR=0x%08x\n", $cpu_r12, $cpu_lr, $cpu_pc, $cpu_xpsr
-
-if ($cpu_r2 == 0xA55EFA1D) && ($cpu_r3 == 0xA55EFA1D)
-    printf "HARDFAULT should be caused by OM_ASSERT at %s:%d\n", $cpu_r0, $cpu_r1
-else
-    printf "HARDFAULT should be caused when PC run 0x%08x\n", $cpu_pc
-end

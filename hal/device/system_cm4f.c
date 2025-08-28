@@ -160,6 +160,12 @@ void SystemInit(void)
     // Set xtal32m load capacitance
     register_set(&OM_PMU->CLK_CTRL_2, PMU_CLK_CTRL_2_CT_XTAL32M_MASK, (37U << PMU_CLK_CTRL_2_CT_XTAL32M_POS));      // TX
     register_set(&OM_PMU->OM26B_CFG0, PMU_OM26B_CFG0_XTAL32M_CT_RX_MASK,(37U << PMU_OM26B_CFG0_XTAL32M_CT_RX_POS)); // RX
+
+    // Reset ROM Uart1 Pins(5,6) to GPIO
+    register_set(&OM_SYS->PINMUX[1], SYS_PINMUX_MASK(28, 8));
+    register_set(&OM_SYS->PINMUX[1], SYS_PINMUX_MASK(28, 16));
+    // Fixed io are latched when wdt reset in sleep or wakeup in ultra_deep_sleep
+    register_set(&OM_PMU->MISC_CTRL, (PMU_MISC_CTRL_GPIO_AUTO_LATCH_FSM_DIS_MASK | PMU_MISC_CTRL_GPIO_AUTO_LATCH_CTRL_MASK), 1U << PMU_MISC_CTRL_GPIO_AUTO_LATCH_FSM_DIS_POS);
 }
 
 /**

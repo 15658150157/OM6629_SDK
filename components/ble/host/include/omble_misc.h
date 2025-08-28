@@ -32,6 +32,8 @@ enum ob_opt_cfg_type {
     OB_OPT_CFG_TYPE_SMP_PIN_CODE                            = 5,
     OB_OPT_CFG_TYPE_SMP_PRIVATE_KEY                         = 6,
     OB_OPT_CFG_TYPE_SMP_MIN_KEY_SIZE                        = 7,
+    OB_OPT_CFG_TYPE_GAP_PADV_DISABLE_EXADV                  = 8,
+    OB_OPT_CFG_TYPE_GAP_PHY_OPTIONS                         = 9,
 };
 
 /// omble gap_ce_length
@@ -52,7 +54,9 @@ typedef union {
         int pin_code;
     } smp_pin_code;
     uint8_t smp_private_key[32];        ///< Private key, Write Only
-    uint8_t smp_min_key_size;           ///< Min key size for Pairing（default:16）
+    uint8_t smp_min_key_size;           ///< Min key size for Pairing(default:16)
+    uint8_t gap_padv_disable_exadv;     ///< Donnot enable extended advertising in period advertising
+    uint8_t gap_phy_options;            ///< Host to specify options for PHYs, @ref ob_gap_phy_ops
 } ob_opt_cfg_t;
 
 

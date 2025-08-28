@@ -1,5 +1,22 @@
 SDK Release Notes:
 --------------------------------------------------------------------------------
+20250826
+
+Version:
+    0.9.2082
+Changes:
+    1. 修复drv_lcd_write和drv_lcd_write_int混用可能会误进中断的问题
+    2. 修复ROM里配置的UART1 pinmux而造成的UART1不能使用的问题
+    3. 增加RF量产校准功能
+    4. 增加S2/S8选择功能
+    5. 修复BLE多连接可能会产生Assert的问题
+    6. 修改fault的gdb脚本DFSR寄存器解析错误的问题
+    7. 修复进入SLEEP/DEEP_SLEEP后WDT复位或者从ULTRA_DEEP_SLEEP唤醒，IO会被锁住的问题
+    8. 修复osKernelGetSysTimerFreq接口返回不正确的问题
+    9. 优化SET_REPORT的数据长度等于64时的EP0控制传输逻辑
+
+
+--------------------------------------------------------------------------------
 20250729
 
 Version:
