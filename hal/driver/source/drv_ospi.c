@@ -211,26 +211,19 @@ __RAM_CODE void drv_ospi_init(OM_OSPI_Type *om_ospi, const ospi_config_t *ospi_c
 __OSPI_RAM_CODE om_error_t drv_ospi_read(OM_OSPI_Type *om_ospi,
                                          uint32_t cmd[2],
                                          uint8_t *data,
-                                         uint32_t data_len,
-                                         uint32_t timeout_ms)
+                                         uint32_t data_len)
 {
-    uint32_t start_cycle;
-
     if (om_ospi->STATUS & OSPI_STATUS_BUSY_MASK) {
         return OM_ERROR_BUSY;
     }
-    start_cycle = drv_dwt_get_cycle();
+
     ospi_raw_read(om_ospi, cmd, data, data_len);
     // wait for transfer done
-    while (!(om_ospi->RAW_INT_STATUS & OSPI_RAW_INT_STATUS_SRIS_MASK)) {
-        if (drv_dwt_get_cycle() - start_cycle > DRV_DWT_MS_2_CYCLES_CEIL(timeout_ms)) {
-            return OM_ERROR_TIMEOUT;
-        }
-    }
+    while (!(om_ospi->RAW_INT_STATUS & OSPI_RAW_INT_STATUS_SRIS_MASK));
     om_ospi->RAW_INT_STATUS = OSPI_RAW_INT_STATUS_SRIS_MASK;
     // When data_len is 0, which means data has been included into cmd phase,
     // OSPI will not use DMA, so we get read data from RD_DATA reg.
-    // Not that RD_DATA is a FIFO, so data is in Big end format.
+    // Note that RD_DATA is a FIFO, so data is in Big end format.
     if ((data_len == 0) && (data != NULL)) {
         // Please make sure that data has at least 8byte room
         ((uint32_t *)data)[0] = om_ospi->RD_DATA0; /*lint !e2445*/
@@ -256,22 +249,14 @@ om_error_t drv_ospi_read_int(OM_OSPI_Type *om_ospi,
 __OSPI_RAM_CODE om_error_t drv_ospi_write(OM_OSPI_Type *om_ospi,
                                           uint32_t cmd[2],
                                           volatile uint8_t *data,
-                                          uint32_t data_len,
-                                          uint32_t timeout_ms)
+                                          uint32_t data_len)
 {
-    uint32_t start_cycle;
-
     if (om_ospi->STATUS & OSPI_STATUS_BUSY_MASK) {
         return OM_ERROR_BUSY;
     }
-    start_cycle = drv_dwt_get_cycle();
     ospi_raw_write(om_ospi, cmd, data, data_len);
     // wait for transfer done
-    while (!(om_ospi->RAW_INT_STATUS & OSPI_RAW_INT_STATUS_SRIS_MASK)) {
-        if (drv_dwt_get_cycle() - start_cycle > DRV_DWT_MS_2_CYCLES_CEIL(timeout_ms)) {
-            return OM_ERROR_TIMEOUT;
-        }
-    }
+    while (!(om_ospi->RAW_INT_STATUS & OSPI_RAW_INT_STATUS_SRIS_MASK));
     om_ospi->RAW_INT_STATUS = OSPI_RAW_INT_STATUS_SRIS_MASK;
     return OM_ERROR_OK;
 }

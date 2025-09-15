@@ -302,7 +302,7 @@ static void i2s_gpdma_tx_isr_cb(void *p_resource, drv_event_t event, gpdma_chain
     I2S_ASSERT((uint32_t)p_resource == (uint32_t)&i2s_resource);
 
     /// Only this event type can handle continue
-    if(DRV_GPDMA_EVENT_TERMINAL_COUNT_REQUEST != event) {
+    if(!(DRV_GPDMA_EVENT_TERMINAL_COUNT_REQUEST & event)) {
         return;
     }
 
@@ -386,7 +386,7 @@ static void i2s_gpdma_rx_isr_cb(void *p_resource, drv_event_t event, gpdma_chain
     I2S_ASSERT((uint32_t)p_resource == (uint32_t)&i2s_resource);
 
     /// Only this event type can handle continue
-    if(DRV_GPDMA_EVENT_TERMINAL_COUNT_REQUEST != event) {
+    if(!(DRV_GPDMA_EVENT_TERMINAL_COUNT_REQUEST & event)) {
         return;
     }
 

@@ -145,7 +145,6 @@ extern om_error_t drv_iflash_write_cmd_set(OM_SF_Type *om_flash, flash_write_t w
  * @param addr       The address of FLASH
  * @param data       The reading data buffer pointer in RAM
  * @param data_len   The reading data length
- * @param timeout_ms The timeout value in ms
  *
  * @return          Error code, see@ref om_error_t
  *******************************************************************************
@@ -153,8 +152,7 @@ extern om_error_t drv_iflash_write_cmd_set(OM_SF_Type *om_flash, flash_write_t w
 extern om_error_t drv_iflash_read(OM_SF_Type *om_flash,
                                   uint32_t addr,
                                   uint8_t *data,
-                                  uint32_t data_len,
-                                  uint32_t timeout_ms);
+                                  uint32_t data_len);
 
 /**
  *******************************************************************************
@@ -262,6 +260,35 @@ extern om_error_t drv_iflash_write_int_continue(OM_SF_Type *om_flash);
  *******************************************************************************
  */
 extern om_error_t drv_iflash_erase(OM_SF_Type *om_flash, uint32_t addr, flash_erase_t erase_type, uint32_t timeout_ms);
+
+/**
+ *******************************************************************************
+ * @brief internal FLASH erase start, it is not supported in xip mode
+ *        note: call drv_iflash_erase_is_done to check if erase is done,
+ *              if not, call again until erase is done
+ *
+ * @param om_flash      The internal FLASH controller device address
+ * @param addr          The address of FLASH
+ * @param erase_type    The erase size, see@ref flash_erase_t
+ *
+ * @return              Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_iflash_erase_start(OM_SF_Type *om_flash, uint32_t addr, flash_erase_t erase_type);
+
+/**
+ *******************************************************************************
+ * @brief internal FLASH erase is done, it is not supported in xip mode
+ *        note: it should be called after drv_iflash_erase_start to check if erase is done,
+ *              if not, call again until erase is done
+ *
+ * @param om_flash      The internal FLASH controller device address
+ *
+ * @return              1 means erase is done, 0 means erase is not done
+ *
+ *******************************************************************************
+ */
+extern uint8_t drv_iflash_erase_is_done(OM_SF_Type *om_flash);
 
 /**
  *******************************************************************************

@@ -204,12 +204,11 @@ extern void drv_ospi_register_isr_callback(OM_OSPI_Type *om_ospi, drv_isr_callba
  * @param[in] cmd            The command field, should be at most 64bit
  * @param[in] data           The address to store read data
  * @param[in] data_len       The data length
- * @param[in] timeout_ms     The timeout value in ms
  * @return The error infomation
  *
  *******************************************************************************
  */
-extern om_error_t drv_ospi_read(OM_OSPI_Type *om_ospi, uint32_t cmd[2], uint8_t *data, uint32_t data_len, uint32_t timeout_ms);
+extern om_error_t drv_ospi_read(OM_OSPI_Type *om_ospi, uint32_t cmd[2], uint8_t *data, uint32_t data_len);
 
 /**
  *******************************************************************************
@@ -237,7 +236,6 @@ extern om_error_t drv_ospi_read_int(OM_OSPI_Type *om_ospi, uint32_t cmd[2], uint
  *                                      if the data is from heap, it should be sure to be volatile,
  *                                      for example: volatile uint8_t *data = om_mem_malloc(X, X);
  * @param[in] data_len       The data length
- * @param[in] timeout_ms     The timeout value in ms
  * @return The error infomation
  *
  *******************************************************************************
@@ -245,8 +243,7 @@ extern om_error_t drv_ospi_read_int(OM_OSPI_Type *om_ospi, uint32_t cmd[2], uint
 extern om_error_t drv_ospi_write(OM_OSPI_Type *om_ospi,
                                  uint32_t cmd[2],
                                  volatile uint8_t *data,
-                                 uint32_t data_len,
-                                 uint32_t timeout_ms);
+                                 uint32_t data_len);
 
 /**
  *******************************************************************************

@@ -596,7 +596,7 @@ static void uart_cmd_flow_evt_handler(void)
 }
 
 
-static void uart_rx_handler(void *om_usart, drv_event_t event, void *rx_buf, void *rx_cnt)
+static void uart_rx_handler(OM_UART_Type *om_usart, drv_event_t event, uint8_t *rx_buf, uint32_t rx_cnt)
 {
     if (event & DRV_EVENT_COMMON_READ_COMPLETED) {
         while (rx_cnt--) {
@@ -734,7 +734,7 @@ static void fq_hardware_init(void)
         .lin_enable     = 0,
     };
     drv_uart_init(FQ_UART, &uart_cfg);
-    drv_uart_register_isr_callback(FQ_UART, uart_rx_handler);
+    drv_uart_register_isr_callback(FQ_UART, (drv_isr_callback_t)uart_rx_handler);
     drv_uart_read_int(FQ_UART, NULL, 0);
 }
 

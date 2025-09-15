@@ -12,7 +12,7 @@ if OM_LOG
             select SHELL
         config OM_LOG_TO_RTT
             bool "rtt"
-            select RTT
+            select SEGGER_RTT
         config OM_LOG_TO_UART
             bool "uart"
         config OM_LOG_TO_FLASH
@@ -57,4 +57,3 @@ if OM_LOG
         int "log line maximum length"
         default 256
 endif
-

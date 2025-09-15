@@ -372,6 +372,8 @@ static om_error_t spi_transfer_int(const drv_resource_t *resource)
     env = (spi_env_t *)(resource->env);
     om_spi = (OM_SPI_Type *)(resource->reg);
     fifo_space = SPI_FIFO_SIZE;
+    OM_CRITICAL_BEGIN();
+    om_spi->STAT = SPI_STAT_TX_EMPTY_INT_EN_MASK;
     switch (env->state) {
         case SPI_STATE_TX:
         case SPI_STATE_TRX:
@@ -391,7 +393,7 @@ static om_error_t spi_transfer_int(const drv_resource_t *resource)
         default:
             break;
     }
-    om_spi->STAT = SPI_STAT_TX_EMPTY_INT_EN_MASK;
+    OM_CRITICAL_END();
     return OM_ERROR_OK;
 }
 

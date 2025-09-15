@@ -399,7 +399,7 @@ static void musb_fifo_in_setup(uint8_t ep_idx)
 
     if (ep_idx == 0x00) {
         usb_ep0_state = USB_EP0_STATE_IN_DATA;
-        if (data_len < g_musb_udc.in_ep[ep_idx].ep_mps) {
+        if (data_len < g_musb_udc.in_ep[ep_idx].ep_mps || g_musb_udc.in_ep[ep_idx].ep_mps == g_musb_udc.in_ep[ep_idx].xfer_len) {
             HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = (USB_CSRL0_TXRDY | USB_CSRL0_DATAEND);
         } else {
             HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = USB_CSRL0_TXRDY;
@@ -945,78 +945,80 @@ static void handle_ep0(void)
 {
     uint8_t ep0_status = HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET);
     uint16_t read_count;
-
-    if (ep0_status & USB_CSRL0_STALLED) {
-        HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) &= ~USB_CSRL0_STALLED;
-        usb_ep0_state = USB_EP0_STATE_SETUP;
-        return;
-    }
-
-    if (ep0_status & USB_CSRL0_SETEND) {
-        HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = USB_CSRL0_SETENDC;
-    }
-
-    if (g_musb_udc.dev_addr > 0) {
-        HWREGB(USB_BASE + MUSB_FADDR_OFFSET) = g_musb_udc.dev_addr;
-        g_musb_udc.dev_addr = 0;
-    }
-
-    switch (usb_ep0_state) {
-        case USB_EP0_STATE_SETUP:
-            if (ep0_status & USB_CSRL0_RXRDY) {
-                read_count = HWREGH(USB_BASE + MUSB_IND_RXCOUNT_OFFSET);
-
-                if (read_count != 8) {
-                    return;
-                }
-
-                musb_read_packet(0, (uint8_t *)&g_musb_udc.setup, 8);
-                if (g_musb_udc.setup.wLength) {
-                    HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = USB_CSRL0_RXRDYC;
-                } else {
-                    HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = (USB_CSRL0_RXRDYC | USB_CSRL0_DATAEND);
-                }
-
-                usbd_event_ep0_setup_complete_handler(0, (uint8_t *)&g_musb_udc.setup);
-            }
-            break;
-
-        case USB_EP0_STATE_IN_DATA:
-            if (g_musb_udc.in_ep[0].xfer_len > g_musb_udc.in_ep[0].ep_mps) {
-                g_musb_udc.in_ep[0].actual_xfer_len += g_musb_udc.in_ep[0].ep_mps;
-                g_musb_udc.in_ep[0].xfer_len -= g_musb_udc.in_ep[0].ep_mps;
-            } else {
-                g_musb_udc.in_ep[0].actual_xfer_len += g_musb_udc.in_ep[0].xfer_len;
-                g_musb_udc.in_ep[0].xfer_len = 0;
-            }
-
-            usbd_event_ep_in_complete_handler(0, 0x80, g_musb_udc.in_ep[0].actual_xfer_len);
-
-            break;
-        case USB_EP0_STATE_OUT_DATA:
-            if (ep0_status & USB_CSRL0_RXRDY) {
-                read_count = HWREGH(USB_BASE + MUSB_IND_RXCOUNT_OFFSET);
-
-                musb_read_packet(0, g_musb_udc.out_ep[0].xfer_buf, read_count);
-                g_musb_udc.out_ep[0].xfer_buf += read_count;
-                g_musb_udc.out_ep[0].actual_xfer_len += read_count;
-                g_musb_udc.out_ep[0].xfer_len -= read_count;
-
-                if (read_count < g_musb_udc.out_ep[0].ep_mps || g_musb_udc.out_ep[0].xfer_len == 0) {
-                    usbd_event_ep_out_complete_handler(0, 0x00, g_musb_udc.out_ep[0].actual_xfer_len);
-                    HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = (USB_CSRL0_RXRDYC | USB_CSRL0_DATAEND);
-                    usb_ep0_state = USB_EP0_STATE_IN_STATUS;
-                } else {
-                    HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = USB_CSRL0_RXRDYC;
-                }
-            }
-            break;
-        case USB_EP0_STATE_IN_STATUS:
-        case USB_EP0_STATE_IN_ZLP:
+    do {
+        if (ep0_status & USB_CSRL0_STALLED) {
+            HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) &= ~USB_CSRL0_STALLED;
             usb_ep0_state = USB_EP0_STATE_SETUP;
-            usbd_event_ep_in_complete_handler(0, 0x80, 0);
-            break;
-    }
+            return;
+        }
+
+        if (ep0_status & USB_CSRL0_SETEND) {
+            HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = USB_CSRL0_SETENDC;
+        }
+
+        if (g_musb_udc.dev_addr > 0) {
+            HWREGB(USB_BASE + MUSB_FADDR_OFFSET) = g_musb_udc.dev_addr;
+            g_musb_udc.dev_addr = 0;
+        }
+
+        switch (usb_ep0_state) {
+            case USB_EP0_STATE_SETUP:
+                if (ep0_status & USB_CSRL0_RXRDY) {
+                    read_count = HWREGH(USB_BASE + MUSB_IND_RXCOUNT_OFFSET);
+
+                    if (read_count != 8) {
+                        return;
+                    }
+
+                    musb_read_packet(0, (uint8_t *)&g_musb_udc.setup, 8);
+                    if (g_musb_udc.setup.wLength) {
+                        HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = USB_CSRL0_RXRDYC;
+                    } else {
+                        HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = (USB_CSRL0_RXRDYC | USB_CSRL0_DATAEND);
+                    }
+
+                    usbd_event_ep0_setup_complete_handler(0, (uint8_t *)&g_musb_udc.setup);
+                }
+                break;
+
+            case USB_EP0_STATE_IN_DATA:
+                if (g_musb_udc.in_ep[0].xfer_len > g_musb_udc.in_ep[0].ep_mps) {
+                    g_musb_udc.in_ep[0].actual_xfer_len += g_musb_udc.in_ep[0].ep_mps;
+                    g_musb_udc.in_ep[0].xfer_len -= g_musb_udc.in_ep[0].ep_mps;
+                } else {
+                    g_musb_udc.in_ep[0].actual_xfer_len += g_musb_udc.in_ep[0].xfer_len;
+                    g_musb_udc.in_ep[0].xfer_len = 0;
+                }
+
+                usbd_event_ep_in_complete_handler(0, 0x80, g_musb_udc.in_ep[0].actual_xfer_len);
+
+                break;
+            case USB_EP0_STATE_OUT_DATA:
+                if (ep0_status & USB_CSRL0_RXRDY) {
+                    read_count = HWREGH(USB_BASE + MUSB_IND_RXCOUNT_OFFSET);
+
+                    musb_read_packet(0, g_musb_udc.out_ep[0].xfer_buf, read_count);
+                    g_musb_udc.out_ep[0].xfer_buf += read_count;
+                    g_musb_udc.out_ep[0].actual_xfer_len += read_count;
+                    g_musb_udc.out_ep[0].xfer_len -= read_count;
+
+                    if (read_count < g_musb_udc.out_ep[0].ep_mps || g_musb_udc.out_ep[0].xfer_len == 0) {
+                        usbd_event_ep_out_complete_handler(0, 0x00, g_musb_udc.out_ep[0].actual_xfer_len);
+                        HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = (USB_CSRL0_RXRDYC | USB_CSRL0_DATAEND);
+                        usb_ep0_state = USB_EP0_STATE_IN_STATUS;
+                    } else {
+                        HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET) = USB_CSRL0_RXRDYC;
+                    }
+                }
+                break;
+            case USB_EP0_STATE_IN_STATUS:
+            case USB_EP0_STATE_IN_ZLP:
+                usb_ep0_state = USB_EP0_STATE_SETUP;
+                usbd_event_ep_in_complete_handler(0, 0x80, 0);
+                break;
+        }
+        ep0_status = HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET);
+    } while(ep0_status);
 }
 
 void USBD_IRQHandler(uint8_t busid)

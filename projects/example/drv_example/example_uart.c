@@ -124,8 +124,6 @@ static void test_uart_cb(void *om_uart, drv_event_t event, void *rxbuf, void *rx
  */
 void example_uart_block(void)
 {
-    om_error_t error;
-
     drv_pin_init(pin_config, sizeof(pin_config) / sizeof(pin_config[0]));
 
     uart_config_t uart_cfg = {
@@ -140,8 +138,7 @@ void example_uart_block(void)
 
     memcpy(send_data, "hello\r\n", 7);
     drv_uart_write(TEST_UART, (uint8_t *)send_data, 7, 10);
-    error = drv_uart_read(TEST_UART, (uint8_t *)rec_data, 5, 3000);
-    if (error == OM_ERROR_TIMEOUT) {
+    if (drv_uart_read(TEST_UART, (uint8_t *)rec_data, 5, 3000) != 5U) {
         drv_uart_write(TEST_UART, (uint8_t *)"Read Timeout\n", 13, 10);
     }
     drv_uart_write(TEST_UART, (uint8_t *)rec_data, 5, 10);

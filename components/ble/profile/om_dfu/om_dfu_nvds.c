@@ -86,7 +86,7 @@ static uint8_t om_dfu_nvds_enable_flash(void)
 }
 static uint8_t om_dfu_nvds_get_flash(uint32_t id, uint32_t *lengthPtr, void *buf)
 {
-    om_error_t res = drv_flash_read(OM_FLASH0, id, buf, *lengthPtr, 1000);
+    om_error_t res = drv_flash_read(OM_FLASH0, id, buf, *lengthPtr);
     if (res == OM_ERROR_OK) {
         return OM_DFU_NVDS_ST_SUCCESS;
     } else {

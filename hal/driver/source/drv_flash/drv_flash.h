@@ -144,7 +144,6 @@ extern om_error_t drv_flash_write_cmd_set(OM_FLASH_Type om_flash, flash_write_t 
  * @param addr        The address of FLASH
  * @param data        The reading data buffer pointer in RAM
  * @param data_len    The reading data length
- * @param timeout_ms  The timeout value in ms
  *
  * @return          Error code, see@ref om_error_t
  *******************************************************************************
@@ -152,8 +151,7 @@ extern om_error_t drv_flash_write_cmd_set(OM_FLASH_Type om_flash, flash_write_t 
 extern om_error_t drv_flash_read(OM_FLASH_Type om_flash,
                                  uint32_t addr,
                                  uint8_t *data,
-                                 uint32_t data_len,
-                                 uint32_t timeout_ms);
+                                 uint32_t data_len);
 
 /**
  *******************************************************************************
@@ -261,6 +259,36 @@ extern om_error_t drv_flash_erase(OM_FLASH_Type om_flash,
                                   uint32_t addr,
                                   flash_erase_t erase_type,
                                   uint32_t timeout_ms);
+
+/**
+ *******************************************************************************
+ * @brief FLASH erase start, it is not supported in xip mode
+ *        note: call drv_flash_erase_is_done to check if erase is done,
+ *              if not, call again until erase is done
+ *
+ * @param om_flash      The FLASH controller device address
+ * @param addr          The address of FLASH
+ * @param erase_type    The erase size
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_flash_erase_start(OM_FLASH_Type om_flash,
+                                        uint32_t addr,
+                                        flash_erase_t erase_type);
+
+/**
+ *******************************************************************************
+ * @brief FLASH erase is done, it is not supported in xip mode
+ *        note: it should be called after drv_flash_erase_start to check if erase is done,
+ *              if not, call again until erase is done
+ *
+ * @param om_flash      The FLASH controller device address
+ *
+ * @return              1 means erase is done, 0 means erase is not done
+ *******************************************************************************
+ */
+extern uint8_t drv_flash_erase_is_done(OM_FLASH_Type om_flash);
 
 /**
  *******************************************************************************
@@ -555,12 +583,11 @@ extern om_error_t drv_flash_node_setup(OM_FLASH_Type om_flash, flash_list_node_t
  *
  * @param om_flash  The FLASH controller device address
  * @param list_head The node of list header
- * @param node_timeout_ms One node timeout value in ms
  *
  * @return          Error code, see@ref om_error_t
  *******************************************************************************
  */
-extern om_error_t drv_flash_list_start(OM_FLASH_Type om_flash, flash_list_node_t *list_head, uint32_t node_timeout_ms);
+extern om_error_t drv_flash_list_start(OM_FLASH_Type om_flash, flash_list_node_t *list_head);
 
 #endif /* RTE_FALSH1 */
 

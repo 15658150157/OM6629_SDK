@@ -174,7 +174,7 @@ static om_error_t psram_write_reg(uint8_t *data, uint32_t data_len, psram_cmd_t 
     // when read/write without dma, controller will use read sw_cfg
     psram_read_cmd_get(data, data_len, cmd);
     // program process
-    error = drv_ospi_read(OM_OSPI1, cmd, NULL, 0, PSRAM_TIMEOUT_DEFAULT);
+    error = drv_ospi_read(OM_OSPI1, cmd, NULL, 0);
     // restore write mode
     psram_read_cmd_set(psram_read_mode);
 
@@ -275,7 +275,7 @@ om_error_t drv_psram_init(OM_OSPI_Type *om_psram, const psram_config_t *psram_co
     return error;
 }
 
-om_error_t drv_psram_read(OM_OSPI_Type *om_psram, uint32_t addr, uint8_t *data, uint32_t data_len, uint32_t timeout_ms)
+om_error_t drv_psram_read(OM_OSPI_Type *om_psram, uint32_t addr, uint8_t *data, uint32_t data_len)
 {
     psram_env_t *env = &psram_env;
     uint32_t cmd[2] = {0};
@@ -286,7 +286,7 @@ om_error_t drv_psram_read(OM_OSPI_Type *om_psram, uint32_t addr, uint8_t *data, 
     }
     env->state = DRV_STATE_RX;
     psram_read_cmd_get((uint8_t *)&addr, 3, cmd);
-    error = drv_ospi_read(om_psram, cmd, data, data_len, timeout_ms);
+    error = drv_ospi_read(om_psram, cmd, data, data_len);
     env->state = DRV_STATE_INIT;
     return error;
 }
@@ -309,7 +309,7 @@ om_error_t drv_psram_read_int(OM_OSPI_Type *om_psram, uint32_t addr, uint8_t *da
     return error;
 }
 
-om_error_t drv_psram_write(OM_OSPI_Type *om_psram, uint32_t addr, uint8_t *data, uint32_t data_len, uint32_t timeout_ms)
+om_error_t drv_psram_write(OM_OSPI_Type *om_psram, uint32_t addr, uint8_t *data, uint32_t data_len)
 {
     psram_env_t *env = &psram_env;
     uint32_t cmd[2] = {0};
@@ -320,7 +320,7 @@ om_error_t drv_psram_write(OM_OSPI_Type *om_psram, uint32_t addr, uint8_t *data,
     }
     env->state = DRV_STATE_TX;
     psram_write_cmd_get((uint8_t *)&addr, 3, cmd);
-    error = drv_ospi_write(om_psram, cmd, data, data_len, timeout_ms);
+    error = drv_ospi_write(om_psram, cmd, data, data_len);
     env->state = DRV_STATE_INIT;
     return error;
 }
@@ -358,8 +358,8 @@ om_error_t drv_psram_read_id(OM_OSPI_Type *om_psram, psram_id_t *id)
     }
     psram_read_cmd_set(PSRAM_READ_ID);
     // issue a dummy read id
-    error = drv_psram_read(om_psram, 0, NULL, 0, PSRAM_TIMEOUT_DEFAULT);
-    error = drv_psram_read(om_psram, 0, (uint8_t *)id, 8, PSRAM_TIMEOUT_DEFAULT);
+    error = drv_psram_read(om_psram, 0, NULL, 0);
+    error = drv_psram_read(om_psram, 0, (uint8_t *)id, 8);
     psram_read_cmd_set(psram_read_mode);
     return error;
 }
@@ -420,7 +420,7 @@ om_error_t drv_psram_set_burst_len(OM_OSPI_Type *om_psram)
     return psram_write_reg(0, 0, PSRAM_SET_BURST_LEN);
 }
 
-om_error_t drv_psram_list_start(OM_OSPI_Type *om_psram, psram_list_node_t *list_head, uint32_t node_timeout_ms)
+om_error_t drv_psram_list_start(OM_OSPI_Type *om_psram, psram_list_node_t *list_head)
 {
     psram_env_t *env = &psram_env;
     uint8_t dummy;
@@ -437,7 +437,7 @@ om_error_t drv_psram_list_start(OM_OSPI_Type *om_psram, psram_list_node_t *list_
     }
     drv_ospi_list_start(om_psram, list_head);
     // a dummy read or write is required for activating list operation
-    return drv_psram_read(om_psram, 0, &dummy, 1, node_timeout_ms);
+    return drv_psram_read(om_psram, 0, &dummy, 1);
 }
 
 #if (RTE_PSRAM_REGISTER_CALLBACK)

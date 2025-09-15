@@ -110,7 +110,6 @@ extern om_error_t drv_psram_init(OM_OSPI_Type *om_psram, const psram_config_t *p
  * @param[in] addr           The address of psram
  * @param[in] data           The data pointer to store read data
  * @param[in] data_len       The data length to read
- * @param[in] timeout_ms     The timeout in ms
  *
  * @return    error          The result of read
  *
@@ -119,8 +118,7 @@ extern om_error_t drv_psram_init(OM_OSPI_Type *om_psram, const psram_config_t *p
 extern om_error_t drv_psram_read(OM_OSPI_Type *om_psram,
                                  uint32_t addr,
                                  uint8_t *data,
-                                 uint32_t data_len,
-                                 uint32_t timeout_ms);
+                                 uint32_t data_len);
 
 /**
  *******************************************************************************
@@ -148,7 +146,6 @@ extern om_error_t drv_psram_read_int(OM_OSPI_Type *om_psram,
  * @param[in] addr           The address of psram
  * @param[in] data           The data pointer to store write data
  * @param[in] data_len       The data length to read
- * @param[in] timeout_ms     The timeout in ms
  *
  * @return    error          The result of write
  *
@@ -157,8 +154,7 @@ extern om_error_t drv_psram_read_int(OM_OSPI_Type *om_psram,
 extern om_error_t drv_psram_write(OM_OSPI_Type *om_psram,
                                   uint32_t addr,
                                   uint8_t *data,
-                                  uint32_t data_len,
-                                  uint32_t timeout_ms);
+                                  uint32_t data_len);
 
 /**
  *******************************************************************************
@@ -254,13 +250,12 @@ extern om_error_t drv_psram_set_burst_len(OM_OSPI_Type *om_psram);
  *
  * @param[in] om_psram        Pointer to psram
  * @param[in] list_head       The first list node pointer
- * @param[in] node_timeout_ms The timeout in ms for each node
  *
  * @return    error           The result of start list transfer
  *
  *******************************************************************************
  */
-extern om_error_t drv_psram_list_start(OM_OSPI_Type *om_psram, psram_list_node_t *list_head, uint32_t node_timeout_ms);
+extern om_error_t drv_psram_list_start(OM_OSPI_Type *om_psram, psram_list_node_t *list_head);
 
 /**
  *******************************************************************************

@@ -131,6 +131,12 @@ __STATIC_FORCEINLINE bool drv_irq_is_any_ext_pending(void)
     uint32_t nvic_reg_num = EXTERNAL_IRQn_Num/32 + ((EXTERNAL_IRQn_Num%32) ? 1 : 0) ;
     uint32_t i;
 
+    // check systick pending
+    if ((SCB->ICSR & SCB_ICSR_PENDSTSET_Msk)
+            && (SysTick->CTRL & SysTick_CTRL_ENABLE_Msk) && (SysTick->CTRL & SysTick_CTRL_TICKINT_Msk)) {
+        return true;
+    }
+    // check external irq pending
     for (i=0; i<nvic_reg_num; ++i) {
         // NVIC_GetPendingIRQ & NVIC_GetEnableIRQ
         uint32_t ispr, iser;

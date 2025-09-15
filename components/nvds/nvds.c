@@ -102,7 +102,7 @@
 /// Set page start address mask bit
 #define NVDS_SET_PAGE_START_ADDRESS_MASK(mask, offset) (mask | (0x01 << offset))
 
-#define NVDS_READ(address, buf, length)       drv_flash_read(OM_FLASH0, address, buf, length, 1000)
+#define NVDS_READ(address, buf, length)       drv_flash_read(OM_FLASH0, address, buf, length)
 
 #define NVDS_WRITE(address, buf, length)      drv_flash_write(OM_FLASH0, address, buf, length, 1000)
 

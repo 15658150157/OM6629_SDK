@@ -1200,7 +1200,7 @@ osStatus_t osTimerStart (osTimerId_t timer_id, uint32_t ticks) {
   if (IRQ_Context() != 0U) {
     stat = osErrorISR;
   }
-  else if (hTimer == NULL) {
+  else if ((hTimer == NULL) || (ticks == 0U)) {
     stat = osErrorParameter;
   }
   else {

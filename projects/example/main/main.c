@@ -131,7 +131,7 @@ int main(void)
 
 void om_putchar(char character)
 {
-    while (OM_ERROR_OK != drv_uart_write(OM_UART1, (uint8_t *)&character, 1, DRV_MAX_DELAY));
+    drv_uart_write(OM_UART1, (uint8_t *)&character, 1, DRV_MAX_DELAY);
 }
 
 /** @} */

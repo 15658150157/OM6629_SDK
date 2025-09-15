@@ -479,31 +479,28 @@ void drv_uart_lin_send_break(OM_UART_Type *om_uart)
  * @param[in] data           Pointer where data to transmit from UART
  * @param[in] num            Number of data bytes to transmit
  *
- * @return status:
- *    - OM_ERROR_OK:         Transmit done
- *    - others:              No
+ * @return write bytes
  *******************************************************************************
  */
-om_error_t drv_uart_write(OM_UART_Type *om_uart, const uint8_t *data, uint16_t num, uint32_t timeout_ms)
+uint16_t drv_uart_write(OM_UART_Type *om_uart, const uint8_t *data, uint16_t num, uint32_t timeout_ms)
 {
-    om_error_t error;
-
     OM_ASSERT((data != NULL) && (num != 0));
 
     OM_CRITICAL_BEGIN();
     uart_tx_enable(om_uart, 1U);
     OM_CRITICAL_END();
     for (uint16_t i = 0; i < num; i++) {
+        om_error_t error;
         DRV_WAIT_MS_UNTIL_TO(!(om_uart->LSR & UART_LSR_THRE), timeout_ms, error);
         if (error != OM_ERROR_OK) {
-            return error;
+            return i;
         }
         om_uart->THR = data[i];
     }
     // wait for fifo/hold reg and shift reg empty
     while (!(om_uart->LSR & UART_LSR_TEMT));
 
-    return OM_ERROR_OK;
+    return num;
 }
 
 /**
@@ -511,8 +508,8 @@ om_error_t drv_uart_write(OM_UART_Type *om_uart, const uint8_t *data, uint16_t n
  * @brief Transmit number of bytes from UART by interrupt mode
  *
  * @param[in] om_uart       Pointer to UART
- * @param[in] data           Pointer where data to transmit from UART
- * @param[in] num            Number of data bytes to transmit
+ * @param[in] data          Pointer where data to transmit from UART
+ * @param[in] num           Number of data bytes to transmit
  *
  * @return status:
  *    - OM_ERROR_OK:         Begin to transmit
@@ -720,19 +717,15 @@ uint16_t drv_uart_get_write_count(OM_UART_Type *om_uart)
  *******************************************************************************
  * @brief Prepare receive number of bytes by block mode
  *
- * @param[in] om_uart       Pointer to UART
- * @param[in] data           Pointer where data to receive from UART
- * @param[in] num            Number of data bytes from UART receiver
+ * @param[in] om_uart   Pointer to UART
+ * @param[in] data      Pointer where data to receive from UART
+ * @param[in] num       Number of data bytes from UART receiver
  *
- * @return status:
- *    - OM_ERROR_OK:         receive done
- *    - others:              No
+ * @return Number of data bytes from UART
  *******************************************************************************
  */
-om_error_t drv_uart_read(OM_UART_Type *om_uart, uint8_t *data, uint16_t num, uint32_t timeout_ms)
+uint16_t drv_uart_read(OM_UART_Type *om_uart, uint8_t *data, uint16_t num, uint32_t timeout_ms)
 {
-    om_error_t error;
-
     // check input parameter
     OM_ASSERT((data != NULL) && (num != 0U));
 
@@ -740,14 +733,15 @@ om_error_t drv_uart_read(OM_UART_Type *om_uart, uint8_t *data, uint16_t num, uin
     uart_tx_enable(om_uart, 0U);
     OM_CRITICAL_END();
     for (uint16_t i = 0; i < num; i++) {
+        om_error_t error;
         DRV_WAIT_MS_UNTIL_TO(!(om_uart->LSR & UART_LSR_DR), timeout_ms, error);
         if (error != OM_ERROR_OK) {
-            return error;
+            return i;
         }
         data[i] = om_uart->RBR;
     }
 
-    return OM_ERROR_OK;
+    return num;
 }
 
 /**

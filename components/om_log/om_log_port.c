@@ -35,7 +35,7 @@
 #if (CONFIG_OM_LOG_TO_SHELL)
 #include "shell.h"
 #elif (CONFIG_OM_LOG_TO_RTT)
-#include "SEGGER_SYSVIEW.h"
+#include "SEGGER_RTT.h"
 #endif
 
 #if (CONFIG_SHELL && CONFIG_OM_LOG_TO_UART && (CONFIG_SHELL_UART_IDX == CONFIG_OM_LOG_UART_IDX))
@@ -90,6 +90,10 @@ void log_out_init(void)
     #if (CONFIG_OM_LOG_TO_FLASH)
     om_ringbuff_init(&log_rb, log_rb_buf, sizeof(log_rb_buf));
     #endif
+
+    #if (CONFIG_OM_LOG_TO_RTT)
+    SEGGER_RTT_Init();
+    #endif
 }
 
 // log putout porting function
@@ -101,9 +105,8 @@ void log_shell_out(const char *fmt, va_list va)
 #elif (CONFIG_OM_LOG_TO_RTT)
 void log_rtt_out(om_log_lvl_t level, const char *fmt, va_list va)
 {
-    uint32_t om2sysview_level_tbl[] = [0, SEGGER_SYSVIEW_ERROR, SEGGER_SYSVIEW_WARNING, 0, SEGGER_SYSVIEW_LOG];
-
-    SEGGER_SYSVIEW_VPrintfTarget(fmt, om2sysview_level_tbl[level], &ap);
+    (void)level;
+    SEGGER_RTT_vprintf(0, fmt, &va);
 }
 #elif (CONFIG_OM_LOG_TO_UART)
 void log_out(uint8_t *buf, uint32_t len)

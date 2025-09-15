@@ -182,12 +182,12 @@ void drv_uart_lin_send_break(OM_UART_Type *om_uart);
  * @param[in] om_uart       Pointer to UART
  * @param[in] data          Pointer to data buffer
  * @param[in] num           Number of data bytes to be sent
- * @param[in] timeout_ms    time out(ms), maybe used for flow control
+ * @param[in] timeout_ms    timeout(ms), maybe used for flow control
  *
- * @return errno
+ * @return write bytes
  *******************************************************************************
  */
-extern om_error_t drv_uart_write(OM_UART_Type *om_uart, const uint8_t *data, uint16_t num, uint32_t timeout_ms);
+extern uint16_t drv_uart_write(OM_UART_Type *om_uart, const uint8_t *data, uint16_t num, uint32_t timeout_ms);
 
 /**
  *******************************************************************************
@@ -270,10 +270,10 @@ extern uint16_t drv_uart_get_write_count(OM_UART_Type *om_uart);
  * @param[in] num           Number of data bytes to be received
  * @param[in] timeout_ms    time out(ms)
  *
- * @return errno
+ * @return Number of data bytes from UART
  *******************************************************************************
  */
-extern om_error_t drv_uart_read(OM_UART_Type *om_uart, uint8_t *data, uint16_t num, uint32_t timeout_ms);
+extern uint16_t drv_uart_read(OM_UART_Type *om_uart, uint8_t *data, uint16_t num, uint32_t timeout_ms);
 
 /**
  *******************************************************************************
