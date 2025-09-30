@@ -94,6 +94,32 @@
 #define FLASH_SUSPEND_CFG               CMD_CFG(0x75U, CMD_READ , 0 , 0)
 #define FLASH_RESUME_CFG                CMD_CFG(0x7AU, CMD_READ , 0 , 0)
 
+// used for EXT_FRAME_CONFIG xxx_width
+#define EXT_1BIT                        0
+#define EXT_2BIT                        1
+#define EXT_4BIT                        2
+
+// Extend cmd frame config, the cmd is build by software, not use sf internal cmd
+#define EXT_FRAME_CONFIG(cmd, rw_sel, cmd_width, cmd_bits, addr_width, addr_bits, dummy, data_width)  \
+    {                                                                                                 \
+        cmd,                                                                                          \
+        rw_sel,                                                                                       \
+        {                                                                                             \
+            ((cmd_width << SF_SW_SPI_CFG0_P0_WIDTH_POS) & SF_SW_SPI_CFG0_P0_WIDTH_MASK)       |       \
+            ((cmd_bits << SF_SW_SPI_CFG0_P0_BITS_POS) & SF_SW_SPI_CFG0_P0_BITS_MASK)          |       \
+            ((addr_width << SF_SW_SPI_CFG0_P1_WIDTH_POS) & SF_SW_SPI_CFG0_P1_WIDTH_MASK)      |       \
+            ((addr_bits << SF_SW_SPI_CFG0_P1_BITS_POS) & SF_SW_SPI_CFG0_P1_BITS_MASK)         |       \
+            ((dummy << SF_SW_SPI_CFG0_DUMMY_CNT_POS) & SF_SW_SPI_CFG0_DUMMY_CNT_MASK),                \
+            ((data_width << SF_SW_SPI_CFG1_DATA_WIDTH_POS) & SF_SW_SPI_CFG1_DATA_WIDTH_MASK)  |       \
+            ((4U << SF_SW_SPI_CFG1_BUF_BYTES_POS) & SF_SW_SPI_CFG1_BUF_BYTES_MASK)            |       \
+            ((1U << SF_SW_SPI_CFG1_SW_CFG_EN_POS) & SF_SW_SPI_CFG1_SW_CFG_EN_MASK)                    \
+        }                                                                                             \
+    }
+
+#define FLASH_SECURE_REG_ERASE_EXT_CFG  EXT_FRAME_CONFIG(0x44U, CMD_READ, EXT_1BIT, 8, EXT_1BIT, 24, 0, EXT_1BIT)
+#define FLASH_SECURE_REG_READ_EXT_CFG   EXT_FRAME_CONFIG(0x48U, CMD_READ, EXT_1BIT, 8, EXT_1BIT, 24, 8, EXT_1BIT)
+#define FLASH_SECURE_REG_WRITE_EXT_CFG  EXT_FRAME_CONFIG(0x42U, CMD_WRITE,EXT_1BIT, 8, EXT_1BIT, 24, 0, EXT_1BIT)
+
 
 /*******************************************************************************
  * TYPE DEFINITIONS
@@ -107,6 +133,12 @@ typedef struct {
     uint32_t cmd_code;
     uint32_t cmd_cfg;
 } cmd_cfg_t;
+
+typedef struct {
+    uint8_t ext_cmd_code;
+    uint8_t rw_sel;
+    uint32_t ext_cmd_cfg[2];
+} ext_cmd_frame_t;
 
 typedef struct {
     drv_isr_callback_t isr_cb;          /*!< Interrupt callback */
@@ -404,6 +436,23 @@ static om_error_t iflash_erase_frame_get(flash_erase_t erase_type, uint32_t addr
     return OM_ERROR_OK;
 }
 
+__IF_RAM_CODE static void iflash_ext_cmd_send(ext_cmd_frame_t *frame, uint32_t addr, uint8_t *data, uint16_t data_len)
+{
+    OM_CRITICAL_BEGIN();
+    OM_SF0->SW_CFG0 = frame->ext_cmd_cfg[0];
+    OM_SF0->SW_CFG1 = (frame->ext_cmd_cfg[1] & (~SF_SW_SPI_CFG1_DATA_BYTES_MASK)) |
+                      ((data_len << SF_SW_SPI_CFG1_DATA_BYTES_POS) & SF_SW_SPI_CFG1_DATA_BYTES_MASK);
+    OM_SF0->CMD_DATA0 = (frame->ext_cmd_code) << 24;
+    OM_SF0->CMD_DATA1 = addr << 8;
+    OM_SF0->ADDR = (uint32_t)data;
+    OM_SF0->RAW_INT_STATUS = SF_RAW_INT_STATUS_CMD_DONE_MASK;
+    REGW(&OM_SF0->CMD, MASK_2REG(SF_COMMAND_RW_SELECT, frame->rw_sel, SF_COMMAND_DATA_BYTES, data_len));
+    sf_wait_trans_done();
+    // disable sw cfg
+    OM_SF0->SW_CFG1 = 0;
+    OM_CRITICAL_END();
+}
+
 #if (RTE_FLASH0_XIP)
 __IF_RAM_CODE om_error_t iflash_suspend(cmd_frame_t *suspend_frame)
 {
@@ -446,22 +495,17 @@ __IF_RAM_CODE om_error_t iflash_resume(cmd_frame_t *resume_frame)
     return OM_ERROR_OK;
 }
 
-__IF_RAM_CODE static om_error_t iflash_trans_start_with_suspend_wip(cmd_frame_t *trans_frame,
-                                                                    cmd_frame_t *wip_frame,
-                                                                    cmd_frame_t *suspend_frame,
-                                                                    cmd_frame_t *resume_frame,
-                                                                    volatile uint8_t *data,
-                                                                    uint32_t data_len,
-                                                                    uint32_t timeout_ms)
+__IF_RAM_CODE static om_error_t iflash_poll_wip_with_suspend(cmd_frame_t *wip_frame,
+                                                             cmd_frame_t *suspend_frame,
+                                                             cmd_frame_t *resume_frame,
+                                                             uint32_t irq_save,
+                                                             uint32_t timeout_ms)
 {
     om_error_t ret;
     uint8_t status;
-    uint32_t irq_save;
     uint32_t start_cycle;
 
     start_cycle = drv_dwt_get_cycle();
-    OM_CRITICAL_BEGIN_EX(irq_save);
-    sf_trans_dma_start_wait_done(trans_frame, data, data_len);
     while (iflash_read_reg(wip_frame, &status, 1), status & FLASH_STATUS_1_WIP_MASK) {
         // Delay 100us
         DRV_WAIT_US_UNTIL_TO(!(drv_irq_is_any_ext_pending() && !irq_save), 100, ret);
@@ -479,15 +523,51 @@ __IF_RAM_CODE static om_error_t iflash_trans_start_with_suspend_wip(cmd_frame_t 
             iflash_resume(resume_frame);
         }
         if (drv_dwt_get_cycle() - start_cycle > DRV_DWT_MS_2_CYCLES_CEIL(timeout_ms)) {
-            OM_CRITICAL_END_EX(irq_save);
             return OM_ERROR_TIMEOUT;
         }
     }
-
-    OM_CRITICAL_END_EX(irq_save);
     return OM_ERROR_OK;
 }
+
+__IF_RAM_CODE static om_error_t iflash_trans_start_with_suspend_wip(cmd_frame_t *trans_frame,
+                                                                    cmd_frame_t *wip_frame,
+                                                                    cmd_frame_t *suspend_frame,
+                                                                    cmd_frame_t *resume_frame,
+                                                                    volatile uint8_t *data,
+                                                                    uint32_t data_len,
+                                                                    uint32_t timeout_ms)
+{
+    om_error_t error;
+    uint32_t irq_save;
+
+    OM_CRITICAL_BEGIN_EX(irq_save);
+    sf_trans_dma_start_wait_done(trans_frame, data, data_len);
+    error = iflash_poll_wip_with_suspend(wip_frame, suspend_frame, resume_frame, irq_save, timeout_ms);
+    OM_CRITICAL_END_EX(irq_save);
+    return error;
+}
+
+__IF_RAM_CODE static om_error_t iflash_ext_cmd_send_with_suspend_wip(ext_cmd_frame_t *cmd_frame,
+                                                                     cmd_frame_t *wip_frame,
+                                                                     cmd_frame_t *suspend_frame,
+                                                                     cmd_frame_t *resume_frame,
+                                                                     uint32_t addr,
+                                                                     uint8_t *data,
+                                                                     uint16_t data_len,
+                                                                     uint32_t timeout_ms)
+{
+    om_error_t error;
+    uint32_t irq_save;
+
+    OM_CRITICAL_BEGIN_EX(irq_save);
+    iflash_ext_cmd_send(cmd_frame, addr, data, data_len);
+    error = iflash_poll_wip_with_suspend(wip_frame, suspend_frame, resume_frame, irq_save, timeout_ms);
+    OM_CRITICAL_END_EX(irq_save);
+    return error;
+}
+
 #else
+
 __IF_RAM_CODE static om_error_t iflash_trans_start_with_wip(cmd_frame_t *trans_frame,
                                                       cmd_frame_t *wip_frame,
                                                       uint8_t *data,
@@ -496,6 +576,23 @@ __IF_RAM_CODE static om_error_t iflash_trans_start_with_wip(cmd_frame_t *trans_f
 {
     sf_trans_dma_start_wait_done(trans_frame, data, data_len);
     return iflash_poll_wip(wip_frame, timeout_ms);
+}
+
+__IF_RAM_CODE static om_error_t iflash_ext_cmd_send_with_wip(ext_cmd_frame_t *cmd_frame,
+                                                             cmd_frame_t *wip_frame,
+                                                             uint32_t addr,
+                                                             uint8_t *data,
+                                                             uint16_t data_len,
+                                                             uint32_t timeout_ms)
+{
+    om_error_t error;
+
+    OM_CRITICAL_BEGIN();
+    iflash_ext_cmd_send(cmd_frame, addr, data, data_len);
+    error = iflash_poll_wip(wip_frame, timeout_ms);
+    OM_CRITICAL_END();
+
+    return error;
 }
 #endif
 
@@ -1389,6 +1486,78 @@ om_error_t drv_iflash_encrypt_enable(OM_SF_Type *om_flash, uint8_t enable)
     register_set(&om_flash->ENCRYPT_CTRL,
                  MASK_2REG(SF_ENCRYPT_CTRL_ENCRYPT_EN, (enable ? 1 : 0),
                            SF_ENCRYPT_CTRL_DECRYPT_EN, (enable ? 1 : 0)));
+    return OM_ERROR_OK;
+}
+
+om_error_t drv_iflash_secure_register_erase(OM_SF_Type *om_flash, uint8_t secure_register, uint32_t timeout_ms)
+{
+    iflash_env_t *env = &flash0_env;
+    ext_cmd_frame_t erase_frame = FLASH_SECURE_REG_ERASE_EXT_CFG;
+    cmd_frame_t wip_frame;
+    om_error_t error;
+
+    CMD_FRAME_SET(&wip_frame, FLASH_READ_STATUS_REG_1_CFG, 0);
+
+    env->state = FLASH_STATE_ERASING;
+    iflash_write_enable();
+    #if RTE_FLASH0_XIP
+    cmd_frame_t suspend_frame;
+    cmd_frame_t resume_frame;
+    CMD_FRAME_SET(&suspend_frame, FLASH_SUSPEND_CFG, 0);
+    CMD_FRAME_SET(&resume_frame, FLASH_RESUME_CFG, 0);
+    error = iflash_ext_cmd_send_with_suspend_wip(&erase_frame, &wip_frame,
+                &suspend_frame, &resume_frame, FLASH_SECURE_REG_ADDR_HIGH(secure_register), NULL, 0, timeout_ms);
+    #else
+    error = iflash_ext_cmd_send_with_wip(&erase_frame, &wip_frame,
+                FLASH_SECURE_REG_ADDR_HIGH(secure_register), NULL, 0, timeout_ms);
+    #endif
+    env->state = FLASH_STATE_INIT;
+    return error;
+}
+
+om_error_t drv_iflash_secure_register_write(OM_SF_Type *om_flash,
+                                            uint8_t secure_register,
+                                            uint16_t addr,
+                                            uint8_t *data,
+                                            uint16_t data_len,
+                                            uint32_t timeout_ms)
+{
+    iflash_env_t *env = &flash0_env;
+    ext_cmd_frame_t write_frame = FLASH_SECURE_REG_WRITE_EXT_CFG;
+    cmd_frame_t wip_frame;
+    om_error_t error;
+
+    CMD_FRAME_SET(&wip_frame, FLASH_READ_STATUS_REG_1_CFG, 0);
+
+    env->state = FLASH_STATE_WRITING;
+    iflash_write_enable();
+    #if RTE_FLASH0_XIP
+    cmd_frame_t suspend_frame;
+    cmd_frame_t resume_frame;
+    CMD_FRAME_SET(&suspend_frame, FLASH_SUSPEND_CFG, 0);
+    CMD_FRAME_SET(&resume_frame, FLASH_RESUME_CFG, 0);
+    error = iflash_ext_cmd_send_with_suspend_wip(&write_frame, &wip_frame, &suspend_frame, &resume_frame,
+                FLASH_SECURE_REG_ADDR(secure_register, addr), data, data_len, timeout_ms);
+    #else
+    error = iflash_ext_cmd_send_with_wip(&write_frame, &wip_frame,
+                FLASH_SECURE_REG_ADDR(secure_register, addr), data, data_len, timeout_ms);
+    #endif
+    env->state = FLASH_STATE_INIT;
+    return error;
+}
+
+om_error_t drv_iflash_secure_register_read(OM_SF_Type *om_flash,
+                                           uint8_t secure_register,
+                                           uint16_t addr,
+                                           uint8_t *data,
+                                           uint16_t data_len)
+{
+    iflash_env_t *env = &flash0_env;
+    ext_cmd_frame_t read_frame = FLASH_SECURE_REG_READ_EXT_CFG;
+
+    env->state = FLASH_STATE_READING;
+    iflash_ext_cmd_send(&read_frame, FLASH_SECURE_REG_ADDR(secure_register, addr), data, data_len);
+    env->state = FLASH_STATE_INIT;
     return OM_ERROR_OK;
 }
 

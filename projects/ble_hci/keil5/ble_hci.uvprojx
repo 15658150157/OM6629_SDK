@@ -336,7 +336,7 @@
               <MiscControls/>
               <Define>CONFIG_LE_BROADCASTER=1,CONFIG_LE_OBSERVER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_CENTRAL=1,CONFIG_LE_ACTIVITY_NB=10,CONFIG_LE_CONNECTION_NB=8,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=5,CONFIG_LE_LL_TX_ADV_FRAG_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254,CONFIG_LE_LL_TX_LLCP_BUF_NB=11,OM6627X=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/ble/include;../../../components/ble/controller/include;../../../components/shell;../../../components/nvds;../../../components/om_log;../../../components/pm;../../../components/evt;../../../components/manu_system/fault_handle;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -354,7 +354,7 @@
               <MiscControls/>
               <Define>CONFIG_LE_BROADCASTER=1,CONFIG_LE_OBSERVER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_CENTRAL=1,CONFIG_LE_ACTIVITY_NB=10,CONFIG_LE_CONNECTION_NB=8,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=5,CONFIG_LE_LL_TX_ADV_FRAG_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254,CONFIG_LE_LL_TX_LLCP_BUF_NB=11,OM6627X=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/ble/include;../../../components/ble/controller/include;../../../components/shell;../../../components/nvds;../../../components/om_log;../../../components/pm;../../../components/evt;../../../components/manu_system/fault_handle;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Aads>
           <LDads>
@@ -460,6 +460,20 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>ble_stack_common</GroupName>
+          <Files>
+            <File>
+              <FileName>ob_mem_heap.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/ble/common/ob_mem_heap.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>controller</GroupName>
+          <Files/>
+        </Group>
+        <Group>
           <GroupName>shell</GroupName>
           <Files>
             <File>
@@ -475,12 +489,12 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>manu_system</GroupName>
+          <GroupName>nvds</GroupName>
           <Files>
             <File>
-              <FileName>fault_handle.c</FileName>
+              <FileName>nvds.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../components/manu_system/fault_handle/fault_handle.c</FilePath>
+              <FilePath>../../../components/nvds/nvds.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -500,12 +514,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>nvds</GroupName>
+          <GroupName>pm</GroupName>
           <Files>
             <File>
-              <FileName>nvds.c</FileName>
+              <FileName>pm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../components/nvds/nvds.c</FilePath>
+              <FilePath>../../../components/pm/pm.c</FilePath>
+            </File>
+            <File>
+              <FileName>pm_cpu_gnu.S</FileName>
+              <FileType>2</FileType>
+              <FilePath>../../../components/pm/pm_cpu_gnu.S</FilePath>
             </File>
           </Files>
         </Group>
@@ -525,31 +544,12 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>ble_stack_common</GroupName>
+          <GroupName>manu_system</GroupName>
           <Files>
             <File>
-              <FileName>ob_mem_heap.c</FileName>
+              <FileName>fault_handle.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../components/ble/common/ob_mem_heap.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>controller</GroupName>
-          <Files/>
-        </Group>
-        <Group>
-          <GroupName>pm</GroupName>
-          <Files>
-            <File>
-              <FileName>pm.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/pm/pm.c</FilePath>
-            </File>
-            <File>
-              <FileName>pm_cpu_gnu.S</FileName>
-              <FileType>2</FileType>
-              <FilePath>../../../components/pm/pm_cpu_gnu.S</FilePath>
+              <FilePath>../../../components/manu_system/fault_handle/fault_handle.c</FilePath>
             </File>
           </Files>
         </Group>

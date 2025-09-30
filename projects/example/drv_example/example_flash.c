@@ -172,4 +172,28 @@ void example_flash_quad(void)
     // Read 100 bytes in 128k, it should be same as write_buf
     drv_flash_read(OM_FLASH1, 128 * 1024, read_buf, 100);
 }
+
+void example_flash_secure_register(void)
+{
+    for (uint8_t i = 0; i < 100; i++) {
+        write_buf[i] = i;
+    }
+
+    /* inside flash */
+    // Init Flash
+    flash_config_t iflash_config = {
+        .clk_div = drv_rcc_clock_get(RCC_CLK_SF0) / 32000000U,
+        .delay = FLASH_DELAY_AUTO,
+        .read_cmd = FLASH_READ,
+        .write_cmd = FLASH_PAGE_PROGRAM,
+        .spi_mode = FLASH_SPI_MODE_0,
+    };
+    drv_flash_init(OM_FLASH0, &iflash_config);
+    // Erase secure register 1
+    drv_flash_secure_register_erase(OM_FLASH0, 1, 1000);
+    // Write 100 bytes to secure register 1
+    drv_flash_secure_register_write(OM_FLASH0, 1, 0, write_buf, 100, 1000);
+    // Read 100 bytes from secure register 1
+    drv_flash_secure_register_read(OM_FLASH0, 1, 0, read_buf, 100);
+}
 /** @} */

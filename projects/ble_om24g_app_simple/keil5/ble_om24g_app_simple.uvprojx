@@ -336,7 +336,7 @@
               <MiscControls/>
               <Define>CONFIG_BLE_HOST,CONFIG_LE_BROADCASTER=1,CONFIG_LE_OBSERVER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_CENTRAL=1,CONFIG_LE_ACTIVITY_NB=10,CONFIG_LE_CONNECTION_NB=8,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=5,CONFIG_LE_LL_TX_ADV_FRAG_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254,CONFIG_LE_LL_TX_LLCP_BUF_NB=11,OM6627X=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/ble/profile/om_ancs;../../../components/ble/profile/om_bms;../../../components/ble/profile/om_cgms;../../../components/ble/profile/om_dfu;../../../components/ble/profile/om_gap_dis_batt;../../../components/ble/profile/om_hid_media;../../../components/ble/profile/om_tspp;../../../components/ble/profile/om_wechat_lite;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/ble/profile/om_ancs;../../../components/ble/profile/om_bms;../../../components/ble/profile/om_cgms;../../../components/ble/profile/om_dfu;../../../components/ble/profile/om_gap_dis_batt;../../../components/ble/profile/om_hid_media;../../../components/ble/profile/om_tspp;../../../components/ble/profile/om_wechat_lite;../../../components/shell;../../../components/nvds;../../../components/om_log;../../../components/pm;../../../components/evt;../../../components/manu_system/fault_handle;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -354,7 +354,7 @@
               <MiscControls/>
               <Define>CONFIG_BLE_HOST,CONFIG_LE_BROADCASTER=1,CONFIG_LE_OBSERVER=1,CONFIG_LE_PERIPHERAL=1,CONFIG_LE_CENTRAL=1,CONFIG_LE_ACTIVITY_NB=10,CONFIG_LE_CONNECTION_NB=8,CONFIG_LE_WHITELIST_NB=6,CONFIG_LE_LL_HCI_CMD_PKTS_NB=2,CONFIG_LE_LL_RX_DATA_BUF_NB=3,CONFIG_LE_LL_RX_DATA_BUF_SIZE=256,CONFIG_LE_LL_TX_ACL_BUF_NB=3,CONFIG_LE_LL_TX_ACL_BUF_SIZE=256,CONFIG_LE_LL_TX_ADV_BUF_NB=5,CONFIG_LE_LL_TX_ADV_FRAG_NB=2,CONFIG_LE_LL_TX_ADV_FRAG_BUF_SIZE=254,CONFIG_LE_LL_TX_LLCP_BUF_NB=11,OM6627X=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/ble/profile/om_ancs;../../../components/ble/profile/om_bms;../../../components/ble/profile/om_cgms;../../../components/ble/profile/om_dfu;../../../components/ble/profile/om_gap_dis_batt;../../../components/ble/profile/om_hid_media;../../../components/ble/profile/om_tspp;../../../components/ble/profile/om_wechat_lite;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/ble/include;../../../components/ble/controller/include;../../../components/ble/host/include;../../../components/ble/profile/om_ancs;../../../components/ble/profile/om_bms;../../../components/ble/profile/om_cgms;../../../components/ble/profile/om_dfu;../../../components/ble/profile/om_gap_dis_batt;../../../components/ble/profile/om_hid_media;../../../components/ble/profile/om_tspp;../../../components/ble/profile/om_wechat_lite;../../../components/shell;../../../components/nvds;../../../components/om_log;../../../components/pm;../../../components/evt;../../../components/manu_system/fault_handle;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Aads>
           <LDads>
@@ -476,71 +476,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>shell</GroupName>
-          <Files>
-            <File>
-              <FileName>shell_common.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/shell/shell_common.c</FilePath>
-            </File>
-            <File>
-              <FileName>shell_port_rtos.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/shell/shell_port_rtos.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>manu_system</GroupName>
-          <Files>
-            <File>
-              <FileName>fault_handle.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/manu_system/fault_handle/fault_handle.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>om_log</GroupName>
-          <Files>
-            <File>
-              <FileName>om_log.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/om_log/om_log.c</FilePath>
-            </File>
-            <File>
-              <FileName>om_log_port.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/om_log/om_log_port.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>nvds</GroupName>
-          <Files>
-            <File>
-              <FileName>nvds.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/nvds/nvds.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>evt</GroupName>
-          <Files>
-            <File>
-              <FileName>evt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/evt/evt.c</FilePath>
-            </File>
-            <File>
-              <FileName>evt_timer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/evt/evt_timer.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>ble_stack_common</GroupName>
           <Files>
             <File>
@@ -629,6 +564,46 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>shell</GroupName>
+          <Files>
+            <File>
+              <FileName>shell_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/shell/shell_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>shell_port_rtos.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/shell/shell_port_rtos.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>nvds</GroupName>
+          <Files>
+            <File>
+              <FileName>nvds.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/nvds/nvds.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>om_log</GroupName>
+          <Files>
+            <File>
+              <FileName>om_log.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/om_log/om_log.c</FilePath>
+            </File>
+            <File>
+              <FileName>om_log_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/om_log/om_log_port.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>pm</GroupName>
           <Files>
             <File>
@@ -640,6 +615,31 @@
               <FileName>pm_cpu_gnu.S</FileName>
               <FileType>2</FileType>
               <FilePath>../../../components/pm/pm_cpu_gnu.S</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>evt</GroupName>
+          <Files>
+            <File>
+              <FileName>evt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/evt/evt.c</FilePath>
+            </File>
+            <File>
+              <FileName>evt_timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/evt/evt_timer.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>manu_system</GroupName>
+          <Files>
+            <File>
+              <FileName>fault_handle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/manu_system/fault_handle/fault_handle.c</FilePath>
             </File>
           </Files>
         </Group>

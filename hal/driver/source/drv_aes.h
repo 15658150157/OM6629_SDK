@@ -464,6 +464,7 @@ extern om_error_t drv_aes_ccm_le_encrypt(aes_ccm_le_config_t *cfg, uint8_t *plai
 /**
  *******************************************************************************
  * @brief Start AES-CCM LE decrypt
+ * NOTE: Cannot identify MIC error
  *
  * @param[in] cfg                       CCM configuration
  * @param[in] cipher_text_and_tag       Pointer to cipher text and tag

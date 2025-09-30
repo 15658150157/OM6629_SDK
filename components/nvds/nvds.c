@@ -367,6 +367,23 @@ static uint8_t _nvds_generate_crc(uint8_t crc, uint8_t *buf, uint32_t len)
     return _nvds_crc7(crc, buf, len);
 }
 
+static uint8_t _nvds_verify_write(uint8_t* expected_data, uint32_t address, uint16_t length)
+{
+    uint8_t actual_data[FLASH_PAGE_SIZE];
+
+    if (length > FLASH_PAGE_SIZE)
+    {
+        return NVDS_LENGTH_OUT_OF_RANGE;
+    }
+
+    NVDS_READ(address, actual_data, length);
+    if (memcmp(actual_data, expected_data, length) != 0)
+    {
+        return NVDS_FAIL;
+    }
+    return NVDS_OK;
+}
+
 /**
  * @brief check if specific sector's magic is valid
  *
@@ -409,6 +426,7 @@ static void _nvds_format_sector(uint32_t sector_addr, enum SECTOR_MAGIC sector_m
     if (sector_magic == CONF_SECTOR)
         return;
 #endif
+retry:
     // Format the sector
     _nvds_erase(sector_addr, NVDS_MAX_STORAGE_SIZE);
 
@@ -417,6 +435,9 @@ static void _nvds_format_sector(uint32_t sector_addr, enum SECTOR_MAGIC sector_m
     _nvds_write(sector_addr,
                 (uint32_t)NVDS_MAGIC_NUMBER_LENGTH,
                 (uint8_t *)&magic_num);
+    if(_nvds_verify_write((uint8_t *)&magic_num, sector_addr, NVDS_MAGIC_NUMBER_LENGTH)) {
+        goto retry;
+    }
 }
 
 /**
@@ -1202,12 +1223,15 @@ static uint8_t _nvds_get_all_tags_data(uint8_t *start, uint8_t end, uint8_t *tag
 static uint8_t nvds_purge_get_data_err = 0;
 static uint8_t _nvds_purge(uint8_t *buf_ptr)
 {
-    nvds_tag_len_t total_len = 0, next_tag_offset = 0, read_len;
-    uint8_t status = NVDS_OK, idx = 1, crc = 0;
-    uint8_t start = 0, end = NVDS_MAX_NUM_OF_TAGS;
+    nvds_tag_len_t total_len, next_tag_offset, read_len;
+    uint8_t status = NVDS_OK, idx, crc;
+    uint8_t start, end = NVDS_MAX_NUM_OF_TAGS;
     uint8_t tag_map[32] = {0};
     int32_t magic_num;
 
+retry:
+    total_len = start = next_tag_offset = crc = 0;
+    idx = 1;
     // Erase nvds sector
     _nvds_erase(nvds_env.nvds_addr, NVDS_MAX_STORAGE_SIZE);
 
@@ -1236,6 +1260,10 @@ static uint8_t _nvds_purge(uint8_t *buf_ptr)
         }
         //  Write tag data to new backup sector, if total_len equal to 0, do nothing
         _nvds_write(nvds_env.nvds_addr + FLASH_PAGE_SIZE * idx, (uint32_t)read_len, (uint8_t *)buf_ptr);
+        // If write error occurs, erase nvds sector and re-purge
+        if (_nvds_verify_write((uint8_t *)buf_ptr, nvds_env.nvds_addr + FLASH_PAGE_SIZE * idx, read_len)){
+            goto retry;
+        }
         total_len += read_len;
         idx++;
     } while (start < end && read_len == FLASH_PAGE_SIZE);
@@ -1245,6 +1273,9 @@ static uint8_t _nvds_purge(uint8_t *buf_ptr)
     _nvds_write(nvds_env.nvds_addr,
                 (uint32_t)NVDS_MAGIC_NUMBER_LENGTH,
                 (uint8_t *)&magic_num);
+    if (_nvds_verify_write((uint8_t *)&magic_num, nvds_env.nvds_addr, NVDS_MAGIC_NUMBER_LENGTH)){
+        goto retry;
+    }
 
     // Erase backup sector
     _nvds_format_sector(nvds_env.bkup_addr, NVDS_SECTOR);
@@ -1285,7 +1316,7 @@ static uint8_t nvds_reclaim_get_data_err = 0;
 
 static uint8_t _nvds_reclaim(uint8_t *buf_ptr)
 {
-    uint8_t status = NVDS_OK, idx = 0, crc = 0;
+    uint8_t status = NVDS_OK, idx = 0, crc = 0, write_status = NVDS_OK;
     uint8_t start = 0, end = NVDS_NUM_OF_PAGES;
     uint16_t read_len, total_len = 0, next_tag_offset = 0;
 
@@ -1300,7 +1331,7 @@ static uint8_t _nvds_reclaim(uint8_t *buf_ptr)
             return NVDS_OK;
         }
     }
-
+retry:
     do
     {
         read_len = 0;
@@ -1319,6 +1350,9 @@ static uint8_t _nvds_reclaim(uint8_t *buf_ptr)
         }
         // Reclaim tag data to backup sector
         _nvds_write(nvds_env.bkup_spare_addr + FLASH_PAGE_SIZE * idx, (uint32_t)read_len, buf_ptr);
+        if (_nvds_verify_write(buf_ptr, nvds_env.bkup_spare_addr + FLASH_PAGE_SIZE * idx, read_len)){
+            write_status = NVDS_WRITE_ERROR;
+        }
         idx++;
         total_len += read_len;
     } while (start < end && read_len == FLASH_PAGE_SIZE);
@@ -1329,6 +1363,11 @@ static uint8_t _nvds_reclaim(uint8_t *buf_ptr)
     nvds_env.bkup_spare_addr = NVDS_UPDATE_SECTOR_ADDRESS(nvds_env.bkup_spare_addr + total_len);
     // update the spare size for backup sector
     nvds_env.bkup_spare_size = nvds_env.bkup_addr + NVDS_MAX_STORAGE_SIZE - nvds_env.bkup_spare_addr;
+    // If a write error occurs and the remaining space in the BAUP area still allows reclaim, return an error
+    if (write_status && (nvds_env.nvds_used_size <= nvds_env.bkup_spare_size)) {
+        idx = crc = start = total_len = next_tag_offset = 0;
+        goto retry;
+    }
     // Clear used size
     nvds_env.nvds_used_size = 0;
     // Clear nvds mask
@@ -1742,16 +1781,25 @@ uint8_t nvds_put(nvds_tag_id_t tag, nvds_tag_len_t length, const void *buf)
 
     // Write tag
     _nvds_write(nvds_env.nvds_spare_addr, com_tag_len - data_leftover, (uint8_t *)com_tag_buf);
-    // Check if tag total length is greater than flash page size
+    if (_nvds_verify_write((uint8_t*)com_tag_buf, nvds_env.nvds_spare_addr, com_tag_len - data_leftover)) {
+        status = NVDS_WRITE_ERROR;
+    }
+    // If the data length exceeds one page and no write error occurs
     if (data_leftover != 0)
     {
         _nvds_write(nvds_env.nvds_spare_addr + FLASH_PAGE_SIZE, data_leftover, buf_ptr + data_len);
+        if (_nvds_verify_write(buf_ptr + data_len, nvds_env.nvds_spare_addr + FLASH_PAGE_SIZE, data_leftover)) {
+            status = NVDS_WRITE_ERROR;
+        }
     }
 
     nvds_env.nvds_mask = NVDS_SET_PAGE_START_ADDRESS_MASK(nvds_env.nvds_mask, NVDS_GET_PAGE_START_ADDRESS_MASK(nvds_env.nvds_addr, nvds_env.nvds_spare_addr));
     nvds_env.nvds_spare_addr = NVDS_UPDATE_SECTOR_ADDRESS(nvds_env.nvds_spare_addr + com_tag_len);
     _nvds_update_used_size();
-    status = NVDS_OK;
+    // If no write error, return ok
+    if (status != NVDS_WRITE_ERROR) {
+        status = NVDS_OK;
+    }
 
 exit:
 

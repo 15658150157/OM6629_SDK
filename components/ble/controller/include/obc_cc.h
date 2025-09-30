@@ -92,6 +92,10 @@ __STATIC_INLINE void obc_company_id_set(uint16_t company_id)
     obcc.company_id = company_id;
 }
 
+__STATIC_INLINE void obc_version_set(uint8_t version)
+{
+    obcc.version = version;
+}
 
 #ifdef __cplusplus
 }

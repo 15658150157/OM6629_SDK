@@ -52,11 +52,7 @@ extern void drv_sha256_start(void);
  *******************************************************************************
  * @brief Update SHA256 calculation.
  * @note: This function can be called multiple times to update the hash
- * calculation with new data. The data can be any length, but it should be
- * aligned to 4-byte boundary. The function will automatically handle the
- * following cases:
- *   1. data is less than 64 bytes, calculate digest directly
- *   2. data is 64 bytes or more, update the hash calculation
+ * calculation with new data. The data can be any length.
  *
  * @param[in] data          Data to be hashed
  * @param[in] len           Length of data to be hashed

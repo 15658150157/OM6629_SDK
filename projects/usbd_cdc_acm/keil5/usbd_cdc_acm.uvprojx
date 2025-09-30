@@ -336,7 +336,7 @@
               <MiscControls/>
               <Define>OM6627X=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/evt;../../../components/CherryUSB;../../../components/CherryUSB/common;../../../components/CherryUSB/core;../../../components/CherryUSB/class/cdc;../../../components/CherryUSB/class/msc;../../../components/CherryUSB/class/hid;../../../components/CherryUSB/class/audio;../../../components/CherryUSB/class/video;../../../components/CherryUSB/class/wireless;../../../components/CherryUSB/class/dfu;../../../components/CherryUSB/class/midi;../../../components/CherryUSB/class/vendor/net;../../../components/CherryUSB/class/vendor/serial;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/CherryUSB;../../../components/CherryUSB/common;../../../components/CherryUSB/core;../../../components/CherryUSB/class/cdc;../../../components/CherryUSB/class/msc;../../../components/CherryUSB/class/hid;../../../components/CherryUSB/class/audio;../../../components/CherryUSB/class/video;../../../components/CherryUSB/class/wireless;../../../components/CherryUSB/class/dfu;../../../components/CherryUSB/class/midi;../../../components/CherryUSB/class/vendor/net;../../../components/CherryUSB/class/vendor/serial;../../../components/shell;../../../components/om_log;../../../components/pm;../../../components/evt;../../../components/manu_system/fault_handle;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -354,7 +354,7 @@
               <MiscControls/>
               <Define>OM6627X=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/evt;../../../components/CherryUSB;../../../components/CherryUSB/common;../../../components/CherryUSB/core;../../../components/CherryUSB/class/cdc;../../../components/CherryUSB/class/msc;../../../components/CherryUSB/class/hid;../../../components/CherryUSB/class/audio;../../../components/CherryUSB/class/video;../../../components/CherryUSB/class/wireless;../../../components/CherryUSB/class/dfu;../../../components/CherryUSB/class/midi;../../../components/CherryUSB/class/vendor/net;../../../components/CherryUSB/class/vendor/serial;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/CherryUSB;../../../components/CherryUSB/common;../../../components/CherryUSB/core;../../../components/CherryUSB/class/cdc;../../../components/CherryUSB/class/msc;../../../components/CherryUSB/class/hid;../../../components/CherryUSB/class/audio;../../../components/CherryUSB/class/video;../../../components/CherryUSB/class/wireless;../../../components/CherryUSB/class/dfu;../../../components/CherryUSB/class/midi;../../../components/CherryUSB/class/vendor/net;../../../components/CherryUSB/class/vendor/serial;../../../components/shell;../../../components/om_log;../../../components/pm;../../../components/evt;../../../components/manu_system/fault_handle;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Aads>
           <LDads>
@@ -464,61 +464,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>shell</GroupName>
-          <Files>
-            <File>
-              <FileName>shell_common.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/shell/shell_common.c</FilePath>
-            </File>
-            <File>
-              <FileName>shell_port_rtos.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/shell/shell_port_rtos.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>manu_system</GroupName>
-          <Files>
-            <File>
-              <FileName>fault_handle.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/manu_system/fault_handle/fault_handle.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>om_log</GroupName>
-          <Files>
-            <File>
-              <FileName>om_log.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/om_log/om_log.c</FilePath>
-            </File>
-            <File>
-              <FileName>om_log_port.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/om_log/om_log_port.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>evt</GroupName>
-          <Files>
-            <File>
-              <FileName>evt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/evt/evt.c</FilePath>
-            </File>
-            <File>
-              <FileName>evt_timer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../components/evt/evt_timer.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>CherryUSB</GroupName>
           <Files>
             <File>
@@ -549,6 +494,36 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>shell</GroupName>
+          <Files>
+            <File>
+              <FileName>shell_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/shell/shell_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>shell_port_rtos.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/shell/shell_port_rtos.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>om_log</GroupName>
+          <Files>
+            <File>
+              <FileName>om_log.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/om_log/om_log.c</FilePath>
+            </File>
+            <File>
+              <FileName>om_log_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/om_log/om_log_port.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>pm</GroupName>
           <Files>
             <File>
@@ -560,6 +535,31 @@
               <FileName>pm_cpu_gnu.S</FileName>
               <FileType>2</FileType>
               <FilePath>../../../components/pm/pm_cpu_gnu.S</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>evt</GroupName>
+          <Files>
+            <File>
+              <FileName>evt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/evt/evt.c</FilePath>
+            </File>
+            <File>
+              <FileName>evt_timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/evt/evt_timer.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>manu_system</GroupName>
+          <Files>
+            <File>
+              <FileName>fault_handle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../components/manu_system/fault_handle/fault_handle.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -49,7 +49,7 @@
 extern uint8_t dfu_public_key[];
 #include "../tool/public_key.c"
 #elif  DFU_FORCE_CHECK_SHA256_EN
-#include "drv_sha256.h"
+#include "om_driver.h"
 #define PRIV_KEY_SIZE 24
 #endif
 /*********************************************************************
