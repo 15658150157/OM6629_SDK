@@ -502,6 +502,61 @@ extern om_error_t drv_iflash_encrypt_enable(OM_SF_Type *om_flash, uint8_t enable
  */
 extern void drv_iflash_restore(void);
 
+/**
+ *******************************************************************************
+ * @brief internal FLASH secure register erase
+ *
+ * @param om_flash  The internal FLASH controller device address
+ * @param secure_register  Secure register(0, 1, 2...)
+ * @param timeout_ms  Timeout in milliseconds
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_iflash_secure_register_erase(OM_SF_Type *om_flash,
+                                                   uint8_t secure_register,
+                                                   uint32_t timeout_ms);
+
+/**
+ *******************************************************************************
+ * @brief internal FLASH secure register write
+ *
+ * @param om_flash  The internal FLASH controller device address
+ * @param secure_register  Secure register(0, 1, 2...)
+ * @param addr  Secure register address offset
+ * @param data  Data to write
+ * @param data_len  Data length
+ * @param timeout_ms  Timeout in milliseconds
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_iflash_secure_register_write(OM_SF_Type *om_flash,
+                                                   uint8_t secure_register,
+                                                   uint16_t addr,
+                                                   uint8_t *data,
+                                                   uint16_t data_len,
+                                                   uint32_t timeout_ms);
+
+/**
+ *******************************************************************************
+ * @brief internal FLASH secure register read
+ *
+ * @param om_flash  The internal FLASH controller device address
+ * @param secure_register  Secure register(0, 1, 2...)
+ * @param addr  Secure register address offset
+ * @param data  Data to read
+ * @param data_len  Data length
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_iflash_secure_register_read(OM_SF_Type *om_flash,
+                                                  uint8_t secure_register,
+                                                  uint16_t addr,
+                                                  uint8_t *data,
+                                                  uint16_t data_len);
+
 #if (RTE_FLASH0_REGISTER_CALLBACK)
 /**
  *******************************************************************************

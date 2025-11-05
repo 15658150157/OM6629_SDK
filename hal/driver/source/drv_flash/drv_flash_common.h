@@ -75,6 +75,16 @@ extern "C"
 #define GT_FLASH_CONFIG_DRV1_POS                 6
 #define GT_FLASH_CONFIG_DRV1_MASK                (0x1U << 6)
 
+#define FLASH_SECURE_REG_ADDR_LOW_POS            0
+#define FLASH_SECURE_REG_ADDR_LOW_MASK           (0x1FU << 0)
+#define FLASH_SECURE_REG_ADDR_HIGH_POS           12
+#define FLASH_SECURE_REG_ADDR_HIGH_MASK          (0xFU << 12)
+#define FLASH_SECURE_REG_ADDR_HIGH(reg)          \
+                  ((reg << FLASH_SECURE_REG_ADDR_HIGH_POS) & FLASH_SECURE_REG_ADDR_HIGH_MASK)
+#define FLASH_SECURE_REG_ADDR(reg, off)          \
+                  (((reg << FLASH_SECURE_REG_ADDR_HIGH_POS) & FLASH_SECURE_REG_ADDR_HIGH_MASK) | \
+                   ((off << FLASH_SECURE_REG_ADDR_LOW_POS) & FLASH_SECURE_REG_ADDR_LOW_MASK))
+
 #define FLASH_READ_PARA_DUMMY_CYCLE_POS          4
 #define FLASH_READ_PARA_DUMMY_CYCLE_MASK        (0x03U << 4)
 #define FLASH_READ_PARA_WRAP_DIS_POS             2

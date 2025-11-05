@@ -336,7 +336,7 @@
               <MiscControls/>
               <Define>OM6627X=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/nvds;../../../components/om_log;../../../components/pm;../../../components/evt;../../../components/manu_system/fault_handle;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -354,7 +354,7 @@
               <MiscControls/>
               <Define>OM6627X=1,</Define>
               <Undefine/>
-              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/manu_system/fault_handle;../../../components/om_log;../../../components/nvds;../../../components/evt;../../../components/pm;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
+              <IncludePath>../config;../../../bsp/include;../../../common/include;../../../common/source;../../../components/shell;../../../components/nvds;../../../components/om_log;../../../components/pm;../../../components/evt;../../../components/manu_system/fault_handle;../../../hal/CMSIS/Core/Include;../../../hal/driver/include;../../../hal/device/include;../../../rtos/include;../../../rtos/FreeRTOS/Source/Include;../../../rtos/FreeRTOS/CMSIS/Include;../../../rtos/FreeRTOS/CMSIS/Include1;../../../rtos/FreeRTOS/CMSIS/Config/ARMCM;../../../rtos/FreeRTOS/Source/Portable/GCC;</IncludePath>
             </VariousControls>
           </Aads>
           <LDads>
@@ -474,12 +474,12 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>manu_system</GroupName>
+          <GroupName>nvds</GroupName>
           <Files>
             <File>
-              <FileName>fault_handle.c</FileName>
+              <FileName>nvds.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../components/manu_system/fault_handle/fault_handle.c</FilePath>
+              <FilePath>../../../components/nvds/nvds.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -499,12 +499,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>nvds</GroupName>
+          <GroupName>pm</GroupName>
           <Files>
             <File>
-              <FileName>nvds.c</FileName>
+              <FileName>pm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../components/nvds/nvds.c</FilePath>
+              <FilePath>../../../components/pm/pm.c</FilePath>
+            </File>
+            <File>
+              <FileName>pm_cpu_gnu.S</FileName>
+              <FileType>2</FileType>
+              <FilePath>../../../components/pm/pm_cpu_gnu.S</FilePath>
             </File>
           </Files>
         </Group>
@@ -524,17 +529,12 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>pm</GroupName>
+          <GroupName>manu_system</GroupName>
           <Files>
             <File>
-              <FileName>pm.c</FileName>
+              <FileName>fault_handle.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../components/pm/pm.c</FilePath>
-            </File>
-            <File>
-              <FileName>pm_cpu_gnu.S</FileName>
-              <FileType>2</FileType>
-              <FilePath>../../../components/pm/pm_cpu_gnu.S</FilePath>
+              <FilePath>../../../components/manu_system/fault_handle/fault_handle.c</FilePath>
             </File>
           </Files>
         </Group>

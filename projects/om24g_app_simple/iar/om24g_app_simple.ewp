@@ -340,11 +340,11 @@
           <state>$PROJ_DIR$/../../../common/include</state>
           <state>$PROJ_DIR$/../../../common/source</state>
           <state>$PROJ_DIR$/../../../components/shell</state>
-          <state>$PROJ_DIR$/../../../components/manu_system/fault_handle</state>
-          <state>$PROJ_DIR$/../../../components/om_log</state>
           <state>$PROJ_DIR$/../../../components/nvds</state>
-          <state>$PROJ_DIR$/../../../components/evt</state>
+          <state>$PROJ_DIR$/../../../components/om_log</state>
           <state>$PROJ_DIR$/../../../components/pm</state>
+          <state>$PROJ_DIR$/../../../components/evt</state>
+          <state>$PROJ_DIR$/../../../components/manu_system/fault_handle</state>
           <state>$PROJ_DIR$/../../../hal/CMSIS/Core/Include</state>
           <state>$PROJ_DIR$/../../../hal/driver/include</state>
           <state>$PROJ_DIR$/../../../hal/device/include</state>
@@ -618,11 +618,11 @@
           <state>$PROJ_DIR$/../../../common/include</state>
           <state>$PROJ_DIR$/../../../common/source</state>
           <state>$PROJ_DIR$/../../../components/shell</state>
-          <state>$PROJ_DIR$/../../../components/manu_system/fault_handle</state>
-          <state>$PROJ_DIR$/../../../components/om_log</state>
           <state>$PROJ_DIR$/../../../components/nvds</state>
-          <state>$PROJ_DIR$/../../../components/evt</state>
+          <state>$PROJ_DIR$/../../../components/om_log</state>
           <state>$PROJ_DIR$/../../../components/pm</state>
+          <state>$PROJ_DIR$/../../../components/evt</state>
+          <state>$PROJ_DIR$/../../../components/manu_system/fault_handle</state>
           <state>$PROJ_DIR$/../../../hal/CMSIS/Core/Include</state>
           <state>$PROJ_DIR$/../../../hal/driver/include</state>
           <state>$PROJ_DIR$/../../../hal/device/include</state>
@@ -1145,9 +1145,9 @@
     </file>
   </group>
   <group>
-    <name>manu_system</name>
+    <name>nvds</name>
     <file>
-      <name>$PROJ_DIR$/../../../components/manu_system/fault_handle/fault_handle.c</name>
+      <name>$PROJ_DIR$/../../../components/nvds/nvds.c</name>
     </file>
   </group>
   <group>
@@ -1160,9 +1160,12 @@
     </file>
   </group>
   <group>
-    <name>nvds</name>
+    <name>pm</name>
     <file>
-      <name>$PROJ_DIR$/../../../components/nvds/nvds.c</name>
+      <name>$PROJ_DIR$/../../../components/pm/pm.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$/../../../components/pm/pm_cpu_iar.S</name>
     </file>
   </group>
   <group>
@@ -1175,12 +1178,9 @@
     </file>
   </group>
   <group>
-    <name>pm</name>
+    <name>manu_system</name>
     <file>
-      <name>$PROJ_DIR$/../../../components/pm/pm.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$/../../../components/pm/pm_cpu_iar.S</name>
+      <name>$PROJ_DIR$/../../../components/manu_system/fault_handle/fault_handle.c</name>
     </file>
   </group>
   <group>

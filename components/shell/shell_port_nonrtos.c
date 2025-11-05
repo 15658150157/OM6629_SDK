@@ -120,7 +120,7 @@ static void shell_uart_init(void)
 static void shell_uart_out(char c)
 {
     OM_CRITICAL_BEGIN();
-    while(OM_ERROR_OK != drv_uart_write(SHELL_UART, (uint8_t *)&c, 1, 200));
+    while(1U != drv_uart_write(SHELL_UART, (uint8_t *)&c, 1, 200));
     OM_CRITICAL_END();
 }
 

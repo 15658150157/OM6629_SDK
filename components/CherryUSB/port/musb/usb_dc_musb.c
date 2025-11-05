@@ -1018,7 +1018,7 @@ static void handle_ep0(void)
                 break;
         }
         ep0_status = HWREGB(USB_BASE + MUSB_IND_TXCSRL_OFFSET);
-    } while(ep0_status);
+    } while(ep0_status & USB_CSRL0_RXRDY);
 }
 
 void USBD_IRQHandler(uint8_t busid)

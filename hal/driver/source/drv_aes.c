@@ -1058,6 +1058,8 @@ om_error_t drv_aes_setkey_enc(uint32_t om_aes, const uint8_t *key, uint32_t keyb
         return OM_ERROR_PARAMETER;
     }
 
+    env->keybits = keybits;
+
     if ((keybits == 128 && (env->cap & CAP_AES_HW_SUPPORT_128BITS_MASK)) ||
         (keybits == 192 && (env->cap & CAP_AES_HW_SUPPORT_192BITS_MASK))  ||
         (keybits == 256 && (env->cap & CAP_AES_HW_SUPPORT_256BITS_MASK))) {
@@ -2059,6 +2061,7 @@ om_error_t drv_aes_ccm_le_encrypt(aes_ccm_le_config_t *cfg, uint8_t *plain_text,
     }
 
     AES_HW_CLK_ENABLE(1);
+    OM_AES->CTRL &= ~AES_HW_CTRL_MODE_MASK;
     OM_AES->CCM_KEY[0] = *(uint32_t *)(key_r);
     OM_AES->CCM_KEY[1] = *(uint32_t *)(key_r + 4);
     OM_AES->CCM_KEY[2] = *(uint32_t *)(key_r + 8);
@@ -2078,15 +2081,18 @@ om_error_t drv_aes_ccm_le_encrypt(aes_ccm_le_config_t *cfg, uint8_t *plain_text,
     OM_AES->CCM_CTRL |= AES_HW_CCM_CTRL_ENABLE_MASK;
 
     OM_AES->CCM_CTRL |= AES_HW_CCM_CTRL_START_MASK;
-    while (!(OM_AES->CCM_CTRL & (AES_HW_CCM_CTRL_END_INT_STATUS_MASK | AES_HW_CCM_CTRL_MICERR_INT_STATUS_MASK | AES_HW_CCM_CTRL_ABORT_INT_STATUS_MASK)));
+    while (!(OM_AES->CCM_CTRL & (AES_HW_CCM_CTRL_END_INT_STATUS_MASK)));
+    OM_AES->CCM_CTRL |= AES_HW_CCM_CTRL_END_INT_STATUS_MASK;
 
-    if (OM_AES->CCM_CTRL & AES_HW_CCM_CTRL_END_INT_STATUS_MASK) {
-        OM_AES->CCM_CTRL |= AES_HW_CCM_CTRL_END_INT_STATUS_MASK;
-        err = OM_ERROR_OK;
-    } else if (OM_AES->CCM_CTRL & AES_HW_CCM_CTRL_MICERR_INT_MASK) {
+    err = OM_ERROR_OK;
+    if (OM_AES->CCM_CTRL & AES_HW_CCM_CTRL_MICERR_INT_STATUS_MASK) {
         OM_AES->CCM_CTRL |= AES_HW_CCM_CTRL_MICERR_ACK_MASK;
-    } else if (OM_AES->CCM_CTRL & AES_HW_CCM_CTRL_ABORT_INT_STATUS_MASK) {
+        err = OM_ERROR_FAIL;
+    }
+
+    if (OM_AES->CCM_CTRL & AES_HW_CCM_CTRL_ABORT_INT_STATUS_MASK) {
         OM_AES->CCM_CTRL |= AES_HW_CCM_CTRL_ABORT_INT_STATUS_MASK;
+        err = OM_ERROR_FAIL;
     }
 
     AES_HW_CLK_ENABLE(0);
@@ -2097,6 +2103,7 @@ om_error_t drv_aes_ccm_le_encrypt(aes_ccm_le_config_t *cfg, uint8_t *plain_text,
 /**
  *******************************************************************************
  * @brief Start AES-CCM LE decrypt
+ * NOTE: Cannot identify MIC error
  *
  * @param[in] cfg                       CCM configuration
  * @param[in] cipher_text_and_tag       Pointer to cipher text and tag
@@ -2108,10 +2115,8 @@ om_error_t drv_aes_ccm_le_encrypt(aes_ccm_le_config_t *cfg, uint8_t *plain_text,
  */
 om_error_t drv_aes_ccm_le_decrypt(aes_ccm_le_config_t *cfg, uint8_t *cipher_text_and_tag, uint8_t *plain_text, uint32_t text_len)
 {
-    om_error_t err;
     uint8_t key_r[16];
 
-    err = OM_ERROR_FAIL;
     OM_ASSERT(text_len != 0 && text_len <= 255);
 
     for (uint8_t i = 0; i < 16; i++) {
@@ -2119,6 +2124,7 @@ om_error_t drv_aes_ccm_le_decrypt(aes_ccm_le_config_t *cfg, uint8_t *cipher_text
     }
 
     AES_HW_CLK_ENABLE(1);
+    OM_AES->CTRL &= ~AES_HW_CTRL_MODE_MASK;
     OM_AES->CCM_KEY[0] = *(uint32_t *)(key_r);
     OM_AES->CCM_KEY[1] = *(uint32_t *)(key_r + 4);
     OM_AES->CCM_KEY[2] = *(uint32_t *)(key_r + 8);
@@ -2138,20 +2144,20 @@ om_error_t drv_aes_ccm_le_decrypt(aes_ccm_le_config_t *cfg, uint8_t *cipher_text
     OM_AES->CCM_CTRL |= AES_HW_CCM_CTRL_ENABLE_MASK;
 
     OM_AES->CCM_CTRL |= AES_HW_CCM_CTRL_START_MASK;
-    while (!(OM_AES->CCM_CTRL & (AES_HW_CCM_CTRL_END_INT_STATUS_MASK | AES_HW_CCM_CTRL_MICERR_INT_STATUS_MASK | AES_HW_CCM_CTRL_ABORT_INT_STATUS_MASK)));
+    while (!(OM_AES->CCM_CTRL & (AES_HW_CCM_CTRL_END_INT_STATUS_MASK)));
+    OM_AES->CCM_CTRL |= AES_HW_CCM_CTRL_END_INT_STATUS_MASK;
 
-    if (OM_AES->CCM_CTRL & AES_HW_CCM_CTRL_END_INT_STATUS_MASK) {
-        OM_AES->CCM_CTRL |= AES_HW_CCM_CTRL_END_INT_STATUS_MASK;
-        err = OM_ERROR_OK;
-    } else if (OM_AES->CCM_CTRL & AES_HW_CCM_CTRL_MICERR_INT_MASK) {
+    if (OM_AES->CCM_CTRL & AES_HW_CCM_CTRL_MICERR_INT_STATUS_MASK) {
         OM_AES->CCM_CTRL |= AES_HW_CCM_CTRL_MICERR_ACK_MASK;
-    } else if (OM_AES->CCM_CTRL & AES_HW_CCM_CTRL_ABORT_INT_STATUS_MASK) {
+    }
+
+    if (OM_AES->CCM_CTRL & AES_HW_CCM_CTRL_ABORT_INT_STATUS_MASK) {
         OM_AES->CCM_CTRL |= AES_HW_CCM_CTRL_ABORT_INT_STATUS_MASK;
     }
 
     AES_HW_CLK_ENABLE(0);
 
-    return err;
+    return OM_ERROR_OK;
 }
 
 om_error_t drv_aes_cmac_start(uint32_t om_aes, aes_cmac_config_t *cfg)

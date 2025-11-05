@@ -15,6 +15,10 @@
  * The NVDS system is used for storing information
  * which should be saved when chip loses power.
  *
+ * @version
+ * Version 1.1
+ *  - Added read-back verification after Flash write.
+ * 
  * <pre>
  * Features:
  *   • Two Sectors: one is NVDS sector, the othor one is BKUP sector
@@ -83,6 +87,8 @@ enum NVDS_STATUS
     NVDS_CRC_ERROR,
     /// Not init
     NVDS_NOINIT_ERROR,
+    /// NVDS write error
+    NVDS_WRITE_ERROR
 };
 
 /*

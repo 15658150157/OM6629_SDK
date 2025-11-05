@@ -110,7 +110,7 @@ static void shell_uart_out(char c)
 
     om_uart = drv_uart_idx2base(CONFIG_SHELL_UART_IDX);
     OM_CRITICAL_BEGIN();
-    while(OM_ERROR_OK != drv_uart_write(om_uart, (uint8_t *)&c, 1, 200));
+    while(1U != drv_uart_write(om_uart, (uint8_t *)&c, 1, 200));
     OM_CRITICAL_END();
 }
 

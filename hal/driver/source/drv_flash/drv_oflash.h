@@ -565,6 +565,61 @@ extern om_error_t drv_oflash_encrypt_enable(OM_OSPI_Type *om_flash, uint8_t enab
  */
 extern om_error_t drv_oflash_list_start(OM_OSPI_Type *om_flash, flash_list_node_t *list_head);
 
+/**
+ *******************************************************************************
+ * @brief external FLASH secure register erase
+ *
+ * @param om_flash  The external FLASH controller device address
+ * @param secure_register  Secure register(0, 1, 2...)
+ * @param timeout_ms  Timeout in milliseconds
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_oflash_secure_register_erase(OM_OSPI_Type *om_flash,
+                                                   uint8_t secure_register,
+                                                   uint32_t timeout_ms);
+
+/**
+ *******************************************************************************
+ * @brief external FLASH secure register read
+ *
+ * @param om_flash  The external FLASH controller device address
+ * @param secure_register  Secure register(0, 1, 2...)
+ * @param addr  Secure register address offset
+ * @param data  Data to read
+ * @param data_len  Data length
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_oflash_secure_register_read(OM_OSPI_Type *om_flash,
+                                                  uint8_t secure_register,
+                                                  uint16_t addr,
+                                                  uint8_t *data,
+                                                  uint16_t data_len);
+
+/**
+ *******************************************************************************
+ * @brief external FLASH secure register write
+ *
+ * @param om_flash  The external FLASH controller device address
+ * @param secure_register  Secure register(0, 1, 2...)
+ * @param addr  Secure register address offset
+ * @param data  Data to write
+ * @param data_len  Data length
+ * @param timeout  Timeout in milliseconds
+ *
+ * @return          Error code, see@ref om_error_t
+ *******************************************************************************
+ */
+extern om_error_t drv_oflash_secure_register_write(OM_OSPI_Type *om_flash,
+                                                   uint8_t secure_register,
+                                                   uint16_t addr,
+                                                   uint8_t *data,
+                                                   uint16_t data_len,
+                                                   uint32_t timeout);
+
 #if (RTE_FLASH1_REGISTER_CALLBACK)
 /**
  *******************************************************************************
