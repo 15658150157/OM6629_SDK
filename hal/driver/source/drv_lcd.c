@@ -147,21 +147,21 @@ void drv_lcd_init(const lcd_config_t *config)
     NVIC_SetPriority(lcd_resource.irq_num, lcd_resource.irq_prio);
     NVIC_ClearPendingIRQ(lcd_resource.irq_num);
     NVIC_EnableIRQ(lcd_resource.irq_num);
-    register_set_raw(&LCD->CONFIG[0].SPI_CFG, MASK_7REG(LCD_CONFIG_TX_DATA_MODE, config->lcd_rgb_mode,
-                                                        LCD_CONFIG_SPI_IF_MODE,  config->lcd_data_mode,
+    register_set_raw(&LCD->CONFIG[0].SPI_CFG, MASK_7REG(LCD_CONFIG_TX_DATA_MODE, config->rgb_mode,
+                                                        LCD_CONFIG_SPI_IF_MODE,  config->data_mode,
                                                         LCD_CONFIG_DATA_WIDTH,   0,
                                                         LCD_CONFIG_DLY_SMP,      config->dly_sample,
                                                         LCD_CONFIG_BP_CLK_DIV,   (!(config->clk_div>>1)),
                                                         LCD_CONFIG_MODE,         config->spi_mode,
                                                         LCD_CONFIG_CLK_DIV,      config->clk_div));
-    register_set(&LCD->SW_SPI_CFG_1, MASK_4REG(LCD_SW_SPI_CFG1_CFG_EN,          ((config->lcd_data_mode == LCD_FLASH_LIKE) ? 1 : 0),
+    register_set(&LCD->SW_SPI_CFG_1, MASK_4REG(LCD_SW_SPI_CFG1_CFG_EN,          ((config->data_mode == LCD_DATA_MODE_FLASH_LIKE) ? 1 : 0),
                                                LCD_SW_SPI_CFG1_LIST_LOAD_EN,    0,
                                                LCD_SW_SPI_CFG1_BUF_WIDTH_BYTES, 4,
                                                LCD_SW_SPI_CFG1_SDATA_BUS_WIDTH, 0));
     register_set(&LCD->SW_SPI_CFG_0, MASK_3REG(LCD_SW_SPI_CFG0_DUMMY_CYCLE,   0,
                                                LCD_SW_SPI_CFG0_P1_BUS_WIDTH,  0,
                                                LCD_SW_SPI_CFG0_P0_BUS_WIDTH,  0));
-    register_set(&LCD->COMMAND, MASK_1REG(LCD_COMMAND_DATA_2_LANE_EN, (config->lcd_data_mode == LCD_3WM1) ? 1 : 0));
+    register_set(&LCD->COMMAND, MASK_1REG(LCD_COMMAND_DATA_2_LANE_EN, (config->data_mode == LCD_DATA_MODE_3WM1_PARALLEL) ? 1 : 0));
 }
 
 #if (RTE_LCD_REGISTER_CALLBACK)
@@ -250,6 +250,14 @@ void drv_lcd_control(lcd_control_t control, void *argu)
                 tx_data_mode = (uint32_t)argu;
                 OM_ASSERT((tx_data_mode == 8) || (tx_data_mode == 16) || (tx_data_mode == 32));
                 register_set(&LCD->CONFIG[0].SPI_CFG, MASK_1REG(LCD_CONFIG_TX_DATA_MODE, ((tx_data_mode >> 3) - 1)));
+            } while(0);
+            break;
+        case LCD_CONTROL_DATA_2_LANE_EN:
+            do {
+                uint32_t data_2_lane_en;
+                data_2_lane_en = (uint32_t)argu;
+                OM_ASSERT((data_2_lane_en == 0) || (data_2_lane_en == 1));
+                register_set(&LCD->COMMAND, MASK_1REG(LCD_COMMAND_DATA_2_LANE_EN, data_2_lane_en));
             } while(0);
             break;
         case LCD_CONTROL_SET_CMD_BIT:

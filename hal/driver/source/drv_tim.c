@@ -34,7 +34,8 @@
  * MACROS
  */
 #define TIM_NUM                 3
-#define TIM_ARR_MAX             0xFFFFFFFF
+#define TIM_ARR_MAX_32BIT       0xFFFFFFFF
+#define TIM_ARR_MAX_16BIT       0xFFFF
 #define TIM_PSC_MAX             0xFFFF
 
 /*
@@ -134,15 +135,23 @@ static const drv_resource_t *tim_get_resource(OM_TIM_Type *om_tim)
 static bool tim_calc_psc_arr(OM_TIM_Type *om_tim, uint32_t period_us)
 {
     uint32_t clk_mhz;
-    uint64_t psc, arr, factor;
+    uint64_t psc, arr, factor, tim_arr_max;
+
+    if (om_tim == OM_TIM0) {
+        tim_arr_max = TIM_ARR_MAX_32BIT;
+    } else if (om_tim == OM_TIM1 || om_tim == OM_TIM2) {
+        tim_arr_max = TIM_ARR_MAX_16BIT;
+    } else {
+        return false;
+    }
 
     clk_mhz = drv_rcc_clock_get((rcc_clk_t)(uint32_t)om_tim) / 1000000;
-    factor  = period_us / ((uint64_t)TIM_ARR_MAX + 1);
+    factor  = period_us / (tim_arr_max + 1);
 
     psc = clk_mhz * (factor + 1);
     arr = period_us / (factor + 1);
 
-    if ((arr > TIM_ARR_MAX) || (psc > TIM_PSC_MAX)) {
+    if ((arr > tim_arr_max) || (psc > TIM_PSC_MAX)) {
         return false;
     }
 
@@ -293,6 +302,7 @@ om_error_t drv_tim_gp_start(OM_TIM_Type *om_tim, const tim_gp_config_t *cfg)
     om_tim->CNT  = 0;
     om_tim->SR   = 0;
 
+    om_tim->RCR = cfg->delay_period;
     // set CCxS input as default (ICx->TIx)
     register_set(&om_tim->CCMR1, MASK_2REG(TIM_CCMR1_CC1S, 1,
                                            TIM_CCMR1_CC2S, 1));
@@ -875,7 +885,7 @@ om_error_t drv_tim_capture_start(OM_TIM_Type *om_tim, const tim_capture_config_t
 {
     const drv_resource_t *resource;
     tim_env_t            *env;
-    uint32_t              tim_clk, psc;
+    uint32_t              tim_clk, psc, tim_arr_max;
     uint32_t              trans_size_byte;
     uint32_t              ccer = 0;
     om_error_t            error;
@@ -902,10 +912,18 @@ om_error_t drv_tim_capture_start(OM_TIM_Type *om_tim, const tim_capture_config_t
         return OM_ERROR_OUT_OF_RANGE;
     }
 
+    if (om_tim == OM_TIM0) {
+        tim_arr_max = TIM_ARR_MAX_32BIT;
+    } else if (om_tim == OM_TIM1 || om_tim == OM_TIM2) {
+        tim_arr_max = TIM_ARR_MAX_16BIT;
+    } else {
+        return false;
+    }
+
     om_tim->DIER  = 0;
     om_tim->CTR1   = 0;
     om_tim->PSC   = psc;
-    om_tim->ARR   = TIM_ARR_MAX;
+    om_tim->ARR   = tim_arr_max;
     om_tim->CNT   = 0;
     om_tim->SR    = 0;
 
@@ -1128,7 +1146,7 @@ void drv_tim_capture_stop(OM_TIM_Type *om_tim, tim_chan_t channel)
 om_error_t drv_tim_pwm_input_start(OM_TIM_Type *om_tim, const tim_pwm_input_config_t *cfg)
 {
     const drv_resource_t *resource;
-    uint32_t tim_clk, psc;
+    uint32_t tim_clk, psc, tim_arr_max;
 
     OM_ASSERT(cfg);
 
@@ -1147,10 +1165,18 @@ om_error_t drv_tim_pwm_input_start(OM_TIM_Type *om_tim, const tim_pwm_input_conf
         return OM_ERROR_OUT_OF_RANGE;
     }
 
+    if (om_tim == OM_TIM0) {
+        tim_arr_max = TIM_ARR_MAX_32BIT;
+    } else if (om_tim == OM_TIM1 || om_tim == OM_TIM2) {
+        tim_arr_max = TIM_ARR_MAX_16BIT;
+    } else {
+        return false;
+    }
+
     om_tim->DIER = 0;
     om_tim->CTR1 |= TIM_CTR1_URS_MASK;
     om_tim->PSC  = psc;
-    om_tim->ARR  = TIM_ARR_MAX;
+    om_tim->ARR  = tim_arr_max;
     om_tim->CNT  = 0;
     om_tim->SR   = 0;
 

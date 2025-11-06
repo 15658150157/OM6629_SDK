@@ -85,7 +85,7 @@ __Vectors:
                 .long    SOFT5_IRQHandler                   /* 20   */
                 .long    SOFT6_IRQHandler                   /* 21   */
                 .long    SOFT7_IRQHandler                   /* 22   */
-                .long    VTRACK_IRQHandler                  /* 23   */
+                .long    0x6627                             /* 23   */
                 .long    CRY32M_RDY_IRQHandler              /* 24   */
                 .long    UART0_IRQHandler                   /* 25   */
                 .long    SPI0_IRQHandler                    /* 26   */
@@ -234,6 +234,18 @@ fault_handler_c:
                 .fnend
                 .size    fault_handler_c, . - fault_handler_c
 
+ /* We can using fault_handler_c_pre function to store regsiters before display Fault status:
+  * void fault_handler_c_pre(uint32_t exc_return_code, uint32_t sp)
+  */
+                .thumb_func
+                .type    fault_handler_c_pre, %function
+                .weak    fault_handler_c_pre
+                .fnstart
+fault_handler_c_pre:
+                bx   lr
+                .fnend
+                .size    fault_handler_c_pre, . - fault_handler_c_pre
+
                 .thumb_func
                 .type    HardFault_Handler, %function
                 .weak    HardFault_Handler
@@ -244,6 +256,9 @@ HardFault_Handler:
                 mrseq r1, msp
                 mrsne r1, psp
                 mov   r0, lr
+                push  {r0, r1}
+                bl    fault_handler_c_pre
+                pop   {r0, r1}
                 b     fault_handler_c
                 .fnend
                 .size    HardFault_Handler, . - HardFault_Handler
@@ -308,7 +323,6 @@ Default_Handler:
                 Set_Default_Handler  SOFT5_IRQHandler
                 Set_Default_Handler  SOFT6_IRQHandler
                 Set_Default_Handler  SOFT7_IRQHandler
-                Set_Default_Handler  VTRACK_IRQHandler
                 Set_Default_Handler  CRY32M_RDY_IRQHandler
                 Set_Default_Handler  UART0_IRQHandler
                 Set_Default_Handler  SPI0_IRQHandler

@@ -39,7 +39,6 @@
 #define OM24G_ACK_MODE 0
 #define ENABLE_SLEEP_MODE 0
 
-#define EVENT_OM24G_MASK            0x0001
 
 /*******************************************************************************
  * CONST & VARIABLES
@@ -54,12 +53,10 @@ static volatile  bool max_try_flag = false;
 static volatile  bool om24g_tx_flag = false;
 static volatile  bool om24g_rx_flag = false;
 static volatile uint32_t timeout = 0;
-static osEventFlagsId_t xEvtEvent = NULL;
+static osSemaphoreId_t xSemOm24g = NULL;
 
 uint8_t om24g_tx_payload[166];
-
 uint8_t om24g_rx_payload[166*2];
-//uint8_t om24g_rx_payload[1400];
 
 // Compatible with TI2640
 #if (RTE_OM24G_RF_MODE == 1)
@@ -554,7 +551,7 @@ om24g_config_t om24g_config_noack = {
     .len_pos             = 0x00,
     .endian              = OM24G_ENDIAN_MSB,
     .freq                = 2442,// 0x21,
-    .data_rate           = OM24G_RATE_2M,
+    .data_rate           = OM24G_RATE_1M,
     .ack_en              = 0,
     .dpl_en              = 0,
     .white_en            = 1,
@@ -699,14 +696,13 @@ static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void
             //DRV_DELAY_MS(500);
             OM_LOG(OM_LOG_DEBUG, "E:%d ", error_count);
             OM_LOG(OM_LOG_DEBUG, "R:%d \r\n", right_count);
-
             #if ENABLE_SLEEP_MODE
             // OM24G_CE_LOW();
             // pm_sleep_allow(PM_ID_24G);
             // drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
             // drv_pmu_timer_trig_set(PMU_TIMER_TRIG_VAL0, (drv_pmu_timer_cnt_get() + PMU_TIMER_MS2TICK(500)));
             #endif
-
+            osSemaphoreRelease(xSemOm24g);
             break;
         case DRV_EVENT_OM24G_MAX_RT:   // max retry
             break;
@@ -733,6 +729,7 @@ static void om24g_callback(void *om_reg, drv_event_t drv_event, void *buff, void
                 drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_ENABLE, (void *)0);
                 drv_om24g_control(OM24G_CONTROL_CLK_DISABLE, NULL);
             }
+            osSemaphoreRelease(xSemOm24g);
             break;
         default:
             break;
@@ -827,15 +824,15 @@ static void om24g_callback_rx_to_tx(void *om_reg, drv_event_t drv_event, void *b
             break;
         case DRV_EVENT_COMMON_TRANSMIT_COMPLETED:
             #if TX_ROLE
-            // drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_SET_TIMER_INCR, (void *)(drv_pmu_timer_cnt_get() + PMU_TIMER_MS2TICK(200)));
+            drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_SET_TIMER_VAL, (void *)(drv_pmu_timer_cnt_get() + PMU_TIMER_MS2TICK(500)));
             #endif
             drv_om24g_read_int(om24g_rx_payload, 166);
             tx_count++;
-            // if(tx_count == 500) {
-            //     tx_count = 0;
-            //     right_count = 0;
-            //     drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_DISABLE, NULL);
-            // }
+            if(tx_count == 100) {
+                tx_count = 0;
+                right_count = 0;
+                drv_pmu_timer_control(PMU_TIMER_TRIG_VAL0, PMU_TIMER_CONTROL_ENABLE, 0);
+            }
             //OM_LOG(OM_LOG_DEBUG, "tx_cnt: %d\r\n", tx_count);
             break;
         default:
@@ -1777,7 +1774,6 @@ static void om24g_rx_test(om24g_transfer_t rx_case)
 
 static void timer1_callback(void *om_reg, drv_event_t drv_event, void *param0, void *param1)
 {
-    OM_LOG(OM_LOG_DEBUG, "tim \r\n");
     OM24G_CE_LOW();
     //drv_gpio_toggle(OM_GPIO0, GPIO_MASK(8));
     drv_om24g_control(OM24G_CONTROL_CLK_ENABLE, NULL);
@@ -1838,12 +1834,12 @@ static void timer1_callback_timestamp(void *om_reg, drv_event_t drv_event, void 
 
 static void vEvtEventHandler(void)
 {
-    if (xEvtEvent) {
-        osEventFlagsSet(xEvtEvent, EVENT_OM24G_MASK);
+    if (xSemOm24g) {
+        osSemaphoreRelease(xSemOm24g);
     }
 }
 
-static void om24g_thread(void *arguments)
+static void vEvtScheduleTask(void *arguments)
 {
     drv_rf_init();
     drv_pmu_timer_init();
@@ -1868,8 +1864,8 @@ static void om24g_thread(void *arguments)
 
     // Evt and evt timer initialization
     evt_init();
-    // Create event
-    xEvtEvent = osEventFlagsNew(NULL);
+   // Create semaphore
+    xSemOm24g = osSemaphoreNew(1, 0, NULL);
 
     // Set evt callback
     evt_schedule_trigger_callback_set(vEvtEventHandler);
@@ -1877,8 +1873,8 @@ static void om24g_thread(void *arguments)
     while(1) {
         // schedule for handle evt
         evt_schedule();
-        // wait os event flag
-        (void)osEventFlagsWait(xEvtEvent, 0xFFFF, osFlagsWaitAny, osWaitForever);
+        // Wait for semaphore
+        osSemaphoreAcquire(xSemOm24g, osWaitForever);
     }
 }
 
@@ -1890,10 +1886,15 @@ void vStartOm24gTask(void)
 {
     const osThreadAttr_t Om24gThreadAttr = {
         .name           = "om24g",
-        .stack_size     = 2048U,
-        .priority       = osPriorityRealtime,
+        .attr_bits = 0,
+        .cb_mem = NULL,
+        .cb_size = 0,
+        .stack_mem = NULL,
+        .stack_size = 2048,
+        .priority = osPriorityRealtime,
+        .tz_module = 0,
     };
 
     // Create om24g Task
-    osThreadNew(om24g_thread, NULL, &Om24gThreadAttr);
+    osThreadNew(vEvtScheduleTask, NULL, &Om24gThreadAttr);
 }

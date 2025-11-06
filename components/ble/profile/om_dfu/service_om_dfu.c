@@ -77,7 +77,7 @@ void service_om_dfu_init(void)
     };
     ob_gatts_add_service(&att_serv_dfu, &m_start_handle);
 }
-static void dfu_response(dfu_response_t *dfu_rsp_data)
+static void dfu_response(uint8_t conn_idx, dfu_response_t *dfu_rsp_data)
 {
     uint16_t len = dfu_rsp_data->length;
     ob_gatts_hvx_t hvx = {
@@ -86,10 +86,10 @@ static void dfu_response(dfu_response_t *dfu_rsp_data)
         &dfu_rsp_data->rsp_code,
         len,
     };
-    ob_gatts_send_hvx(0, &hvx);
+    ob_gatts_send_hvx(conn_idx, &hvx);
 }
 
-static void dfu_response_version(dfu_version_t *dfu_version)
+static void dfu_response_version(uint8_t conn_idx, dfu_version_t *dfu_version)
 {
     uint16_t len = sizeof(struct dfu_version_data);
     ob_gatts_hvx_t hvx = {
@@ -98,7 +98,7 @@ static void dfu_response_version(dfu_version_t *dfu_version)
         (uint8_t *) &dfu_version->version_data,
         len,
     };
-    ob_gatts_send_hvx(0, &hvx);
+    ob_gatts_send_hvx(conn_idx, &hvx);
 }
 
 void service_om_dfu_evt_cb(uint16_t evt_id, const omble_evt_t *evt)
@@ -110,12 +110,12 @@ void service_om_dfu_evt_cb(uint16_t evt_id, const omble_evt_t *evt)
         switch (evt->gatt.write_req.att_hdl - m_start_handle) {
             case IDX_DFU_CTRL_VAL:
                 dfu_write_cmd((uint8_t *)data, len, &dfu_rsp_data);
-                dfu_response(&dfu_rsp_data);
+                dfu_response(evt->gatt.conn_idx, &dfu_rsp_data);
                 break;
             case IDX_DFU_PKG_VAL:
                 dfu_write_data(data, len, &dfu_rsp_data);
                 if (dfu_rsp_data.length != DFU_RESP_SIZE_NO_DATA) {
-                    dfu_response(&dfu_rsp_data);
+                    dfu_response(evt->gatt.conn_idx, &dfu_rsp_data);
                 }
                 break;
             case IDX_DFU_VER_VAL: {
@@ -127,7 +127,7 @@ void service_om_dfu_evt_cb(uint16_t evt_id, const omble_evt_t *evt)
                     cmd = data[0];
                 }
                 dfu_write_version_char(cmd, &version);
-                dfu_response_version(&version);
+                dfu_response_version(evt->gatt.conn_idx, &version);
             }   break;
         }
     } else if (evt_id == OB_GAP_EVT_CONNECTED) {

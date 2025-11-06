@@ -95,7 +95,7 @@ __vector_table
                 DCD    SOFT5_IRQHandler                  ; 20
                 DCD    SOFT6_IRQHandler                  ; 21
                 DCD    SOFT7_IRQHandler                  ; 22
-                DCD    VTRACK_IRQHandler                 ; 23
+                DCD    0x6627                            ; 23
                 DCD    CRY32M_RDY_IRQHandler             ; 24
                 DCD    UART0_IRQHandler                  ; 25
                 DCD    SPI0_IRQHandler                   ; 26
@@ -151,12 +151,15 @@ __low_level_init
                 POP  {PC}
 
 
-; NMI_Handler_C & fault_handler_c
+; NMI_Handler_C & fault_handler_c_pre & fault_handler_c
                 PUBWEAK  NMI_Handler_C
+                PUBWEAK  fault_handler_c_pre
                 PUBWEAK  fault_handler_c
 fault_handler_c
 NMI_Handler_C
                 B    .
+fault_handler_c_pre
+                BX   LR
 
 ; NMI_Handler
                 PUBWEAK NMI_Handler
@@ -183,6 +186,9 @@ UsageFault_Handler
                 MRSEQ R1, MSP
                 MRSNE R1, PSP
                 MOV   R0, LR
+                PUSH  {R0, R1}
+                BL    fault_handler_c_pre
+                POP   {R0, R1}
                 B     fault_handler_c
 
                 PUBWEAK SVC_Handler

@@ -34,9 +34,9 @@
  * MACROS
  */
 #if RTE_FLASH1_XIP
-#define __OF_RAM_CODE   __RAM_CODES("DRV_OFLASH")
+#define __OFLASH_CODE   __RAM_CODE
 #else
-#define __OF_RAM_CODE
+#define __OFLASH_CODE
 #endif
 
 #define M_SPI           0 /* Do not modify, must be 0 */
@@ -245,7 +245,7 @@ void flash_erase_frame_get(flash_erase_t erase_type, flash_frame_t *frame)
     }
 }
 
-__OF_RAM_CODE static om_error_t oflash_read_reg(flash_frame_t *frame, uint8_t *data, uint8_t data_len)
+__OFLASH_CODE static om_error_t oflash_read_reg(flash_frame_t *frame, uint8_t *data, uint8_t data_len)
 {
     om_error_t error;
     uint32_t cmd[2];
@@ -271,7 +271,7 @@ __OF_RAM_CODE static om_error_t oflash_read_reg(flash_frame_t *frame, uint8_t *d
     return error;
 }
 
-__OF_RAM_CODE static om_error_t oflash_write_enable(OM_OSPI_Type *om_flash)
+__OFLASH_CODE static om_error_t oflash_write_enable(OM_OSPI_Type *om_flash)
 {
     flash_frame_t frame;
 
@@ -279,7 +279,7 @@ __OF_RAM_CODE static om_error_t oflash_write_enable(OM_OSPI_Type *om_flash)
     return oflash_read_reg(&frame, NULL, 0);
 }
 
-__OF_RAM_CODE static om_error_t oflash_write_enable_vsr(OM_OSPI_Type *om_flash)
+__OFLASH_CODE static om_error_t oflash_write_enable_vsr(OM_OSPI_Type *om_flash)
 {
     flash_frame_t frame;
 
@@ -287,7 +287,7 @@ __OF_RAM_CODE static om_error_t oflash_write_enable_vsr(OM_OSPI_Type *om_flash)
     return oflash_read_reg(&frame, NULL, 0);
 }
 
-__OF_RAM_CODE static om_error_t oflash_poll_wip(flash_frame_t *wip_frame, uint32_t timeout_ms)
+__OFLASH_CODE static om_error_t oflash_poll_wip(flash_frame_t *wip_frame, uint32_t timeout_ms)
 {
     uint8_t status = 0xFF;
     om_error_t error;
@@ -303,7 +303,7 @@ __OF_RAM_CODE static om_error_t oflash_poll_wip(flash_frame_t *wip_frame, uint32
     return error;
 }
 
-__OF_RAM_CODE static om_error_t oflash_write_reg(flash_frame_t *write_reg_frame,
+__OFLASH_CODE static om_error_t oflash_write_reg(flash_frame_t *write_reg_frame,
                                                  flash_frame_t *wip_frame,
                                                  uint8_t *data,
                                                  uint8_t data_len,
@@ -349,7 +349,7 @@ __OF_RAM_CODE static om_error_t oflash_write_reg(flash_frame_t *write_reg_frame,
     return error == OM_ERROR_OK ? oflash_poll_wip(wip_frame, FLASH_TIMEOUT_MS_DEFAULT) : error;
 }
 
-__OF_RAM_CODE static om_error_t oflash_read_frame_set(OM_OSPI_Type *om_flash,
+__OFLASH_CODE static om_error_t oflash_read_frame_set(OM_OSPI_Type *om_flash,
                                                       flash_frame_t *qpi_frame,
                                                       flash_frame_t *read_frame)
 {
@@ -366,7 +366,7 @@ __OF_RAM_CODE static om_error_t oflash_read_frame_set(OM_OSPI_Type *om_flash,
     return error;
 }
 
-__OF_RAM_CODE static om_error_t oflash_secure_reg_read(OM_OSPI_Type *om_flash,
+__OFLASH_CODE static om_error_t oflash_secure_reg_read(OM_OSPI_Type *om_flash,
                                                        uint32_t addr,
                                                        uint8_t *data,
                                                        uint16_t data_len,
@@ -396,7 +396,7 @@ __OF_RAM_CODE static om_error_t oflash_secure_reg_read(OM_OSPI_Type *om_flash,
 }
 
 #if (RTE_FLASH1_XIP)
-__OF_RAM_CODE static om_error_t oflash_suspend(flash_frame_t *suspend_frame)
+__OFLASH_CODE static om_error_t oflash_suspend(flash_frame_t *suspend_frame)
 {
     om_error_t error;
 
@@ -416,7 +416,7 @@ __OF_RAM_CODE static om_error_t oflash_suspend(flash_frame_t *suspend_frame)
     return error;
 }
 
-__OF_RAM_CODE static om_error_t oflash_resume(flash_frame_t *resume_frame)
+__OFLASH_CODE static om_error_t oflash_resume(flash_frame_t *resume_frame)
 {
     om_error_t error;
 
@@ -438,7 +438,7 @@ __OF_RAM_CODE static om_error_t oflash_resume(flash_frame_t *resume_frame)
     return error;
 }
 
-__OF_RAM_CODE static om_error_t oflash_poll_wip_with_suspend(flash_frame_t *wip_frame,
+__OFLASH_CODE static om_error_t oflash_poll_wip_with_suspend(flash_frame_t *wip_frame,
                                                              flash_frame_t *suspend_frame,
                                                              flash_frame_t *resume_frame,
                                                              uint32_t irq_save,
@@ -475,7 +475,7 @@ __OF_RAM_CODE static om_error_t oflash_poll_wip_with_suspend(flash_frame_t *wip_
     return error;
 }
 
-__OF_RAM_CODE static om_error_t oflash_secure_reg_write_with_suspend(OM_OSPI_Type *om_flash,
+__OFLASH_CODE static om_error_t oflash_secure_reg_write_with_suspend(OM_OSPI_Type *om_flash,
                                                                      uint32_t addr,
                                                                      uint8_t *data,
                                                                      uint8_t data_len,
@@ -515,7 +515,7 @@ __OF_RAM_CODE static om_error_t oflash_secure_reg_write_with_suspend(OM_OSPI_Typ
     return error;
 }
 
-__OF_RAM_CODE static om_error_t oflash_write_with_suspend(OM_OSPI_Type *om_flash,
+__OFLASH_CODE static om_error_t oflash_write_with_suspend(OM_OSPI_Type *om_flash,
                                                           uint32_t addr,
                                                           uint8_t *data,
                                                           uint32_t data_len,
@@ -545,7 +545,7 @@ __OF_RAM_CODE static om_error_t oflash_write_with_suspend(OM_OSPI_Type *om_flash
     return error;
 }
 
-__OF_RAM_CODE static om_error_t oflash_erase_with_suspend(OM_OSPI_Type *om_flash,
+__OFLASH_CODE static om_error_t oflash_erase_with_suspend(OM_OSPI_Type *om_flash,
                                                           uint32_t addr,
                                                           flash_frame_t *erase_frame,
                                                           flash_frame_t *wip_frame,
@@ -583,7 +583,7 @@ __OF_RAM_CODE static om_error_t oflash_erase_with_suspend(OM_OSPI_Type *om_flash
 
 #else
 
-__OF_RAM_CODE static om_error_t oflash_secure_reg_write(OM_OSPI_Type *om_flash,
+__OFLASH_CODE static om_error_t oflash_secure_reg_write(OM_OSPI_Type *om_flash,
                                                         uint32_t addr,
                                                         uint8_t *data,
                                                         uint16_t data_len,
@@ -619,7 +619,7 @@ __OF_RAM_CODE static om_error_t oflash_secure_reg_write(OM_OSPI_Type *om_flash,
     return error;
 }
 
-__OF_RAM_CODE static om_error_t oflash_write(OM_OSPI_Type *om_flash,
+__OFLASH_CODE static om_error_t oflash_write(OM_OSPI_Type *om_flash,
                                              uint32_t addr,
                                              uint8_t *data,
                                              uint32_t data_len,
@@ -640,7 +640,7 @@ __OF_RAM_CODE static om_error_t oflash_write(OM_OSPI_Type *om_flash,
     return oflash_poll_wip(wip_frame, timeout_ms);
 }
 
-__OF_RAM_CODE static om_error_t oflash_erase_send_cmd(OM_OSPI_Type *om_flash,
+__OFLASH_CODE static om_error_t oflash_erase_send_cmd(OM_OSPI_Type *om_flash,
                                                       uint32_t addr,
                                                       flash_frame_t *erase_frame,
                                                       uint32_t timeout_ms)
@@ -667,7 +667,7 @@ __OF_RAM_CODE static om_error_t oflash_erase_send_cmd(OM_OSPI_Type *om_flash,
     return error;
 }
 
-__OF_RAM_CODE static om_error_t oflash_erase(OM_OSPI_Type *om_flash,
+__OFLASH_CODE static om_error_t oflash_erase(OM_OSPI_Type *om_flash,
                                              uint32_t addr,
                                              flash_frame_t *erase_frame,
                                              flash_frame_t *wip_frame,
@@ -683,7 +683,7 @@ __OF_RAM_CODE static om_error_t oflash_erase(OM_OSPI_Type *om_flash,
 }
 #endif /* RTE_FLASH1_XIP */
 
-__OF_RAM_CODE static om_error_t oflash_read_id(flash_frame_t *id_frame, flash_id_t *id)
+__OFLASH_CODE static om_error_t oflash_read_id(flash_frame_t *id_frame, flash_id_t *id)
 {
     om_error_t error;
     flash_id_t id_read = {.id = 0};
@@ -698,7 +698,7 @@ __OF_RAM_CODE static om_error_t oflash_read_id(flash_frame_t *id_frame, flash_id
     return OM_ERROR_OK;
 }
 
-__OF_RAM_CODE static om_error_t oflash_auto_delay_init(flash_frame_t *id_frame,
+__OFLASH_CODE static om_error_t oflash_auto_delay_init(flash_frame_t *id_frame,
                                                        ospi_config_t *config)
 {
     flash_id_t id1, id2;
@@ -1553,7 +1553,7 @@ om_error_t drv_oflash_4byte_addr_enable(OM_OSPI_Type *om_flash, uint8_t enable)
     return error;
 }
 
-__OF_RAM_CODE om_error_t drv_oflash_reset(OM_OSPI_Type *om_flash)
+__OFLASH_CODE om_error_t drv_oflash_reset(OM_OSPI_Type *om_flash)
 {
     om_error_t error = OM_ERROR_OK;
     flash_frame_t rst_en_frame, rst_frame, rw_frame;
@@ -1583,7 +1583,7 @@ __OF_RAM_CODE om_error_t drv_oflash_reset(OM_OSPI_Type *om_flash)
     return error;
 }
 
-__OF_RAM_CODE om_error_t drv_oflash_encrypt_enable(OM_OSPI_Type *om_flash, uint8_t enable)
+__OFLASH_CODE om_error_t drv_oflash_encrypt_enable(OM_OSPI_Type *om_flash, uint8_t enable)
 {
     #if (RTE_EFUSE)
     if (enable) {

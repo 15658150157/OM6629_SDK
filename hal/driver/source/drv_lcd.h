@@ -49,6 +49,7 @@ typedef enum {
                                                                                 16: for rgb565
                                                                                 32: for rgb666 or rgb888 */
     LCD_CONTROL_TX_DATA_MODE,
+    LCD_CONTROL_DATA_2_LANE_EN,         /**< only the LCD_DATA_MODE_3WM1_PARALLEL mode requires enabling this bit. for other modes, it should not be enabled */
     LCD_CONTROL_SET_CMD_BIT,            /**< with 1 argument, range in 1/2/4, x lines to send command */
     LCD_CONTROL_SET_DATA_BIT,           /**< with 1 argument, range in 1/2/4, x lines to data bits */
     LCD_CONTROL_SET_BUF_MODE_666_888,   /**< No argument, for rgb666 or rgb888, trule value is 3 */
@@ -72,32 +73,33 @@ typedef enum {
   \brief  Typedef of LCD data mode enumerate
  */
 typedef enum {
-    LCD_FLASH_LIKE = 0U,           /// target lcd like flash
-    LCD_3WM1 = 1U,                 /// target lcd using one more bit in cmd/data to differentiate whether it is cmd or data
-    LCD_3WM2 = 2U,                 /// target lcd 3WM1 can enable data_2_lan to send data in 2 lines, 3WM2 can not.
-    LCD_4WM1 = 3U,                 /// target lcd using io2 to differentiate whether it is cmd or data
-    LCD_4WM2 = 4U,                 /// target lcd 4WM1 can enable data_2_lan to send data in 2 lines, 4WM2 can not.
+    LCD_DATA_MODE_FLASH_LIKE = 0U,    /// target lcd like flash
+    LCD_DATA_MODE_3WM1 = 1U,          /// target lcd using one more bit in cmd/data to differentiate whether it is cmd or data
+    LCD_DATA_MODE_3WM2 = 2U,          /// target lcd add an additional data cable for receiving purposes.3WM1_PARALLEL can enable data_2_lan to send data in 2 lines paralleled, 3WM2 can not.
+    LCD_DATA_MODE_4WM1 = 3U,          /// target lcd have one CMD line and one DATA line. The high or low state of the CMD line determines whether the DATA line carries data or a command.
+    LCD_DATA_MODE_4WM2 = 4U,          /// target lcd add an additional data cable for receiving purposes.
+    LCD_DATA_MODE_3WM1_PARALLEL = 5U, /// target lcd 3WM1_PARALLEL can enable data_2_lan to send data in 2 lines paralleled, 3WM2 can not.
 } lcd_data_mode_t;
 
 /**
   \brief  Typedef of LCD spi mode enumerate
  */
 typedef enum {
-    LCD_SPI_MODE_0  = 0U,              // Mode 0: CPOL=0, CPHA=0
-    LCD_SPI_MODE_1  = 1U,              // Mode 1: CPOL=0, CPHA=1
-    LCD_SPI_MODE_2  = 2U,              // Mode 2: CPOL=1, CPHA=0
-    LCD_SPI_MODE_3  = 3U,              // Mode 3: CPOL=1, CPHA=1
+    LCD_SPI_MODE_0 = 0U,              // Mode 0: CPOL=0, CPHA=0
+    LCD_SPI_MODE_1 = 1U,              // Mode 1: CPOL=0, CPHA=1
+    LCD_SPI_MODE_2 = 2U,              // Mode 2: CPOL=1, CPHA=0
+    LCD_SPI_MODE_3 = 3U,              // Mode 3: CPOL=1, CPHA=1
 } lcd_spi_mode_t;
 
 /**
   \brief  Structure of LCD configuration
  */
 typedef struct {
-    lcd_rgb_mode_t  lcd_rgb_mode;
-    lcd_data_mode_t lcd_data_mode;
-    uint8_t              dly_sample;
-    lcd_spi_mode_t      spi_mode;
-    uint8_t              clk_div;
+    lcd_rgb_mode_t  rgb_mode;
+    lcd_data_mode_t data_mode;
+    uint8_t         dly_sample;
+    lcd_spi_mode_t  spi_mode;
+    uint8_t         clk_div;
 } lcd_config_t;
 
 /**

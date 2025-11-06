@@ -39,16 +39,6 @@ extern "C"
 
 
 /*******************************************************************************
- * TYPEDEFS
- */
-/// WDT control
-typedef enum {
-    WDT_CONTROL_ENABLE_NMI_INT     = 0U,   /* Enable/Disable NMI interrupt, default enable NMI interrupt after wdt enable */
-    WDT_CONTROL_CLEAR_INT_FLAG     = 1U,   /* Clear WDT interrupt flag */
-} wdt_control_t;
-
-
-/*******************************************************************************
  * EXTERN FUNCTIONS
  */
 /**
@@ -87,38 +77,9 @@ extern void drv_wdt_register_isr_callback(drv_isr_callback_t isr_cb);
  *        the wdt driver.
  *        If application want to reboot/reset system immediately, user shall call
  *        drv_pmu_reset() with reboot reason as PMU_REBOOT_FROM_WDT.
- *        If application used keep alive in isr or isr_callback, please clear interrupt
- *        flag, call drv_wdt_control with argument as WDT_CONTROL_CLEAR_INT_FLAG.
  *******************************************************************************
  */
 extern void drv_wdt_isr_callback(void);
-
-/**
- *******************************************************************************
- * @brief Control WDT
- *
- * @param[in] control   control options
- * @param[in] argu      argument for control options
- *
- *******************************************************************************
- */
-static inline void drv_wdt_control(wdt_control_t control, void *argu)
-{
-    switch (control) {
-        case WDT_CONTROL_ENABLE_NMI_INT:
-            if ((uint32_t)argu) {
-                OM_PMU->WDT_STATUS |= PMU_WDT_STATUS_WDT_INT_NMI_EN_MASK;
-            } else {
-                OM_PMU->WDT_STATUS &= ~PMU_WDT_STATUS_WDT_INT_NMI_EN_MASK;
-            }
-            break;
-        case WDT_CONTROL_CLEAR_INT_FLAG:
-            OM_PMU->WDT_STATUS |= PMU_WDT_STATUS_WDT_FLAG_CLR_MASK;  // clear WDT int flag
-            break;
-        default:
-            break;
-    }
-}
 
 /**
  *******************************************************************************
@@ -126,6 +87,13 @@ static inline void drv_wdt_control(wdt_control_t control, void *argu)
  *******************************************************************************
  */
 extern void drv_wdt_keep_alive(void);
+
+/**
+ *******************************************************************************
+ * @brief Get Watchdog time left time, unit: ms
+ *******************************************************************************
+ */
+extern uint32_t drv_wdt_get_left(void);
 
 /**
  *******************************************************************************

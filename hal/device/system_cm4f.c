@@ -188,5 +188,4 @@ __WEAK void SystemInitPost(void)
     lib_cpft_uninit();
 }
 
-
 /** @} */

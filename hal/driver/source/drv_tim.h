@@ -82,6 +82,7 @@ typedef enum {
 typedef struct {
     /// period(us)
     uint32_t period_us;
+    uint32_t delay_period;
 } tim_gp_config_t;
 
 /// TIM PWM Channel Configuration

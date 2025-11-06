@@ -255,16 +255,6 @@ listnewconfig:
 document:
 	@doxygen docs/doxygen/doxyfile
 
-# merged_elf
-merged_elf:
-	@echo "TODO merged"
-
-# generate preprocess file
-generate_i:
-	@echo source file is: $(DFILE)
-	$(Q)$(CC) $(CXXFLAGS) -E $(DFILE) -o $(notdir $(DFILE)).i
-	@echo ---------------- done ----------------
-
 help:
 	@echo "Summary of Makefile building targets:"
 	@echo "    all (default)     - Application and all libraries"
@@ -275,5 +265,4 @@ help:
 	@echo "    menuconfig        - Prompt menuconfig for secure/nonsecure project"
 	@echo "    listnewconfig     - List new config"
 	@echo "    list              - List sources/includes/libraries/define"
-	@echo "    merged_elf        - merged to an elf file"
-	@echo "    generate_i <DFILE=relative_path>    - generate preprocess file"
+	@echo "    device            - Specify target device, device=xxx"

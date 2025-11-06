@@ -35,9 +35,9 @@
  * MACROS
  */
 #if (RTE_FLASH1 && RTE_FLASH1_XIP)
-#define __OSPI_RAM_CODE                __RAM_CODES("drv_ospi")
+#define __OSPI_CODE                __RAM_CODE
 #else
-#define __OSPI_RAM_CODE
+#define __OSPI_CODE
 #endif
 
 
@@ -83,10 +83,10 @@ static const ospi_resource_t ospi_resource = {
 /*******************************************************************************
  * LOCAL FUNCTIONS
  */
-static __OSPI_RAM_CODE void ospi_raw_read(OM_OSPI_Type *om_ospi,
-                                          uint32_t cmd[2],
-                                          uint8_t *data,
-                                          uint32_t data_len)
+static __OSPI_CODE void ospi_raw_read(OM_OSPI_Type *om_ospi,
+                                      uint32_t cmd[2],
+                                      uint8_t *data,
+                                      uint32_t data_len)
 {
     OM_CRITICAL_BEGIN();
     om_ospi->CMD_DATA0 = cmd[0];
@@ -98,10 +98,10 @@ static __OSPI_RAM_CODE void ospi_raw_read(OM_OSPI_Type *om_ospi,
     OM_CRITICAL_END();
 }
 
-static __OSPI_RAM_CODE void ospi_raw_write(OM_OSPI_Type *om_ospi,
-                                           uint32_t cmd[2],
-                                           volatile uint8_t *data,
-                                           uint32_t data_len)
+static __OSPI_CODE void ospi_raw_write(OM_OSPI_Type *om_ospi,
+                                       uint32_t cmd[2],
+                                       volatile uint8_t *data,
+                                       uint32_t data_len)
 {
     OM_CRITICAL_BEGIN();
     om_ospi->CMD_WR_DATA0 = cmd[0];
@@ -117,7 +117,7 @@ static __OSPI_RAM_CODE void ospi_raw_write(OM_OSPI_Type *om_ospi,
 /*******************************************************************************
  * PUBLIC FUNCTIONS
  */
-__RAM_CODE void drv_ospi_init(OM_OSPI_Type *om_ospi, const ospi_config_t *ospi_config)
+__OSPI_CODE void drv_ospi_init(OM_OSPI_Type *om_ospi, const ospi_config_t *ospi_config)
 {
     const ospi_resource_t *resource = &ospi_resource;
     uint8_t bypass;
@@ -208,10 +208,10 @@ __RAM_CODE void drv_ospi_init(OM_OSPI_Type *om_ospi, const ospi_config_t *ospi_c
     }
 }
 
-__OSPI_RAM_CODE om_error_t drv_ospi_read(OM_OSPI_Type *om_ospi,
-                                         uint32_t cmd[2],
-                                         uint8_t *data,
-                                         uint32_t data_len)
+__OSPI_CODE om_error_t drv_ospi_read(OM_OSPI_Type *om_ospi,
+                                     uint32_t cmd[2],
+                                     uint8_t *data,
+                                     uint32_t data_len)
 {
     if (om_ospi->STATUS & OSPI_STATUS_BUSY_MASK) {
         return OM_ERROR_BUSY;
@@ -246,10 +246,10 @@ om_error_t drv_ospi_read_int(OM_OSPI_Type *om_ospi,
     return OM_ERROR_OK;
 }
 
-__OSPI_RAM_CODE om_error_t drv_ospi_write(OM_OSPI_Type *om_ospi,
-                                          uint32_t cmd[2],
-                                          volatile uint8_t *data,
-                                          uint32_t data_len)
+__OSPI_CODE om_error_t drv_ospi_write(OM_OSPI_Type *om_ospi,
+                                      uint32_t cmd[2],
+                                      volatile uint8_t *data,
+                                      uint32_t data_len)
 {
     if (om_ospi->STATUS & OSPI_STATUS_BUSY_MASK) {
         return OM_ERROR_BUSY;
@@ -275,7 +275,7 @@ om_error_t drv_ospi_write_int(OM_OSPI_Type *om_ospi,
     return OM_ERROR_OK;
 }
 
-__OSPI_RAM_CODE void drv_ospi_store(void)
+__OSPI_CODE void drv_ospi_store(void)
 {
     OM_OSPI_Type *om_ospi = ospi_resource.reg;
     ospi_store_reg_t *store = &(ospi_env.store_reg);
@@ -298,7 +298,7 @@ __OSPI_RAM_CODE void drv_ospi_store(void)
     #endif
 }
 
-__OSPI_RAM_CODE void drv_ospi_restore(void)
+__OSPI_CODE void drv_ospi_restore(void)
 {
     OM_OSPI_Type *om_ospi = ospi_resource.reg;
     ospi_store_reg_t *store = &(ospi_env.store_reg);

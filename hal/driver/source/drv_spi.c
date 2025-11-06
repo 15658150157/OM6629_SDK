@@ -29,7 +29,18 @@
 #include "om_device.h"
 #include "om_driver.h"
 
-
+/*
+Note:
+When the SPI operates as a slave device, if the clock of the other host does not
+have an interval, since the SPI module needs at least 3 bus cycles to sample and
+latch data into the FIFO, it is necessary to ensure that the bus clock of the SPI
+module (i.e., the CPU clock) is at least 4 times the communication clock;
+otherwise, the host needs to increase the communication clock interval.
+When the bus clock of the SPI slave is twice the communication clock,
+the host needs to increase the communication clock interval time equivalent to
+bus cycles of the slave SPI. When it is three times, the host needs to
+increase the communication clock interval time by 1 bus cycle.
+*/
 /*******************************************************************************
  * MACROS
  */

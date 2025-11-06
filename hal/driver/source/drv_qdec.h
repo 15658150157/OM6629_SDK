@@ -160,6 +160,17 @@ typedef enum {
  */
 extern om_error_t drv_qdec_init(OM_QDEC_Type *om_qdec, const qdec_config_t *qdec_cfg);
 
+/**
+ *******************************************************************************
+ * @brief QDEC uninitialization
+ *
+ * @param[in] om_qdec        Pointer to QDEC
+ *
+ * @return errno
+ *******************************************************************************
+ */
+extern om_error_t drv_qdec_uninit(OM_QDEC_Type *om_qdec);
+
 #if (RTE_QDEC_REGISTER_CALLBACK)
 /**
  *******************************************************************************
@@ -214,9 +225,6 @@ __STATIC_FORCEINLINE void *drv_qdec_control(OM_QDEC_Type *om_qdec, qdec_control_
         case QDEC_CONTROL_STOP:
             // Stop the QDEC
             REGW(&om_qdec->STOP, MASK_1REG(QDEC_STOP_STOP, 1U));
-            // Disable QDEC
-            REGW(&om_qdec->ENABLE, MASK_1REG(QDEC_ENABLE_ENABLE, 0U));
-            while(REGR(&om_qdec->ENABLE, MASK_POS(QDEC_ENABLE_ENABLE)));
             break;
         case QDEC_CONTROL_SET_SAMPLEPER:
             REGW(&om_qdec->SAMPLEPER, MASK_1REG(QDEC_SAMPLEPER_SAMPLEPER, (uint32_t)argu));

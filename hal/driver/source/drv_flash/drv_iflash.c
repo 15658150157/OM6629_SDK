@@ -34,9 +34,9 @@
  * MACROS
  */
 #if RTE_FLASH0_XIP
-#define __IF_RAM_CODE               __RAM_CODES("DRV_IFLASH")
+#define __IFLASH_CODE               __RAM_CODE
 #else
-#define __IF_RAM_CODE
+#define __IFLASH_CODE
 #endif
 
 #define POWER_UP_RETRY_CNT          2
@@ -188,7 +188,7 @@ static const flash_resource_t flash0_resource = {
 /*******************************************************************************
  * LOCAL FUNCTIONS
  */
-__IF_RAM_CODE static void sf_hardware_init(const flash_config_t *config)
+__IFLASH_CODE static void sf_hardware_init(const flash_config_t *config)
 {
     // 1. Clock division must be even
     // 2. SPI mode 0/3
@@ -213,7 +213,7 @@ __IF_RAM_CODE static void sf_hardware_init(const flash_config_t *config)
     OM_CRITICAL_END();
 }
 
-__IF_RAM_CODE static void sf_trans_dma_start(cmd_frame_t *cmd_frame, uint8_t *data, uint32_t data_len)
+__IFLASH_CODE static void sf_trans_dma_start(cmd_frame_t *cmd_frame, uint8_t *data, uint32_t data_len)
 {
     OM_SF0->ADDR = (uint32_t)data;
     OM_SF0->CMD_DATA0 = cmd_frame->cmd_data[0];
@@ -229,7 +229,7 @@ __RAM_CODE static void sf_wait_trans_done(void)
     OM_SF0->RAW_INT_STATUS = SF_RAW_INT_STATUS_CMD_DONE_MASK;
 }
 
-__IF_RAM_CODE static void sf_trans_dma_start_wait_done(cmd_frame_t *cmd_frame,
+__IFLASH_CODE static void sf_trans_dma_start_wait_done(cmd_frame_t *cmd_frame,
                                                        volatile uint8_t *data,
                                                        uint32_t data_len)
 {
@@ -243,7 +243,7 @@ __IF_RAM_CODE static void sf_trans_dma_start_wait_done(cmd_frame_t *cmd_frame,
     #endif
 }
 
-__IF_RAM_CODE static void sf_read_opcode_set(uint8_t opcode)
+__IFLASH_CODE static void sf_read_opcode_set(uint8_t opcode)
 {
     // Update read frame config
     register_set(&(OM_SF0->OPCODE), MASK_1REG(SF_READ_OPCODE_CS0_OPCODE, opcode));
@@ -286,7 +286,7 @@ __RAM_CODE static void iflash_read_reg(cmd_frame_t *cmd_frame, uint8_t *data, ui
     #endif
 }
 
-__IF_RAM_CODE static om_error_t iflash_poll_wip(cmd_frame_t *frame, uint32_t timeout_ms)
+__IFLASH_CODE static om_error_t iflash_poll_wip(cmd_frame_t *frame, uint32_t timeout_ms)
 {
     uint8_t status = 0;
     uint32_t start_cycle;
@@ -301,7 +301,7 @@ __IF_RAM_CODE static om_error_t iflash_poll_wip(cmd_frame_t *frame, uint32_t tim
     return OM_ERROR_OK;
 }
 
-__IF_RAM_CODE static void iflash_write_enable(void)
+__IFLASH_CODE static void iflash_write_enable(void)
 {
     cmd_frame_t frame;
 
@@ -310,7 +310,7 @@ __IF_RAM_CODE static void iflash_write_enable(void)
 }
 
 // VSR: volatile status register
-__IF_RAM_CODE static void iflash_write_enable_for_vsr(void)
+__IFLASH_CODE static void iflash_write_enable_for_vsr(void)
 {
     cmd_frame_t frame;
 
@@ -319,7 +319,7 @@ __IF_RAM_CODE static void iflash_write_enable_for_vsr(void)
 }
 
 /* data length must be less than or equal to 8 */
-__IF_RAM_CODE static om_error_t iflash_write_reg(cmd_frame_t *write_reg_frame,
+__IFLASH_CODE static om_error_t iflash_write_reg(cmd_frame_t *write_reg_frame,
                                                  cmd_frame_t *wip_frame,
                                                  uint8_t *data,
                                                  uint32_t data_len,
@@ -436,7 +436,7 @@ static om_error_t iflash_erase_frame_get(flash_erase_t erase_type, uint32_t addr
     return OM_ERROR_OK;
 }
 
-__IF_RAM_CODE static void iflash_ext_cmd_send(ext_cmd_frame_t *frame, uint32_t addr, uint8_t *data, uint16_t data_len)
+__IFLASH_CODE static void iflash_ext_cmd_send(ext_cmd_frame_t *frame, uint32_t addr, uint8_t *data, uint16_t data_len)
 {
     OM_CRITICAL_BEGIN();
     OM_SF0->SW_CFG0 = frame->ext_cmd_cfg[0];
@@ -454,7 +454,7 @@ __IF_RAM_CODE static void iflash_ext_cmd_send(ext_cmd_frame_t *frame, uint32_t a
 }
 
 #if (RTE_FLASH0_XIP)
-__IF_RAM_CODE om_error_t iflash_suspend(cmd_frame_t *suspend_frame)
+__IFLASH_CODE om_error_t iflash_suspend(cmd_frame_t *suspend_frame)
 {
     iflash_env_t *env = &flash0_env;
     uint32_t wait_us;
@@ -474,7 +474,7 @@ __IF_RAM_CODE om_error_t iflash_suspend(cmd_frame_t *suspend_frame)
     return OM_ERROR_OK;
 }
 
-__IF_RAM_CODE om_error_t iflash_resume(cmd_frame_t *resume_frame)
+__IFLASH_CODE om_error_t iflash_resume(cmd_frame_t *resume_frame)
 {
     iflash_env_t *env = &flash0_env;
     uint32_t wait_us;
@@ -495,7 +495,7 @@ __IF_RAM_CODE om_error_t iflash_resume(cmd_frame_t *resume_frame)
     return OM_ERROR_OK;
 }
 
-__IF_RAM_CODE static om_error_t iflash_poll_wip_with_suspend(cmd_frame_t *wip_frame,
+__IFLASH_CODE static om_error_t iflash_poll_wip_with_suspend(cmd_frame_t *wip_frame,
                                                              cmd_frame_t *suspend_frame,
                                                              cmd_frame_t *resume_frame,
                                                              uint32_t irq_save,
@@ -529,7 +529,7 @@ __IF_RAM_CODE static om_error_t iflash_poll_wip_with_suspend(cmd_frame_t *wip_fr
     return OM_ERROR_OK;
 }
 
-__IF_RAM_CODE static om_error_t iflash_trans_start_with_suspend_wip(cmd_frame_t *trans_frame,
+__IFLASH_CODE static om_error_t iflash_trans_start_with_suspend_wip(cmd_frame_t *trans_frame,
                                                                     cmd_frame_t *wip_frame,
                                                                     cmd_frame_t *suspend_frame,
                                                                     cmd_frame_t *resume_frame,
@@ -547,7 +547,7 @@ __IF_RAM_CODE static om_error_t iflash_trans_start_with_suspend_wip(cmd_frame_t 
     return error;
 }
 
-__IF_RAM_CODE static om_error_t iflash_ext_cmd_send_with_suspend_wip(ext_cmd_frame_t *cmd_frame,
+__IFLASH_CODE static om_error_t iflash_ext_cmd_send_with_suspend_wip(ext_cmd_frame_t *cmd_frame,
                                                                      cmd_frame_t *wip_frame,
                                                                      cmd_frame_t *suspend_frame,
                                                                      cmd_frame_t *resume_frame,
@@ -568,7 +568,7 @@ __IF_RAM_CODE static om_error_t iflash_ext_cmd_send_with_suspend_wip(ext_cmd_fra
 
 #else
 
-__IF_RAM_CODE static om_error_t iflash_trans_start_with_wip(cmd_frame_t *trans_frame,
+__IFLASH_CODE static om_error_t iflash_trans_start_with_wip(cmd_frame_t *trans_frame,
                                                       cmd_frame_t *wip_frame,
                                                       uint8_t *data,
                                                       uint32_t data_len,
@@ -578,7 +578,7 @@ __IF_RAM_CODE static om_error_t iflash_trans_start_with_wip(cmd_frame_t *trans_f
     return iflash_poll_wip(wip_frame, timeout_ms);
 }
 
-__IF_RAM_CODE static om_error_t iflash_ext_cmd_send_with_wip(ext_cmd_frame_t *cmd_frame,
+__IFLASH_CODE static om_error_t iflash_ext_cmd_send_with_wip(ext_cmd_frame_t *cmd_frame,
                                                              cmd_frame_t *wip_frame,
                                                              uint32_t addr,
                                                              uint8_t *data,
@@ -620,7 +620,7 @@ __RAM_CODE static om_error_t iflash_deep_powerdown_exit(void)
     return OM_ERROR_OK;
 }
 
-__IF_RAM_CODE static om_error_t iflash_read_id(cmd_frame_t *read_id_frame, flash_id_t *id)
+__IFLASH_CODE static om_error_t iflash_read_id(cmd_frame_t *read_id_frame, flash_id_t *id)
 {
     flash_id_t id_read;
 
@@ -633,7 +633,7 @@ __IF_RAM_CODE static om_error_t iflash_read_id(cmd_frame_t *read_id_frame, flash
     return OM_ERROR_OK;
 }
 
-__IF_RAM_CODE static om_error_t iflash_detect(cmd_frame_t *read_id_frame)
+__IFLASH_CODE static om_error_t iflash_detect(cmd_frame_t *read_id_frame)
 {
     iflash_env_t *env = &flash0_env;
     flash_id_t retry_id;
@@ -684,8 +684,7 @@ __IF_RAM_CODE static om_error_t iflash_detect(cmd_frame_t *read_id_frame)
     return error;
 }
 
-__IF_RAM_CODE static om_error_t iflash_auto_delay_init(cmd_frame_t *read_id_frame,
-                                                       flash_config_t *config)
+__IFLASH_CODE static om_error_t iflash_auto_delay_init(cmd_frame_t *read_id_frame, flash_config_t *config)
 {
     flash_id_t id1, id2;
     int32_t delayi, delay1 = -1, delay2 = FLASH_DELAY_MAX;
@@ -968,7 +967,7 @@ INIT_EXIT:
     return error;
 }
 
-__IF_RAM_CODE om_error_t drv_iflash_delay_recalib(void)
+__IFLASH_CODE om_error_t drv_iflash_delay_recalib(void)
 {
     flash_config_t flash_cfg;
     iflash_env_t *env = &flash0_env;

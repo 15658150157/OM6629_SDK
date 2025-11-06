@@ -1,4 +1,4 @@
-python ..\..\tools\imgutils\win\gen_mbr.py
+..\..\tools\imgutils\win\gen_mbr.exe
 
 :: Create update firmware without signature
 ..\..\tools\imgutils\win\CreateFwTool.exe pack ^
