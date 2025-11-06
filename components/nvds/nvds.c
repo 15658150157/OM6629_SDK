@@ -21,7 +21,7 @@
  */
 
 /// Enable debug mode, it is only used for internal debug, default 0
-#define NVDS_DEBUG_MODE                 0
+#define NVDS_DEBUG_MODE                 1
 /// Size of one flash page
 //#define FLASH_PAGE_SIZE                 0x100
 /// Size of one flash sector
@@ -621,6 +621,7 @@ static void _nvds_update_used_size(void)
  **/
 #if NVDS_DEBUG_MODE
 // define print function
+#define NVDS_PRINTF_PORT             (void*)om_printf
 #define NVDS_PRINTF(fmt, args...)    om_printf(fmt, ##args)
 // function declaration
 static void _nvds_print_data(void *printf_dump_func, uint16_t data_len, uint8_t *data);
@@ -662,7 +663,7 @@ static uint32_t _nvds_browse_conf_sector(uint8_t tag, struct conf_tag_header *ta
             {
                 _nvds_read(cur_tag_addr + NVDS_CONF_TAG_HEADER_LENGTH, ((struct conf_tag_header *)&tag_hdr)->length, (uint8_t *)tag_com_data);
                 NVDS_PRINTF("Data(Hex):");
-                _nvds_print_data(printf, ((struct conf_tag_header *)&tag_hdr)->length, (uint8_t *)tag_com_data);
+                _nvds_print_data(NVDS_PRINTF_PORT, ((struct conf_tag_header *)&tag_hdr)->length, (uint8_t *)tag_com_data);
                 NVDS_PRINTF("\r\n");
             }
         }
@@ -716,7 +717,7 @@ static void _nvds_browse_bkup_sector(uint8_t *tag_map)
             {
                 _nvds_read(cur_tag_addr + NVDS_TAG_HEADER_LENGTH, ((struct nvds_tag_header *)&tag_hdr)->length, (uint8_t *)tag_com_data);
                 NVDS_PRINTF("Data(Hex):");
-                _nvds_print_data(printf, ((struct nvds_tag_header *)&tag_hdr)->length, (uint8_t *)tag_com_data);
+                _nvds_print_data(NVDS_PRINTF_PORT, ((struct nvds_tag_header *)&tag_hdr)->length, (uint8_t *)tag_com_data);
                 NVDS_PRINTF("\r\n");
             }
             continue;
@@ -806,7 +807,7 @@ static void _nvds_browse_nvds_sector(uint8_t *tag_map)
             {
                 _nvds_read(cur_tag_addr + NVDS_TAG_HEADER_LENGTH, ((struct nvds_tag_header *)&tag_hdr)->length, (uint8_t *)tag_com_data);
                 NVDS_PRINTF("Data(Hex):");
-                _nvds_print_data(printf, ((struct nvds_tag_header *)&tag_hdr)->length, (uint8_t *)tag_com_data);
+                _nvds_print_data(NVDS_PRINTF_PORT, ((struct nvds_tag_header *)&tag_hdr)->length, (uint8_t *)tag_com_data);
                 NVDS_PRINTF("\r\n");
             }
         }

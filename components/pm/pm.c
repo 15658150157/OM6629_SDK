@@ -44,7 +44,6 @@
 /*******************************************************************************
  * TYPEDEFS
  */
-
 typedef struct {
     bool                   sleep_enable;
     bool                   ultra_sleep_enable;
@@ -185,6 +184,13 @@ static void pm_sleep_enter_common_sleep(pm_status_t power_status)
     pm_sleep_notify(PM_SLEEP_STORE, power_status);
     drv_pmu_sleep_enter((power_status == PM_STATUS_DEEP_SLEEP) ? 1U : 0U, /*lint -e747 reboot*/false);
 
+    /* fixed execute NMI ISR from wakeup */
+    #if (RTE_WDT)
+    uint32_t wdt_status;
+    wdt_status = OM_PMU->WDT_STATUS;
+    OM_PMU->WDT_STATUS &= ~PMU_WDT_STATUS_WDT_INT_NMI_EN_MASK;
+    #endif
+
     pm_system_enter_sleep();
 
     // modified default LCD clock disable from sleep
@@ -199,6 +205,10 @@ static void pm_sleep_enter_common_sleep(pm_status_t power_status)
 
     drv_pmu_sleep_leave(PMU_SLEEP_LEAVE_STEP3_FINISH);
     pm_sleep_notify(PM_SLEEP_LEAVE_BOTTOM_HALF, power_status);
+
+    #if (RTE_WDT)
+    OM_PMU->WDT_STATUS = wdt_status;
+    #endif
 }
 
 
@@ -262,15 +272,23 @@ pm_status_t pm_sleep_checker_check(void)
     }
 
     // check PMU_TIMER
-    #if (RTE_PMU_TIMER)
     do {
         uint32_t min_left_time = PMU_TIMER_MAX_TICK;
+        #if (RTE_PMU_TIMER)
         for (pmu_timer_trig_t i=PMU_TIMER_TRIG_VAL0; i<=PMU_TIMER_TRIG_VAL1; i++) {
             uint32_t left_time = drv_pmu_timer_left_time_get(i);
             if (min_left_time > left_time) {
                 min_left_time = left_time;
             }
         }
+        #endif
+
+        #if (RTE_WDT)
+        uint32_t left_time = drv_wdt_get_left();
+        if (min_left_time > left_time) {
+            min_left_time = left_time;
+        }
+        #endif
 
         if (min_left_time < pm_env.min_sleep_time) {
             return PM_STATUS_IDLE;
@@ -280,7 +298,6 @@ pm_status_t pm_sleep_checker_check(void)
             status = PM_STATUS_SLEEP;
         }
     } while(0);
-    #endif
 
     for (int i = 0; i < sizeof(pm_env.checker_callback)/sizeof(pm_env.checker_callback[0]); ++i) {
         if (pm_env.checker_callback[i] != NULL) {

@@ -130,6 +130,35 @@ om_error_t drv_qdec_init(OM_QDEC_Type *om_qdec, const qdec_config_t *qdec_cfg)
     return OM_ERROR_OK;
 }
 
+/**
+ *******************************************************************************
+ * @brief QDEC uninitialization
+ *
+ * @param[in] om_qdec        Pointer to QDEC
+ *
+ * @return status:
+ *    - OM_ERROR_OK:         Nothing more to do
+ *    - others:              No
+ *******************************************************************************
+ */
+om_error_t drv_qdec_uninit(OM_QDEC_Type *om_qdec)
+{
+    const drv_resource_t *resource;
+
+    resource = qdec_get_resource(om_qdec);
+    if (resource == NULL) {
+        return OM_ERROR_PARAMETER;
+    }
+
+    // Disable QDEC
+    REGW(&om_qdec->ENABLE, MASK_1REG(QDEC_ENABLE_ENABLE, 0U));
+    while(REGR(&om_qdec->ENABLE, MASK_POS(QDEC_ENABLE_ENABLE)));
+
+    NVIC_DisableIRQ(QDEC_IRQn);
+
+    return OM_ERROR_OK;
+}
+
 #if (RTE_QDEC_REGISTER_CALLBACK)
 /**
  *******************************************************************************

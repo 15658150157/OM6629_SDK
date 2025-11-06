@@ -1,6 +1,31 @@
 SDK Release Notes:
 
 --------------------------------------------------------------------------------
+20251105
+
+Version:
+    1.1.2214
+Changes:
+    1. 修复mbr生成脚本中flash参数的检查问题
+    2. 修改flash驱动中函数属性为__RAM_CODE
+    3. 修复om_log长度溢出的问题
+    4. 修改drv_gpio_init中config长度的检查
+    5. 增加fault handler处理之前增加fault_handler_c_pre弱函数调用
+    6. 增加qdec_uninit接口
+    7. 修改makefile的帮助信息
+    8. gen_mbr的生成由python工具改为exe工具
+    9. 修复睡眠时wdt没有产生回调而直接复位的问题
+    10. 修复OM24G是否空闲的问题
+    11. 修复keil环境下flash算法全片擦除的问题
+    12. 解决timer定时超出最大计数导致的溢出问题
+    13. 解决GATT request挂起时ATT_HANDLE_VALUE_CFM处理的问题
+    14. 增加SDK_ID到中断向量表中
+    15. 增加LCD 3WM1_PARAL模式
+    16. 修改WDT在初始化时自动使能WDT和NMI中断
+    17. 修改NVDS组件和ble例子中直接调用printf的问题
+
+
+--------------------------------------------------------------------------------
 20250926
 
 Version:

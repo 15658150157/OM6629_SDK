@@ -86,7 +86,7 @@ static void app_adv_event_cb(uint16_t evt_id, const omble_evt_t *evt)
         log_debug("OB_GAP_EVT_ADV_STATE_CHANGED(%d), reason:%d\n", evt->gap.adv_state_changed.adv_idx,
                evt->gap.adv_state_changed.state);
     } else if (evt_id == OB_GAP_EVT_SCAN_REQ_RECV) {
-        printf("OB_GAP_EVT_SCAN_REQ_RECV %d:  %d %02X:%02X:%02X:%02X:%02X:%02X\n",
+        log_debug("OB_GAP_EVT_SCAN_REQ_RECV %d:  %d %02X:%02X:%02X:%02X:%02X:%02X\n",
                evt->gap.scan_req_recv.adv_idx,
                evt->gap.scan_req_recv.addr.addr_type,
                evt->gap.scan_req_recv.addr.addr[0],

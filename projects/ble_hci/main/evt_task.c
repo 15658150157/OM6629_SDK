@@ -34,7 +34,8 @@
 
 #define EVT_TYPE_HCI_H4  ((evt_type_t)(EVT_TYPE_USR_FIRST+0))
 
-//#define CONFIG_DTM_USE_2WIRE_MODE
+// Used for 2 wire mode instead of hci
+// #define DTM_USE_2WIRE_MODE
 
 #define EVENT_SYSTEM_RESERVE_MASK   0x00FF
 
@@ -103,7 +104,7 @@ static void hci_h4_uart_rx_evt_handler(void)
         if (length == 0)
             break;
 
-#ifdef CONFIG_DTM_USE_2WIRE_MODE
+#ifdef DTM_USE_2WIRE_MODE
         obc_2wire_read_handler(buffer, length);
 #else
         obc_hci_h4_receive_handler(buffer, length);
@@ -121,7 +122,7 @@ static void ble_controller_init(void)
 
     obc_hci_h4_transmit_callback_set(hci_h4_transmit_handler);
 
-#ifdef CONFIG_DTM_USE_2WIRE_MODE
+#ifdef DTM_USE_2WIRE_MODE
     obc_2wire_init(hci_h4_transmit_handler);
 #endif
 }

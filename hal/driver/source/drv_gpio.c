@@ -119,8 +119,11 @@ void drv_gpio_init(const gpio_config_t *gpio_config, uint32_t gpio_config_num)
     OM_GPIO_Type         *om_gpio;
     gpio_env_t           *env;
 
+    if (gpio_config_num == 0U) {
+        return;
+    }
     OM_ASSERT(gpio_config);
-    OM_ASSERT(gpio_config->gpio_idx < 39U);
+    OM_ASSERT(gpio_config->gpio_idx < CAP_DIG_PAD_NUM);
     OM_ASSERT(gpio_config->dir <= GPIO_DIR_INPUT);
     OM_ASSERT(gpio_config->trig_type <= GPIO_TRIG_NONE);
 

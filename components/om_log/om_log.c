@@ -169,6 +169,8 @@ void om_log(om_log_lvl_t level, const char* format, ...)
     int res = om_vsnprintf((char *)(line_buf + log_len), CONFIG_OM_LOG_LINE_MAX - log_len, format, va);
     if ((log_len + res <= CONFIG_OM_LOG_LINE_MAX) && (res > -1)) {
         log_len += res;
+    } else {
+        log_len = CONFIG_OM_LOG_LINE_MAX;
     }
     #endif
     // do log output

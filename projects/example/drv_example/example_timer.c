@@ -191,7 +191,7 @@ static void tim_pwm_input_callback(void *om_tim, drv_event_t event, void *buff, 
  */
 /**
  *******************************************************************************
- * @brief example of using timer as counter, toggle the pin level every 10ms
+ * @brief example of using timer as counter, toggle the pin level every 500ms
  *
  *******************************************************************************
  */
@@ -206,14 +206,15 @@ void example_tim_count(void)
     drv_pin_init(pin_cfg, sizeof(pin_cfg) / sizeof(pin_cfg[0]));
     drv_gpio_init(gpio_cfg, sizeof(gpio_cfg) / sizeof(gpio_cfg[0]));
 
-    drv_tim_init(OM_TIM0);
-    drv_tim_register_isr_callback(OM_TIM0, tim_count_callback);
+    drv_tim_init(OM_TIM1);
+    drv_tim_register_isr_callback(OM_TIM1, tim_count_callback);
 
     tim_gp_config_t tim_cfg = {
-        .period_us = 10 * 1000
+        .period_us = 0xf424,
+        .delay_period = 7,
     };
 
-    drv_tim_gp_start(OM_TIM0, &tim_cfg);
+    drv_tim_gp_start(OM_TIM1, &tim_cfg);
 
     /* if you want to stop the timer, just use drv_tim_gp_stop(OM_TIMx) */
 }

@@ -62,18 +62,6 @@ static wdt_env_t wdt_env = {
 void drv_wdt_register_isr_callback(drv_isr_callback_t isr_cb)
 {
     wdt_env.isr_cb = isr_cb;
-    if (isr_cb != NULL) {
-        // Enable WDT cpu en int
-        REGW1(&OM_PMU->WDT_STATUS, PMU_WDT_STATUS_WDT_INT_CPU_EN_MASK);
-
-        // Enable WDT NVIC int
-        NVIC_ClearPendingIRQ(WDT_IRQn);
-        NVIC_SetPriority(WDT_IRQn, RTE_WDT_IRQ_PRIORITY);
-        NVIC_EnableIRQ(WDT_IRQn);
-    } else {
-        REGW0(&OM_PMU->WDT_STATUS, PMU_WDT_STATUS_WDT_INT_CPU_EN_MASK);
-        NVIC_DisableIRQ(WDT_IRQn);
-    }
 }
 #endif
 
@@ -104,19 +92,43 @@ void drv_wdt_keep_alive(void)
  **/
 void drv_wdt_enable(uint32_t timeout_ms)
 {
-    REGW0(&OM_PMU->WDT_STATUS, PMU_WDT_STATUS_WDT_INT_CPU_EN_MASK);
+    OM_PMU->WDT_STATUS |= PMU_WDT_STATUS_WDT_FLAG_CLR_MASK;
     if (timeout_ms) {
-        drv_wdt_control(WDT_CONTROL_ENABLE_NMI_INT, (void *)1U);
+        // Enable WDT cpu en int and NMI int
+        register_set(&OM_PMU->WDT_STATUS, MASK_2REG(PMU_WDT_STATUS_WDT_INT_CPU_EN, 1, PMU_WDT_STATUS_WDT_INT_NMI_EN, 1));
+        // Enable WDT NVIC int
+        NVIC_ClearPendingIRQ(WDT_IRQn);
+        NVIC_SetPriority(WDT_IRQn, RTE_WDT_IRQ_PRIORITY);
+        NVIC_EnableIRQ(WDT_IRQn);
+        //Initialize the watchdog counter
         while(OM_PMU->WDT_STATUS & PMU_WDT_STATUS_LD_WDT_KR_STATUS_MASK);
         OM_PMU->WDT_RLR_CFG = timeout_ms * 128 / 1000;
         OM_PMU->WDT_KR_CFG = 0x5555;
         while(OM_PMU->WDT_STATUS & PMU_WDT_STATUS_LD_WDT_KR_STATUS_MASK);
         OM_PMU->WDT_KR_CFG = 0xAAAA;
+    } else {
+        // Disable WDT cpu en int and NMI int
+        register_set(&OM_PMU->WDT_STATUS, MASK_2REG(PMU_WDT_STATUS_WDT_INT_CPU_EN, 0, PMU_WDT_STATUS_WDT_INT_NMI_EN, 0));
+        // Disable WDT NVIC int
+        NVIC_DisableIRQ(WDT_IRQn);
+    }
+}
+
+__RAM_CODES("PM") uint32_t drv_wdt_get_left(void)
+{
+    uint32_t left_count;
+    while(OM_PMU->WDT_STATUS & PMU_WDT_STATUS_LD_WDT_KR_STATUS_MASK);
+    if (register_get(&OM_PMU->WDT_KR_CFG, MASK_POS(PMU_WDT_KR_CFG_WDT_KR)) != 0x6666) {
+        left_count = register_get(&OM_PMU->WDT_STATUS, MASK_POS(PMU_WDT_STATUS_WDT_TIMER));
+        return (left_count * 1000 / 128);
+    } else {
+        return 0xFFFFFFFF;
     }
 }
 
 void drv_wdt_isr(void)
 {
+    OM_PMU->WDT_STATUS |= PMU_WDT_STATUS_WDT_FLAG_CLR_MASK;
     drv_wdt_isr_callback();
 }
 

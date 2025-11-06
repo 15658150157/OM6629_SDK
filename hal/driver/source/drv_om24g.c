@@ -592,13 +592,13 @@ void drv_om24g_init(const om24g_config_t *cfg)
     REGW(&OM_DAIF->MAIN_ST_CFG1, MASK_1REG(DAIF_TX_WAIT, 0));
 #if PLL_CONTIMUE_OPEN
     REGW(&OM_DAIF->MAIN_ST_CFG2, MASK_1REG(DAIF_RX_PLL_WAIT, 0xA0));  // PLL calib = 10us
-    #if 1 //Single send or single receive mode
+    #if 0 //Single send or single receive mode
     OM_DAIF->MAIN_ST_CFG0 = 0;
     REGW(&OM_DAIF->MAIN_ST_CFG1, MASK_1REG(DAIF_RXLDO_WAIT, 0x190));  // LDO calib = 25us
     DRV_DELAY_US(80);
     REGW(&OM_24G->SETUP_VALUE, MASK_3REG(OM24G_RX_SETUP_VALUE, 0x28, OM24G_TX_SETUP_VALUE, 0x1A, OM24G_RX_TM_CNT, 0xFF));
     #else //Receive and transmit conversion in ACK mode
-     OM_DAIF->MAIN_ST_CFG0 = 0X00a00140;
+    REGW(&OM_DAIF->MAIN_ST_CFG0, MASK_2REG(DAIF_TXLDO_WAIT, 0x140, DAIF_TX_PLL_WAIT, 0xA0));
     DRV_DELAY_US(80);
     REGW(&OM_24G->SETUP_VALUE, MASK_3REG(OM24G_RX_SETUP_VALUE, 0x3A, OM24G_TX_SETUP_VALUE, 0x33, OM24G_RX_TM_CNT, 0xFF));
     #endif
@@ -814,9 +814,7 @@ void *drv_om24g_control(om24g_control_t control, void *argu)
         case OM24G_CONTROL_RESET:
             {
                 DRV_RCC_RESET(RCC_CLK_2P4);
-                if((uint32_t)argu) {
-                    DRV_RCC_RESET(RCC_CLK_PHY);
-                }
+                DRV_RCC_RESET(RCC_CLK_PHY);
                 REGW1(&OM_24G->PKTCTRL0, OM24G_PKTCTRL0_MAC_SEL_MASK);
             }
             break;
@@ -844,7 +842,7 @@ bool drv_om24g_rx_idle(void)
 {
     bool rx_status = false;
 
-    if(!(OM_PHY->FYSNC_DET_INFO & PHY_FYSNC_DET_INFO_FYSNC_CFO_EST_MASK)) {
+    if(!(OM_24G->STATE & OM24G_SYNC_DET_MASK)) {
         rx_status = true;
     }
 
